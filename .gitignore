@@ -1,0 +1,17 @@
+# Ignore Visual Studio Code settings
+.vscode
+
+# Ignore .cosine directory
+.cosine
+
+# Ignore App_Data directory
+App_Data
+
+# Ignore backup files
+backups
+
+# Ignore Excel Classes
+Classes
+
+# Ignore vendor from composer
+vendor

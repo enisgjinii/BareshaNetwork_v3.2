@@ -1,0 +1,18 @@
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteBase /crm/
+
+Options +FollowSymLinks 
+
+RewriteCond %{HTTP_HOST} ^mywebsite.com [NC] 
+
+RewriteRule ^(.*)$ http://www.mywebsite.com/$1 [L,R=301] 
+
+RewriteRule ^index\.php$ - [L]
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d 
+RewriteRule . /index.php [L]
+
+RewriteRule ^index.php/(.*)$ [L]
+</IfModule>

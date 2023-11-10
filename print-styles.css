@@ -1,0 +1,72 @@
+ /* Default table styles */
+ table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+table, th, td {
+    border: 1px solid #ddd;
+}
+
+th, td {
+    padding: 10px;
+    text-align: left;
+}
+
+/* Responsive table styles for small screens */
+@media screen and (max-width: 600px) {
+    table {
+        font-size: 12px; /* Decrease font size for small screens */
+    }
+
+    th, td {
+        padding: 6px;
+        text-align: center;
+        white-space: nowrap; /* Prevent text from wrapping */
+        overflow: hidden; /* Hide overflowed content */
+        text-overflow: ellipsis; /* Add ellipsis for long text */
+    }
+}
+
+/* Responsive table styles for medium-sized screens */
+@media screen and (min-width: 601px) and (max-width: 1024px) {
+    table {
+        font-size: 14px; /* Slightly larger font for medium-sized screens */
+    }
+}
+
+/* Responsive table styles for larger screens */
+@media screen and (min-width: 1025px) {
+    table {
+        font-size: 16px; /* Larger font for larger screens */
+    }
+
+    th, td {
+        padding: 12px;
+    }
+}
+
+/* Highlight table header on hover for better readability */
+table th:hover {
+    background-color: #f5f5f5;
+}
+
+/* Add zebra-striping to the table rows for better visual separation */
+table tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+/* Center-align the table caption */
+caption {
+    text-align: center;
+    font-weight: bold;
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+/* Style table header cells */
+th {
+    background-color: #f8f8f8;
+    font-weight: bold;
+}
