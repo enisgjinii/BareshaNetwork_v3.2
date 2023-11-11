@@ -26,7 +26,7 @@ try {
   exit;
 }
 
-if (empty($user_info['email']) || strpos($user_info['email'], '@bareshamusic.com') === false) {
+if (empty($user_info['email'])) {
   // If the user doesn't have a valid email or is not from the allowed domain, deny access.
   header('Location: denied.php');
   exit;

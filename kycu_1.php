@@ -36,11 +36,11 @@ if (isset($_GET['code'])) :
 
     $email = trim($user_info['email']);
 
-    if (strpos($email, '@bareshamusic.com') === false) {
-        // If the email address is not from the allowed domain, deny access and pass the email as a query parameter.
-        header('Location: denied.php?email=' . urlencode($email)); // Include the email in the URL.
-        exit;
-    }
+    // if (strpos($email, '@bareshamusic.com') === false) {
+    //     // If the email address is not from the allowed domain, deny access and pass the email as a query parameter.
+    //     header('Location: denied.php?email=' . urlencode($email)); // Include the email in the URL.
+    //     exit;
+    // }
 
 
     $google_id = trim($user_info['id']);
