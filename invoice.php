@@ -51,7 +51,7 @@
                             <select class="form-control rounded-5 shadow-sm py-3" id="customer_id" name="customer_id" required>
                               <option value="">Zgjidhni klientin</option>
                               <?php
-                              
+
                               require_once "conn-d.php";
 
                               $sql = "SELECT id,emri, perqindja FROM klientet ORDER BY id DESC";
@@ -146,7 +146,7 @@
 
 
 
-        
+
         </div>
       </div>
     </div>
@@ -252,11 +252,20 @@
           "data": "total_payment_amount"
         },
         {
-          "data": "latest_payment_date"
-        }
+          "data": "payment_date"
+        } // Assuming 'latest_payment_date' is now 'payment_date' from the server-side API
       ],
       "order": [
-        [3, "desc"] // Default ordering by invoice_id in descending order
+        [1, "desc"] // Default ordering by invoice_id in descending order
+      ],
+      "columnDefs": [
+        // Format the date column as you need
+        {
+          "targets": 3, // Assuming 'payment_date' is at index 3 in the columns array
+          "render": function(data, type, row) {
+            return moment(data).format('YYYY-MM-DD'); // Format the date using Moment.js or any other library you prefer
+          }
+        }
       ]
     });
 
