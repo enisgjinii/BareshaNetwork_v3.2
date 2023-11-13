@@ -5,20 +5,12 @@
       <a class="navbar-brand brand-logo-mini" href="index.php"><img src="images/brand-icon.png" alt="logo" style="object-fit:contain;width:min-content;" /></a>
       <button class="navbar-toggler navbar-toggler align-self-center" type="button" data-mdb-toggle="minimize" data-mdb-placement="bottom" title="Mbylle menun duke shtypur tastin m">
         <span class="mdi mdi-sort-variant"></span>
-
       </button>
-
     </div>
-
   </div>
   <div class="navbar-menu-wrapper d-flex align-items-center justify-content-end">
-
     <span class="badge rounded-pill text-bg-primary" id="token-countdown">Hover over me</span>
-    <br>
-    <span class="text-muted" style="font-size: 12px;">Version v3.2</span>
     <span class="badge rounded-pill text-bg-danger text-white ms-2" id="time_of_token_expiry">This is shown on hover</span>
-
-
     <ul class="navbar-nav mr-lg-4 w-100">
       <li class="nav-item nav-search d-none d-lg-block w-100">
         <div class="toggle-button shadow">
@@ -37,14 +29,8 @@
           <img src="<?php echo $user_info['picture']; ?>" alt="profile" width="25px" style="border-radius:50%;margin-right:15px" />
           <?php echo $user_info['givenName'] . ' ' . $user_info['familyName']; ?>
         </button>
-        
+
         <ul class="dropdown-menu p-2">
-          <!-- <li>
-            <a class="dropdown-item rounded-5" style="border:1px solid lightgrey;" href="perditsoProfilin.php">
-              <i class="fi fi-rr-user-pen me-2"></i>
-              P&euml;rditso
-            </a>
-          </li> -->
           <li>
             <a class="dropdown-item rounded-5 mt-1" style="border:1px solid lightgrey;" href="logout.php">
               <i class="fi fi-rr-exit me-2"></i>
@@ -60,51 +46,6 @@
   </div>
 </nav>
 
-<script>
-  function createBackup() {
-    // Disable the backup button
-    const backupButton = document.getElementById('backupButton');
-    backupButton.disabled = true;
-
-    // Send a request to the backup PHP script
-    fetch('create_backup.php')
-      .then(response => response.text())
-      .then(result => {
-        // Check if the response indicates an existing backup
-        if (result === 'Kopja rezerv&euml; ekziston tashm&euml; p&euml;r sot.') {
-          // Display a different SweetAlert 2 alert for existing backup
-          Swal.fire({
-            icon: 'warning',
-            title: 'Kopja rezerv&euml; ekziston tashm&euml; p&euml;r sot.',
-            text: 'Kopja rezerv&euml; ekziston tashm&euml; p&euml;r sot.',
-            confirmButtonText: 'OK'
-          });
-        } else {
-          // Display the default SweetAlert 2 alert for successful backup creation
-          Swal.fire({
-            icon: 'success',
-            title: 'Ësht&euml; krijuar nj&euml; kopje rezerv&euml;',
-            text: 'Kopja rezerv&euml; u krijua me sukses.',
-            confirmButtonText: 'OK'
-          }).then(() => {
-            // Refresh the page after 1 second
-            setTimeout(() => {
-              location.reload();
-            }, 1000);
-          });
-        }
-      })
-      .catch(error => {
-        console.error(error);
-      })
-      .finally(() => {
-        // Enable the backup button after 5 seconds
-        setTimeout(() => {
-          backupButton.disabled = false;
-        }, 5000);
-      });
-  }
-</script>
 <script>
   function updateTokenCountdown() {
     const countdownElement = document.getElementById('token-countdown');
