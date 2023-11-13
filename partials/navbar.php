@@ -14,6 +14,8 @@
   <div class="navbar-menu-wrapper d-flex align-items-center justify-content-end">
 
     <span class="badge rounded-pill text-bg-primary" id="token-countdown">Hover over me</span>
+    <br>
+    <span class="text-muted" style="font-size: 12px;">Version v3.2</span>
     <span class="badge rounded-pill text-bg-danger text-white ms-2" id="time_of_token_expiry">This is shown on hover</span>
 
 
@@ -34,8 +36,8 @@
         <button class="btn btn-light btn-sm shadow-sm rounded-3 dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border:1px solid lightgrey;">
           <img src="<?php echo $user_info['picture']; ?>" alt="profile" width="25px" style="border-radius:50%;margin-right:15px" />
           <?php echo $user_info['givenName'] . ' ' . $user_info['familyName']; ?>
-
         </button>
+        
         <ul class="dropdown-menu p-2">
           <!-- <li>
             <a class="dropdown-item rounded-5" style="border:1px solid lightgrey;" href="perditsoProfilin.php">

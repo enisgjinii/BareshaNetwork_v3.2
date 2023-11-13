@@ -1,17 +1,16 @@
 <?php
-ob_start();
 include 'partials/header.php'; ?>
 
 <?php
 
 if (isset($_POST['ruaj'])) {
-    $emri = mysqli_real_escape_string($conn, $_POST['emri']);
-    $merreperemer = $conn->query("SELECT * FROM klientet WHERE id='$emri'");
-    $merreperemer2 = mysqli_fetch_array($merreperemer);
-    $emrifull = $merreperemer2['emri'];
-    $data = mysqli_real_escape_string($conn, $_POST['data']);
-    $fatura = mysqli_real_escape_string($conn, $_POST['fatura']);
-    $gjendjaFatures = mysqli_real_escape_string($conn, $_POST['gjendjaFatures']);
+    // Validate and sanitize input
+    $emri = isset($_POST['emri']) ? intval($_POST['emri']) : 0;
+    $data = isset($_POST['data']) ? mysqli_real_escape_string($conn, $_POST['data']) : '';
+    $fatura = isset($_POST['fatura']) ? mysqli_real_escape_string($conn, $_POST['fatura']) : '';
+    $gjendjaFatures = isset($_POST['gjendjaFatures']) ? mysqli_real_escape_string($conn, $_POST['gjendjaFatures']) : '';
+
+    // Validate and sanitize the array of links
     $linkuIKengesArray = array();
     for ($i = 1; $i <= 5; $i++) {
         $fieldName = "linkuIKenges_" . $i;
@@ -20,26 +19,57 @@ if (isset($_POST['ruaj'])) {
         }
     }
     $kenga = implode(",", $linkuIKengesArray);
-    $emri_i_kengetarit = mysqli_real_escape_string($conn, $_POST['emri_i_kengetarit']);
-    if ($conn->query("INSERT INTO fatura (emri, emrifull, data, fatura, gjendja_e_fatures) VALUES ('$emri', '$emrifull', '$data','$fatura','$gjendjaFatures')")) {
+
+    $emri_i_kengetarit = isset($_POST['emri_i_kengetarit']) ? mysqli_real_escape_string($conn, $_POST['emri_i_kengetarit']) : '';
+
+    // Use prepared statements to prevent SQL injection
+    $stmt = $conn->prepare("INSERT INTO fatura (emri, emrifull, data, fatura, gjendja_e_fatures) VALUES (?, ?, ?, ?, ?)");
+
+    // Bind parameters
+    $stmt->bind_param("issss", $emri, $emrifull, $data, $fatura, $gjendjaFatures);
+
+    // Execute the statement
+    if ($stmt->execute()) {
+        // Redirect upon successful insertion
         header("Location: shitje.php?fatura=$fatura");
         exit;
     } else {
-        echo "Gabim: " . $conn->error;
+        // Handle errors
+        echo "Gabim: " . $stmt->error;
     }
+
+    // Close the statement
+    $stmt->close();
 }
+
 
 
 if (isset($_GET['fshij'])) {
     $fshijid = $_GET['fshij'];
-    $mfsh4 = $conn->query("SELECT * FROM fatura WHERE fatura='$fshijid'");
-    $mfsh2 = mysqli_fetch_array($mfsh4);
-    $emr = $mfsh2['emri'];
-    $fatura2 = $mfsh2['fatura'];
-    $data2 = $mfsh2['data'];
-    if ($conn->query("INSERT INTO draft (emri, data, fatura) VALUES ('$emr', '$data2','$fatura2')")) {
-        $conn->query("DELETE FROM fatura WHERE fatura='$fshijid'");
-        $shdraft = $conn->query("SELECT * FROM shitje WHERE fatura='$fshijid'");
+
+    // Use prepared statement to prevent SQL injection
+    $stmt = $conn->prepare("SELECT emri, fatura, data FROM fatura WHERE fatura = ?");
+    $stmt->bind_param("s", $fshijid);
+    $stmt->execute();
+    $stmt->store_result();
+
+    // Bind result variables
+    $stmt->bind_result($emr, $fatura2, $data2);
+
+    // Fetch the result
+    $stmt->fetch();
+
+    // Close the statement
+    $stmt->close();
+
+    if ($conn->query("INSERT INTO draft (emri, data, fatura) VALUES (?, ?, ?)")) {
+        $stmt2 = $conn->prepare("DELETE FROM fatura WHERE fatura = ?");
+        $stmt2->bind_param("s", $fshijid);
+        $stmt2->execute();
+        $stmt2->close();
+
+        $shdraft = $conn->query("SELECT * FROM shitje WHERE fatura = '$fshijid'");
+
         while ($draft = mysqli_fetch_array($shdraft)) {
             $shemertimi = $draft['emertimi'];
             $shqmimi = $draft['qmimi'];
@@ -49,14 +79,20 @@ if (isset($_GET['fshij'])) {
             $shtotali = $draft['totali'];
             $shfatura = $draft['fatura'];
             $shdata = $draft['data'];
-            if ($conn->query("INSERT INTO shitjedraft (emertimi, qmimi, perqindja, klientit, mbetja, totali, fatura, data) VALUES ('$shemertimi', '$shqmimi', '$shperqindja', '$shklienti', '$shmbetja', '$shtotali', '$shfatura', '$shdata')")) {
-                $conn->query("DELETE FROM shitje WHERE fatura='$fshijid'");
-            }
+
+            // Use prepared statement to prevent SQL injection
+            $stmt3 = $conn->prepare("INSERT INTO shitjedraft (emertimi, qmimi, perqindja, klientit, mbetja, totali, fatura, data) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt3->bind_param("ssssssss", $shemertimi, $shqmimi, $shperqindja, $shklienti, $shmbetja, $shtotali, $shfatura, $shdata);
+            $stmt3->execute();
+            $stmt3->close();
+
+            $conn->query("DELETE FROM shitje WHERE fatura='$fshijid'");
         }
     } else {
         echo '<script>alert("' . $conn->error . '");</script>';
     }
 }
+
 ?>
 
 
@@ -64,8 +100,17 @@ if (isset($_GET['fshij'])) {
     <div class="content-wrapper">
         <div class="container-fluid">
             <div class="container">
-                <h2>Faturat</h2>
-                <br>
+                <nav style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='currentColor'/%3E%3C/svg%3E&#34;);" aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item "><a class="text-reset" style="text-decoration: none;">Financat</a>
+                        </li>
+                        <li class="breadcrumb-item active" aria-current="page"><a href="faturat.php" class="text-reset" style="text-decoration: none;">
+                                Pagesat Youtube ( Version i vjetër )
+                                <span class="badge bg-warning text-dark rounded-5">v3.2 Punon</span>
+                                <span class="badge bg-danger text-white rounded-5">v3.3 Zhvlersohet</span>
+
+                            </a></li>
+                </nav>
                 <div id="alert_message"></div>
                 <div class="row mb-4">
                     <div>
@@ -75,8 +120,6 @@ if (isset($_GET['fshij'])) {
                             re</button>
                     </div>
                 </div>
-
-
                 <?php
                 $query = "SELECT
                 f.*,
@@ -180,248 +223,28 @@ if (isset($_GET['fshij'])) {
                         </table>
                     </div>
                 <?php endif; ?>
-
-
             </div>
-
-        </div>
-    </div>
-</div>
-<div class="modal fade" id="pagesmodal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <div class="flex">
-                    <h5 class="modal-title" id="exampleModalLabel">Shto Pages&euml;</h5>
-                    <p class="text-muted" style="font-size: 12px;">Plot&euml;soni formularin m&euml; posht&euml; p&euml;r t&euml; shtuar nj&euml;
-                        pages&euml;.</p>
-
-                </div>
-                <button type="button" class="btn-close pe-5" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-
-            <div class="modal-body">
-                <form id="user_form">
-                    <div class="row">
-                        <div class="col">
-                            <label class="form-label">Fatura</label>
-                            <input type="text" name="id_of_fatura" id="id_of_fatura" class="form-control input-custom-css" placeholder="Sh&euml;no numrin e fatur&euml;s">
-                        </div>
-                        <div class="col">
-                            <label class="form-label">M&euml;nyra e pages&euml;s</label>
-                            <select name="menyra" id="menyra" class="form-select input-custom-css" style="padding-top: 10px;padding-bottom: 10px;">
-                                <option value="BANK">BANK</option>
-                                <option value="CASH">CASH</option>
-                                <option value="PayPal">PayPal</option>
-                                <option value="Ria">Ria</option>
-                                <option value="MoneyGram">Money Gram</option>
-                                <option value="WesternUnion">Western Union</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="row my-2">
-                        <div class="col">
-                            <label class="form-label">Shuma</label>
-                            <input type="text" name="shuma" id="shuma" class="form-control input-custom-css" placeholder="0" aria-label="Shuma">
-
-                        </div>
-                        <div class="col">
-                            <label class="form-label">Data</label>
-                            <input type="text" name="data" id="data" value="<?php echo date("Y-m-d"); ?>" class="form-control input-custom-css">
-                        </div>
-                    </div>
-
-                    <div class="my-1">
-                        <label class="form-label">P&euml;rshkrimi</label>
-                        <textarea class="form-control shadow-sm rounded-5" name="pershkrimi" id="pershkrimi"></textarea>
-                    </div>
-
-
-
-                    <input type="checkbox" name="kategorizimi[]" value="null" style="display:none;">
-                    <table class="table table-bordered mt-3">
-                        <thead class="bg-light">
-                            <tr>
-                                <th>Emri i kategoris&euml;</th>
-                                <th>Zgjedhe</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>Biznes</td>
-                                <td><input type="checkbox" name="kategorizimi[]" value="Biznes"></td>
-                            </tr>
-                            <tr>
-                                <td>Personal</td>
-                                <td><input type="checkbox" name="kategorizimi[]" value="Personal"></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <div id="mesg" style="color:red;"></div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <input type="button" name="ruajp" id="btnruaj" class="save-button-custom-css" value="Ruaj">
-            </div>
-
         </div>
     </div>
 </div>
 
-<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Fatur&euml; e re</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form method="POST" action="">
-                    <div class="row">
-                        <div class="col">
-                            <label for="emri" class="form-label">Emri & Mbiemri</label>
-                            <input type="text" id="searchInputFirst" onkeyup="filterOptions()" class="form-control shadow-sm rounded-5 py-3" style="border:1" placeholder="Search for names..">
-                            <br>
-                            <select id="emriSelect" name="emri" class="form-select shadow-sm rounded-5 py-3">
-                                <?php
-                                // PHP: Fetching data from the "klientet" table where blocked='0'
-                                $gsta = $conn->query("SELECT * FROM klientet WHERE blocked='0'");
-                                while ($gst = mysqli_fetch_array($gsta)) {
-                                    // PHP: Generating option elements with values from the database
-                                    echo '<option value="' . $gst['id'] . '">' . $gst['emri'] . '</option>';
-                                }
-                                ?>
-                            </select>
-                        </div>
 
-                        <script>
-                            function filterOptions() {
-                                var input, filter;
-                                input = document.getElementById('searchInputFirst');
-                                filter = input.value.toLowerCase();
-
-                                // Create an AJAX request
-                                var xmlhttp = new XMLHttpRequest();
-                                xmlhttp.onreadystatechange = function() {
-                                    if (this.readyState == 4 && this.status == 200) {
-                                        // Update the select dropdown with the response
-                                        document.getElementById('emriSelect').innerHTML = this.responseText;
-                                    }
-                                };
-
-                                // Send the request to the server-side script
-                                xmlhttp.open('GET', 'filter_names.php?filter=' + filter, true);
-                                xmlhttp.send();
-                            }
-                        </script>
-
-
-                        <div class="col">
-                            <!-- Input field for entering Data -->
-                            <label for="datas" class="form-label">Data:</label>
-                            <input type="text" name="data" class="form-control shadow-sm rounded-5 py-3" value="<?php echo date("Y-m-d"); ?>">
-
-                        </div>
-                    </div>
-
-                    <div class="row my-3">
-                        <div class="col">
-                            <!-- Input field for displaying Fatura -->
-                            <label for="imei" class="form-label">Fatura:</label>
-                            <input type="text" name="fatura" class="form-control shadow-sm rounded-5 py-3" value="<?php echo date('dmYhis'); ?>" readonly>
-                        </div>
-                        <div class="col">
-                            <?php
-                            // Checking if the user's session is set to '1'
-                            if ($_SESSION['acc'] == '1') {
-                            ?>
-                                <!-- Select field for choosing gjendjaFatures -->
-                                <label for="gjendjaFatures" class="form-label">Zgjidhni gjendjen e fatur&euml;s:</label>
-                                <select name="gjendjaFatures" id="gjendjaFatures" class="form-select shadow-sm rounded-5 py-3">
-                                    <option value="Rregullt">Rregullt</option>
-                                    <option value="Pa rregullt">Pa rregullt</option>
-                                </select>
-                            <?php
-                            } else {
-                            }
-                            ?>
-                        </div>
-                    </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Mbylle</button>
-                <input type="submit" class="btn btn-primary" name="ruaj" value="Ruaj">
-                </form>
-            </div>
-        </div>
-    </div>
-
-</div>
+<?php include 'pages_e_re.php' ?>
+<?php include 'fature_e_re.php' ?>
 
 <script>
     $(document).ready(function() {
-        const searchInput = $("#searchInput");
-        const clearSearchInput = $("#clearSearchInput");
-        const yearFilter = $("#yearFilter");
-        const monthFilter = $("#monthFilter");
-        const lengthMenu = $("#lengthMenu");
-        const searchResults = $("#searchResults > div");
-        const noResultsMessage = $("#noResultsMessage");
-        const loanFilterCheckbox = $("#loanFilterCheckbox");
-        searchInput.on("input", function() {
-            const query = $(this).val().toLowerCase();
-            clearSearchInput.toggle(!!query);
-            applyFilters();
-        });
-        clearSearchInput.on("click", function() {
-            searchInput.val("").trigger("input");
-        });
-        yearFilter.on("input", applyFilters);
-        monthFilter.on("input", applyFilters);
-        loanFilterCheckbox.on("change", applyFilters);
-        lengthMenu.on("change", applyFilters);
 
-        function applyFilters() {
-            const query = searchInput.val().toLowerCase();
-            const showLoansOnly = loanFilterCheckbox.is(":checked");
-            const selectedYear = yearFilter.val();
-            const selectedMonth = monthFilter.val();
-            const itemsPerPage = parseInt(lengthMenu.val());
-            let visibleCount = 0;
-            searchResults.each(function() {
-                const invoiceKlientEmri = $(this).find("#emri").eq(0).text().toLowerCase();
-                const invoiceDate = $(this).find(".flex.align-items-center.data p:nth-child(2)").text().trim();
-                const hasLoan = parseFloat($(this).find(".button-custom-light[data-tooltip]").attr("data-tooltip")) > 0;
-                console.log("invoiceDate:", invoiceDate); // Debugging line
-
-                const invoiceYear = invoiceDate.substring(0, 4);
-                const invoiceMonth = invoiceDate.substring(5, 7);
-
-                const display = invoiceKlientEmri.includes(query) &&
-                    (!showLoansOnly || (showLoansOnly && hasLoan)) &&
-                    (selectedYear === "" || invoiceYear === selectedYear) &&
-                    (selectedMonth === "" || invoiceMonth === selectedMonth);
-
-                if (display && (lengthMenu.val() === "all" || visibleCount < itemsPerPage)) {
-                    $(this).css("display", "block").addClass("fade-in");
-                    visibleCount++;
-                } else {
-                    $(this).css("display", "none");
-                }
-            });
-            noResultsMessage.toggle(visibleCount === 0);
-        }
-
-
+        // Code for handling delete functionality
         function handleDelete(id) {
             Swal.fire({
-                title: 'Are you sure?',
-                text: "This action cannot be undone.",
+                title: 'A je i sigurt ?',
+                text: "Ky veprim nuk mund të zhbëhet.",
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#3085d6',
                 cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, remove it!'
+                confirmButtonText: 'Po, hiqeni!'
             }).then((result) => {
                 if (result.isConfirmed) {
                     $.ajax({
@@ -431,14 +254,9 @@ if (isset($_GET['fshij'])) {
                             id: id
                         },
                         success: function(data) {
-                            $("#alert_message").html(
-                                '<p class="border">' + data + "</p>"
-                            );
-                            if (data === "success") {
-                                $('#searchResults').load(location.href + ' #searchResults');
-                            } else {
-                                // Handle error if needed
-                            }
+                            // Refresh the page
+
+                            location.reload();
                         },
                         error: function(xhr, status, error) {
                             // Handle error if needed
@@ -451,22 +269,23 @@ if (isset($_GET['fshij'])) {
             });
         }
 
+        // Event listener for delete button
         $(document).on("click", ".delete", function() {
             var id = $(this).attr("id");
             handleDelete(id);
         });
-    });
-    $(document).on('click', '.open-modal', function() {
-        const fatura = $(this).data("invoice-fatura");
-        const shitje_totali = $(this).data("shitje-totali");
-        $('#id_of_fatura').val(fatura);
-        $('#shuma').val(shitje_totali);
-        const myModal = new bootstrap.Modal(document.getElementById('pagesmodal'));
-        myModal.show();
-    });
 
-    $(document).ready(function() {
+        // Code for opening modal
+        $(document).on('click', '.open-modal', function() {
+            const fatura = $(this).data("invoice-fatura");
+            const shitje_totali = $(this).data("shitje-totali");
+            $('#id_of_fatura').val(fatura);
+            $('#shuma').val(shitje_totali);
+            const myModal = new bootstrap.Modal(document.getElementById('pagesmodal'));
+            myModal.show();
+        });
 
+        // Code for saving data via AJAX
         $('#btnruaj').click(function() {
             var data = $('#user_form').serialize() + '&btn_save=btn_save';
             $.ajax({
@@ -482,7 +301,6 @@ if (isset($_GET['fshij'])) {
                         timer: 1500
                     }).then(() => {
                         location.reload();
-
                     });
                     setTimeout(function() {
                         $('#pagesmodal').modal('hide');
@@ -499,28 +317,8 @@ if (isset($_GET['fshij'])) {
                 }
             });
         });
-    });
 
-    $('#btnruaj').click(function() {
-        $('#searchResults').load(location.href + ' #searchResults');
-    });
-</script>
-
-<style>
-    /* Style the toggle link */
-    .toggle-emertimi-link {
-        color: blue;
-        /* Change the link color to blue */
-        text-decoration: underline;
-        /* Add underline to the link text */
-        cursor: pointer;
-    }
-</style>
-
-
-<script>
-    $(document).ready(function() {
-        // Add click event listener to elements with class "show-details"
+        // Code for showing/hiding details
         $('.show-details').on('click', function(event) {
             // Prevent the default link behavior
             event.preventDefault();
@@ -531,30 +329,9 @@ if (isset($_GET['fshij'])) {
             // Toggle the display of the details span
             details.toggle();
         });
-    });
-</script>
 
-<script>
-    $(document).ready(function() {
-        // Add a click event handler to all elements with the class "toggle-emertimi-link"
-        $(".toggle-emertimi-link").click(function(event) {
-            event.preventDefault(); // Prevent the anchor link from navigating
-
-            // Find the parent element (the container) and toggle the "emertimi-section" visibility
-            var container = $(this).closest(".flex.align-items-center");
-            var emertimiSection = container.find(".emertimi-section");
-
-            // Toggle the visibility and update the chevron icon
-            emertimiSection.toggle();
-            var icon = $(this).find("i");
-            icon.toggleClass("fa-chevron-down fa-chevron-up");
-        });
-    });
-
-    $(document).ready(function() {
-        // Faturat datatable
+        // Code for initializing DataTable
         $('#faturat').DataTable({
-
             dom: "<'row'<'col-md-3'l><'col-md-6'B><'col-md-3'f>>" +
                 "<'row'<'col-md-12'tr>>" +
                 "<'row'<'col-md-6'><'col-md-6'p>>",

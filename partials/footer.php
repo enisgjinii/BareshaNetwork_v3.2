@@ -5,7 +5,7 @@
     <span class="text-muted">Copyright ©
       <?php echo date("Y"); ?> <a href="" target="_blank">BareshaNetwork</a>. All rights reserved.
     </span>
-    <span><b>Version: </b> 3.0 </span>
+    <span><b>Version: </b> 3.2 </span>
   </div>
 </footer>
 
