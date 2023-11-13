@@ -405,7 +405,6 @@ if ($result->num_rows > 0) {
       -webkit-user-select: none;
       touch-action: manipulation;
       vertical-align: middle;
-      width: 100%;
       text-transform: none;
       flex-grow: 1;
       margin-right: 5px;
