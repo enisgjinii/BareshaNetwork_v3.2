@@ -35,8 +35,7 @@ if (ini_get("session.use_cookies")) {
 # Destroy the session
 session_destroy();
 
-# Save the cleared session data to a JSON file
-file_put_contents('cleared_session_data.json', json_encode($clearedSessionData));
+
 
 # Redirect to a login page or any other desired location
 header("Location: kycu_1.php");

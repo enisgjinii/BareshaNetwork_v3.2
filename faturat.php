@@ -183,41 +183,42 @@ if (isset($_GET['fshij'])) {
                                             $total_loan += $amount;
                                         }
                                     }
-
+                                    // Only display the row if $obligim is greater than 0
+                                    if ($obligim > 0) :
                                     ?>
 
-                                    <tr>
-                                        <td>
-                                            <?php echo $row['klient_emri']; ?>
-                                            <br><br>
-                                            <a href="#" class="show-details btn btn-sm rounded py-2 border shadow-sm text-muted" style="text-transform: none;font-size: 12px;"><i class="fi fi-rr-eye"></i></a>
-                                            <span class="text-muted details" style="display: none;"><?php echo $row['shitje_emertimi']; ?></span>
-                                        </td>
+                                        <tr>
+                                            <td>
+                                                <?php echo $row['klient_emri']; ?>
+                                                <br><br>
+                                                <a href="#" class="show-details btn btn-sm rounded py-2 border shadow-sm text-muted" style="text-transform: none;font-size: 12px;"><i class="fi fi-rr-eye"></i></a>
+                                                <span class="text-muted details" style="display: none;"><?php echo $row['shitje_emertimi']; ?></span>
+                                            </td>
 
-                                        <td><?php echo $row['data']; ?></td>
-                                        <td><?php echo $invoice_fatura; ?></td>
-                                        <td><?php echo $shitje_totali; ?></td>
-                                        <td>
-                                            <?php
-                                            if ($pagesa_shuma === null || $pagesa_shuma === '') {
-                                                echo '<i class="fi fi-rr-clock m-0 p-0"></i>';
-                                            } else {
-                                                echo $pagesa_shuma;
-                                            }
-                                            ?>
-                                        </td>
-                                        <td><?php echo $obligim; ?></td>
-                                        <td><?php echo $total_loan; ?></td>
-                                        <td>
-                                            <a class="button-custom-light open-modal" role="button" data-tooltip="Paguaj" data-invoice-fatura="<?php echo $invoice_fatura; ?>" data-shitje-totali="<?php echo $obligim; ?>">
-                                                <i class="fi fi-rr-money-bill-wave"></i>
-                                            </a>
-                                            <a class="button-custom-light" role="button" data-tooltip="Print" href="fatura.php?invoice=<?php echo $invoice_fatura; ?>" target="_blank"><i class="fi fi-rr-print"></i></a>
-                                            <a class="button-custom-light" role="button" data-tooltip="Ndrysho" href="shitje.php?fatura=<?php echo $invoice_fatura; ?>"><i class="fi fi-rr-edit"></i></a>
-                                            <a class="button-custom-light delete" role="button" name="delete" data-tooltip="Fshi" id="<?php echo $invoice_fatura; ?>"><i class="fi fi-rr-trash"></i></a>
-                                            <a class="button-custom-light" role="button" data-tooltip="Shih" href="fatura_details.php?invoice_fatura=<?php echo $invoice_fatura; ?>"><i class="fi fi-rr-square-plus"></i></a>
-                                        </td>
-                                    </tr>
+                                            <td><?php echo $row['data']; ?></td>
+                                            <td><?php echo $invoice_fatura; ?></td>
+                                            <td><?php echo $shitje_totali; ?></td>
+                                            <td>
+                                                <?php
+                                                if ($pagesa_shuma === null || $pagesa_shuma === '') {
+                                                    echo '<i class="fi fi-rr-clock m-0 p-0"></i>';
+                                                } else {
+                                                    echo $pagesa_shuma;
+                                                }
+                                                ?>
+                                            </td>
+                                            <td><?php echo $obligim; ?></td>
+                                            <td><?php echo $total_loan; ?></td>
+                                            <td>
+                                                <a class="button-custom-light open-modal" role="button" data-tooltip="Paguaj" data-invoice-fatura="<?php echo $invoice_fatura; ?>" data-shitje-totali="<?php echo $obligim; ?>">
+                                                    <i class="fi fi-rr-money-bill-wave"></i>
+                                                </a>
+                                                <a class="button-custom-light" role="button" data-tooltip="Print" href="fatura.php?invoice=<?php echo $invoice_fatura; ?>" target="_blank"><i class="fi fi-rr-print"></i></a>
+                                                <a class="button-custom-light" role="button" data-tooltip="Ndrysho" href="shitje.php?fatura=<?php echo $invoice_fatura; ?>"><i class="fi fi-rr-edit"></i></a>
+                                                <a class="button-custom-light delete" role="button" name="delete" data-tooltip="Fshi" id="<?php echo $invoice_fatura; ?>"><i class="fi fi-rr-trash"></i></a>
+                                                <a class="button-custom-light" role="button" data-tooltip="Shih" href="fatura_details.php?invoice_fatura=<?php echo $invoice_fatura; ?>"><i class="fi fi-rr-square-plus"></i></a>
+                                            </td>
+                                        </tr><?php endif; ?>
                                 <?php endwhile; ?>
                             </tbody>
                         </table>
