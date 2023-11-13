@@ -103,6 +103,7 @@ endif;
     <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.0.1/mdb.min.css" rel="stylesheet" />
     <title>Baresha Panel - Google Login</title>
     <script src="https://kit.fontawesome.com/a1927a49ea.js" crossorigin="anonymous"></script>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
 </head>
 
@@ -118,15 +119,31 @@ endif;
                             </div>
                             <p class="font-weight-light">P&euml;rsh&euml;ndetje!</p>
                             <p class="text-muted">Identifikohu me llogarinë tënde të Google.</p>
-                            <a href="<?= $login_url ?>" style="text-transform: none;" class="btn btn-light border shadow btn-sm "><img src="https://tinyurl.com/46bvrw4s" alt="Google Logo" width="20" class="me-2"> Identifikohu me Google</a>
+
+                            <!-- Display the reCAPTCHA widget -->
+                            <div class="g-recaptcha" data-sitekey="6LdT2w0pAAAAAJu92-zDVcDBinqaqT08sZhDbMfx" data-callback="enableLoginButton"></div>
+
+                            <!-- Replace the button with an anchor tag -->
+                            <a id="loginButton" href="<?= $login_url ?>" style="text-transform: none;" class="btn btn-light border shadow btn-sm disabled">
+                                <img src="https://tinyurl.com/46bvrw4s" alt="Google Logo" width="20" class="me-2">
+                                Identifikohu me Google
+                            </a>
 
                         </div>
                     </div>
-
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Your existing script tags go here -->
+
+    <script>
+        // Enable the login button after reCAPTCHA is successfully completed
+        function enableLoginButton() {
+            document.getElementById('loginButton').classList.remove('disabled');
+        }
+    </script>
     <script src="vendors/base/vendor.bundle.base.js"></script>
     <script src="js/off-canvas.js"></script>
     <script src="js/hoverable-collapse.js"></script>
