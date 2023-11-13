@@ -124,10 +124,11 @@ endif;
                             <div class="g-recaptcha" data-sitekey="6LdT2w0pAAAAAJu92-zDVcDBinqaqT08sZhDbMfx" data-callback="enableLoginButton"></div>
 
                             <!-- Replace the button with an anchor tag -->
-                            <a id="loginButton" href="<?= $login_url ?>" style="text-transform: none;" class="btn btn-light border shadow btn-sm disabled">
+                            <a id="loginButton" href="<?= $login_url ?>" style="text-transform: none; display: none;" class="btn btn-light border shadow btn-sm">
                                 <img src="https://tinyurl.com/46bvrw4s" alt="Google Logo" width="20" class="me-2">
                                 Identifikohu me Google
                             </a>
+
 
                         </div>
                     </div>
@@ -141,9 +142,11 @@ endif;
     <script>
         // Enable the login button after reCAPTCHA is successfully completed
         function enableLoginButton() {
-            document.getElementById('loginButton').classList.remove('disabled');
+            // Display the login button
+            document.getElementById('loginButton').style.display = 'inline-block';
         }
     </script>
+
     <script src="vendors/base/vendor.bundle.base.js"></script>
     <script src="js/off-canvas.js"></script>
     <script src="js/hoverable-collapse.js"></script>
