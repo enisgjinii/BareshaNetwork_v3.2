@@ -4,7 +4,7 @@ include 'partials/header.php';
 // Retrieve data from the "ascap" table
 $sql = "SELECT * FROM ascap";
 $result = $conn->query($sql);
-require_once 'google-api/vendor/autoload.php';
+require_once 'vendor/autoload.php';
 
 ?>
 <!-- Your HTML code -->

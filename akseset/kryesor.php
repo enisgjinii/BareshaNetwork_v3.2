@@ -26,7 +26,7 @@
       <div class="container">
         <div class="row my-1">
           <div class="col-12 col-xl-5 mb-4 mb-xl-0">
-            <h4 class="font-weight-bold">P&euml;rshendetje! <?php echo $_SESSION["email"]; ?>
+            <h4 class="font-weight-bold">P&euml;rshendetje! <?php echo $user_info['givenName'] . ' ' . $user_info['familyName']; ?>
             </h4>
           </div>
         </div>

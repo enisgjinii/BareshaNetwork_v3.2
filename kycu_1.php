@@ -31,7 +31,7 @@ if (isset($_GET['code'])) :
 
     # Fetching the user data from the Google account
     $client->setAccessToken($token);
-    $google_oauth = new Google_Service_Oauth2($client);
+    $google_oauth = new Google\Service\Oauth2($client);
     $user_info = $google_oauth->userinfo->get();
 
     $email = trim($user_info['email']);
