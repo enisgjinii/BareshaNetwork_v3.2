@@ -16,14 +16,18 @@
 
     <div class="container">
         <h1 class="mt-5">Detajet e faturës</h1>
-        <a href="list_of_invoice.php" class="btn btn-primary">Kthehu</a>
+        <a href="invoice.php" class="btn btn-primary">Kthehu</a>
 
         <?php
         if (isset($_GET["id"])) {
             $invoice_id = $_GET["id"];
 
-            // Connect to the database
-            require_once 'conn-d.php';
+            // Database connection setup
+            $conn = mysqli_connect("localhost", "root", "", "bareshao_f");
+
+            if (!$conn) {
+                die("Connection failed: " . mysqli_connect_error());
+            }
 
             // Retrieve the current invoice details
             $sql = "SELECT * FROM invoices WHERE id = $invoice_id";

@@ -96,7 +96,6 @@ if ($result->num_rows > 0) {
   <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/uicons-brands/css/uicons-brands.css'>
 
 
-
   <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/2.3.1/list.min.js" integrity="sha512-93wYgwrIFL+b+P3RvYxi/WUFRXXUDSLCT2JQk9zhVGXuS2mHl2axj6d+R6pP+gcU5isMHRj1u0oYE/mWyt/RjA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.6.0/tinymce.min.js" integrity="sha512-hMjDyb/4G3SapFEM71rK+Gea0+ZEr9vDlhBTyjSmRjuEgza0Ytsb67GE0aSpRMYW++z6kZPPcnddwlUG6VKm9w==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -468,6 +467,32 @@ if ($result->num_rows > 0) {
       visibility: visible;
     }
 
+    /* Add this style to your CSS */
+    .dot {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 75%;
+      cursor: pointer;
+      /* Add a pointer cursor to indicate interactivity */
+    }
+
+    /* Tooltip style */
+    .dot:hover::before {
+      content: attr(title);
+      position: absolute;
+      display: block;
+      padding: 5px;
+      border: 1px solid #ccc;
+      background-color: white;
+      color: black;
+      border-radius: 5px;
+      z-index: 1;
+      margin-left: -10px;
+      margin-top: -30px;
+      /* Ensure the tooltip is above other elements */
+    }
+
     .input-custom-css {
       background-color: #fff;
       border: 1px solid #d5d9d9;
@@ -476,6 +501,21 @@ if ($result->num_rows > 0) {
       box-sizing: border-box;
       color: #0f1111;
       cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+      vertical-align: middle;
+    }
+
+    .input-custom-css-disabled {
+      background-color: #fff;
+      opacity: 0.6;
+      border: 1px solid #d5d9d9;
+      border-radius: 8px;
+      box-shadow: rgba(213, 217, 217, .5) 0 2px 5px 0;
+      box-sizing: border-box;
+      color: #0f1111;
+      cursor: not-allowed;
       font-family: "Amazon Ember", sans-serif;
       user-select: none;
       -webkit-user-select: none;
@@ -487,10 +527,7 @@ if ($result->num_rows > 0) {
       background-color: #f7fafa;
     }
 
-    .input-custom-css:focus {
-      border: 1px solid #008296;
-      box-shadow: rgba(213, 217, 217, .5) 0 2px 5px 0;
-    }
+
 
 
     /* CSS */
@@ -546,6 +583,62 @@ if ($result->num_rows > 0) {
       to {
         opacity: 1;
       }
+    }
+
+    .button-4 {
+      appearance: none;
+      background-color: #FAFBFC;
+      border: 1px solid rgba(27, 31, 35, 0.15);
+      border-radius: 6px;
+      box-shadow: rgba(27, 31, 35, 0.04) 0 1px 0, rgba(255, 255, 255, 0.25) 0 1px 0 inset;
+      box-sizing: border-box;
+      color: #24292E;
+      cursor: pointer;
+      display: inline-block;
+
+      font-size: 14px;
+      line-height: 20px;
+      list-style: none;
+      padding: 6px 16px;
+      position: relative;
+      transition: background-color 0.2s cubic-bezier(0.3, 0, 0.5, 1);
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+      vertical-align: middle;
+      white-space: nowrap;
+      word-wrap: break-word;
+    }
+
+    .button-4:hover {
+      background-color: #F3F4F6;
+      text-decoration: none;
+      transition-duration: 0.1s;
+    }
+
+    .button-4:disabled {
+      background-color: #FAFBFC;
+      border-color: rgba(27, 31, 35, 0.15);
+      color: #959DA5;
+      cursor: default;
+    }
+
+    .button-4:active {
+      background-color: #EDEFF2;
+      box-shadow: rgba(225, 228, 232, 0.2) 0 1px 0 inset;
+      transition: none 0s;
+    }
+
+    .button-4:focus {
+      outline: 1px transparent;
+    }
+
+    .button-4:before {
+      display: none;
+    }
+
+    .button-4:-webkit-details-marker {
+      display: none;
     }
   </style>
 </head>

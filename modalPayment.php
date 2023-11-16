@@ -38,6 +38,7 @@
                     <label for="paymentAmount" class="form-label">Shkruani shumën e pagesës:</label>
                     <input type="text" class="form-control shadow-sm rounded-5 py-4" id="paymentAmount" required>
                 </div>
+                <p id="paymentAmountError" class="badge bg-danger px-2 rounded-5 py-2"></p>
                 <input type="hidden" id="invoiceId" name="invoiceId">
                 <button type="button" class="btn btn-primary rounded-5 shadow  text-white" id="submitPayment">Bëj pagesën</button>
             </div>
