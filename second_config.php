@@ -5,8 +5,8 @@ return [
     'db_user' => 'root',
     'db_password' => '',
     'db_name' => 'bareshao_f',
-    'client_id' => '30102072457-r67ndhqtk6o23oqk26ehrh6imsn5f501.apps.googleusercontent.com',
-    'client_secret' => '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',
-    'redirect_uri' => 'http://localhost/YoutubeAnalysticAPI/index.php',
-    'api_key' => 'AIzaSyDKt-ziSnLKQfYGgAxqwjRtCc6ss-PFIaM',
+    'client_id' => '727520120860-kebh087id1eb97tbeefpvkmvsj9nmek5.apps.googleusercontent.com',
+    'client_secret' => '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',
+    'redirect_uri' => 'http://localhost/BareshaNetwork_v3.2/callback.php',
+    'api_key' => 'AIzaSyD56A1QU67vIkP1CYSDX2sYona2nxOJ9R0',
 ];

@@ -4,7 +4,71 @@ include 'partials/header.php';
 include 'modalPayment.php';
 include 'loan_modal.php';
 include 'invoices_trash_modal.php';
+require_once 'vendor/autoload.php';
+
+
+$config = require_once 'second_config.php';
+
+$client = initializeGoogleClient($config);
+
+if (isset($_GET['code'])) {
+  handleAuthentication($client);
+}
+
+function initializeGoogleClient($config)
+{
+  $client = new Google_Client();
+  $client->setClientId($config['client_id']);
+  $client->setClientSecret($config['client_secret']);
+  $client->setRedirectUri($config['redirect_uri']);
+  $client->setAccessType('offline');
+  $client->setApprovalPrompt('force');
+
+  $client->addScope([
+    'https://www.googleapis.com/auth/youtube',
+    'https://www.googleapis.com/auth/youtube.readonly',
+    'https://www.googleapis.com/auth/youtubepartner',
+    'https://www.googleapis.com/auth/yt-analytics-monetary.readonly',
+    'https://www.googleapis.com/auth/yt-analytics.readonly'
+  ]);
+
+  return $client;
+}
+
+function handleAuthentication($client)
+{
+  try {
+    $token = $client->fetchAccessTokenWithAuthCode($_GET['code']);
+
+    $youtube = new Google\Service\YouTube($client);
+    $channels = $youtube->channels->listChannels('snippet', ['mine' => true]);
+    $channel = $channels->items[0];
+    $channelId = $channel->id;
+    $channelName = $channel->snippet->title;
+
+    if (isset($token['refresh_token'])) {
+      $refreshToken = $token['refresh_token'];
+      storeRefreshTokenInDatabase($refreshToken, $channelId, $channelName);
+    }
+
+    $_SESSION['refresh_token'] = $refreshToken;
+
+    echo "<script>console.log('Refresh Token: " . json_encode($refreshToken) . "');</script>";
+    echo "<script>console.log('Channel ID: $channelId');</script>";
+    echo "<script>console.log('Channel Name: $channelName');</script>";
+
+    // Redirect to a different page after authentication
+    header('Location: authenticated_channels.php');
+    exit;
+  } catch (Google\Service\Exception $e) {
+    echo '<pre>';
+    print_r(json_decode($e->getMessage()));
+    echo '</pre>';
+  }
+}
 ?>
+
+
 
 
 <?php if (!isset($_SESSION['oauth_uid'])) {
@@ -25,6 +89,7 @@ include 'invoices_trash_modal.php';
 ";
 } else {
 ?>
+
 
   <div class="main-panel">
     <div class="content-wrapper">
@@ -47,7 +112,9 @@ include 'invoices_trash_modal.php';
                 re</button>
               <button style="text-transform: none;" class="input-custom-css px-3 py-2" data-bs-toggle="modal" data-bs-target="#listOfLoansModal"><i class="fi fi-rr-hand-holding-usd fa-lg"></i>&nbsp; Borgjet</button>
               <button style="text-transform: none;" class="input-custom-css px-3 py-2 " data-bs-toggle="modal" data-bs-target="#trashInvoices"><i class="fi fi-rr-delete-document fa-lg"></i>&nbsp; Faturat e fshira</button>
-              <button style="text-transform: none;" class="input-custom-css-disabled px-3 py-2 " disabled data-bs-toggle="modal" data-bs-target="#newInvoice"><i class="fi fi-brands-youtube fa-lg"></i>&nbsp; Lidh kanal</button>
+              <a style="text-transform: none;text-decoration: none;" href="<?php echo $client->createAuthUrl(); ?>" class="input-custom-css px-3 py-2">
+                <i class="fi fi-brands-youtube fa-lg"></i>&nbsp; Lidh kanal
+              </a>
 
 
 
@@ -346,6 +413,7 @@ include 'invoices_trash_modal.php';
 
 
       var table = $('#invoiceList').DataTable({
+        // responsive:true,
         processing: true,
         serverSide: true,
         dom: "<'row'<'col-md-3'l><'col-md-6'B><'col-md-3'f>>" +
