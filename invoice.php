@@ -66,10 +66,59 @@ function handleAuthentication($client)
     echo '</pre>';
   }
 }
+
+function getRefreshTokensFromDatabase()
+{
+  require_once 'conn-d.php';
+  global $conn; // Use the global keyword to make $conn accessible
+
+  $sql = "SELECT token, channel_id, channel_name, created_at FROM refresh_tokens";
+  $result = $conn->query($sql);
+
+  $refreshTokens = [];
+
+  if ($result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+      $refreshTokens[] = $row;
+    }
+  }
+
+  return $refreshTokens;
+}
+
+// Create database connection
+$conn = new mysqli($db_host, $db_user, $db_pass, $db_name);
+
+// Check connection
+if ($conn->connect_errno) {
+  echo "Lidhja me MySQL d&euml;shtoi: " . $conn->connect_error;
+  exit();
+}
+
+// Retrieve user-submitted start and end dates
+$startDate = isset($_POST['startDate']) ? $_POST['startDate'] : '2016-01-01';
+$endDate = isset($_POST['endDate']) ? $_POST['endDate'] : date('Y-m-d', strtotime('-2 days'));
+
+$refreshTokens = getRefreshTokensFromDatabase();
+
 ?>
 
 
+<?php
 
+function getChannelDetails($channelId, $apiKey)
+{
+  $url = "https://www.googleapis.com/youtube/v3/channels?part=snippet&id=$channelId&key=$apiKey";
+  $response = file_get_contents($url);
+  $data = json_decode($response, true);
+
+  if (isset($data['items'][0]['snippet']['thumbnails']['high']['url'])) {
+    return $data['items'][0]['snippet']['thumbnails']['high']['url'];
+  }
+
+  return null;
+}
+?>
 
 <?php if (!isset($_SESSION['oauth_uid'])) {
   echo "
@@ -106,7 +155,7 @@ function handleAuthentication($client)
                 </a></li>
           </nav>
           <div id="alert_message"></div>
-          <div class="row mb-4">
+          <div class="row mb-2">
             <div>
               <button style="text-transform: none;" class="input-custom-css px-3 py-2" data-bs-toggle="modal" data-bs-target="#newInvoice"><i class="fi fi-rr-add-document fa-lg"></i>&nbsp; Fatur&euml; e
                 re</button>
@@ -116,11 +165,28 @@ function handleAuthentication($client)
                 <i class="fi fi-brands-youtube fa-lg"></i>&nbsp; Lidh kanal
               </a>
 
+              <ul class="nav nav-pills bg-white my-3 mx-0 rounded-5" style="width: fit-content;border:1px solid lightgrey;" id="pills-tab" role="tablist">
+                <li class="nav-item" role="presentation">
+                  <button class="nav-link rounded-5  active" style="text-transform: none" id="pills-lista_e_faturave-tab" data-bs-toggle="pill" data-bs-target="#pills-lista_e_faturave" type="button" role="tab" aria-controls="pills-lista_e_faturave" aria-selected="true">Lista e faturave</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                  <button class="nav-link rounded-5" style="text-transform: none" id="pills-lista_e_kanaleve-tab" data-bs-toggle="pill" data-bs-target="#pills-lista_e_kanaleve" type="button" role="tab" aria-controls="pills-lista_e_kanaleve" aria-selected="false">Lista e kanaleve</button>
+                </li>
+                <!-- <li class="nav-item" role="presentation">
+                  <button class="nav-link rounded-5" style="text-transform: none" id="pills-lista_e_historise_se_faturave-tab" data-bs-toggle="pill" data-bs-target="#pills-lista_e_historise_se_faturave" type="button" role="tab" aria-controls="pills-lista_e_historise_se_faturave" aria-selected="false">Lista e historise e faturave te paguara</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                  <button class="nav-link rounded-5" style="text-transform: none" id="pills-lista_e_pagesave-tab" data-bs-toggle="pill" data-bs-target="#pills-lista_e_pagesave" type="button" role="tab" aria-controls="pills-lista_e_pagesave" aria-selected="false">Lista e pagesave</button>
+                </li> -->
+
+
+              </ul>
+
 
 
             </div>
           </div>
-          <div class="p-5 shadow-sm rounded-5 mb-4 card">
+          <div class="p-3 shadow-sm rounded-5 mb-4 card">
 
             <!-- <div class="row gap-2 mb-5">
               <div class="col border shadow-3 rounded-5 p-3">
@@ -150,93 +216,82 @@ function handleAuthentication($client)
             </div> -->
 
             <div class="row">
-              <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
-                <li class="nav-item" role="presentation">
-                  <button class="nav-link active" style="text-transform: none" id="pills-lista_e_faturave-tab" data-bs-toggle="pill" data-bs-target="#pills-lista_e_faturave" type="button" role="tab" aria-controls="pills-lista_e_faturave" aria-selected="true">Lista e faturave</button>
-                </li>
-                <li class="nav-item" role="presentation">
-                  <button class="nav-link" style="text-transform: none" id="pills-lista_e_historise_se_faturave-tab" data-bs-toggle="pill" data-bs-target="#pills-lista_e_historise_se_faturave" type="button" role="tab" aria-controls="pills-lista_e_historise_se_faturave" aria-selected="false">Lista e historise e faturave te paguara</button>
-                </li>
-                <li class="nav-item" role="presentation">
-                  <button class="nav-link" style="text-transform: none" id="pills-lista_e_pagesave-tab" data-bs-toggle="pill" data-bs-target="#pills-lista_e_pagesave" type="button" role="tab" aria-controls="pills-lista_e_pagesave" aria-selected="false">Lista e pagesave</button>
-                </li>
-              </ul>
-              <hr>
+              <div class="modal fade" id="newInvoice" tabindex="-1" aria-labelledby="newInvoiceLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-centered">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="newInvoiceLabel">Krijoni një faturë të re</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                      <!-- Your form goes here -->
+                      <form action="create_invoice.php" method="POST">
+                        <div class="mb-3">
+                          <label for="invoice_number" class="form-label">Numri i faturës:</label>
+                          <?php
+                          // Call the generateInvoiceNumber function to get the invoice number
+                          $invoiceNumber = generateInvoiceNumber();
+                          ?>
+                          <input type="text" class="form-control rounded-5 shadow-sm py-3" id="invoice_number" name="invoice_number" value="<?php echo $invoiceNumber; ?>" required readonly>
+                        </div>
+
+                        <div class="mb-3">
+                          <label for="customer_id" class="form-label">Emri i klientit:</label>
+                          <select class="form-control rounded-5 shadow-sm py-3" id="customer_id" name="customer_id" required>
+                            <option value="">Zgjidhni klientin</option>
+                            <?php
+
+                            require_once "conn-d.php";
+
+                            $sql = "SELECT id,emri, perqindja FROM klientet ORDER BY id DESC";
+                            $result = mysqli_query($conn, $sql);
+
+                            if (mysqli_num_rows($result) > 0) {
+                              while ($row = mysqli_fetch_assoc($result)) {
+                                echo "<option value='" . $row["id"] . "' data-percentage='" . $row["perqindja"] . "'>" . $row["emri"] . "</option>";
+                              }
+                            }
+
+                            mysqli_close($conn);
+                            ?>
+                          </select>
+                        </div>
+
+                        <div class="mb-3">
+                          <label for="item" class="form-label">Përshkrimi:</label>
+                          <textarea type="text" class="form-control rounded-5 shadow-sm py-3" id="item" name="item" required> </textarea>
+                        </div>
+                        <div class="mb-3">
+                          <label for="percentage" class="form-label">Përqindja:</label>
+                          <input type="text" class="form-control rounded-5 shadow-sm py-3" id="percentage" name="percentage" value="" required>
+                        </div>
+                        <div class="mb-3 row">
+                          <div class="col">
+                            <label for="total_amount" class="form-label">Shuma e përgjithshme:</label>
+                            <input type="text" class="form-control rounded-5 shadow-sm py-3" id="total_amount" name="total_amount" required>
+                          </div>
+                          <div class="col">
+                            <label for="total_amount_after_percentage" class="form-label">Shuma e përgjithshme pas përqindjes:</label>
+                            <input type="text" class="form-control rounded-5 shadow-sm py-3" id="total_amount_after_percentage" name="total_amount_after_percentage" required>
+                          </div>
+                        </div>
+
+                        <div class="mb-3">
+                          <label for="created_date" class="form-label">Data e krijimit të faturës:</label>
+                          <input type="date" class="form-control rounded-5 shadow-sm py-3" id="created_date" name="created_date" value="<?php echo date('Y-m-d'); ?>" required>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-sm text-white rounded-5 shadow">Krijo faturë</button>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </div>
               <div class="tab-content" id="pills-tabContent">
                 <div class="tab-pane fade show active" id="pills-lista_e_faturave" role="tabpanel" aria-labelledby="pills-lista_e_faturave-tab">
 
                   <!-- Modal Structure -->
-                  <div class="modal fade" id="newInvoice" tabindex="-1" aria-labelledby="newInvoiceLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-lg modal-dialog-centered">
-                      <div class="modal-content">
-                        <div class="modal-header">
-                          <h5 class="modal-title" id="newInvoiceLabel">Krijoni një faturë të re</h5>
-                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                          <!-- Your form goes here -->
-                          <form action="create_invoice.php" method="POST">
-                            <div class="mb-3">
-                              <label for="invoice_number" class="form-label">Numri i faturës:</label>
-                              <?php
-                              // Call the generateInvoiceNumber function to get the invoice number
-                              $invoiceNumber = generateInvoiceNumber();
-                              ?>
-                              <input type="text" class="form-control rounded-5 shadow-sm py-3" id="invoice_number" name="invoice_number" value="<?php echo $invoiceNumber; ?>" required readonly>
-                            </div>
 
-                            <div class="mb-3">
-                              <label for="customer_id" class="form-label">Emri i klientit:</label>
-                              <select class="form-control rounded-5 shadow-sm py-3" id="customer_id" name="customer_id" required>
-                                <option value="">Zgjidhni klientin</option>
-                                <?php
-
-                                require_once "conn-d.php";
-
-                                $sql = "SELECT id,emri, perqindja FROM klientet ORDER BY id DESC";
-                                $result = mysqli_query($conn, $sql);
-
-                                if (mysqli_num_rows($result) > 0) {
-                                  while ($row = mysqli_fetch_assoc($result)) {
-                                    echo "<option value='" . $row["id"] . "' data-percentage='" . $row["perqindja"] . "'>" . $row["emri"] . "</option>";
-                                  }
-                                }
-
-                                mysqli_close($conn);
-                                ?>
-                              </select>
-                            </div>
-
-                            <div class="mb-3">
-                              <label for="item" class="form-label">Përshkrimi:</label>
-                              <textarea type="text" class="form-control rounded-5 shadow-sm py-3" id="item" name="item" required> </textarea>
-                            </div>
-                            <div class="mb-3">
-                              <label for="percentage" class="form-label">Përqindja:</label>
-                              <input type="text" class="form-control rounded-5 shadow-sm py-3" id="percentage" name="percentage" value="" required>
-                            </div>
-                            <div class="mb-3 row">
-                              <div class="col">
-                                <label for="total_amount" class="form-label">Shuma e përgjithshme:</label>
-                                <input type="text" class="form-control rounded-5 shadow-sm py-3" id="total_amount" name="total_amount" required>
-                              </div>
-                              <div class="col">
-                                <label for="total_amount_after_percentage" class="form-label">Shuma e përgjithshme pas përqindjes:</label>
-                                <input type="text" class="form-control rounded-5 shadow-sm py-3" id="total_amount_after_percentage" name="total_amount_after_percentage" required>
-                              </div>
-                            </div>
-
-                            <div class="mb-3">
-                              <label for="created_date" class="form-label">Data e krijimit të faturës:</label>
-                              <input type="date" class="form-control rounded-5 shadow-sm py-3" id="created_date" name="created_date" value="<?php echo date('Y-m-d'); ?>" required>
-                            </div>
-
-                            <button type="submit" class="btn btn-primary btn-sm text-white rounded-5 shadow">Krijo faturë</button>
-                          </form>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
                   <div class="table-responsive">
                     <table id="invoiceList" class="table table-bordered" data-source="get_invoice.php">
                       <thead class="table-light">
@@ -255,6 +310,165 @@ function handleAuthentication($client)
                       </thead>
                     </table>
                   </div>
+                </div>
+                <div class="tab-pane fade" id="pills-lista_e_kanaleve" role="tabpanel" aria-labelledby="pills-lista_e_kanaleve-tab">
+                  <?php if (!empty($refreshTokens)) { ?>
+                    <div class="row">
+                      <form method="post" class="mb-4">
+                        <div class="row">
+                          <div class="col">
+                            <label for="startDate" class="form-label">Data e fillimit:</label>
+                            <input type="text" class="form-control rounded-5 shadow-sm datepicker" id="startDate" name="startDate" value="<?= $startDate ?>" required>
+                          </div>
+                          <div class="col">
+                            <label for="endDate" class="form-label">Data e përfundimit:</label>
+                            <input type="text" class="form-control rounded-5 shadow-sm datepicker" id="endDate" name="endDate" value="<?= $endDate ?>" required>
+                          </div>
+                        </div>
+                        <br>
+                        <button type="submit" class="input-custom-css px-3 py-2" style="text-decoration: none;"><i class="fi fi-rr-filter"></i> Filtro</button>
+                      </form>
+                      <table class="table table-bordered">
+                        <thead>
+                          <tr>
+                            <th scope="col w-25">Arti i kopertinës</th>
+                            <th scope="col">Emri i kanalit</th>
+                            <th scope="col">ID-ja e kanalit</th>
+                            <th scope="col">Te ardhurat nga Youtube</th>
+                            <th scope="col">Veprimet</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <?php foreach ($refreshTokens as $tokenInfo) { ?>
+                            <tr>
+                              <td>
+                                <?php // Get the cover art URL
+                                $coverArtUrl = getChannelDetails($tokenInfo['channel_id'], 'AIzaSyD56A1QU67vIkP1CYSDX2sYona2nxOJ9R0');
+
+                                // Display cover art image
+                                if ($coverArtUrl) {
+                                  echo '<img src="' . $coverArtUrl . '" class="figure-img img-fluid rounded w-25" alt="Channel Cover">';
+                                } ?>
+                              </td>
+                              <td><?= $tokenInfo['channel_name'] ?></td>
+                              <td><?= $tokenInfo['channel_id'] ?></td>
+                              <td>
+                                <?php
+                                $client = new Google_Client();
+                                $client->setClientId('727520120860-kebh087id1eb97tbeefpvkmvsj9nmek5.apps.googleusercontent.com');
+                                $client->setClientSecret('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');
+                                $client->refreshToken($tokenInfo['token']);
+                                $client->addScope([
+                                  'https://www.googleapis.com/auth/youtube',
+                                  'https://www.googleapis.com/auth/youtube.readonly',
+                                  'https://www.googleapis.com/auth/youtubepartner',
+                                  'https://www.googleapis.com/auth/yt-analytics-monetary.readonly',
+                                  'https://www.googleapis.com/auth/yt-analytics.readonly'
+                                ]);
+
+                                $youtubeAnalytics = new Google\Service\YoutubeAnalytics($client);
+
+                                // Get the created date for that channel in YouTube using tokenInfo channel id
+                                $params = [
+                                  'ids' => 'channel==' . $tokenInfo['channel_id'],
+                                  'currency' => 'EUR',
+                                  'startDate' => $startDate,
+                                  'endDate' => $endDate,
+                                  'metrics' => 'estimatedRevenue,views,estimatedAdRevenue,estimatedRedPartnerRevenue,grossRevenue,adImpressions,cpm,playbackBasedCpm,monetizedPlaybacks'
+                                ];
+
+                                $response = $youtubeAnalytics->reports->query($params);
+                                $row = $response->getRows()[0];
+
+                                echo '<p class="w-100 border px-3 py-3 bg-light rounded">';
+
+                                // Loop through all the metrics and display them
+                                foreach ($row as $index => $value) {
+                                  echo ucfirst($response->getColumnHeaders()[$index]['name']) . ': ' . $value . '<br>';
+                                }
+
+                                echo '</p>';
+
+                                ?>
+                              </td>
+                              <td>
+                                <!-- <button class="btn btn-primary btn-sm mb-3 text-white krijo-fature-btn" style="text-transform: none" data-bs-toggle="modal" data-bs-target="#newInvoice" data-revenue="<?= $youtubeAnalyticsValue ?>" data-channel-id="<?= $tokenInfo['channel_id'] ?>">Krijo faturë</button> -->
+                                <!-- Replace 'original_page.php' with the actual file name where you want to redirect after deletion -->
+                                <form id="deleteForm" action="delete_refresh_token.php" method="post">
+                                  <input type="hidden" name="token" value="<?= $tokenInfo['token'] ?>">
+                                  <button type="button" class="btn btn-danger btn-sm mb-3" name="delete_token" onclick="confirmDelete()">Fshije</button>
+                                </form>
+
+                                <script>
+                                  function confirmDelete() {
+                                    Swal.fire({
+                                      title: 'Jeni të sigurt?',
+                                      text: 'Ky veprim do të fshijë tokenin e rifreskimit.',
+                                      icon: 'warning',
+                                      showCancelButton: true,
+                                      confirmButtonColor: '#d33',
+                                      cancelButtonColor: '#3085d6',
+                                      confirmButtonText: 'Po, fshije!',
+                                      cancelButtonText: 'Anulo'
+                                    }).then((result) => {
+                                      if (result.isConfirmed) {
+                                        // If the user clicks "Po, fshije!", submit the form
+                                        submitForm();
+                                      }
+                                    });
+                                  }
+
+                                  function submitForm() {
+                                    // Using jQuery for AJAX request, you can adjust this based on your preference
+                                    $.ajax({
+                                      type: 'POST',
+                                      url: 'delete_refresh_token.php',
+                                      data: $('#deleteForm').serialize(),
+                                      success: function(response) {
+                                        // Handle success response
+                                        Swal.fire({
+                                          title: 'Sukses!',
+                                          text: 'Tokeni është fshirë me sukses.',
+                                          icon: 'success',
+                                        }).then((result) => {
+                                          // Redirect to another page or perform other actions
+                                          window.location.href = 'invoice.php';
+                                        });
+                                      },
+                                      error: function(xhr, textStatus, errorThrown) {
+                                        // Handle error response
+                                        Swal.fire({
+                                          title: 'Gabim!',
+                                          text: 'Diçka shkoi keq. Ju lutemi, provoni përsëri.',
+                                          icon: 'error',
+                                        });
+                                      }
+                                    });
+                                  }
+                                </script>
+
+                                <a class="btn btn-info mb-3" href="channel_details.php?channel_token=<?= $tokenInfo['token'] ?>">Shiko detajet</a>
+                              </td>
+                            </tr>
+                          <?php } ?>
+                        </tbody>
+                        <tfoot>
+                          <tr>
+                            <th scope="col">Arti i kopertinës</th>
+                            <th scope="col">Emri i kanalit</th>
+                            <th scope="col">ID-ja e kanalit</th>
+                            <th scope="col">Te ardhurat nga Youtube</th>
+                            <th scope="col">Veprimet</th>
+
+                          </tr>
+                        </tfoot>
+                      </table>
+                    </div>
+                  <?php } else { ?>
+                    <p>Nuk u gjetën argumente rifreskimi në bazën e të dhënave.</p>
+                  <?php } ?>
+
+
                 </div>
                 <!-- <div class="tab-pane fade" id="pills-krijo_fature" role="tabpanel" aria-labelledby="pills-krijo_fature-tab"></div> -->
                 <div class="tab-pane fade" id="pills-lista_e_historise_se_faturave" role="tabpanel" aria-labelledby="pills-lista_e_historise_se_faturave-tab">
@@ -915,8 +1129,112 @@ function handleAuthentication($client)
     });
   </script>
 
-  <!-- Include Bootstrap JS if needed -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Initialize flatpickr for date inputs
+      flatpickr('.datepicker', {
+        dateFormat: 'Y-m-d',
+        allowInput: true,
+        "locale": "sq" // locale for this instance only
+
+      });
+    });
+    document.getElementById('customer_id').addEventListener('change', function() {
+      var selectedOption = this.options[this.selectedIndex];
+      var percentage = selectedOption.getAttribute('data-percentage');
+      document.getElementById('percentage').value = percentage;
+
+      // Calculate Total Amount after Percentage
+      var totalAmount = parseFloat(document.getElementById('total_amount').value);
+      var totalAmountAfterPercentage = totalAmount - (totalAmount * (percentage / 100));
+      document.getElementById('total_amount_after_percentage').value = totalAmountAfterPercentage.toFixed(2);
+    });
+
+    document.getElementById('total_amount').addEventListener('input', function() {
+      // Calculate Total Amount after Percentage when Total Amount changes
+      var totalAmount = parseFloat(this.value);
+      var percentage = parseFloat(document.getElementById('percentage').value);
+      var totalAmountAfterPercentage = totalAmount - (totalAmount * (percentage / 100));
+      document.getElementById('total_amount_after_percentage').value = totalAmountAfterPercentage.toFixed(2);
+    });
+  </script>
+
+  <script>
+    $(document).ready(function() {
+      $('.krijo-fature-btn').on('click', function() {
+        // Get the channel ID from the clicked button
+        var channelId = $(this).data('channel-id');
+
+        // Get the YouTube Analytics Value
+        var youtubeAnalyticsValue = $(this).data('revenue');
+
+        // Update the modal content with the channel ID
+        $('#channel_display').text(channelId);
+
+        // Filter the select options based on the channel ID
+        $('#customer_id option').each(function() {
+          var option = $(this);
+          var optionChannelId = option.data('youtube');
+
+          // Compare the channel IDs
+          if (optionChannelId === channelId) {
+            // Show the option if the channel IDs match
+            option.show();
+          } else {
+            // Hide the option if the channel IDs do not match
+            option.hide();
+          }
+        });
+        // Update the total_amount input field with the YouTube Analytics value
+        $('#total_amount').val(youtubeAnalyticsValue);
+
+        // Select the first visible option (assuming at least one option matches)
+        var visibleOptions = $('#customer_id option:visible');
+        if (visibleOptions.length > 0) {
+          visibleOptions.first().prop('selected', true);
+        }
+      });
+    });
+  </script>.
+
+
+  <script>
+    $(document).ready(function() {
+      var myModal = new bootstrap.Modal(document.getElementById('newInvoice'));
+
+      myModal.addEventListener('show.bs.modal', function(event) {
+        var button = event.relatedTarget;
+        var channelId = button.getAttribute('data-channel-id');
+
+        // Assuming you have a way to get the YouTube Analytics response value
+        var youtubeAnalyticsValue = "Replace with actual value";
+
+        // Update the modal content with the channel ID
+        $('#channel_display').text(channelId);
+
+        // Set the default selected option to the second one
+        $('#customer_id option:eq(2)').prop('selected', true);
+
+        // Filter and select the corresponding option if there is a match
+        $('#customer_id option').each(function() {
+          var option = $(this);
+          var optionChannelId = option.data('youtube');
+
+          if (optionChannelId === channelId) {
+            option.prop('selected', true);
+          }
+        });
+
+        // Update the total_amount input field
+        $('#total_amount').val(youtubeAnalyticsValue);
+      });
+
+      document.querySelector('.krijo-fature-btn').addEventListener('click', function() {
+        myModal.show();
+      });
+    });
+  </script>
+
 
 
 
