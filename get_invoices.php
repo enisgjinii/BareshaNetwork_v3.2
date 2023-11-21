@@ -22,7 +22,7 @@ $columns = array(
     // Add a column to fetch the customer loan from table yinc column shuma
     array('db' => 'y.shuma AS customer_loan', 'dt' => 'customer_loan', 'searchable' => false)
 );
-$sql = "SELECT i.id, i.invoice_number, i.customer_id, i.item,
+$sql = "SELECT i.id, i.invoice_number, i.customer_id, i.item,i.state_of_invoice,
                SUM(i.total_amount) as total_amount,
                SUM(i.total_amount_after_percentage) as total_amount_after_percentage,
                SUM(i.paid_amount) as paid_amount,

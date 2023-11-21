@@ -280,7 +280,13 @@ function getChannelDetails($channelId, $apiKey)
                           <label for="created_date" class="form-label">Data e krijimit të faturës:</label>
                           <input type="date" class="form-control rounded-5 shadow-sm py-3" id="created_date" name="created_date" value="<?php echo date('Y-m-d'); ?>" required>
                         </div>
-
+                        <div class="mb-3">
+                          <label for="invoice_status" class="form-label">Gjendja e fatures:</label>
+                          <select class="form-control rounded-5 shadow-sm py-3" id="invoice_status" name="invoice_status" required>
+                            <option value="Rregullt" selected>Rregullt</option>
+                            <option value="Parregullt">Parregullt</option>
+                          </select>
+                        </div>
                         <button type="submit" class="btn btn-primary btn-sm text-white rounded-5 shadow">Krijo faturë</button>
                       </form>
                     </div>
@@ -355,8 +361,8 @@ function getChannelDetails($channelId, $apiKey)
                               <td>
                                 <?php
                                 $client = new Google_Client();
-                                $client->setClientId('727520120860-kebh087id1eb97tbeefpvkmvsj9nmek5.apps.googleusercontent.com');
-                                $client->setClientSecret('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');
+                                $client->setClientId('84339742200-g674o1df674m94a09tppcufciavp0bo1.apps.googleusercontent.com');
+                                $client->setClientSecret('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');
                                 $client->refreshToken($tokenInfo['token']);
                                 $client->addScope([
                                   'https://www.googleapis.com/auth/youtube',
@@ -790,12 +796,30 @@ function getChannelDetails($channelId, $apiKey)
             }
           },
           {
-            data: 'item'
-          },
+            data: 'item',
+            render: function(data, type, row, meta) {
+              // Combine item and state_of_invoice information
+              var stateOfInvoice = row.state_of_invoice;
+              var badgeClass = '';
 
-          // {
-          //   data: 'total_amount'
-          // },
+              // Check the value and apply Bootstrap badge accordingly
+              if (stateOfInvoice === 'Parregullt') {
+                badgeClass = 'bg-danger';
+              } else if (stateOfInvoice === 'Rregullt') {
+                badgeClass = 'bg-success';
+              }
+
+              // Combine item with state_of_invoice information
+              var combinedData = '<div class="item-column">';
+              combinedData += data; // Append the original item data
+              combinedData += '</div><br>';
+              combinedData += '<div class="badge-column">';
+              combinedData += '<span class="badge ' + badgeClass + ' mx-1 rounded-5">' + stateOfInvoice + '</span>';
+              combinedData += '</div>';
+
+              return combinedData;
+            }
+          },
           {
             data: 'total_amount_after_percentage'
           },
@@ -889,6 +913,7 @@ function getChannelDetails($channelId, $apiKey)
         e.preventDefault();
         var invoiceId = $('#invoiceId').val();
         var paymentAmount = $('#paymentAmount').val();
+        var bankInfo = $('#bankInfo').val();
 
         // Use AJAX to submit payment and update the DataTable
         $.ajax({
@@ -896,7 +921,8 @@ function getChannelDetails($channelId, $apiKey)
           method: 'POST',
           data: {
             invoiceId: invoiceId,
-            paymentAmount: paymentAmount
+            paymentAmount: paymentAmount,
+            bankInfo: bankInfo
           },
           success: function(response) {
             if (response === 'success') {

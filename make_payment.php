@@ -1,21 +1,26 @@
 <?php
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $invoiceId = $_POST["invoiceId"];
-    $paymentAmount = $_POST["paymentAmount"];
+    // Sanitize input data
+    $invoiceId = filter_input(INPUT_POST, "invoiceId", FILTER_VALIDATE_INT);
+    $paymentAmount = filter_input(INPUT_POST, "paymentAmount", FILTER_VALIDATE_FLOAT);
+    $bankInfo = htmlspecialchars($_POST["bankInfo"], ENT_QUOTES, 'UTF-8');
 
-    // Validation: Check if the payment amount is a positive number.
-    if (!is_numeric($paymentAmount) || $paymentAmount <= 0) {
+    // Validation: Check if the invoice ID is valid
+    if (!$invoiceId || $invoiceId <= 0) {
+        echo 'Invalid invoice ID. Please provide a valid invoice ID.';
+    } elseif (!$paymentAmount || $paymentAmount <= 0) {
         echo 'Invalid payment amount. Please enter a valid amount.';
+    } elseif (empty($bankInfo)) {
+        echo 'Invalid bank information. Please select a valid bank.';
     } else {
-
         include('conn-d.php');
-
 
         // Retrieve the current invoice details
         $sql = "SELECT * FROM invoices WHERE id = $invoiceId";
         $result = mysqli_query($conn, $sql);
 
-        if (mysqli_num_rows($result) == 1) {
+        if ($result && mysqli_num_rows($result) == 1) {
             $row = mysqli_fetch_assoc($result);
 
             // Calculate the new paid amount
@@ -25,7 +30,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             // Insert a new payment record into the payments table
             $paymentDate = date("Y-m-d"); // You can customize the date format
-            $insertSql = "INSERT INTO payments (invoice_id, payment_amount, payment_date) VALUES ($invoiceId, $paymentAmount, '$paymentDate')";
+            $insertSql = "INSERT INTO payments (invoice_id, payment_amount, payment_date, bank_info) VALUES ($invoiceId, $paymentAmount, '$paymentDate', '$bankInfo')";
 
             if (mysqli_query($conn, $insertSql)) {
                 // Update the paid amount and status in the invoices table

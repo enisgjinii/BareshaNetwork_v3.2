@@ -113,8 +113,8 @@ $refreshTokens = getRefreshTokensFromDatabase();
                                 <td>
                                     <?php
                                     $client = new Google_Client();
-                                    $client->setClientId('727520120860-kebh087id1eb97tbeefpvkmvsj9nmek5.apps.googleusercontent.com');
-                                    $client->setClientSecret('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');
+                                    $client->setClientId('84339742200-g674o1df674m94a09tppcufciavp0bo1.apps.googleusercontent.com');
+                                    $client->setClientSecret('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');
                                     $client->refreshToken($tokenInfo['token']);
                                     $client->addScope([
                                         'https://www.googleapis.com/auth/youtube',

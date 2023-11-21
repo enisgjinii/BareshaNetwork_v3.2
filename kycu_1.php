@@ -1,3 +1,7 @@
+<head>
+
+    <meta name="google-site-verification" content="65Q9V_d_6p9mOYD05AFLNYLveEnM01AOs5cW2-qKrB0" />
+</head>
 <?php
 // error_reporting(E_ALL);
 ini_set('display_errors', 1);

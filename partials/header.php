@@ -80,11 +80,7 @@ if ($result->num_rows > 0) {
   <meta name="description" content="Panel administrativ">
   <meta name="keywords" content="Panel administrativ">
   <meta name="author" content="Enis Gjini">
-  <meta name="robots" content="noindex, nofollow">
-  <meta name="googlebot" content="noindex, nofollow">
-  <meta name="google" content="notranslate">
-  <meta name="google-site-verification" content="">
-
+  <meta name="google-site-verification" content="65Q9V_d_6p9mOYD05AFLNYLveEnM01AOs5cW2-qKrB0" />
   <!-- Title -->
   <title>BareshaNetwork -
     <?php echo date("Y"); ?>

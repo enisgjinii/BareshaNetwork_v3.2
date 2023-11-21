@@ -32,6 +32,24 @@
                         <th>Obligim:</th>
                         <td><span id="remainingAmount"></span></td>
                     </tr>
+                    <tr>
+                        <th>Menyra e pagesës:</th>
+                        <td>
+                            <select id="bankInfo" name="bankInfo" class="form-select rounded-5 shadow-sm py-3">
+                                <option value="cash">Para në duar</option>
+                                <option value="BankaEkonomike">Banka Ekonomike (Kosovo)</option>
+                                <option value="BankaKombetareTregtare">Banka Kombëtare Tregtare (Albania)</option>
+                                <option value="BankaPerBiznes">Banka për Biznes (Kosovo)</option>
+                                <option value="NLBKomercijalnaBanka">NLB Komercijalna banka (Slovenia)</option>
+                                <option value="NLBBanka">NLB Banka (Slovenia)</option>
+                                <option value="ProCreditBank">ProCredit Bank (Germany)</option>
+                                <option value="RaiffeisenBankKosovo">Raiffeisen Bank Kosovo (Austria)</option>
+                                <option value="TEBSHA">TEB SH.A. (Turkey)</option>
+                                <option value="ZiraatBank">Ziraat Bank (Turkey)</option>
+                                <option value="TurkiyeIsBank">Turkiye Is Bank (Turkey)</option>
+                            </select>
+                        </td>
+                    </tr>
                 </table>
                 <br>
                 <div class="mb-3">
