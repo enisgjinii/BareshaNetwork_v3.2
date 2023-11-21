@@ -50,6 +50,15 @@
                             </select>
                         </td>
                     </tr>
+                    <tr>
+                        <th>Lloji i pageses:</th>
+                        <td>
+                            <select id="type_of_pay" name="type_of_pay" class="form-select rounded-5 shadow-sm py-3">
+                                <option value="Biznes">Biznes</option>
+                                <option value="Personal">Personal</option>
+                            </select>
+                        </td>
+                    </tr>
                 </table>
                 <br>
                 <div class="mb-3">

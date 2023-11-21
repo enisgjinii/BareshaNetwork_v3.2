@@ -914,6 +914,7 @@ function getChannelDetails($channelId, $apiKey)
         var invoiceId = $('#invoiceId').val();
         var paymentAmount = $('#paymentAmount').val();
         var bankInfo = $('#bankInfo').val();
+        var type_of_pay = $('#type_of_pay').val();
 
         // Use AJAX to submit payment and update the DataTable
         $.ajax({
@@ -922,7 +923,8 @@ function getChannelDetails($channelId, $apiKey)
           data: {
             invoiceId: invoiceId,
             paymentAmount: paymentAmount,
-            bankInfo: bankInfo
+            bankInfo: bankInfo,
+            type_of_pay: type_of_pay
           },
           success: function(response) {
             if (response === 'success') {

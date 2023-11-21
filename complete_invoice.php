@@ -82,6 +82,11 @@ if (isset($_GET["id"])) {
                                                             </select>
                                                         </div>
 
+                                                        <select id="type_of_pay" name="type_of_pay" class="form-select rounded-5 shadow-sm py-3">
+                                                            <option value="Biznes">Biznes</option>
+                                                            <option value="Personal">Personal</option>
+                                                        </select>
+
                                                     </div>
                                                     <div class="modal-footer">
                                                         <button type="button" class="input-custom-css px-3 py-2" data-bs-dismiss="modal">Mbyll</button>
@@ -272,9 +277,10 @@ if (isset($_GET["id"])) {
                 $payment_amount = $_POST["payment_amount"];
                 $payment_date = date("Y-m-d"); // You can customize the date format
                 $bank_info = $_POST["bank_info"];
+                $type_of_pay = $_POST["type_of_pay"];
 
                 // Insert a new payment record into the payments table
-                $insert_sql = "INSERT INTO payments (invoice_id, payment_amount, payment_date, bank_info) VALUES ($invoice_id, $payment_amount, '$payment_date', '$bank_info')";
+                $insert_sql = "INSERT INTO payments (invoice_id, payment_amount, payment_date, bank_info, type_of_pay) VALUES ($invoice_id, $payment_amount, '$payment_date', '$bank_info', '$type_of_pay')";
 
                 if (mysqli_query($conn, $insert_sql)) {
                     // Update the paid amount and status in the invoices table
