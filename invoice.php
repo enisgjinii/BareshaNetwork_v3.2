@@ -238,7 +238,6 @@ function getChannelDetails($channelId, $apiKey)
                         <div class="mb-3">
                           <label for="customer_id" class="form-label">Emri i klientit:</label>
                           <select class="form-control rounded-5 shadow-sm py-3" id="customer_id" name="customer_id" required>
-                            <option value="">Zgjidhni klientin</option>
                             <?php
 
                             require_once "conn-d.php";
@@ -257,6 +256,12 @@ function getChannelDetails($channelId, $apiKey)
                           </select>
                         </div>
 
+                        <script>
+                          new Selectr('#customer_id', {
+                            searchable: true,
+                            width: 300
+                          });
+                        </script>
                         <div class="mb-3">
                           <label for="item" class="form-label">Përshkrimi:</label>
                           <textarea type="text" class="form-control rounded-5 shadow-sm py-3" id="item" name="item" required> </textarea>
