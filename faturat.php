@@ -212,6 +212,8 @@ if (isset($_GET['fshij'])) {
 
                             </a></li>
                 </nav>
+                <a class="input-custom-css px-3 py-2" style="text-transform: none;text-decoration: none;" href="invoice.php">Për të krijuar fatura të reja, ju lutem kaloni në faqen e re.</a>
+                <br><br>
                 <div id="alert_message"></div>
                 <div class="row mb-4">
                     <div>

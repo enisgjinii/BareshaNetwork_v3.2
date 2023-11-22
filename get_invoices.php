@@ -14,20 +14,19 @@ $columns = array(
     array('db' => 'invoice_number', 'dt' => 'invoice_number', 'searchable' => true),
     array('db' => 'customer_id', 'dt' => 'customer_id', 'searchable' => true),
     array('db' => 'item', 'dt' => 'item', 'searchable' => true),
-    // array('db' => 'SUM(total_amount) as total_amount', 'dt' => 'total_amount', 'searchable' => false),
-    array('db' => 'SUM(total_amount_after_percentage) as total_amount_after_percentage', 'dt' => 'total_amount_after_percentage', 'searchable' => false),
-    array('db' => 'SUM(paid_amount) as paid_amount', 'dt' => 'paid_amount', 'searchable' => false),
-    // Add a column to fetch customer information
+    array('db' => 'total_amount_after_percentage', 'dt' => 'total_amount_after_percentage', 'searchable' => false),
+    array('db' => 'paid_amount', 'dt' => 'paid_amount', 'searchable' => false),
     array('db' => 'k.emri AS customer_name', 'dt' => 'customer_name', 'searchable' => true),
-    // Add a column to fetch the customer loan from table yinc column shuma
-    array('db' => 'y.shuma AS customer_loan', 'dt' => 'customer_loan', 'searchable' => false)
+    array('db' => '(SUM(y.shuma) - SUM(y.pagoi)) AS customer_loan', 'dt' => 'customer_loan', 'searchable' => false)
 );
-$sql = "SELECT i.id, i.invoice_number, i.customer_id, i.item,i.state_of_invoice,
-               SUM(i.total_amount) as total_amount,
-               SUM(i.total_amount_after_percentage) as total_amount_after_percentage,
-               SUM(i.paid_amount) as paid_amount,
-               k.emri AS customer_name,
-               SUM(y.shuma) - y.pagoi AS customer_loan
+
+// Build the SQL query
+$sql = "SELECT i.id, i.invoice_number, i.customer_id, i.item, i.state_of_invoice,
+                i.total_amount,
+                i.total_amount_after_percentage,
+                SUM(i.paid_amount) AS paid_amount,
+                k.emri AS customer_name,
+                (SUM(y.shuma) - SUM(y.pagoi)) AS customer_loan
         FROM $table AS i
         JOIN klientet AS k ON i.customer_id = k.id
         LEFT JOIN yinc AS y ON i.customer_id = y.kanali
@@ -74,7 +73,7 @@ $query = mysqli_query($conn, $sql);
 
 // Prepare the response data
 $data = array();
-while ($row = mysqli_fetch_array($query)) {
+while ($row = mysqli_fetch_assoc($query)) {
     $data[] = $row;
 }
 

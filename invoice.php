@@ -172,14 +172,9 @@ function getChannelDetails($channelId, $apiKey)
                 <li class="nav-item" role="presentation">
                   <button class="nav-link rounded-5" style="text-transform: none" id="pills-lista_e_kanaleve-tab" data-bs-toggle="pill" data-bs-target="#pills-lista_e_kanaleve" type="button" role="tab" aria-controls="pills-lista_e_kanaleve" aria-selected="false">Lista e kanaleve</button>
                 </li>
-                <!-- <li class="nav-item" role="presentation">
-                  <button class="nav-link rounded-5" style="text-transform: none" id="pills-lista_e_historise_se_faturave-tab" data-bs-toggle="pill" data-bs-target="#pills-lista_e_historise_se_faturave" type="button" role="tab" aria-controls="pills-lista_e_historise_se_faturave" aria-selected="false">Lista e historise e faturave te paguara</button>
-                </li>
                 <li class="nav-item" role="presentation">
-                  <button class="nav-link rounded-5" style="text-transform: none" id="pills-lista_e_pagesave-tab" data-bs-toggle="pill" data-bs-target="#pills-lista_e_pagesave" type="button" role="tab" aria-controls="pills-lista_e_pagesave" aria-selected="false">Lista e pagesave</button>
-                </li> -->
-
-
+                  <button class="nav-link rounded-5" style="text-transform: none" id="pills-lista_e_faturave_te_kryera-tab" data-bs-toggle="pill" data-bs-target="#pills-lista_e_faturave_te_kryera" type="button" role="tab" aria-controls="pills-lista_e_faturave_te_kryera" aria-selected="false">Pagesat e kryera</button>
+                </li>
               </ul>
 
 
@@ -251,7 +246,6 @@ function getChannelDetails($channelId, $apiKey)
                               }
                             }
 
-                            mysqli_close($conn);
                             ?>
                           </select>
                         </div>
@@ -304,7 +298,7 @@ function getChannelDetails($channelId, $apiKey)
                   <!-- Modal Structure -->
 
                   <div class="table-responsive">
-                    <table id="invoiceList" class="table table-bordered" data-source="get_invoice.php">
+                    <table id="invoiceList" class="table table-bordered" data-source="get_invoices.php">
                       <thead class="table-light">
                         <tr>
                           <th></th>
@@ -312,8 +306,7 @@ function getChannelDetails($channelId, $apiKey)
                           <th style="font-size: 12px">Numri i faturës</th>
                           <th style="font-size: 12px">Emri i Klientit</th>
                           <th style="font-size: 12px">Pershkrimi</th>
-                          <!-- <th style="font-size: 12px">Shuma e përgjithshme</th> -->
-                          <th style="font-size: 12px">Shuma e përgjithshme <br><br> pas perqindjes</th>
+                          <th style="font-size: 12px">Detajet</th>
                           <th style="font-size: 12px">Shuma e paguar</th>
                           <th style="font-size: 12px">Obligim</th>
                           <th style="font-size: 12px">Veprimi</th>
@@ -481,27 +474,50 @@ function getChannelDetails($channelId, $apiKey)
 
 
                 </div>
-                <!-- <div class="tab-pane fade" id="pills-krijo_fature" role="tabpanel" aria-labelledby="pills-krijo_fature-tab"></div> -->
-                <div class="tab-pane fade" id="pills-lista_e_historise_se_faturave" role="tabpanel" aria-labelledby="pills-lista_e_historise_se_faturave-tab">
-                  <?php include 'paymentHistory.php' ?>
-                </div>
-                <div class="tab-pane fade" id="pills-lista_e_pagesave" role="tabpanel" aria-labelledby="pills-lista_e_pagesave-tab">
-                  <div class="table-responsive">
-                    <table id="completePayments2" class="table table-bordered w-100">
-                      <thead>
-                        <tr>
-                          <th>Emri i klientit</th>
-                          <th>Numri i faturës</th>
-                          <th>Shuma totale e pagesës</th>
-                          <th>Data</th>
-                        </tr>
-                      </thead>
-                      <tbody></tbody>
-                    </table>
-                  </div>
-                </div>
+
+                <div class="tab-pane fade" id="pills-lista_e_faturave_te_kryera" role="tabpanel" aria-labelledby="pills-lista_e_faturave_te_kryera-tab">
+                  <table id="example2" class="table table-bordered table-hover">
+                    <thead>
+                      <tr>
+                        <th>Klienti</th>
+                        <th>Fatura</th>
+                        <th>Përshkrimi</th>
+                        <th>Shuma e paguar</th>
+                        <th>Mënyra</th>
+                        <th>Lloji</th>
+                        <th>Data</th>
+                        <th>Fatura PDF</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <?php
+
+                      $sql = "SELECT * FROM invoices";
+                      $result = $conn->query($sql);
+
+                      // Fetch the klient emrifull from table klientet using invoices table column called customer_name 
+                      while ($row = $result->fetch_assoc()) {
+                        $customerName = $row['customer_id'];
+                        $sql2 = "SELECT * FROM klientet WHERE id = '$customerName'";
+                        $result2 = $conn->query($sql2);
+
+                        if ($result2->num_rows > 0) {
+                          $clientRow = $result2->fetch_assoc();
+                          echo "<tr>";
+                          echo "<td>" . $clientRow['emri'] . "</td>";
+                          echo "<td>" . $row['invoice_number'] . "</td>";
+                          echo "<td>" . $row['description'] . "</td>";
+                          echo "<td>" . $row['total_amount'] . "</td>";
+                          echo "<td>" . $row['payment_mode'] . "</td>";
+                          echo "<td>" . $row['payment_method'] . "</td>";
+                          echo "<td>" . $row['invoice_date'] . "</td>";
+                        }
+                      } ?>
 
 
+                    </tbody>
+                  </table>
+                </div>
 
               </div>
             </div>
@@ -826,8 +842,23 @@ function getChannelDetails($channelId, $apiKey)
             }
           },
           {
-            data: 'total_amount_after_percentage'
+            "data": null,
+            "render": function(data, type, row) {
+              // Concatenate 'total_amount' and 'total_amount_after_percentage' with HTML table formatting
+              return '<table style="width:100%; font-size:12px;">' +
+                '<tr>' +
+                '<td style="text-align:left;">Shuma e përgjitshme:</td>' +
+                '<td style="text-align:right;">' + row.total_amount + '</td>' +
+                '</tr>' +
+                '<tr>' +
+                '<td style="text-align:left;">Shuma e përgjitshme pas perqindjes:</td>' +
+                '<td style="text-align:right;">' + row.total_amount_after_percentage + '</td>' +
+                '</tr>' +
+                '</table>';
+            }
           },
+
+
           {
             data: 'paid_amount'
           },
