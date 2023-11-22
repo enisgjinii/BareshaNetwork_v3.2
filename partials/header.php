@@ -26,7 +26,7 @@ try {
   exit;
 }
 
-$allowedGmailEmails = array('afrimkolgeci@gmail.com', 'besmirakolgeci1@gmail.com');
+$allowedGmailEmails = array('afrimkolgeci@gmail.com', 'besmirakolgeci1@gmail.com','egjini17@gmail.com','bareshafinance@gmail.com');
 
 if (empty($user_info['email'])) {
   // If the user doesn't have a valid email, deny access.
@@ -40,14 +40,11 @@ if ($domain === 'gmail.com' && !in_array($user_info['email'], $allowedGmailEmail
   // If the email is a Gmail address but not in the allowed list, deny access.
   header('Location: denied.php');
   exit;
-} elseif ($domain !== 'bareshamusic.com') {
-  // If the email domain is not 'bareshamusic.com', deny access.
+} elseif ($domain !== 'bareshamusic.com' && !in_array($user_info['email'], $allowedGmailEmails)) {
+  // If the email domain is not 'bareshamusic.com' and not in the allowed Gmail list, deny access.
   header('Location: denied.php');
   exit;
 }
-
-
-
 
 $gender = $user_info['gender']; // Retrieve the user's gender
 
@@ -68,6 +65,7 @@ if ($result->num_rows > 0) {
   exit;
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
