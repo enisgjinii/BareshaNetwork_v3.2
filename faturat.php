@@ -1,87 +1,34 @@
-<?php
-
-ob_start();
-include 'partials/header.php'; ?>
-
-<?php
-
-error_reporting(E_ALL);
-ini_set('display_errors', '1');
-
-if (isset($_POST['ruaj'])) {
-    // Validate and sanitize input
-    $emriId = isset($_POST['emri']) ? intval($_POST['emri']) : 0;
-
-    // Fetch the emrifull value from the database based on the selected emriId
-    $emrifull = '';
-    $result = $conn->query("SELECT emri FROM klientet WHERE id = $emriId");
-    if ($result && $row = $result->fetch_assoc()) {
-        $emrifull = $row['emri'];
-    }
-
-    $data = isset($_POST['data']) ? mysqli_real_escape_string($conn, $_POST['data']) : '';
-    $fatura = isset($_POST['fatura']) ? mysqli_real_escape_string($conn, $_POST['fatura']) : '';
-    $gjendjaFatures = isset($_POST['gjendjaFatures']) ? mysqli_real_escape_string($conn, $_POST['gjendjaFatures']) : '';
-
-    // Validate and sanitize the array of links
-    $linkuIKengesArray = array();
-    for ($i = 1; $i <= 5; $i++) {
-        $fieldName = "linkuIKenges_" . $i;
-        if (isset($_POST[$fieldName])) {
-            $linkuIKengesArray[] = mysqli_real_escape_string($conn, $_POST[$fieldName]);
-        }
-    }
-    $kenga = implode(",", $linkuIKengesArray);
-
-    $emri_i_kengetarit = isset($_POST['emri_i_kengetarit']) ? mysqli_real_escape_string($conn, $_POST['emri_i_kengetarit']) : '';
-
-    // Use prepared statements to prevent SQL injection
-    $stmt = $conn->prepare("INSERT INTO fatura (emri, emrifull, data, fatura, gjendja_e_fatures) VALUES (?, ?, ?, ?, ?)");
-
-    // Bind parameters
-    $stmt->bind_param("issss", $emriId, $emrifull, $data, $fatura, $gjendjaFatures);
-
-    // Execute the statement
-    if ($stmt->execute()) {
-        // Redirect upon successful insertion
-        header("Location: shitje.php?fatura=$fatura");
-        exit;
-    } else {
-        // Handle errors
-        echo "Gabim: " . $stmt->error;
-    }
-
-    // Close the statement
-    $stmt->close();
+<?php include 'partials/header.php';
+if (isset($_GET['id'])) {
+    $gid = $_GET['id'];
+    $conn->query("UPDATE rrogat SET lexuar='1' WHERE id='$gid'");
 }
+if (isset($_POST['ruaj'])) {
+    $emri = mysqli_real_escape_string($conn, $_POST['emri']);
+    $merreperemer = $conn->query("SELECT * FROM klientet WHERE id='$emri'");
+    $merreperemer2 = mysqli_fetch_array($merreperemer);
 
-
+    $emrifull = $merreperemer2['emri'];
+    $data = mysqli_real_escape_string($conn, $_POST['data']);
+    $fatura = mysqli_real_escape_string($conn, $_POST['fatura']);
+    if ($conn->query("INSERT INTO fatura (emri, emrifull, data, fatura) VALUES ('$emri', '$emrifull', '$data','$fatura')")) {
+?>
+        <meta http-equiv="refresh" content="0;URL='shitje.php?fatura=<?php echo $fatura; ?>'" />
+<?php
+    } else {
+        echo "Gabim: " . $conn->error;
+    }
+}
 if (isset($_GET['fshij'])) {
     $fshijid = $_GET['fshij'];
-
-    // Use prepared statement to prevent SQL injection
-    $stmt = $conn->prepare("SELECT emri, fatura, data FROM fatura WHERE fatura = ?");
-    $stmt->bind_param("s", $fshijid);
-    $stmt->execute();
-    $stmt->store_result();
-
-    // Bind result variables
-    $stmt->bind_result($emr, $fatura2, $data2);
-
-    // Fetch the result
-    $stmt->fetch();
-
-    // Close the statement
-    $stmt->close();
-
-    if ($conn->query("INSERT INTO draft (emri, data, fatura) VALUES (?, ?, ?)")) {
-        $stmt2 = $conn->prepare("DELETE FROM fatura WHERE fatura = ?");
-        $stmt2->bind_param("s", $fshijid);
-        $stmt2->execute();
-        $stmt2->close();
-
-        $shdraft = $conn->query("SELECT * FROM shitje WHERE fatura = '$fshijid'");
-
+    $mfsh4 = $conn->query("SELECT * FROM fatura WHERE fatura='$fshijid'");
+    $mfsh2 = mysqli_fetch_array($mfsh4);
+    $emr = $mfsh2['emri'];
+    $fatura2 = $mfsh2['fatura'];
+    $data2 = $mfsh2['data'];
+    if ($conn->query("INSERT INTO draft (emri, data, fatura) VALUES ('$emr', '$data2','$fatura2')")) {
+        $conn->query("DELETE FROM fatura WHERE fatura='$fshijid'");
+        $shdraft = $conn->query("SELECT * FROM shitje WHERE fatura='$fshijid'");
         while ($draft = mysqli_fetch_array($shdraft)) {
             $shemertimi = $draft['emertimi'];
             $shqmimi = $draft['qmimi'];
@@ -91,14 +38,9 @@ if (isset($_GET['fshij'])) {
             $shtotali = $draft['totali'];
             $shfatura = $draft['fatura'];
             $shdata = $draft['data'];
-
-            // Use prepared statement to prevent SQL injection
-            $stmt3 = $conn->prepare("INSERT INTO shitjedraft (emertimi, qmimi, perqindja, klientit, mbetja, totali, fatura, data) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-            $stmt3->bind_param("ssssssss", $shemertimi, $shqmimi, $shperqindja, $shklienti, $shmbetja, $shtotali, $shfatura, $shdata);
-            $stmt3->execute();
-            $stmt3->close();
-
-            $conn->query("DELETE FROM shitje WHERE fatura='$fshijid'");
+            if ($conn->query("INSERT INTO shitjedraft (emertimi, qmimi, perqindja, klientit, mbetja, totali, fatura, data) VALUES ('$shemertimi', '$shqmimi', '$shperqindja', '$shklienti', '$shmbetja', '$shtotali', '$shfatura', '$shdata')")) {
+                $conn->query("DELETE FROM shitje WHERE fatura='$fshijid'");
+            }
         }
     } else {
         echo '<script>alert("' . $conn->error . '");</script>';
@@ -106,83 +48,35 @@ if (isset($_GET['fshij'])) {
 }
 
 ?>
-
-
-
-
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js" type="text/javascript"></script>
+<link rel="stylesheet" type="text/css" href="tcal.css" />
+<script type="text/javascript" src="tcal.js"></script>
 <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Fatur&euml; e re</h5>
+                <h5 class="modal-title" id="exampleModalLabel">Fatur e re</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form method="POST" action="">
-                    <div class="row">
-                        <div class="col">
-                            <label for="emri" class="form-label">Emri & Mbiemri</label>
-                            <input type="text" id="searchInputFirst" onkeyup="filterOptions()" class="form-control shadow-sm rounded-5 py-3" style="border:1" placeholder="Search for names..">
-                            <br>
-                            <select id="emriSelect" name="emri" class="form-select shadow-sm rounded-5 py-3">
-                                <?php
-                                // PHP: Fetching data from the "klientet" table where blocked='0'
-                                $gsta = $conn->query("SELECT * FROM klientet WHERE blocked='0'");
-                                while ($gst = mysqli_fetch_array($gsta)) {
-                                    // PHP: Generating option elements with values from the database
-                                    echo '<option value="' . $gst['id'] . '">' . $gst['emri'] . '</option>';
-                                }
-                                ?>
-                            </select>
-                        </div>
 
-                        <script>
-                            function filterOptions() {
-                                var input, filter;
-                                input = document.getElementById('searchInputFirst');
-                                filter = input.value.toLowerCase();
+                    <label for="emri">Emri & Mbiemri</label>
+                    <select name="emri" class="form-select shadow-sm rounded-5 my-2">
+                        <?php
+                        $gsta = $conn->query("SELECT * FROM klientet WHERE blocked='0'");
+                        while ($gst = mysqli_fetch_array($gsta)) {
+                        ?>
+                            <option value="<?php echo $gst['id']; ?>"><?php echo $gst['emri']; ?></option>
+                        <?php } ?>
 
-                                // Create an AJAX request
-                                var xmlhttp = new XMLHttpRequest();
-                                xmlhttp.onreadystatechange = function() {
-                                    if (this.readyState == 4 && this.status == 200) {
-                                        // Update the select dropdown with the response
-                                        document.getElementById('emriSelect').innerHTML = this.responseText;
-                                    }
-                                };
+                    </select>
+                    <label for="datas">Data:</label>
+                    <input type="text" name="data" class="form-control shadow-sm rounded-5 my-2" value="<?php echo date("Y-m-d"); ?>">
+                    <label for="imei">Fatura:</label>
 
-                                // Send the request to the server-side script
-                                xmlhttp.open('GET', 'filter_names.php?filter=' + filter, true);
-                                xmlhttp.send();
-                            }
-                        </script>
+                    <input type="text" name="fatura" class="form-control shadow-sm rounded-5 my-2" value="<?php echo date('dmYhis'); ?>" readonly>
 
-
-                        <div class="col">
-                            <!-- Input field for entering Data -->
-                            <label for="datas" class="form-label">Data:</label>
-                            <input type="text" name="data" class="form-control shadow-sm rounded-5 py-3" value="<?php echo date("Y-m-d"); ?>">
-
-                        </div>
-                    </div>
-
-                    <div class="row my-3">
-                        <div class="col">
-                            <!-- Input field for displaying Fatura -->
-                            <label for="imei" class="form-label">Fatura:</label>
-                            <input type="text" name="fatura" class="form-control shadow-sm rounded-5 py-3" value="<?php echo date('dmYhis'); ?>" readonly>
-                        </div>
-                        <div class="col">
-
-                            <!-- Select field for choosing gjendjaFatures -->
-                            <label for="gjendjaFatures" class="form-label">Zgjidhni gjendjen e fatur&euml;s:</label>
-                            <select name="gjendjaFatures" id="gjendjaFatures" class="form-select shadow-sm rounded-5 py-3">
-                                <option value="Rregullt">Rregullt</option>
-                                <option value="Pa rregullt">Pa rregullt</option>
-                            </select>
-
-                        </div>
-                    </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Mbylle</button>
@@ -193,306 +87,384 @@ if (isset($_GET['fshij'])) {
     </div>
 </div>
 
-
-
-
-
-<div class="main-panel" id="main-panel">
+<div class="main-panel">
     <div class="content-wrapper">
         <div class="container-fluid">
             <div class="container">
-                <nav style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='currentColor'/%3E%3C/svg%3E&#34;);" aria-label="breadcrumb">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item "><a class="text-reset" style="text-decoration: none;">Financat</a>
-                        </li>
-                        <li class="breadcrumb-item active" aria-current="page"><a href="faturat.php" class="text-reset" style="text-decoration: none;">
-                                Pagesat Youtube ( Version i vjetër )
-                                <span class="badge bg-warning text-dark rounded-5">v3.2 Punon</span>
-                                <span class="badge bg-danger text-white rounded-5">v3.3 Zhvlersohet</span>
+                <div class="p-5 shadow-sm rounded-5 mb-4 card">
+                    <h4 class="font-weight-bold text-gray-800 mb-4">Pagesat Youtube</h4>
+                    <nav class="d-flex">
+                        <h6 class="mb-0">
+                            <a href="" class="text-reset">Financat</a>
+                            <span>/</span>
+                            <a href="faturat.php" class="text-reset" data-bs-placement="top" data-bs-toggle="tooltip" title="<?php echo __FILE__; ?>"><u>Pagesat Youtube</u></a>
+                            <br>
+                            <!-- Button trigger modal -->
+                            <button type="button" class="btn btn-sm btn-primary text-white rounded-5 shadow-sm mt-3" data-bs-toggle="modal" data-bs-target="#videoUdhezuese">
+                                <i class="fi fi-rr-info"></i>
+                            </button>
 
-                            </a></li>
-                </nav>
-                <a class="input-custom-css px-3 py-2" style="text-transform: none;text-decoration: none;" href="invoice.php">Për të krijuar fatura të reja, ju lutem kaloni në faqen e re.</a>
-                <br><br>
-                <div id="alert_message"></div>
-                <div class="row mb-4">
-                    <div>
-                        <button style="text-transform: none;" class="input-custom-css px-3 py-2" data-bs-toggle="modal" data-bs-target="#exampleModal"><i class="fi fi-rr-add-document fa-lg"></i>&nbsp; Fatur&euml; e
-                            re</button>
-                        <button style="text-transform: none;" class="input-custom-css px-3 py-2" data-bs-toggle="modal" data-bs-target="#pagesmodal"><i class="fi fi-rr-badge-dollar fa-lg"></i>&nbsp; Pages&euml; e
-                            re</button>
+                            <!-- Modal -->
+                            <div class="modal fade" id="videoUdhezuese" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-xl">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h1 class="modal-title fs-5" id="exampleModalLabel">Video udhëzuese</h1>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <video width="100%" height="315" controls>
+                                                <source src="assets/video-udhëzuese.mp4" type="video/mp4">
+                                                Your browser does not support the video tag.
+                                            </video>
+
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                            <button type="button" class="btn btn-primary">Save changes</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </h6>
+                    </nav>
+                </div>
+                <div class="modal fade" id="pagesmodal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLabel">Shto Pages&euml;</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form id="user_form">
+                                    <label>Fatura:</label>
+                                    <input type="text" name="fatura" id="fatura" class="form-control shadow-sm rounded-5 my-2" value="" placeholder="Shëno numrin e faturës">
+                                    <label>P&euml;rshkrimi:</label>
+                                    <textarea class="form-control shadow-sm rounded-5 my-2" name="pershkrimi" id="pershkrimi"></textarea>
+                                    <label>Shuma:</label>
+                                    <div class="input-group mb-3">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">&euro;</span>
+                                        </div>
+                                        <input type="text" name="shuma" id="shuma" class="form-control shadow-sm rounded-5 my-2" placeholder="0" aria-label="Shuma">
+                                        <div class="input-group-append">
+                                            <span class="input-group-text">.00</span>
+                                        </div>
+                                    </div>
+                                    <label>M&euml;nyra e pages&euml;s</label>
+                                    <select name="menyra" id="menyra" class="form-select shadow-sm rounded-5 my-2">
+                                        <option value="BANK">BANK</option>
+                                        <option value="CASH">CASH</option>
+                                        <option value="PayPal">PayPal</option>
+                                        <option value="Ria">Ria</option>
+                                        <option value="MoneyGram">Money Gram</option>
+                                        <option value="WesternUnion">Western Union</option>
+                                    </select>
+                                    <label>Data</label>
+                                    <input type="text" name="data" id="data" value="<?php echo date("Y-m-d"); ?>" class="form-control shadow-sm rounded-5 my-2">
+                                    <div id="mesg" style="color:red;"></div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hiqe</button>
+                                <input type="button" name="ruajp" id="btnruaj" class="btn btn-primary" value="Ruaj">
+                                </form>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <?php
-                $query = "SELECT
-                f.*,
-                k.id AS klient_id,
-                k.emri AS klient_emri,
-                s.totali AS shitje_totali,
-                COALESCE(SUM(p.shuma), 0) AS pagesa_totali,
-                GROUP_CONCAT(DISTINCT s.emertimi) AS shitje_emertimi
-            FROM
-                fatura AS f
-            LEFT JOIN
-                klientet AS k ON f.emri = k.id
-            LEFT JOIN
-                shitje AS s ON f.fatura = s.fatura
-            LEFT JOIN
-                pagesat AS p ON f.fatura = p.fatura
-            WHERE
-                s.totali - COALESCE(p.shuma, 0) > 0
-            GROUP BY
-                f.id, k.id, k.emri
-            ORDER BY
-                f.id DESC;
-            ";
-
-
-                $result = $conn->query($query);
-                ?>
-
-                <?php if ($result->num_rows > 0) : ?>
-                    <div class="card p-5 mt-3 rounded">
-                        <table class="table table-bordered" id="faturat">
-                            <thead>
-                                <tr>
-                                    <th>Emri</th>
-                                    <th>Data</th>
-                                    <th>Fatura</th>
-                                    <th>Shuma</th>
-                                    <th>Shuma e paguar</th>
-                                    <th>Obligim</th>
-                                    <th>Borgj</th>
-                                    <th>Veprimet</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php while ($row = mysqli_fetch_assoc($result)) : ?>
-                                    <?php
-                                    $invoice_fatura = $row['fatura'];
-                                    $shitje_totali = $row['shitje_totali'];
-                                    $pagesa_shuma = $row['pagesa_totali'];
-                                    $emertimi = $row['shitje_emertimi'];
-                                    $obligim = $shitje_totali - $pagesa_shuma;
-                                    $invoice_klient_id = $row['klient_id'];
-                                    $loan_query = "SELECT * FROM yinc WHERE kanali = '$invoice_klient_id'";
-                                    $loan_result = $conn->query($loan_query);
-
-                                    $total_loan = 0;
-
-                                    while ($loan = mysqli_fetch_assoc($loan_result)) {
-                                        $amount = $loan['shuma'] - $loan['pagoi'];
-                                        if ($amount > 0) {
-                                            $total_loan += $amount;
-                                        }
-                                    }
-                                    // Only display the row if $obligim is greater than 0
-                                    if ($obligim > 0) :
-                                    ?>
-
-                                        <tr>
-                                            <td>
-                                                <?php echo $row['klient_emri']; ?>
-                                                <br><br>
-                                                <a href="#" class="show-details btn btn-sm rounded py-2 border shadow-sm text-muted" style="text-transform: none;font-size: 12px;"><i class="fi fi-rr-eye"></i></a>
-                                                <span class="text-muted details" style="display: none;"><?php echo $row['shitje_emertimi']; ?></span>
-                                            </td>
-
-                                            <td><?php echo $row['data']; ?></td>
-                                            <td><?php echo $invoice_fatura; ?></td>
-                                            <td><?php echo $shitje_totali; ?></td>
-                                            <td>
-                                                <?php
-                                                if ($pagesa_shuma === null || $pagesa_shuma === '') {
-                                                    echo '<i class="fi fi-rr-clock m-0 p-0"></i>';
-                                                } else {
-                                                    echo $pagesa_shuma;
-                                                }
-                                                ?>
-                                            </td>
-                                            <td><?php echo $obligim; ?></td>
-                                            <td><?php echo $total_loan; ?></td>
-                                            <td>
-                                                <a class="button-custom-light open-modal" role="button" data-tooltip="Paguaj" data-invoice-fatura="<?php echo $invoice_fatura; ?>" data-shitje-totali="<?php echo $obligim; ?>">
-                                                    <i class="fi fi-rr-money-bill-wave"></i>
-                                                </a>
-                                                <a class="button-custom-light" role="button" data-tooltip="Print" href="fatura.php?invoice=<?php echo $invoice_fatura; ?>" target="_blank"><i class="fi fi-rr-print"></i></a>
-                                                <a class="button-custom-light" role="button" data-tooltip="Ndrysho" href="shitje.php?fatura=<?php echo $invoice_fatura; ?>"><i class="fi fi-rr-edit"></i></a>
-                                                <a class="button-custom-light delete" role="button" name="delete" data-tooltip="Fshi" id="<?php echo $invoice_fatura; ?>"><i class="fi fi-rr-trash"></i></a>
-                                                <a class="button-custom-light" role="button" data-tooltip="Shih" href="fatura_details.php?invoice_fatura=<?php echo $invoice_fatura; ?>"><i class="fi fi-rr-square-plus"></i></a>
-                                            </td>
-                                        </tr><?php endif; ?>
-                                <?php endwhile; ?>
-                            </tbody>
-                        </table>
+                <div class="p-5 shadow-sm rounded-5 mb-4 card">
+                    <h4 style="text-transform: none;" class="card-title">Veglat për aksesim të shpejtë</h4>
+                    <div class="">
+                        <button style="text-transform: none;" class="btn btn-sm btn-primary mt-3 text-white shadow-sm rounded-5 mt-2" data-bs-toggle="modal" data-bs-target="#exampleModal"><i class="fi fi-rr-add-document fa-lg"></i>&nbsp; Faturë e re</button>
+                        <button style="text-transform: none;" class="btn btn-sm btn-primary mt-3 text-white shadow-sm rounded-5 mt-2" data-bs-toggle="modal" data-bs-target="#pagesmodal"><i class="fi fi-rr-badge-dollar fa-lg"></i>&nbsp; Pagesë e re</button>
                     </div>
-                <?php endif; ?>
+                </div>
+
+
+                <div class="card shadow-sm rounded-5">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <div class="table-responsive">
+                                <table id="employeeList" class="table w-100 table-bordered">
+                                    <thead class="bg-light">
+                                        <tr>
+                                            <th>Emri</th>
+                                            <th>Emri artistik</th>
+                                            <th>Fatura</th>
+                                            <th>Data</th>
+                                            <th>Shuma</th>
+                                            <th>Sh.Paguar</th>
+                                            <th>Obligim</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+
+                                    <tfoot class="bg-light">
+                                        <tr>
+                                            <th>Emri</th>
+                                            <th>Emri artistik</th>
+                                            <th>Fatura</th>
+                                            <th>Data</th>
+                                            <th>Shuma</th>
+                                            <th>Sh.Paguar</th>
+                                            <th>Obligim</th>
+                                            <th></th>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                                <script type="text/javascript">
+                                    $(document).ready(function() {
+                                        $('#btnruaj').click(function() {
+                                            var data = $('#user_form').serialize() + '&btn_save=btn_save';
+                                            $.ajax({
+                                                url: 'api/insertpages.php',
+                                                type: 'POST',
+                                                data: data,
+                                                success: function(response) {
+                                                    $('#mesg').text(response);
+                                                }
+                                            });
+                                        });
+                                    });
+                                </script>
+                                <!-- <script src="js/fetch.js"></script> -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+
+
 </div>
-
-
-<?php include 'pages_e_re.php' ?>
-<?php include 'fature_e_re.php' ?>
+<?php include 'partials/footer.php'; ?>
 
 <script>
     $(document).ready(function() {
 
-        // Code for handling delete functionality
-        function handleDelete(id) {
-            Swal.fire({
-                title: 'A je i sigurt ?',
-                text: "Ky veprim nuk mund të zhbëhet.",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Po, hiqeni!'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $.ajax({
-                        url: "api/deletefat.php",
-                        method: "POST",
-                        data: {
-                            id: id
-                        },
-                        success: function(data) {
-                            // Refresh the page
-
-                            location.reload();
-                        },
-                        error: function(xhr, status, error) {
-                            // Handle error if needed
-                            $("#alert_message").html(
-                                '<p class="alert alert-danger">Error: ' + error + "</p>"
-                            );
-                        },
-                    });
-                }
-            });
-        }
-
-        // Event listener for delete button
-        $(document).on("click", ".delete", function() {
-            var id = $(this).attr("id");
-            handleDelete(id);
-        });
-
-        // Code for opening modal
-        $(document).on('click', '.open-modal', function() {
-            const fatura = $(this).data("invoice-fatura");
-            const shitje_totali = $(this).data("shitje-totali");
-            $('#id_of_fatura').val(fatura);
-            $('#shuma').val(shitje_totali);
-            const myModal = new bootstrap.Modal(document.getElementById('pagesmodal'));
-            myModal.show();
-        });
-
-        // Code for saving data via AJAX
-        $('#btnruaj').click(function() {
-            var data = $('#user_form').serialize() + '&btn_save=btn_save';
-            $.ajax({
-                url: 'api/shto_pages.php',
-                type: 'POST',
-                data: data,
-                success: function(response) {
-                    Swal.fire({
-                        title: 'Success',
-                        text: response,
-                        icon: 'success',
-                        confirmButtonText: 'OK',
-                        timer: 1500
-                    }).then(() => {
-                        location.reload();
-                    });
-                    setTimeout(function() {
-                        $('#pagesmodal').modal('hide');
-                    }, 1800);
+        var dataTables = $('#employeeList').DataTable({
+            responsive: false,
+            "order": [
+                [3, "desc"]
+            ],
+            "ajax": {
+                url: "ajax_fatura.php",
+                type: "POST"
+            },
+            "columns": [{
+                    "data": "emrifull",
                 },
-                error: function(xhr, status, error) {
-                    Swal.fire({
-                        title: 'Error',
-                        text: error,
-                        icon: 'error',
-                        confirmButtonText: 'OK',
-                        timer: 1500
-                    });
+                {
+                    "data": "emriartikullit"
+                },
+                {
+                    "data": "fatura"
+                },
+                {
+                    "data": "data"
+                },
+                {
+                    "data": "shuma"
+                },
+                {
+                    "data": "shuma_e_paguar"
+                },
+                {
+                    "data": "obli"
+                },
+                {
+                    "data": "aksion"
                 }
-            });
-        });
+            ],
 
-        // Code for showing/hiding details
-        $('.show-details').on('click', function(event) {
-            // Prevent the default link behavior
-            event.preventDefault();
 
-            // Find the next sibling element with class "details"
-            var details = $(this).next('.details');
-
-            // Toggle the display of the details span
-            details.toggle();
-        });
-
-        // Code for initializing DataTable
-        $('#faturat').DataTable({
-            dom: "<'row'<'col-md-3'l><'col-md-6'B><'col-md-3'f>>" +
-                "<'row'<'col-md-12'tr>>" +
-                "<'row'<'col-md-6'><'col-md-6'p>>",
+            lengthMenu: [
+                [10, 25, 50, -1],
+                [10, 25, 50, "Të gjitha"]
+            ],
+            dom: '<"row mb-3"<"col-sm-6"l><"col-sm-6"f>>' + // length menu and search input layout with margin bottom
+                'Brtip',
             buttons: [{
-                    extend: "pdfHtml5",
+                    extend: 'pdfHtml5',
                     text: '<i class="fi fi-rr-file-pdf fa-lg"></i>&nbsp;&nbsp; PDF',
-                    titleAttr: "Eksporto tabelen ne formatin PDF",
-                    className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
-                },
-                {
-                    extend: "copyHtml5",
+                    titleAttr: 'Eksporto tabelen ne formatin PDF',
+                    className: 'btn btn-light border shadow-2 me-2'
+                }, {
+                    extend: 'copyHtml5',
                     text: '<i class="fi fi-rr-copy fa-lg"></i>&nbsp;&nbsp; Kopjo',
-                    titleAttr: "Kopjo tabelen ne formatin Clipboard",
-                    className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
-                },
-                {
-                    extend: "excelHtml5",
+                    titleAttr: 'Kopjo tabelen ne formatin Clipboard',
+                    className: 'btn btn-light border shadow-2 me-2'
+                }, {
+                    extend: 'excelHtml5',
                     text: '<i class="fi fi-rr-file-excel fa-lg"></i>&nbsp;&nbsp; Excel',
-                    titleAttr: "Eksporto tabelen ne formatin Excel",
-                    className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
+                    titleAttr: 'Eksporto tabelen ne formatin Excel',
+                    className: 'btn btn-light border shadow-2 me-2',
                     exportOptions: {
                         modifier: {
-                            search: "applied",
-                            order: "applied",
-                            page: "all",
-                        },
-                    },
+                            search: 'applied',
+                            order: 'applied',
+                            page: 'all'
+                        }
+                    }
+                }, {
+                    extend: 'print',
+                    text: '<i class="fi fi-rr-print fa-lg"></i>&nbsp;&nbsp; Printo',
+                    titleAttr: 'Printo tabelën',
+                    className: 'btn btn-light border shadow-2 me-2'
+                }, {
+                    text: '<i class="fi fi-rr-badge-dollar fa-lg"></i>&nbsp;&nbsp; Pagesë',
+                    className: 'btn btn-light border shadow-2 me-2',
+                    action: function(e, node, config) {
+                        $('#pagesmodal').modal('show')
+                    }
                 },
                 {
-                    extend: "print",
-                    text: '<i class="fi fi-rr-print fa-lg"></i>&nbsp;&nbsp; Printo',
-                    titleAttr: "Printo tabel&euml;n",
-                    className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
-                },
+                    text: '<i class="fi fi-rr-add-document fa-lg"></i>&nbsp;&nbsp; Faturë e re',
+                    className: 'btn btn-light border shadow-2 me-2',
+                    action: function(e, node, config) {
+                        $('#exampleModal').modal('show')
+                    }
+                }
             ],
-            order: [],
             initComplete: function() {
-                var btns = $(".dt-buttons");
-                btns.addClass("").removeClass("dt-buttons btn-group");
-                var lengthSelect = $("div.dataTables_length select");
-                lengthSelect.addClass("form-select");
+                var btns = $('.dt-buttons');
+                btns.addClass('');
+                btns.removeClass('dt-buttons btn-group');
+                var lengthSelect = $('div.dataTables_length select');
+                lengthSelect.addClass('form-select'); // add Bootstrap form-select class
                 lengthSelect.css({
-                    width: "auto",
-                    margin: "0 8px",
-                    padding: "0.375rem 1.75rem 0.375rem 0.75rem",
-                    lineHeight: "1.5",
-                    border: "1px solid #ced4da",
-                    borderRadius: "0.25rem",
-                });
+                    'width': 'auto', // adjust width to fit content
+                    'margin': '0 8px', // add some margin around the element
+                    'padding': '0.375rem 1.75rem 0.375rem 0.75rem', // adjust padding to match Bootstrap's styles
+                    'line-height': '1.5', // adjust line-height to match Bootstrap's styles
+                    'border': '1px solid #ced4da', // add border to match Bootstrap's styles
+                    'border-radius': '0.25rem', // add border radius to match Bootstrap's styles
+                }); // adjust width to fit content
             },
+            fixedHeader: true,
             language: {
                 url: "https://cdn.datatables.net/plug-ins/1.13.1/i18n/sq.json",
             },
-            stripeClasses: ["stripe-color"],
+            stripeClasses: ['stripe-color'],
+
         });
+
+        $(document).on('click', '.delete', function() {
+            var id = $(this).attr("id");
+            if (confirm("A jeni i sigurt që doni ta hiqni këtë?")) {
+                $.ajax({
+                    url: "api/deletefat.php",
+                    method: "POST",
+                    data: {
+                        id: id
+                    },
+                    success: function(data) {
+                        $('#alert_message').html('<div class="alert alert-success">' + data + '</div>');
+                        $('#user_data').DataTable().destroy();
+                        fetch_data();
+                    }
+                });
+                setInterval(function() {
+                    $('#alert_message').html('');
+                }, 5000);
+            }
+        });
+
+        // Make this table employeeList to be reloaded when i press button Ruaj
+        $('#btnruaj').click(function() {
+            $('#employeeList').DataTable().ajax.reload();
+        });
+    });
+
+
+    // Add a click event listener to buttons with the class "open-modal"
+    $(document).on('click', '.open-modal', function() {
+        // Get the fatura value from the parent table cell's text
+        var fatura = $(this).parent().text().trim();
+        var obli = $(this).parent().next().next().text().trim();
+
+        // Fill the fatura input field with the retrieved data
+        $('#fatura').val(fatura);
+        $('#shuma').val(obli);
+
+        // Show the modal - this depends on the version of Bootstrap you are using
+        // Bootstrap 4:
+        // $('#myModal').modal('show');
+        // Bootstrap 5:
+        var myModal = new bootstrap.Modal(document.getElementById('pagesmodal'));
+        myModal.show();
     });
 </script>
 
 
-<?php include 'partials/footer.php'; ?>
+<!-- 
+<?php
+
+
+while ($row = mysqli_fetch_array($result)) {
+    $id = $row['id'];
+    // $emri = $row['emri']; - Kjo eshte rubrik per emer por po e shfaq pjesen e ID-së
+    $emri_artikullit = $row['emrifull'];
+    $fatura = $row['fatura'];
+    $pagesa_e_mbetur = $row['klientit'];
+    $totali = $row['mbetja'];
+    $pagesa = $row['totali'];
+    $data = $row['data'];
+
+    $dda = $row['data'];
+    $date = date_create($dda);
+    $dats = date_format($date, 'Y-m-d');
+    $sid = $row['fatura'];
+
+    $q4 = $conn->query("SELECT SUM(`totali`) as `sum` FROM `shitje` WHERE fatura='$sid'");
+    $qq4 = mysqli_fetch_array($q4);
+
+    $merrpagesen = $conn->query("SELECT SUM(`shuma`) as `sum` FROM `pagesat` WHERE fatura='$sid'");
+    $merrep = mysqli_fetch_array($merrpagesen);
+
+    $klientiid = $row['emri'];
+
+    $queryy = "SELECT * FROM klientet WHERE id=" . $klientiid . " ";
+    $mkl = $conn->query($queryy);
+    $k4 = mysqli_fetch_array($mkl);
+
+    $obli = $qq4['sum'] - $merrep['sum'];
+
+    if ($qq4['sum'] > $merrep['sum']) {
+        $pagesaaa = $row["emrifull"];
+    } else {
+        $pagesaaa =  $row["emrifull"];
+    }
+
+    $shuma = $qq4["sum"];
+    $shuma_e_paguar = $merrep['sum'];
+
+    if ($obli !== 0 && $obli > 0) {
+
+        echo "
+                              <tr class='table-row'>
+                                  <td>$pagesaaa</td>
+                                  <td>$emri_artikullit</td>
+                                  <td>
+                            $fatura
+                            <button class='btn btn-primary open-modal'><i class='fi fi-rr-badge-dollar fa-lg'></i></button>
+                          </td>
+                                  <td>$data</td>
+                                  <td>$shuma</td>
+                                  <td>$shuma_e_paguar</td>
+                                  <td>$obli</td>
+
+                                  <td>
+                                  <a class='btn btn-primary btn-sm py-2' href='shitje.php?fatura=$sid' target='_blank'><i class='fi fi-rr-edit'></i></a>
+                                  <a class='btn btn-success btn-sm py-2' target='_blank' href='fatura.php?invoice=$sid'><i class='fi fi-rr-print'></i></a> 
+                                  <a type='button' name='delete' class='btn btn-danger btn-xs delete py-2' id='$sid'><i class='fi fi-rr-trash'></i></a> 
+                                  </td>
+                              </tr>
+                              ";
+    }
+}
+
+?> -->

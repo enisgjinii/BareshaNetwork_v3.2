@@ -76,10 +76,19 @@
                                     </thead>
                                     <tbody>
                                         <?php
-                                        $payments = $conn->query("SELECT * FROM pagesat ORDER BY id DESC");
+                                        $invoices_query = $conn->query("SELECT fatura, kategoria, SUM(shuma) as total_shuma, menyra, data, pershkrimi
+                                        FROM pagesat 
+                                        GROUP BY fatura, kategoria
+                                        ORDER BY id DESC");
 
-                                        while ($payment = mysqli_fetch_array($payments)) {
-                                            $invoice_number = $payment['fatura'];
+
+                                        while ($invoice_row = mysqli_fetch_assoc($invoices_query)) {
+                                            $invoice_number = $invoice_row['fatura'];
+                                            $total_shuma = $invoice_row['total_shuma'];
+                                            $menyra = $invoice_row['menyra'];
+                                            $data = $invoice_row['data'];
+                                            $pershkrimi = $invoice_row['pershkrimi'];
+
                                             $invoice_info = $conn->query("SELECT * FROM fatura WHERE fatura='$invoice_number'");
                                             $invoice_data = mysqli_fetch_array($invoice_info);
 
@@ -87,38 +96,37 @@
                                                 $client_id = $invoice_data['emri'];
                                                 $client_info = $conn->query("SELECT * FROM klientet WHERE id='$client_id'");
                                                 $client_data = mysqli_fetch_array($client_info);
-
                                         ?>
                                                 <tr>
                                                     <td class="wrap-text">
                                                         <?= $client_data['emri']; ?>
                                                     </td>
                                                     <td class="wrap-text">
-                                                        <?= $payment['fatura']; ?>
+                                                        <?= $invoice_number; ?>
                                                     </td>
                                                     <td class="wrap-text">
-                                                        <?= $payment['pershkrimi']; ?>
+                                                        <?= $pershkrimi; ?>
                                                     </td>
                                                     <td class="wrap-text">
-                                                        <?= $payment['shuma']; ?>
+                                                        <?= $total_shuma; ?>
                                                     </td>
                                                     <td class="wrap-text">
-                                                        <?= $payment['menyra']; ?>
+                                                        <?= $menyra; ?>
                                                     </td>
                                                     <td class="wrap-text">
-                                                        <?= date("d-m-Y", strtotime($payment['data'])); ?>
+                                                        <?= date("d-m-Y", strtotime($data)); ?>
                                                     </td>
                                                     <td class="wrap-text">
                                                         <?php
-                                                        if (!empty($payment['kategoria'])) {
-                                                            $kategoria = @unserialize($payment['kategoria']);
+                                                        if (!empty($invoice_row['kategoria'])) {
+                                                            $kategoria = @unserialize($invoice_row['kategoria']);
                                                             if ($kategoria !== false) {
                                                                 $kategoria = array_map(function ($value) {
                                                                     return ($value == 'null') ? 'Ska' : $value;
                                                                 }, $kategoria);
                                                                 echo implode(", ", $kategoria);
                                                             } else {
-                                                                echo str_replace('null', 'Ska', $payment['kategoria']);
+                                                                echo str_replace('null', 'Ska', $invoice_row['kategoria']);
                                                             }
                                                         } else {
                                                             echo '';
@@ -126,7 +134,7 @@
                                                         ?>
                                                     </td>
                                                     <td>
-                                                        <a class="btn btn-light py-1 px-2 border border-1" target="_blank" href="fatura.php?invoice=<?= $payment['fatura']; ?>">
+                                                        <a class="btn btn-light py-1 px-2 border border-1" target="_blank" href="fatura.php?invoice=<?= $invoice_number; ?>">
                                                             <i class="fi fi-rr-print"></i>
                                                         </a>
                                                     </td>
@@ -135,10 +143,10 @@
                                             }
                                         }
                                         ?>
-
                                     </tbody>
 
                                 </table>
+
                             </div>
                         </div>
                     </div>
