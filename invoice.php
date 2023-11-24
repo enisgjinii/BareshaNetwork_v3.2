@@ -276,7 +276,7 @@ function getChannelDetails($channelId, $apiKey)
                         <tr>
                           <th></th>
                           <th style="font-size: 12px">ID</th>
-                          <th style="font-size: 12px">Numri i faturës</th>
+                          <!-- <th style="font-size: 12px">Numri i faturës</th> -->
                           <th style="font-size: 12px">Emri i Klientit</th>
                           <th style="font-size: 12px">Pershkrimi</th>
                           <th style="font-size: 12px">Detajet</th>
@@ -765,12 +765,12 @@ function getChannelDetails($channelId, $apiKey)
           {
             data: 'id',
           },
-          {
-            data: 'invoice_number',
-            render: function(data, type, row) {
-              return '<a class="input-custom-css px-3 py-2" style="text-decoration: none;" href="complete_invoice.php?id=' + row.id + '">' + data + '</a>';
-            }
-          },
+          // {
+          //   data: 'invoice_number',
+          //   render: function(data, type, row) {
+          //     return '<a class="input-custom-css px-3 py-2" style="text-decoration: none;" href="complete_invoice.php?id=' + row.id + '">' + data + '</a>';
+          //   }
+          // },
           {
             data: 'customer_name',
             render: function(data, type, row) {
@@ -824,7 +824,7 @@ function getChannelDetails($channelId, $apiKey)
                 '<td style="text-align:right;">' + row.total_amount + '</td>' +
                 '</tr>' +
                 '<tr>' +
-                '<td style="text-align:left;">Shuma e përgjitshme pas perqindjes:</td>' +
+                '<td style="text-align:left;">Shuma e për. % :</td>' +
                 '<td style="text-align:right;">' + row.total_amount_after_percentage + '</td>' +
                 '</tr>' +
                 '</table>';
@@ -888,6 +888,7 @@ function getChannelDetails($channelId, $apiKey)
         $('#paidAmount').text(paidAmount);
         $('#remainingAmount').text(remainingAmount.toFixed(2));
 
+        $('#paymentAmount').val(remainingAmount.toFixed(2));
         // Show the modal
         $('#paymentModal').modal('show');
       });

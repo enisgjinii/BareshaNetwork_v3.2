@@ -47,6 +47,7 @@
                                 <option value="TEBSHA">TEB SH.A. (Turkey)</option>
                                 <option value="ZiraatBank">Ziraat Bank (Turkey)</option>
                                 <option value="TurkiyeIsBank">Turkiye Is Bank (Turkey)</option>
+                                <option value="Tjera">Tjera</option>
                             </select>
                         </td>
                     </tr>
@@ -67,7 +68,7 @@
                 </div>
                 <p id="paymentAmountError" class="badge bg-danger px-2 rounded-5 py-2"></p>
                 <input type="hidden" id="invoiceId" name="invoiceId">
-                <button type="button" class="btn btn-primary rounded-5 shadow  text-white" id="submitPayment">Bëj pagesën</button>
+                <button type="button" class="btn btn-primary rounded-5 shadow # text-white" id="submitPayment">Bëj pagesën</button>
             </div>
 
         </div>
