@@ -183,33 +183,6 @@ function getChannelDetails($channelId, $apiKey)
           </div>
           <div class="p-3 shadow-sm rounded-5 mb-4 card">
 
-            <!-- <div class="row gap-2 mb-5">
-              <div class="col border shadow-3 rounded-5 p-3">
-                <?php
-                $sql = "SELECT SUM(total_amount) FROM invoices";
-                $result = mysqli_query($conn, $sql);
-                $row = mysqli_fetch_assoc($result);
-
-                $totalAmount = $row['SUM(total_amount)'];
-                ?>
-                <h3 class="text-center"><?php echo $totalAmount ?> €</h3>
-                <h6 class="text-center text-muted mt-3">Totali i nxerrur nga te gjitha faturat e krijuara</h6>
-              </div>
-
-              <div class="col border shadow-sm rounded-5 p-3">
-                <?php
-                $sql = "SELECT SUM(payment_amount) FROM payments";
-                $result = mysqli_query($conn, $sql);
-                $row = mysqli_fetch_assoc($result);
-
-                $totalAmount = $row['SUM(payment_amount)'];
-                ?>
-                <h3 class="text-center"><?php echo $totalAmount ?> €</h3>
-                <h6 class="text-center text-muted mt-3">Totali i nxerrur nga te gjitha pagesat</h6>
-              </div>
-
-            </div> -->
-
             <div class="row">
               <div class="modal fade" id="newInvoice" tabindex="-1" aria-labelledby="newInvoiceLabel" aria-hidden="true">
                 <div class="modal-dialog modal-lg modal-dialog-centered">

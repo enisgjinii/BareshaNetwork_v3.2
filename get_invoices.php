@@ -22,9 +22,9 @@ $columns = array(
     // Add a column to fetch the customer loan from table yinc column shuma
     array('db' => 'y.shuma AS customer_loan', 'dt' => 'customer_loan', 'searchable' => false)
 );
-$sql = "SELECT i.id, i.invoice_number, i.customer_id, i.item,i.state_of_invoice,
-               i.total_amount,
-               i.total_amount_after_percentage,
+$sql = "SELECT i.id, i.invoice_number, i.item, i.customer_id, i.state_of_invoice,
+               SUM(i.total_amount) as total_amount,
+               SUM(i.total_amount_after_percentage) as total_amount_after_percentage,
                SUM(i.paid_amount) as paid_amount,
                k.emri AS customer_name,
                SUM(y.shuma) - y.pagoi AS customer_loan
@@ -35,6 +35,7 @@ $sql = "SELECT i.id, i.invoice_number, i.customer_id, i.item,i.state_of_invoice,
 
 // Add a condition to filter out invoices with total_amount_after_percentage and paid_amount both equal to 0
 $sql .= " HAVING SUM(i.total_amount_after_percentage - i.paid_amount) != 0";
+
 
 // Apply filtering (search)
 if (!empty($_REQUEST['search']['value'])) {
