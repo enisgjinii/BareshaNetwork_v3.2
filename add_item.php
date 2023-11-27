@@ -1,5 +1,9 @@
 <?php
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+
+    // Retrieve the invoice_id from the URL parameter
+    $invoice_id = isset($_GET['id']) ? $_GET['id'] : '';
+
     $invoice_number = $_POST["invoice_number"];
     $customer_id = $_POST["customer_id"];
     $item = $_POST["item"];
@@ -16,7 +20,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     if (mysqli_query($conn, $sql)) {
         mysqli_close($conn);
-        header("Location: invoice.php");
+        header("Location: complete_invoice.php?id=" . $invoice_id); // Redirect with the invoice ID
     } else {
         echo "Error: " . $sql . "<br>" . mysqli_error($conn);
     }

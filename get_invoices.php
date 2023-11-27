@@ -27,11 +27,13 @@ $sql = "SELECT i.id, i.invoice_number, i.item, i.customer_id, i.state_of_invoice
                SUM(i.total_amount_after_percentage) as total_amount_after_percentage,
                SUM(i.paid_amount) as paid_amount,
                k.emri AS customer_name,
-               SUM(y.shuma) - y.pagoi AS customer_loan
-        FROM $table AS i
+               SUM(y.shuma) AS customer_loan_amount,
+               SUM(y.pagoi) AS customer_loan_paid
+        FROM invoices AS i
         JOIN klientet AS k ON i.customer_id = k.id
         LEFT JOIN yinc AS y ON i.customer_id = y.kanali
         GROUP BY i.invoice_number";
+
 
 // Add a condition to filter out invoices with total_amount_after_percentage and paid_amount both equal to 0
 $sql .= " HAVING SUM(i.total_amount_after_percentage - i.paid_amount) != 0";

@@ -193,6 +193,8 @@ function getChannelDetails($channelId, $apiKey)
                     </div>
                     <div class="modal-body">
                       <!-- Your form goes here -->
+
+
                       <form action="create_invoice.php" method="POST">
                         <div class="mb-3">
                           <label for="invoice_number" class="form-label">Numri i faturës:</label>
@@ -464,15 +466,23 @@ function getChannelDetails($channelId, $apiKey)
                     </thead>
                     <tbody>
                       <?php
-
-                      $sql = "SELECT * FROM invoices";
+                      $sql = "SELECT * FROM invoices ORDER BY id DESC";
                       $result = $conn->query($sql);
 
-                      // Fetch the klient emrifull from table klientet using invoices table column called customer_name 
                       while ($row = $result->fetch_assoc()) {
                         $customerName = $row['customer_id'];
                         $sql2 = "SELECT * FROM klientet WHERE id = '$customerName'";
                         $result2 = $conn->query($sql2);
+
+                        // Fetch the things from payment table
+                        $sql3 = "SELECT * FROM payments WHERE invoice_id = '$row[id]'";
+                        $result3 = $conn->query($sql3);
+                        // Sum from table payments column called payment_amount 
+                        $totalPayment = 0; // Initialize totalPayment variable
+
+                        while ($paymentRow = $result3->fetch_assoc()) {
+                          $totalPayment += $paymentRow['payment_amount'];
+                        }
 
                         if ($result2->num_rows > 0) {
                           $clientRow = $result2->fetch_assoc();
@@ -481,14 +491,16 @@ function getChannelDetails($channelId, $apiKey)
                           echo "<td>" . $row['invoice_number'] . "</td>";
                           echo "<td>" . $row['description'] . "</td>";
                           echo "<td>" . $row['total_amount'] . "</td>";
+                          echo "<td>" . $totalPayment . "</td>";
                           echo "<td>" . $row['payment_mode'] . "</td>";
                           echo "<td>" . $row['payment_method'] . "</td>";
                           echo "<td>" . $row['invoice_date'] . "</td>";
+                          echo "</tr>";
                         }
-                      } ?>
-
-
+                      }
+                      ?>
                     </tbody>
+
                   </table>
                 </div>
 
@@ -773,21 +785,23 @@ function getChannelDetails($channelId, $apiKey)
           // },
           {
             data: 'customer_name',
-            render: function(data, type, row) {
-              // Assuming 'customer_loan' is the field you want to display
-              var dotValue = parseFloat(row.customer_loan);
+            // render: function(data, type, row) {
 
-              // Conditionally render the dot based on the value
-              if (!isNaN(dotValue) && dotValue !== 0) {
-                // Use a span element to represent the dot and add a title attribute for the tooltip
-                var dotColor = dotValue > 0 ? 'red' : 'green';
-                var dotHtml = '<span class="dot" style="background-color: ' + dotColor + '" title="' + dotValue.toFixed(2) + ' €' + '"></span>';
-                return '<div style="position: relative;">' + dotHtml + '<br><br>' + data + '</div>';
-              } else {
-                // Return the customer name without the dot for NaN or zero values
-                return data;
-              }
-            }
+            //   // Get the customer loan value
+            //   var loanTotal = row.customer_loan_amount - row.customer_loan_paid;
+            //   // Assuming 'customer_loan' is the field you want to display
+            //   var dotValue = parseFloat(loanTotal);
+
+            //   // Conditionally render the dot based on the value
+            //   if (!isNaN(dotValue) && dotValue !== 0) {
+            //     // Use a span element to represent the dot and add a title attribute for the tooltip
+            //     var dotColor = dotValue > 0 ? 'red' : 'green';
+            //     var dotHtml = '<span class="dot" style="background-color: ' + dotColor + '" title="' + dotValue.toFixed(2) + ' €' + '"></span>';
+            //     return '<div style="position: relative;">' + dotHtml + '<br><br>' + data + '</div>';
+            //   } else {
+            //     // Return the customer name without the dot for NaN or zero values
+            //     return data;
+            //   }
           },
           {
             data: 'item',
@@ -925,6 +939,9 @@ function getChannelDetails($channelId, $apiKey)
         var paymentAmount = $('#paymentAmount').val();
         var bankInfo = $('#bankInfo').val();
         var type_of_pay = $('#type_of_pay').val();
+        // Get the content from TinyMCE
+        var description = tinymce.activeEditor.getContent();
+
 
         // Use AJAX to submit payment and update the DataTable
         $.ajax({
@@ -934,7 +951,8 @@ function getChannelDetails($channelId, $apiKey)
             invoiceId: invoiceId,
             paymentAmount: paymentAmount,
             bankInfo: bankInfo,
-            type_of_pay: type_of_pay
+            type_of_pay: type_of_pay,
+            description: description // Include the TinyMCE content in the data
           },
           success: function(response) {
             if (response === 'success') {

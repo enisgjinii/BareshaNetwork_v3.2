@@ -36,6 +36,10 @@
             }
         }
 
+        @page {
+            size: A4;
+        }
+
         header,
         footer,
         title {
@@ -98,9 +102,9 @@
                 <div class="row">
                     <p class="fw-bold">Eng. :</p>
                     <p>This document specifies the terms and conditions of the agreement between <b>Baresha Music SH.P.K</b> , located at Rr. Brigada 123 nr. 23 in Suharek&euml;, represented by <b>AFRIM KOLGECI, CEO-FOUNDER of Baresha Music</b>, and <b>ARTIST: <?php
-                                                                                                                                                                                                                                                                $nameAndEmail = explode("|", $row['artisti']);
-                                                                                                                                                                                                                                                                echo $nameAndEmail[0];
-                                                                                                                                                                                                                                                                ?></b>, a citizen of <b> <?php echo $row['shteti'] ?> </b>, with personal identification number <b><?php echo $row['numri_personal'] ?></b>. <?php echo $nameAndEmail[0]; ?> will be representing themselves on the other side of this agreement through their YouTube channel identified by the</p>
+                                                                                                                                                                                                                                                                        $nameAndEmail = explode("|", $row['artisti']);
+                                                                                                                                                                                                                                                                        echo $nameAndEmail[0];
+                                                                                                                                                                                                                                                                        ?></b>, a citizen of <b> <?php echo $row['shteti'] ?> </b>, with personal identification number <b><?php echo $row['numri_personal'] ?></b>. <?php echo $nameAndEmail[0]; ?> will be representing themselves on the other side of this agreement through their YouTube channel identified by the</p>
                     <p>YouTube ID - <b><?php echo $row['youtube_id'] ?></b> and the Channel name - <b><?php echo $nameAndEmail[0]; ?></b></p>
                     <p>The terms and conditions outlined in this contract pertain to the contractual relationship as a whole between the two parties.</p>
                     <p class="fw-bold">Shqip. :</p>
@@ -126,7 +130,7 @@
                     </ul>
 
                 </div>
-                <div class="clearfix"></div>
+                <div style="break-after:page"></div>
                 <div class="row">
                     <p><b>ARTICLE 2 - OBJECT OF THE CONTRACT</b></p>
                     <p><b>NENI 2 – OBJEKTI I KONTRATES</b></p>
@@ -378,9 +382,9 @@
                     <p>T&euml; ardhurat e gjeneruara nga shp&euml;rndarja, publikimi dhe shitja e masterit audio dhe video t&euml; artistit n&euml; kanalin e tij t&euml; YouTube dhe dyqanet dixhitale do t&euml; transferohen n&euml; llogarin&euml; bankare t&euml; caktuar nga Baresha Music SH.P.K.
                     </p>
                     <p class="fw-bold">Eng. :</p>
-                    <p><b>6.1.</b> Baresha Music SH.P.K shall pay the artist with a sum of <?php echo $row['tvsh']?>.00 % of gross income for YouTube and 50% for Digital Store sales.</p>
+                    <p><b>6.1.</b> Baresha Music SH.P.K shall pay the artist with a sum of <?php echo $row['tvsh'] ?>.00 % of gross income for YouTube and 50% for Digital Store sales.</p>
                     <p class="fw-bold">Shqip. :</p>
-                    <p><b>6.1.</b> Baresha Music SH.P.K do t&euml; paguaj&euml; artistin me nj&euml; shum&euml; prej <?php echo $row['tvsh']?>.00 % t&euml; t&euml; ardhurave bruto p&euml;r shitjet n&euml; YouTube dhe 50% p&euml;r shitjet n&euml; shitoret dixhitale.</p>
+                    <p><b>6.1.</b> Baresha Music SH.P.K do t&euml; paguaj&euml; artistin me nj&euml; shum&euml; prej <?php echo $row['tvsh'] ?>.00 % t&euml; t&euml; ardhurave bruto p&euml;r shitjet n&euml; YouTube dhe 50% p&euml;r shitjet n&euml; shitoret dixhitale.</p>
                     <p class="fw-bold">Eng. :</p>
                     <p class="fw-bold">Shqip. :</p>
                     <p>Payments by Baresha Music SH.P.K for the Artist shall be done through through the designated bank accounts as follows:</p>
