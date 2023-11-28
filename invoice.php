@@ -785,6 +785,7 @@ function getChannelDetails($channelId, $apiKey)
           // },
           {
             data: 'customer_name',
+
             // render: function(data, type, row) {
 
             //   // Get the customer loan value
@@ -860,15 +861,17 @@ function getChannelDetails($channelId, $apiKey)
             data: 'actions',
             render: function(data, type, row) {
               return '<div> ' +
-                '<a href="#" class="btn btn-outline-success mx-1 py-2 open-payment-modal" ' +
+                '<a href="#" style="text-decoration:none;" class="input-custom-css px-3 py-2 mx-1 open-payment-modal" ' +
                 'data-id="' + row.id + '" ' +
                 'data-invoice-number="' + row.invoice_number + '" ' +
                 'data-customer-id="' + row.customer_id + '" ' + // Use data-customer-id
                 'data-item="' + row.item + '" ' +
                 'data-total-amount="' + row.total_amount_after_percentage + '" ' +
                 'data-paid-amount="' + row.paid_amount + '" ' +
-                'data-remaining-amount="' + (row.total_amount_after_percentage - row.paid_amount) + '"> Paguaj</a><br><br> ' +
-                '<a href="complete_invoice.php?id=' + row.id + '" class="btn btn-outline-primary  py-2 mx-1">Edito</a></div>';
+                'data-remaining-amount="' + (row.total_amount_after_percentage - row.paid_amount) + '"><i class="fi fi-rr-euro"></i> Paguaj</a><br><br><br>  ' +
+                '<a target="_blank" style="text-decoration:none;" href="complete_invoice.php?id=' + row.id + '" class="input-custom-css px-3 py-2 mx-1"><i class="fi fi-rr-edit"></i> Edito</a></div><br><br>' +
+                '<a target="_blank" style="text-decoration:none;" href="print_invoice.php?id=' + row.invoice_number + '" class="input-custom-css px-3 py-2 mx-1"><i class="fi fi-rr-print"></i> Printo v1.0</a></div><br><br><br>' +
+                '<a target="_blank" style="text-decoration:none;" href="print_invoice_2.php?id=' + row.invoice_number + '" class="input-custom-css px-3 py-2 mx-1"><i class="fi fi-rr-print"></i> Printo v1.1</a></div>';
             }
           }
         ],

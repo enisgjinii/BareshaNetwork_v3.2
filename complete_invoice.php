@@ -46,7 +46,7 @@ if (isset($_GET["id"])) {
                     </nav> -->
                             <div class="row mt-3 mb-3">
                                 <div class="col">
-                                    <a style="text-decoration: none;" href="print_invoice.php?id=<?php echo $invoice_id; ?>" class="input-custom-css px-3 py-2"><i class="fi fi-rr-print fa-lg"></i></a>
+                                    <a style="text-decoration: none;" href="print_invoice.php?id=<?php echo $invoice_number; ?>" class="input-custom-css px-3 py-2"><i class="fi fi-rr-print fa-lg"></i></a>
                                     <!-- Make a modal to make a payment -->
                                     <button style="text-transform: none;" class="input-custom-css px-3 py-2" data-bs-toggle="modal" data-bs-target="#newPayment"><i class="fi fi-rr-add-document fa-lg"></i>&nbsp; Kryej pagesë</button>
 

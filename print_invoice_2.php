@@ -37,8 +37,8 @@ if ($result->num_rows > -1) {
         <!-- UIcons -->
         <link rel="stylesheet" href="assets/uicons-regular-rounded/css/uicons-regular-rounded.css">
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-        <!-- Fav Icon -->
         <link rel="icon" type="image/png" href="images/brand-icon.png">
+
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet">
@@ -58,9 +58,9 @@ if ($result->num_rows > -1) {
                 max-width: 800px;
                 margin: 20px auto;
                 padding: 20px;
-                background-color: #fff;
-                border-radius: 5px;
-                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+                /* background-color: #fff; */
+                /* border-radius: 5px; */
+                /* box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); */
             }
 
             .header {
@@ -131,7 +131,7 @@ if ($result->num_rows > -1) {
 
             @media print {
                 .container {
-                    max-width: 1900px;
+                    max-width: 1000px;
                     margin: 0px auto;
                     padding: 0px;
                     background-color: #fff;
@@ -164,6 +164,9 @@ if ($result->num_rows > -1) {
                     D&euml;rgo</a>
             <?php } ?>
         </div>
+
+
+
 
         <!-- Modal -->
         <div class="modal fade" id="dergoFaturen" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -220,129 +223,120 @@ if ($result->num_rows > -1) {
                 document.getElementById('subject').value = 'Fatura juaj nga Baresha Network , #' + invoiceId;
             });
         </script>
+
+
+
+
+
+
+
+
         <div class="container">
-            <div class="row">
-                <div class="logo text-left">
-                    <img src="images/brand-icon.png" alt="Company Logo">
-                </div>
-                <div class="col text-start">
-                    <h4 class="text-muted text-left my-3">Baresha Network</h4>
-                    <div class="address ">
-                        <p><i class="fi fi-rr-marker pe-2"></i> 8RVC+762, R118, Shiroke, Suhareke</p>
-                        <p><i class="fi fi-rr-envelope pe-2"></i> info@bareshamusic.com</p>
-                        <p><i class="fi fi-rr-phone-call pe-2"></i> +383 (049) 605 655</p>
+            <div class="card">
+                <div class="card-header bg-black"></div>
+                <div class="card-body">
+
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-xl-12">
+                                <img src="images/brand-icon.png" alt="Company Logo" class="logo" style="width: 100px;">
+                            </div>
+                        </div>
+
+
+                        <div class="row">
+                            <div class="col-xl-12">
+
+                                <ul class="list-unstyled float-end">
+                                    <li style="font-size: 30px; color: red;">Baresha Network</li>
+                                    <li>8RVC+762, R118, Shiroke, Suhareke</li>
+                                    <li>+383 (049) 605 655</li>
+                                    <li>info@baresha_network.com</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="row text-center">
+                            <h3 class="text-uppercase text-center mt-3" style="font-size: 40px;">Fatura</h3>
+                            <p><?php echo $row['invoice_number']; ?></p>
+                        </div>
+
+                        <div class="row mx-3">
+                            <?php
+                            // Reset the data seek pointer to the beginning of the result set
+                            $result->data_seek(0);
+                            ?>
+
+                            <table class="sales-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Emërtimi</th>
+                                        <th>Çmimi</th>
+                                        <th>Perqindja</th>
+                                        <th>Shuma</th>
+                                        <th>Mbetja</th>
+                                        <th>Totali</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php
+                                    // Loop through the result set
+                                    $totalAmount = 0;
+                                    while ($row = $result->fetch_assoc()) {
+                                        $percentageQuery = "SELECT * FROM klientet WHERE id = " . $row['customer_id'];
+                                        $percentageResult = $conn->query($percentageQuery);
+                                        $percentageRow = $percentageResult->fetch_assoc();
+                                        $percentage = $percentageRow['perqindja'];
+
+                                        // Calculate the total amount after percentage
+                                        $remains = $row['total_amount']  - $row['total_amount_after_percentage'];
+                                        // Display data in table rows
+                                        echo "<tr>";
+                                        echo "<td>{$row['id']}</td>";
+                                        echo "<td>{$row['item']}</td>";
+                                        echo "<td>{$row['total_amount']}</td>";
+                                        echo "<td>{$percentage}%</td>"; // Corrected variable name and added %
+                                        echo "<td>{$remains}</td>";
+                                        echo "<td>{$row['total_amount_after_percentage']}</td>";
+                                        echo "<td>{$row['total_amount']}</td>";
+                                        echo "</tr>";
+
+                                        $totalAmount += $row['total_amount_after_percentage'];
+                                    }
+                                    ?>
+                                </tbody>
+                            </table>
+                            <p class="text-end mt-3" style="font-size: 30px;font-weight: 400;">
+                                Total:
+                                <span><?php echo $totalAmount; ?> €</span>
+                            </p>
+                        </div>
+
+                        <div class="row">
+                            <div class="" style="margin-left:60px">
+
+                            </div>
+
+                        </div>
+
+                        <div class="row mt-2 mb-5">
+                            <p class="fw-bold">Faturuar per: <span class="text-muted"><?php // Get actual date and time
+                                                                                        echo $percentageRow['emri']; ?></span></p>
+                            <p class="fw-bold">Data e nxerrjes se faturës: <span class="text-muted"><?php // Get actual date and time
+                                                                                echo date('d/m/Y'); ?></span></p>
+                            <!-- <p class="fw-bold">Nënshkrimi:</p> -->
+                        </div>
+
                     </div>
+
+
+
                 </div>
-                <div class="col text-end">
-                    <h4 class="text-muted text-left my-3">Numri i fatur&euml;s </h4>
-                    <div class="address text-end">
-                        <p># <?php echo $row['invoice_number']; ?></p>
-                    </div>
-                </div>
+                <div class="card-footer bg-black"></div>
             </div>
-            <hr style="border: 1px dashed red;">
-            <div class="row">
-                <div class="col">
-                    <div>
-
-                        <!-- <h1>Invoice Details</h1>
-                        <p>Invoice ID: <?php echo $row['id']; ?></p>
-                        <p>Customer Name: <?php echo $row['customer_id']; ?></p> -->
-                        <?php if (!empty($row['customer_id'])) : ?>
-                            <p class="text-muted m-0 p-0" style="font-size: 12px;">Faturuar p&euml;r :</p>
-                            <h6 class="text-dark"><?php echo $customerName ?></h6>
-                        <?php endif; ?>
-                        <?php if (!empty($row['adresa'])) : ?>
-                            <p class="text-muted m-0 p-0" style="font-size: 12px;">Adresa :</p>
-                            <h6 class="text-dark"><?php echo $row['adresa']; ?></h6>
-                        <?php endif; ?>
-                        <?php if (!empty($row['emailadd'])) : ?>
-                            <p class="text-muted m-0 p-0" style="font-size: 12px;">Email-i :</p>
-                            <h6 class="text-dark"><?php echo $row['emailadd']; ?></h6>
-                        <?php endif; ?>
-                        <?php if (!empty($row['nrtel'])) : ?>
-                            <p class="text-muted m-0 p-0" style="font-size: 12px;">Numri i telefonit :</p>
-                            <h6 class="text-dark"><?php echo $row['nrtel']; ?></h6>
-                        <?php endif; ?>
-                    </div>
-                </div>
-
-                <div class="col text-end">
-
-
-                    <p class="text-muted m-0 p-0" style="font-size: 12px;">Numri i fatur&euml;s :</p>
-                    <h6 class="text-dark"><?php echo $row['invoice_number']; ?></h6>
-
-
-                    <p class="text-muted m-0 p-0" style="font-size: 12px;">Data e fatur&euml;s :</p>
-                    <h6 class="text-dark"><?php echo $row['created_date']; ?></h6>
-
-
-                    <p class="text-muted m-0 p-0" style="font-size: 12px;">Numri rendit&euml;s :</p>
-                    <h6 class="text-dark"><?php echo $row['id']; ?></h6>
-
-
-
-                </div>
-            </div>
-
-            <?php
-            // Reset the data seek pointer to the beginning of the result set
-            $result->data_seek(0);
-            ?>
-
-            <table class="sales-table">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Emërtimi</th>
-                        <th>Çmimi</th>
-                        <th>Perqindja</th>
-                        <th>Shuma</th>
-                        <th>Mbetja</th>
-                        <th>Totali</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php
-                    // Loop through the result set
-                    $totalAmount = 0;
-                    while ($row = $result->fetch_assoc()) {
-                        $percentageQuery = "SELECT * FROM klientet WHERE id = " . $row['customer_id'];
-                        $percentageResult = $conn->query($percentageQuery);
-                        $percentageRow = $percentageResult->fetch_assoc();
-                        $percentage = $percentageRow['perqindja'];
-
-                        // Calculate the total amount after percentage
-                        $remains = $row['total_amount']  - $row['total_amount_after_percentage'];
-                        // Display data in table rows
-                        echo "<tr>";
-                        echo "<td>{$row['id']}</td>";
-                        echo "<td>{$row['item']}</td>";
-                        echo "<td>{$row['total_amount']}</td>";
-                        echo "<td>{$percentage}%</td>"; // Corrected variable name and added %
-                        echo "<td>{$remains}</td>";
-                        echo "<td>{$row['total_amount_after_percentage']}</td>";
-                        echo "<td>{$row['total_amount']}</td>";
-                        echo "</tr>";
-
-                        $totalAmount += $row['total_amount_after_percentage'];
-                    }
-                    ?>
-                </tbody>
-            </table>
-
-
-
-            <hr style="border: 1px dashed red;">
-            <div class="total">
-                <h4>Totali : <?php echo $totalAmount ?> €</h4>
-            </div>
-
-
-        </div>
-        <!-- MDB -->
-        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.4.1/mdb.min.js"></script>
+            <!-- MDB -->
+            <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.4.1/mdb.min.js"></script>
 
 
 
