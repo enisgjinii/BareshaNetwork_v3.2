@@ -352,7 +352,7 @@ if (isset($_GET["id"])) {
                                                                             <div class='offcanvas-body'>
 
                                                                                 <form method='post' action='edit_item.php'>
-                                                                                    <input type='text' name='invoice_number' value='<?php echo $sales["id"]; ?>'>
+                                                                                    <input type='text' hidden name='invoice_number' value='<?php echo $sales["id"]; ?>'>
 
                                                                                     <label for='editedTotalAmount<?php echo $rowIndex; ?>' class='form-label'>Shuma e re e përgjithshme:</label>
                                                                                     <input type='text' class='form-control rounded-5 shadow-sm border' id='editedTotalAmount<?php echo $rowIndex; ?>' name='editedTotalAmount' oninput='calculateTotalWithPercentage(<?php echo $rowIndex; ?>)' required>

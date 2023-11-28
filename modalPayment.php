@@ -70,19 +70,10 @@
 
                 <div class="mb-3">
                     <label for="description" class="form-label">Shkruani përshkrimin e pagesës</label>
+
                     <textarea class="form-control shadow-sm rounded-5 py-4" id="description" required></textarea>
                 </div>
 
-                <script>
-                    // Initialize TinyMCE on the textarea with the specified ID
-                    tinymce.init({
-                        selector: '#description',
-                        height: 200, // Set the height of the TinyMCE editor
-                        plugins: 'autoresize', // Enable autoresize plugin
-                        autoresize_bottom_margin: 16 // Set the bottom margin for autoresize
-                        // You can customize the TinyMCE configuration based on your requirements
-                    });
-                </script>
                 <p id="paymentAmountError" class="badge bg-danger px-2 rounded-5 py-2"></p>
                 <input type="hidden" id="invoiceId" name="invoiceId">
                 <button type="button" class="btn btn-primary rounded-5 shadow # text-white" id="submitPayment">Bëj pagesën</button>
