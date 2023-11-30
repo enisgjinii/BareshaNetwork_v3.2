@@ -942,8 +942,7 @@ function getChannelDetails($channelId, $apiKey)
         var paymentAmount = $('#paymentAmount').val();
         var bankInfo = $('#bankInfo').val();
         var type_of_pay = $('#type_of_pay').val();
-        // Get the content from TinyMCE
-        var description = tinymce.activeEditor.getContent();
+        var description = $('#description').val();
 
 
         // Use AJAX to submit payment and update the DataTable
@@ -955,7 +954,7 @@ function getChannelDetails($channelId, $apiKey)
             paymentAmount: paymentAmount,
             bankInfo: bankInfo,
             type_of_pay: type_of_pay,
-            description: description // Include the TinyMCE content in the data
+            description: description
           },
           success: function(response) {
             if (response === 'success') {
