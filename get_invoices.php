@@ -14,30 +14,39 @@ $columns = array(
     array('db' => 'invoice_number', 'dt' => 'invoice_number', 'searchable' => true),
     array('db' => 'customer_id', 'dt' => 'customer_id', 'searchable' => true),
     array('db' => 'item', 'dt' => 'item', 'searchable' => true),
-    // array('db' => 'SUM(total_amount) as total_amount', 'dt' => 'total_amount', 'searchable' => false),
-    array('db' => 'SUM(total_amount_after_percentage) as total_amount_after_percentage', 'dt' => 'total_amount_after_percentage', 'searchable' => false),
-    array('db' => 'SUM(paid_amount) as paid_amount', 'dt' => 'paid_amount', 'searchable' => false),
-    // Add a column to fetch customer information
+    array('db' => 'total_amount_after_percentage', 'dt' => 'total_amount_after_percentage', 'searchable' => false),
+    array('db' => 'paid_amount', 'dt' => 'paid_amount', 'searchable' => false),
     array('db' => 'k.emri AS customer_name', 'dt' => 'customer_name', 'searchable' => true),
-    // Add a column to fetch the customer loan from table yinc column shuma
     array('db' => 'y.shuma AS customer_loan', 'dt' => 'customer_loan', 'searchable' => false)
 );
+// Start building the SQL query
 $sql = "SELECT i.id, i.invoice_number, i.item, i.customer_id, i.state_of_invoice,
-               SUM(i.total_amount) as total_amount,
-               SUM(i.total_amount_after_percentage) as total_amount_after_percentage,
-               SUM(i.paid_amount) as paid_amount,
-               k.emri AS customer_name,
-               SUM(y.shuma) AS customer_loan_amount,
-               SUM(y.pagoi) AS customer_loan_paid
+                i_agg.total_amount,
+                i_agg.total_amount_after_percentage,
+                i_agg.paid_amount,
+                k.emri AS customer_name,
+                y.customer_loan_amount,
+                y.customer_loan_paid
         FROM invoices AS i
         JOIN klientet AS k ON i.customer_id = k.id
-        LEFT JOIN yinc AS y ON i.customer_id = y.kanali
-        GROUP BY i.invoice_number";
+        LEFT JOIN (
+            SELECT kanali, 
+                SUM(shuma) AS customer_loan_amount,
+                SUM(pagoi) AS customer_loan_paid
+            FROM yinc
+            GROUP BY kanali
+        ) AS y ON i.customer_id = y.kanali
+        LEFT JOIN (
+            SELECT invoice_number,
+                SUM(total_amount) as total_amount,
+                SUM(total_amount_after_percentage) as total_amount_after_percentage,
+                SUM(paid_amount) as paid_amount
+            FROM invoices
+            GROUP BY invoice_number
+        ) AS i_agg ON i.invoice_number = i_agg.invoice_number";
 
-
-// Add a condition to filter out invoices with total_amount_after_percentage and paid_amount both equal to 0
-$sql .= " HAVING SUM(i.total_amount_after_percentage - i.paid_amount) != 0";
-
+// Add a condition to filter out rows with total_amount_after_percentage and paid_amount both equal to 0
+$sql .= " WHERE (i.total_amount_after_percentage - i.paid_amount) != 0";
 
 // Apply filtering (search)
 if (!empty($_REQUEST['search']['value'])) {
@@ -56,12 +65,6 @@ if (!empty($_REQUEST['search']['value'])) {
     $sql .= ")";
 }
 
-// Execute the SQL query
-$query = mysqli_query($conn, $sql);
-
-// Total records without filtering
-$totalRecords = mysqli_num_rows($query);
-
 // Apply ordering
 $orderColumn = $columns[$_REQUEST['order'][0]['column']]['db'];
 $orderDirection = $_REQUEST['order'][0]['dir'];
@@ -75,13 +78,16 @@ $sql .= " LIMIT $start, $length";
 // Execute the final SQL query
 $query = mysqli_query($conn, $sql);
 
+// Get the total number of rows
+$totalRecords = mysqli_num_rows($query);
+
 // Prepare the response data
 $data = array();
-while ($row = mysqli_fetch_array($query)) {
+while ($row = mysqli_fetch_assoc($query)) {
     $data[] = $row;
 }
 
-// Build the response for DataTables
+// Return the JSON response
 $response = array(
     "draw" => intval($_REQUEST['draw']),
     "recordsTotal" => $totalRecords,
