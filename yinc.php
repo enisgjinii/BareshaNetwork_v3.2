@@ -56,7 +56,7 @@ if (isset($_POST['paguaj'])) {
                   <div class="row">
                     <div class="col-md-6">
                       <label for="emri" class="form-label">Zgjidh nj&euml;rin nga klient&euml;t</label>
-                      <select name="stafi" class="form-select shadow-sm rounded-5" style="border: 1px solid #ced4da">
+                      <select name="stafi" id="stafi" class="form-select shadow-sm rounded-5" style="border: 1px solid #ced4da">
                         <?php
                         $gsta = $conn->query("SELECT * FROM klientet");
                         while ($gst = mysqli_fetch_array($gsta)) {
@@ -65,6 +65,19 @@ if (isset($_POST['paguaj'])) {
                         <?php } ?>
                       </select>
                     </div>
+
+
+
+
+                    <script>
+                      new Selectr('#stafi', {
+                        searchable: true,
+                        width: 300
+                      });
+                    </script>
+
+
+
                     <div class="col-md-6">
                       <label for="datab" class="form-label">Shuma</label>
                       <div class="input-group mb-2 rounded-5 me-2">
@@ -86,6 +99,100 @@ if (isset($_POST['paguaj'])) {
                       <textarea name="pershkrimi" class="form-control shadow-sm rounded-5" style="border: 1px solid #ced4da"></textarea>
                     </div>
                   </div>
+
+                  <div class="row">
+                    <div class="col-12">
+                      <label for="youtubeLinks" class="form-label">Lidhjet e YouTube</label>
+                      <p class="text-muted" style="font-size: 12px;">Në këtë vend mund të shtoni lidhjet e këngëve nga platforma YouTube. Kur vendosni një lidhje dhe dëshironi të shtoni më shumë, duhet të shtoni një presje (",") në fund të çdo lidhjeje. <span class="badge bg-primary rounded-5 px-2">Kujdes, lejohen vetëm 6 lidhje.</span></p>
+
+                      <textarea style="height: 100px" rows="6" name="youtubeLinks" id="youtubeLinks" class="form-control shadow-sm rounded-5" style="border: 1px solid #ced4da">
+                        </textarea>
+
+                    </div>
+                  </div>
+
+                  <!-- Container for video details -->
+                  <div id="videoDetailsContainer" class="mt-3">
+                    <p class="mb-3">Detajet e videos</p>
+                    <div class="card">
+                      <div class="card-body">
+                        <p class="card-text"><strong>Titulli:</strong> <span id="videoTitle"></span></p>
+                        <p class="card-text"><strong>Përshkrim:</strong> <span id="videoDescription"></span></p>
+                        <p class="card-text"><strong>Publikuar në:</strong> <span id="publishedAt"></span></p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Grid layout for embedded videos -->
+                  <div class="row" id="embeddedVideosGrid"></div>
+
+                  <script>
+                    $(document).ready(function() {
+                      const $youtubeLinksInput = $('#youtubeLinks');
+                      const $videoTitle = $('#videoTitle');
+                      const $videoDescription = $('#videoDescription');
+                      const $publishedAt = $('#publishedAt');
+                      const $embeddedVideosGrid = $('#embeddedVideosGrid');
+                      const apiKey = 'AIzaSyCvc0tIeB58Sz0hpDFSEYxDXFT8tg0VGGQ'; // Replace with your actual API key
+
+                      // Set limits
+                      const maxDisplayedVideos = 6;
+                      const maxDisplayedDetails = 6;
+
+                      $youtubeLinksInput.on('input', function() {
+                        const youtubeLinks = $youtubeLinksInput.val().trim().split(',');
+
+                        // Clear previous content
+                        $embeddedVideosGrid.empty();
+                        clearVideoDetails();
+
+                        if (youtubeLinks.length > 0) {
+                          youtubeLinks.slice(0, maxDisplayedVideos).forEach(link => {
+                            const videoId = extractYouTubeVideoId(link);
+
+                            if (videoId) {
+                              // Create a grid item for each embedded video
+                              const embedCode = `<div class="col-md-4 mb-4"><iframe width="100%" height="200" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe></div>`;
+                              $embeddedVideosGrid.append(embedCode);
+
+                              // Get video details using the YouTube Data API
+                              fetch(`https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${videoId}&key=${apiKey}`)
+                                .then(response => response.json())
+                                .then(data => {
+                                  const videoDetails = data.items[0].snippet;
+                                  displayVideoDetails(videoDetails);
+                                })
+                                .catch(error => console.error('Error fetching video details:', error));
+                            }
+                          });
+                        }
+                      });
+
+                      function extractYouTubeVideoId(link) {
+                        const regex = /[?&]v=([^&]+)/;
+                        const match = link.match(regex) || link.match(/(?:\/|%3D|v=|vi=)([^"&\?\/\s]{11})/);
+                        return match && match[1] ? match[1] : null;
+                      }
+
+                      function displayVideoDetails(details) {
+                        // Append details for each video up to the limit
+                        if ($videoTitle.children().length < maxDisplayedDetails) {
+                          $videoTitle.append(`<p>${details.title}</p>`);
+                          $videoDescription.append(`<p>${details.description}</p>`);
+                          $publishedAt.append(`<p>${details.publishedAt}</p>`);
+                        }
+                      }
+
+                      function clearVideoDetails() {
+                        // Clear details for previous videos
+                        $videoTitle.empty();
+                        $videoDescription.empty();
+                        $publishedAt.empty();
+                      }
+                    });
+                  </script>
+
+
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Mbylle</button>
@@ -108,14 +215,14 @@ if (isset($_POST['paguaj'])) {
                       <tr>
                         <th></th>
 
-                        <th>Klienti</th>
+                        <th width="2%">Klienti</th>
                         <th>Shuma</th>
                         <th>Pagoi</th>
                         <th>Obligim</th>
                         <th>Forma</th>
                         <th>P&euml;rshkrimi</th>
                         <th>Data</th>
-
+                        <th>Link</th>
                       </tr>
                     </thead>
 
@@ -145,20 +252,33 @@ if (isset($_POST['paguaj'])) {
                           //Print it out - Result is 232.
 
                           ?>
-                          <td>
+                          <td style="white-space: normal;">
                             <a href="delete_record.php?id=<?php echo $k['id']; ?>" class="btn btn-danger px-2 m-2 btn-sm text-white rounded-5 shadow-sm" style="text-transform: none;"><i class="fas fa-trash py-2"></i></a><a data-bs-toggle="modal" data-bs-target="#pages<?php echo $k['id']; ?>" class="btn btn-primary btn-sm px-2 m-2 text-white rounded-5 shadow-sm" style="text-transform: none;"><i class="fas fa-money-bill py-2"></i></a>
                           </td>
-                          <td><?php echo $gstafi['emri']; ?></td>
+                          <td style="white-space: normal;"><?php echo $gstafi['emri']; ?></td>
 
-                          <td><?php echo $k['shuma']; ?>&euro;</td>
-                          <td><?php echo $k['pagoi']; ?>&euro;</td>
+                          <td style="white-space: normal;"><?php echo $k['shuma']; ?>&euro;</td>
+                          <td style="white-space: normal;"><?php echo $k['pagoi']; ?>&euro;</td>
                           <td style="color:red;"><?php echo $k['shuma'] - $k['pagoi']; ?>&euro; </td>
 
-                          <td><?php echo $k['lloji']; ?></td>
-                          <td><?php echo $k['pershkrimi']; ?></td>
+                          <td style="white-space: normal;"><?php echo $k['lloji']; ?></td>
+                          <td style="white-space: normal;"><?php echo $k['pershkrimi']; ?></td>
 
-                          <td><?php echo $k['data']; ?></td>
-                          <!-- Implement a button who fetch id and then go to another form submit and delete based from that id -->
+
+                          <td style="white-space: normal;"><?php echo $k['data']; ?></td>
+                          <td style="white-space: normal;">
+                            <?php
+                            $links = explode(',', $k['linku_i_kenges']);
+
+                            if (empty($links[0])) { ?>
+                              <span class="badge bg-warning text-dark px-3 py-2 rounded-5">Nuk ka link</span>
+                              <?php } else {
+                              foreach ($links as $link) { ?>
+                                <a class="input-custom-css px-3 py-2" style="text-transform: none; text-decoration: none;" href="<?php echo $link; ?>" target="_blank"><i class="fi fi-rr-globe"></i> Linku</a><br><br><br>
+                            <?php }
+                            }
+                            ?>
+                          </td>
 
                         </tr>
                         <div class="modal fade" id="pages<?php echo $k['id']; ?>" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -213,7 +333,7 @@ if (isset($_POST['paguaj'])) {
                         <th>Forma</th>
                         <th>P&euml;rshkrimi</th>
                         <th>Data</th>
-
+                        <th>Link</th>
                       </tr>
                     </tfoot>
                   </table>
@@ -233,7 +353,6 @@ if (isset($_POST['paguaj'])) {
 
 <script>
   $('#example').DataTable({
-    responsive: true,
     search: {
       return: true,
     },
@@ -254,7 +373,7 @@ if (isset($_POST['paguaj'])) {
       btns.removeClass('dt-buttons btn-group');
 
     },
-    fixedHeader: true,
+    fixedHeader: false,
     language: {
       url: "https://cdn.datatables.net/plug-ins/1.13.1/i18n/sq.json",
     },
