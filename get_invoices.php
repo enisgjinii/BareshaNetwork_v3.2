@@ -55,7 +55,7 @@ if (!empty($_REQUEST['search']['value'])) {
     foreach ($columns as $column) {
         if ($column['searchable']) {
             if ($column['dt'] === 'customer_name' || $column['dt'] === 'customer_loan') {
-                $searchConditions[] = "`" . $column['dt'] . "` LIKE '%" . mysqli_real_escape_string($conn, $_REQUEST['search']['value']) . "%'";
+                $searchConditions[] = "`k`.`emri` LIKE '%" . mysqli_real_escape_string($conn, $_REQUEST['search']['value']) . "%'";
             } else {
                 $searchConditions[] = "`i`.`" . $column['db'] . "` LIKE '%" . mysqli_real_escape_string($conn, $_REQUEST['search']['value']) . "%'";
             }
@@ -64,6 +64,8 @@ if (!empty($_REQUEST['search']['value'])) {
     $sql .= implode(" OR ", $searchConditions);
     $sql .= ")";
 }
+
+
 
 // Apply ordering
 $orderColumn = $columns[$_REQUEST['order'][0]['column']]['db'];

@@ -2,18 +2,19 @@
 
 ob_start();
 include 'partials/header.php';
-
-
 include('conn-d.php');
+
 if (isset($_POST['submit_file'])) {
     $file = $_FILES["file"]["tmp_name"];
     $file_open = fopen($file, "r");
     $selected_option = mysqli_real_escape_string($conn, $_POST['my-select']);
 
     $counter = 0; // initialize counter variable
+    $batchSize = 100; // Adjust the batch size as needed
+    $batchValues = array();
 
     while (($csv = fgetcsv($file_open, 0, ",")) !== false) {
-        if ($counter >= 3) { // check if counter is >= 3
+        if ($counter >= 3) {
             $ReportingPeriod = mysqli_real_escape_string($conn, str_replace("'", "\'", isset($csv[0]) ? $csv[0] : ""));
             $AccountingPeriod = mysqli_real_escape_string($conn, str_replace("'", "\'", isset($csv[1]) ? $csv[1] : ""));
             $Artist = mysqli_real_escape_string($conn, str_replace("'", "\'", isset($csv[2]) ? $csv[2] : ""));
@@ -29,23 +30,44 @@ if (isset($_POST['submit_file'])) {
             $RevenueShare = mysqli_real_escape_string($conn, str_replace("'", "\'", isset($csv[12]) ? $csv[12] : ""));
             $SplitPayShare = mysqli_real_escape_string($conn, str_replace("'", "\'", isset($csv[13]) ? $csv[13] : ""));
 
-            $query = "INSERT INTO platformat_2 (`ReportingPeriod`, `AccountingPeriod`, `Artist`, `Release`, `Track`, `UPC`, `ISRC`, `Partner`, `Country`, `Type`, `Units`, `RevenueUSD`, `RevenueShare`, `SplitPayShare`,`Emri`) VALUES ('$ReportingPeriod', '$AccountingPeriod', '$Artist', '$Release', '$Track', '$UPC', '$ISRC', '$Partner', '$Country', '$Type', '$Units', '$RevenueUSD', '$RevenueShare', '$SplitPayShare', '$selected_option')";
-            $conn->query($query);
+            // Build values for batch insertion
+            $batchValues[] = "('$ReportingPeriod', '$AccountingPeriod', '$Artist', '$Release', '$Track', '$UPC', '$ISRC', '$Partner', '$Country', '$Type', '$Units', '$RevenueUSD', '$RevenueShare', '$SplitPayShare', '$selected_option')";
+
+            // Check if a batch is ready to be inserted
+            if (count($batchValues) >= $batchSize) {
+                $query = "INSERT INTO platformat_2 (`ReportingPeriod`, `AccountingPeriod`, `Artist`, `Release`, `Track`, `UPC`, `ISRC`, `Partner`, `Country`, `Type`, `Units`, `RevenueUSD`, `RevenueShare`, `SplitPayShare`, `Emri`) VALUES " . implode(",", $batchValues);
+                $conn->query($query);
+                $batchValues = array(); // Reset batch array
+            }
         }
         $counter++; // increment counter variable
     }
+
+    // Insert any remaining rows in the batch
+    if (count($batchValues) > 0) {
+        $query = "INSERT INTO platformat_2 (`ReportingPeriod`, `AccountingPeriod`, `Artist`, `Release`, `Track`, `UPC`, `ISRC`, `Partner`, `Country`, `Type`, `Units`, `RevenueUSD`, `RevenueShare`, `SplitPayShare`, `Emri`) VALUES " . implode(",", $batchValues);
+        $conn->query($query);
+    }
+
+    // Close file
+    fclose($file_open);
+
+    // Redirect to the same page with a success status
     header('Location: ' . $_SERVER['PHP_SELF'] . '?status=success');
     exit;
 }
-
-
 
 // Check if the form was successfully submitted
 if (isset($_GET['status']) && $_GET['status'] == 'success') {
 }
 
+// Commit any open transaction
+$conn->commit();
+
+// Flush the output buffer
 ob_flush();
 ?>
+
 
 
 
@@ -64,11 +86,9 @@ ob_flush();
                         </h6>
                     </nav>
                 </div>
-                <div class="p-5 mb-4 card rounded-5 shadow-sm">
-                    <form method="post" enctype="multipart/form-data">
-                        <input type="text" class="form-control border shadow-sm rounded-5 text-dark" id="search-input" placeholder="K&euml;rko...">
-                        <br>
-                        <select id="my-select" name="my-select" class="form-select border shadow-sm rounded-5 text-dark" data-live-search="true" multiple>
+                <div class="p-5 mb-4 card rounded-5 shadow-sm" id="upload-container">
+                    <form method="post" enctype="multipart/form-data" onsubmit="handleFormSubmission()">
+                        <select id="my-select" name="my-select" class="form-select border shadow-sm rounded-5 text-dark">
                             <?php
                             $nxerrja_e_klientit = $conn->query("SELECT DISTINCT emri FROM klientet");
                             while ($nxerri = mysqli_fetch_array($nxerrja_e_klientit)) {
@@ -78,23 +98,59 @@ ob_flush();
                             }
                             ?>
                         </select>
+                        <script>
+                            new Selectr('#my-select', {
+                                searchable: true,
+                                width: 300
+                            });
+                        </script>
                         <input type="hidden" name="selected_option" id="selected_option">
                         <div class="d-flex w-50 my-4">
-                            <div class=" custom-file">
+                            <div class="custom-file">
                                 <input type="file" class="custom-file-input form-control shadow-sm rounded-5" id="file" name="file" placeholder="Zgjedh nj&euml; fajll">
                             </div>
-
                             &nbsp;&nbsp;&nbsp;
-
                             <input type="submit" name="submit_file" class="btn btn-primary shadow-sm rounded-5 text-white" value="Ngarko" />
-                        </div>
-
                     </form>
+
+                    <script>
+                        function handleFormSubmission() {
+                            // Show loading spinner
+                            Swal.fire({
+                                title: 'Duke u ngarkuar...',
+                                text: 'Ju lutemi prisni derisa skedari të jetë duke u ngarkuar.',
+                                icon: 'info',
+                                allowOutsideClick: false,
+                                showCancelButton: false,
+                                showConfirmButton: false,
+                                onBeforeOpen: () => {
+                                    Swal.showLoading();
+                                },
+                            });
+
+                            // Perform the form submission
+                            return true; // Continue with form submission
+                        }
+
+                        document.addEventListener('DOMContentLoaded', function() {
+                            <?php if (isset($_GET['status']) && $_GET['status'] == 'success') { ?>
+                                Swal.fire({
+                                    title: 'Sukses!',
+                                    text: 'Skedari është ngarkuar me sukses.',
+                                    icon: 'success',
+                                    showConfirmButton: true,
+                                }).then(function() {
+                                    // Redirect to filtroCSV.php
+                                    window.location.href = 'filtroCSV.php';
+                                });
+                            <?php } ?>
+                        });
+                    </script>
                 </div>
             </div>
 
 
-            <?php include 'partials/footer.php'; ?>
+
             <script>
                 var table = $('#example').DataTable({
                     responsive: true,
@@ -137,23 +193,8 @@ ob_flush();
 
                 });
             </script>
+        </div>
+    </div>
+</div>
 
-            <script>
-                const searchInput = document.getElementById('search-input');
-                const select = document.getElementById('my-select');
-                const options = select.options;
-
-                searchInput.addEventListener('keyup', function() {
-                    const searchTerm = searchInput.value.toLowerCase();
-
-                    for (let i = 0; i < options.length; i++) {
-                        const optionText = options[i].textContent.toLowerCase();
-
-                        if (optionText.includes(searchTerm)) {
-                            options[i].style.display = 'block';
-                        } else {
-                            options[i].style.display = 'none';
-                        }
-                    }
-                });
-            </script>
+<?php include 'partials/footer.php'; ?>
