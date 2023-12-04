@@ -67,22 +67,16 @@ if (!empty($_REQUEST['search']['value'])) {
     $sql .= ")";
 }
 
-// Execute the final SQL query
-$query = mysqli_query($conn, $sql);
+// Get the total number of records after filtering
+$sqlCount = "SELECT COUNT(*) as count FROM ($sql) AS countTable";
+$totalRecords = mysqli_fetch_assoc(mysqli_query($conn, $sqlCount))['count'];
 
-// Get the total number of records before pagination
-$totalRecords = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as count FROM invoices"))['count'];
-
-// Apply ordering
-$orderColumn = $columns[$_REQUEST['order'][0]['column']]['db'];
-$orderDirection = $_REQUEST['order'][0]['dir'];
-$sql .= " ORDER BY $orderColumn $orderDirection";
-
-// Add these lines to the end of your script
+// Apply ordering and pagination
 $start = $_REQUEST['start'];
 $length = $_REQUEST['length'];
-
-$sql .= " LIMIT $start, $length";
+$orderColumn = $columns[$_REQUEST['order'][0]['column']]['db'];
+$orderDirection = $_REQUEST['order'][0]['dir'];
+$sql .= " ORDER BY $orderColumn $orderDirection LIMIT $start, $length";
 
 // Execute the modified SQL query
 $query = mysqli_query($conn, $sql);
@@ -97,9 +91,10 @@ while ($row = mysqli_fetch_assoc($query)) {
 $response = array(
     "draw" => intval($_REQUEST['draw']),
     "recordsTotal" => $totalRecords,
-    "recordsFiltered" => $totalRecords, // Assuming no filtering, adjust if needed
+    "recordsFiltered" => $totalRecords,
     "data" => $data
 );
 
 // Return the JSON response
 echo json_encode($response);
+

@@ -49,6 +49,10 @@
                         <option value="TEBSHA">TEB SH.A. (Turkey)</option>
                         <option value="ZiraatBank">Ziraat Bank (Turkey)</option>
                         <option value="TurkiyeIsBank">Turkiye Is Bank (Turkey)</option>
+                        <option value="PayPal">PayPal</option>
+                        <option value="Ria">Ria</option>
+                        <option value="Money Gram"> Money Gram</option>
+                        <option value="Western Union">Western Union</option>
                         <option value="Tjera">Tjera</option>
                     </select>
                 </div>
