@@ -1,4 +1,5 @@
 <?php
+
 // Include your database connection here
 include 'conn-d.php';
 
@@ -19,6 +20,7 @@ $columns = array(
     array('db' => 'k.emri AS customer_name', 'dt' => 'customer_name', 'searchable' => true),
     array('db' => 'y.shuma AS customer_loan', 'dt' => 'customer_loan', 'searchable' => false)
 );
+
 // Start building the SQL query
 $sql = "SELECT i.id, i.invoice_number, i.item, i.customer_id, i.state_of_invoice,
                 i_agg.total_amount,
@@ -65,23 +67,25 @@ if (!empty($_REQUEST['search']['value'])) {
     $sql .= ")";
 }
 
+// Execute the final SQL query
+$query = mysqli_query($conn, $sql);
 
+// Get the total number of records before pagination
+$totalRecords = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as count FROM invoices"))['count'];
 
 // Apply ordering
 $orderColumn = $columns[$_REQUEST['order'][0]['column']]['db'];
 $orderDirection = $_REQUEST['order'][0]['dir'];
 $sql .= " ORDER BY $orderColumn $orderDirection";
 
-// Limit and offset
+// Add these lines to the end of your script
 $start = $_REQUEST['start'];
 $length = $_REQUEST['length'];
+
 $sql .= " LIMIT $start, $length";
 
-// Execute the final SQL query
+// Execute the modified SQL query
 $query = mysqli_query($conn, $sql);
-
-// Get the total number of rows
-$totalRecords = mysqli_num_rows($query);
 
 // Prepare the response data
 $data = array();
@@ -93,7 +97,7 @@ while ($row = mysqli_fetch_assoc($query)) {
 $response = array(
     "draw" => intval($_REQUEST['draw']),
     "recordsTotal" => $totalRecords,
-    "recordsFiltered" => $totalRecords,
+    "recordsFiltered" => $totalRecords, // Assuming no filtering, adjust if needed
     "data" => $data
 );
 

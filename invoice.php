@@ -310,11 +310,11 @@ function getChannelDetails($channelId, $apiKey)
                       <table class="table table-bordered">
                         <thead>
                           <tr>
-                            <th scope="col w-25">Arti i kopertinës</th>
-                            <th scope="col">Emri i kanalit</th>
-                            <th scope="col">ID-ja e kanalit</th>
-                            <th scope="col">Te ardhurat nga Youtube</th>
-                            <th scope="col">Veprimet</th>
+                            <th style="font-size: 12px">Arti i kopertinës</th>
+                            <th style="font-size: 12px">Emri i kanalit</th>
+                            <th style="font-size: 12px">ID-ja e kanalit</th>
+                            <th style="font-size: 12px">Te ardhurat nga Youtube</th>
+                            <th style="font-size: 12px">Veprimet</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -451,59 +451,22 @@ function getChannelDetails($channelId, $apiKey)
                 </div>
 
                 <div class="tab-pane fade" id="pills-lista_e_faturave_te_kryera" role="tabpanel" aria-labelledby="pills-lista_e_faturave_te_kryera-tab">
-                  <table id="example2" class="table table-bordered table-hover">
-                    <thead>
+                  <table id="paymentsTable" class="table table-bordered table-hover w-100">
+                    <thead class="table-light">
                       <tr>
-                        <th>Klienti</th>
-                        <th>Fatura</th>
-                        <th>Përshkrimi</th>
-                        <th>Shuma e paguar</th>
-                        <th>Mënyra</th>
-                        <th>Lloji</th>
-                        <th>Data</th>
-                        <th>Fatura PDF</th>
+                        <th style="white-space: normal;font-size: 12px;">Emri i klientit</th>
+                        <th style="white-space: normal;font-size: 12px;">ID e faturës</th>
+                        <th style="white-space: normal;font-size: 12px;">Vlera</th>
+                        <th style="white-space: normal;font-size: 12px;">Data</th>
+                        <th style="white-space: normal;font-size: 12px;">Banka</th>
+                        <th style="white-space: normal;font-size: 12px;">Lloji</th>
+                        <th style="white-space: normal;font-size: 12px;">Përshkrimi</th>
+                        <th style="white-space: normal;font-size: 12px;">Shuma e përgjithshme pas %</th>
+                        <th style="white-space: normal;font-size: 12px;">Veprim</th>
                       </tr>
                     </thead>
-                    <tbody>
-                      <?php
-                      $sql = "SELECT * FROM invoices ORDER BY id DESC";
-                      $result = $conn->query($sql);
-
-                      while ($row = $result->fetch_assoc()) {
-                        $customerName = $row['customer_id'];
-                        $sql2 = "SELECT * FROM klientet WHERE id = '$customerName'";
-                        $result2 = $conn->query($sql2);
-
-                        // Fetch the things from payment table
-                        $sql3 = "SELECT * FROM payments WHERE invoice_id = '$row[id]'";
-                        $result3 = $conn->query($sql3);
-                        // Sum from table payments column called payment_amount 
-                        $totalPayment = 0; // Initialize totalPayment variable
-
-                        while ($paymentRow = $result3->fetch_assoc()) {
-                          $totalPayment += $paymentRow['payment_amount'];
-                        }
-
-                        if ($result2->num_rows > 0) {
-                          $clientRow = $result2->fetch_assoc();
-                          echo "<tr>";
-                          echo "<td>" . $clientRow['emri'] . "</td>";
-                          echo "<td>" . $row['invoice_number'] . "</td>";
-                          echo "<td>" . $row['description'] . "</td>";
-                          echo "<td>" . $row['total_amount'] . "</td>";
-                          echo "<td>" . $totalPayment . "</td>";
-                          echo "<td>" . $row['payment_mode'] . "</td>";
-                          echo "<td>" . $row['payment_method'] . "</td>";
-                          echo "<td>" . $row['invoice_date'] . "</td>";
-                          echo "</tr>";
-                        }
-                      }
-                      ?>
-                    </tbody>
-
                   </table>
                 </div>
-
               </div>
             </div>
 
@@ -642,12 +605,22 @@ function getChannelDetails($channelId, $apiKey)
         // responsive:true,
         processing: true,
         serverSide: true,
+        "searching": {
+          "regex": true
+        },
+        "paging": true,
+        "pageLength": 10, // Adjust as needed
+
         dom: "<'row'<'col-md-3'l><'col-md-6'B><'col-md-3'f>>" +
           "<'row'<'col-md-12'tr>>" +
           "<'row'<'col-md-6'><'col-md-6'p>>",
         ajax: {
           url: 'get_invoices.php', // Change to the correct server-side script URL
-          type: 'POST'
+          type: 'POST',
+          "dataFilter": function(data) {
+            console.log('DataTables Data:', data);
+            return data;
+          }
         },
         initComplete: function() {
           var btns = $(".dt-buttons");
@@ -670,12 +643,6 @@ function getChannelDetails($channelId, $apiKey)
             extend: "pdf",
             text: '<i class="fi fi-rr-file-pdf fa-lg"></i>&nbsp;&nbsp; PDF',
             titleAttr: "Eksporto tabelen ne formatin PDF",
-            className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
-          },
-          {
-            extend: "copyHtml5",
-            text: '<i class="fi fi-rr-copy fa-lg"></i>&nbsp;&nbsp; Kopjo',
-            titleAttr: "Kopjo tabelen ne formatin Clipboard",
             className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
           },
           {
@@ -737,11 +704,13 @@ function getChannelDetails($channelId, $apiKey)
                         // Store the current page number
                         const currentPage = table.page.info().page;
                         const currentInvoiceTrash = invoice_trash.page.info().page;
+                        const currentPaymentTable = payment_table.page.info().page;
 
                         // Reload the DataTable and restore the current page
                         table.ajax.reload(function() {
                           table.page(currentPage).draw(false);
                           invoice_trash.page(currentInvoiceTrash).draw(false);
+                          paymentsTable.page(currentPaymentTable).draw(false);
                         });
                       },
                       error: function(error) {
@@ -767,7 +736,13 @@ function getChannelDetails($channelId, $apiKey)
           },
         ],
         stripeClasses: ["stripe-color"],
-
+        columnDefs: [{
+          "targets": [0, 1, 2, 3, 4, 5, 6, 7], // Indexes of the columns you want to apply the style to
+          "render": function(data, type, row) {
+            // Apply the style to the specified columns
+            return type === 'display' && data !== null ? '<div style="white-space: normal;">' + data + '</div>' : data;
+          }
+        }],
         columns: [{
             data: 'id',
             render: function(data, type, row) {
@@ -1295,7 +1270,56 @@ function getChannelDetails($channelId, $apiKey)
 
 
 
+  <script>
+    $(document).ready(function() {
+      var columns = [{
+          "data": "customer_name"
+        },
+        {
+          "data": "invoice_id"
+        },
+        {
+          "data": "total_payment_amount"
+        },
+        {
+          "data": "payment_date"
+        },
+        {
+          "data": "bank_info"
+        },
+        {
+          "data": "type_of_pay"
+        },
+        {
+          "data": "description"
+        },
+        {
+          "data": "total_invoice_amount"
+        },
+        {
+          "data": "action"
+        }
+      ];
 
+      var paymentsTable = $('#paymentsTable').DataTable({
+        "processing": true,
+        "serverSide": true,
+        "search": true,
+        "ajax": {
+          "url": "complete_invoices.php",
+          "type": "POST"
+        },
+        "columns": columns,
+        "columnDefs": [{
+          "targets": [0, 1, 2, 3, 4, 5, 6, 7, 8],
+          "render": function(data, type, row) {
+            return type === 'display' && data !== null ? '<div style="white-space: normal;">' + data + '</div>' : data;
+          }
+        }],
+        "stripeClasses": ["stripe-color"],
+      });
+    });
+  </script>
   <?php include 'partials/footer.php' ?>
   </body>
 
