@@ -42,8 +42,6 @@ if (!empty($_POST['search']['value'])) {
 // Apply grouping
 $sql .= " GROUP BY invoices.customer_id, invoices.invoice_number, klientet.emri, payments.invoice_id";
 
-// Apply having clause to filter by total_payment_amount and total_invoice_amount
-$sql .= " HAVING total_payment_amount = total_invoice_amount";
 
 // Apply ordering
 if (!empty($_POST['order'])) {
@@ -52,12 +50,15 @@ if (!empty($_POST['order'])) {
     $sql .= " ORDER BY $orderByColumn $orderDirection";
 }
 
+
+// Get the total number of records after filtering
+$sqlCount = "SELECT COUNT(*) as count FROM ($sql) AS countTable";
+$totalRecords = mysqli_fetch_assoc(mysqli_query($conn, $sqlCount))['count'];
+
 // Apply pagination
-if (!empty($_POST['start']) && !empty($_POST['length'])) {
-    $start = $_POST['start'];
-    $length = $_POST['length'];
-    $sql .= " LIMIT $start, $length";
-}
+$start = $_POST['start'];
+$length = $_POST['length'];
+$sql .= " LIMIT $start, $length";
 
 // Execute the final query
 $result = $conn->query($sql);
@@ -78,8 +79,6 @@ while ($row = $result->fetch_assoc()) {
     $data[] = $dataRow;
 }
 
-// Get the total number of rows
-$totalRecords = $conn->query("SELECT COUNT(*) AS count FROM ($sql) AS subquery")->fetch_assoc()['count'];
 
 
 // Convert data to JSON

@@ -752,32 +752,8 @@ function getChannelDetails($channelId, $apiKey)
           {
             data: 'id',
           },
-          // {
-          //   data: 'invoice_number',
-          //   render: function(data, type, row) {
-          //     return '<a class="input-custom-css px-3 py-2" style="text-decoration: none;" href="complete_invoice.php?id=' + row.id + '">' + data + '</a>';
-          //   }
-          // },
           {
             data: 'customer_name',
-
-            // render: function(data, type, row) {
-
-            //   // Get the customer loan value
-            //   var loanTotal = row.customer_loan_amount - row.customer_loan_paid;
-            //   // Assuming 'customer_loan' is the field you want to display
-            //   var dotValue = parseFloat(loanTotal);
-
-            //   // Conditionally render the dot based on the value
-            //   if (!isNaN(dotValue) && dotValue !== 0) {
-            //     // Use a span element to represent the dot and add a title attribute for the tooltip
-            //     var dotColor = dotValue > 0 ? 'red' : 'green';
-            //     var dotHtml = '<span class="dot" style="background-color: ' + dotColor + '" title="' + dotValue.toFixed(2) + ' €' + '"></span>';
-            //     return '<div style="position: relative;">' + dotHtml + '<br><br>' + data + '</div>';
-            //   } else {
-            //     // Return the customer name without the dot for NaN or zero values
-            //     return data;
-            //   }
           },
           {
             data: 'item',
@@ -1304,6 +1280,7 @@ function getChannelDetails($channelId, $apiKey)
       var paymentsTable = $('#paymentsTable').DataTable({
         "processing": true,
         "serverSide": true,
+        "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
         "search": true,
         "ajax": {
           "url": "complete_invoices.php",
