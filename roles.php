@@ -209,7 +209,7 @@
                                     }
 
                                     if ($page == 'filtroCSV.php') {
-                                        return 'Inserto CSV';
+                                        return 'Filtro CSV';
                                     }
 
                                     if ($page == 'listaEFaturaveTePlatformave.php') {

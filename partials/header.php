@@ -26,7 +26,7 @@ try {
   exit;
 }
 
-$allowedGmailEmails = array('afrimkolgeci@gmail.com', 'besmirakolgeci1@gmail.com','egjini17@gmail.com','bareshafinance@gmail.com');
+$allowedGmailEmails = array('afrimkolgeci@gmail.com', 'besmirakolgeci1@gmail.com', 'egjini17@gmail.com', 'bareshafinance@gmail.com');
 
 if (empty($user_info['email'])) {
   // If the user doesn't have a valid email, deny access.
@@ -88,7 +88,8 @@ if ($result->num_rows > 0) {
   <link rel="stylesheet" href="assets/uicons-regular-rounded/css/uicons-regular-rounded.css">
 
   <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/uicons-brands/css/uicons-brands.css'>
-
+  <script src="https://cdn.jsdelivr.net/npm/pdfmake@0.1.36/build/pdfmake.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/pdfmake@0.1.36/build/vfs_fonts.js" defer></script>
 
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>

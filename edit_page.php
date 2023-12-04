@@ -136,7 +136,7 @@ function format_page_name($page)
     }
 
     if ($page == 'filtroCSV.php') {
-        return 'Inserto CSV';
+        return 'Filtro CSV';
     }
 
     if ($page == 'listaEFaturaveTePlatformave.php') {

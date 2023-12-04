@@ -1,19 +1,5 @@
 <?php include 'partials/header.php';
 
-
-
-
-// // Check if the id parameter is set
-// if (isset($_GET['id'])) {
-//     // Store the id parameter in a variable
-//     $gid = $_GET['id'];
-//     // Update the rrogat table and set the lexuar column to 1 where the id matches
-//     $conn->query("UPDATE rrogat SET lexuar='1' WHERE id='$gid'");
-// }
-
-
-
-// Check if the form has been submitted
 if (isset($_POST['ruaj'])) {
     // Escape special characters from the form data
     $clientId = mysqli_real_escape_string($conn, $_POST['emri']);
@@ -55,14 +41,7 @@ if (isset($_POST['ruaj'])) {
         echo "Gabim: " . $conn->error;
     }
 }
-// Check if the user has access to this page
-if ($_SESSION['acc'] == '1' || $_SESSION['acc'] == '3') {
-    // Allow access
-} else {
-    // Deny access and redirect the user
-    die('<script>alert("Nuk keni Akses ne kete sektor")</script>');
-    echo '<meta http-equiv="refresh" content="0;URL=index.php/" /> ';
-}
+
 // Check if the delete request has been sent
 if (isset($_GET['fshij'])) {
     // Get the invoice number from the request

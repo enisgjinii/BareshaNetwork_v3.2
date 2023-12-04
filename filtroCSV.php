@@ -74,17 +74,69 @@ $reportingPeriod = $_POST['reportingPeriod'] ?? null;
                             </div>
                         </div>
                     </form>
-                    <div class="row">
-                        <div class="col card rounded-5 shadow-sm my-2 py-3">
-                            <!-- Display selected values -->
-                            <p>Klienti i zgjedhur: <span id="displaySelectedClient"></span></p>
-                            <p>Periudha e zgjedhur e raportimit: <span id="displaySelectedReportingPeriod"></span></p>
+                    <style>
+                        @media print {
+                            body * {
+                                visibility: hidden;
+                                height: 100px;
+                            }
 
-                            <!-- Display total revenue -->
-                            <p>Të ardhurat e përgjithshme: <span id="totalRevenue"></span></p>
+                            #printable-content,
+                            #printable-content * {
+                                visibility: visible;
+                               
+                                /* border: 0; */
+                            }
+
+                            #printable-content {
+                                position: absolute;
+                                left: 0;
+                                top: 0;
+                            }
+                            /* Dont print the button */
+                            #printable-content .input-custom-css {
+                                display: none;
+                            }
+                        }
+                    </style>
+                    <div class="row">
+                        <div class="col bg-white bordered rounded-5 my-2 py-3" id="printable-content">
+                            <!-- Display selected values in a table -->
+                            <table class="table table-bordered">
+                                <tr>
+                                    <td>Klienti i zgjedhur:</td>
+                                    <td><span id="displaySelectedClient"></span></td>
+                                </tr>
+                                <tr>
+                                    <td>Periudha e zgjedhur e raportimit:</td>
+                                    <td><span id="displaySelectedReportingPeriod"></span></td>
+                                </tr>
+                                <tr>
+                                    <td>Të ardhurat e përgjithshme:</td>
+                                    <td><span id="totalRevenue"></span></td>
+                                </tr>
+                            </table>
+                            <br>
+                            <!-- Button to trigger print -->
+                            <div>
+                                <button class="input-custom-css btn-sm rounded-5 shadow-sm px-3 py-2" onclick="printContent()"><i class="fi fi-rr-print"></i> Print</button>
+                            </div>
                         </div>
                     </div>
 
+                    <script>
+                        function printContent() {
+                            // Show only the content you want to print
+                            document.body.style.visibility = 'hidden';
+                            document.getElementById('printable-content').style.visibility = 'visible';
+
+                            // Trigger the browser's print functionality
+                            window.print();
+
+                            // Reset visibility after printing
+                            document.body.style.visibility = 'visible';
+                        }
+                    </script>
                     <script>
                         $(document).ready(function() {
                             // Initialize Selectr for the client select
