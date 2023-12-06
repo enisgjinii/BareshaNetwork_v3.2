@@ -1,24 +1,24 @@
 <nav class="sidebar sidebar-offcanvas">
   <ul class="nav">
-  <?php
+    <?php
 
-// Include the database connection file
-include 'conn-d.php';
+    // Include the database connection file
+    include 'conn-d.php';
 
-// Check if the 'id' session variable is set
-if (isset($_SESSION['id'])) {
-  // You can now use $_SESSION['id'] in this script
-  $userName = $_SESSION['id'];
-} else {
-  // The 'id' session variable is not set, handle the situation accordingly
-  echo "User ID is not set in the session.";
-}
-// Enable error reporting (for debugging purposes)
-error_reporting(1);
+    // Check if the 'id' session variable is set
+    if (isset($_SESSION['id'])) {
+      // You can now use $_SESSION['id'] in this script
+      $userName = $_SESSION['id'];
+    } else {
+      // The 'id' session variable is not set, handle the situation accordingly
+      echo "User ID is not set in the session.";
+    }
+    // Enable error reporting (for debugging purposes)
+    error_reporting(1);
 
 
-// Define the SQL query to retrieve user roles and associated pages
-$sql = "SELECT roles.name AS role_name, GROUP_CONCAT(DISTINCT role_pages.page) AS pages
+    // Define the SQL query to retrieve user roles and associated pages
+    $sql = "SELECT roles.name AS role_name, GROUP_CONCAT(DISTINCT role_pages.page) AS pages
         FROM roles
         LEFT JOIN user_roles ON roles.id = user_roles.role_id
         LEFT JOIN role_pages ON roles.id = role_pages.role_id
@@ -110,6 +110,43 @@ $sql = "SELECT roles.name AS role_name, GROUP_CONCAT(DISTINCT role_pages.page) A
         </ul>
       </div>
     </li>
+    <li class="nav-item">
+      <a class="nav-link" data-bs-toggle="collapse" href="#objekti" aria-expanded="false" aria-controls="objekti">
+        <i class="fi fi-rr-chair-office menu-icon pe-3"></i>
+        <span class="menu-title">Objekti</span>
+        <i class="menu-arrow pe-3"></i>
+      </a>
+      <div class="collapse" id="objekti">
+        <ul class="nav flex-column sub-menu">
+          <?php
+          $i = 0;
+          while ($i < count($menu_pages)) {
+            if ($menu_pages[$i] == "office_investments.php") {
+              echo '<li class="nav-item">
+                            <a class="nav-link" href="' . $menu_pages[$i] . '">
+                                <span class="menu-title">Investimet e objektit</span>
+                            </a>
+                        </li>';
+            }
+            if ($menu_pages[$i] == "office_damages.php") {
+              echo '<li class="nav-item">
+                            <a class="nav-link" href="' . $menu_pages[$i] . '">
+                                <span class="menu-title">Prishjet</span>
+                            </a> 
+                        </li>';
+            }
+            if ($menu_pages[$i] == "office_requirements.php") {
+              echo '<li class="nav-item">
+                            <a class="nav-link" href="' . $menu_pages[$i] . '">
+                                <span class="menu-title">Kerkesat</span>
+                            </a> 
+                        </li>';
+            }
+            $i++;
+          }
+          ?>
+        </ul>
+      </div>
     <li class="nav-item">
       <a class="nav-link" data-bs-toggle="collapse" href="#klienti" aria-expanded="false" aria-controls="klienti">
         <i class="fi fi-rr-handshake menu-icon pe-3"></i>
@@ -292,7 +329,7 @@ $sql = "SELECT roles.name AS role_name, GROUP_CONCAT(DISTINCT role_pages.page) A
                         </li>';
             }
 
-            
+
 
 
             if ($menu_pages[$i] == "pagesat_youtube.php") {
