@@ -197,6 +197,15 @@ function format_page_name($page)
     if ($page == 'list_of_invoices.php') {
         return 'Pagesat YouTube ( New )';
     }
+    if ($page == 'office_investments.php') {
+        return 'Investimet e objektit';
+    }
+    if ($page == 'office_damages.php') {
+        return 'Prishjet';
+    }
+    if ($page == 'office_requirements.php') {
+        return 'Kerkesat';
+    }
 }
 $pages = array(
     'stafi.php' => format_page_name('stafi.php'),
@@ -217,7 +226,7 @@ $pages = array(
     'yinc.php' => format_page_name('yinc.php'),
     'shpenzimep.php' => format_page_name('shpenzimep.php'),
     'faturat.php' => format_page_name('faturat.php'),
-    
+
     'invoice.php' => format_page_name('invoice.php'),
     'pagesat.php' => format_page_name('pagesat.php'),
     'faturat2.php' => format_page_name('faturat2.php'),
@@ -250,8 +259,9 @@ $pages = array(
     'investime.php' => format_page_name('investime.php'),
     'pagesat_youtube.php' => format_page_name('pagesat_youtube.php'),
     'klient-avanc.php' => format_page_name('klient-avanc.php'),
-    'list_of_invoices.php' => format_page_name('list_of_invoices.php')
-
+    'list_of_invoices.php' => format_page_name('list_of_invoices.php'),
+    'office_investments.php' => format_page_name('office_investments.php'),
+    'office_damages.php' => format_page_name('office_damages.php'), 'office_requirements.php' => format_page_name('office_requirements.php'),
 );
 // Check if the role ID is present in the URL
 if (isset($_GET['role_id'])) {

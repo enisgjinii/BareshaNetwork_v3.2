@@ -1280,7 +1280,10 @@ function getChannelDetails($channelId, $apiKey)
       var paymentsTable = $('#paymentsTable').DataTable({
         "processing": true,
         "serverSide": true,
-        "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
+        "lengthMenu": [
+          [10, 25, 50, -1],
+          [10, 25, 50, "All"]
+        ],
         "search": true,
         "ajax": {
           "url": "complete_invoices.php",

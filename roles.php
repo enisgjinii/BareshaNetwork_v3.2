@@ -273,6 +273,15 @@
                                     if ($page == 'klient-avanc.php') {
                                         return 'Lista e avanceve te klienteve';
                                     }
+                                    if ($page == 'office_investments.php') {
+                                        return 'Investimet e objektit';
+                                    }
+                                    if ($page == 'office_damages.php') {
+                                        return 'Prishjet';
+                                    }
+                                    if ($page == 'office_requirements.php') {
+                                        return 'Kerkesat';
+                                    }
                                 }
                                 $pages = array(
                                     'stafi.php',
@@ -319,7 +328,10 @@
                                     'autor.php',
                                     'faturaFacebook.php',
                                     'ascap.php',
-                                    'klient-avanc.php'
+                                    'klient-avanc.php',
+                                    'office_investments.php',
+                                    'office_damages.php',
+                                    'office_requirements.php'
                                 );
                                 echo '<table id="tabelaEFaqeve" class="table table-bordered table-hover">';
                                 echo '<thead class="bg-light"><tr><th>Emri i faqes</th><th>Zgjedhe</th></tr></thead>';
@@ -481,7 +493,7 @@
 
                                             // Loop through results and create option for each user
                                             while ($row = $result->fetch_assoc()) {
-                                                echo '<option value="' . $row['id'] . '">' . $row['firstName']  . ' ' . $row['last_name']. '</option>';
+                                                echo '<option value="' . $row['id'] . '">' . $row['firstName']  . ' ' . $row['last_name'] . '</option>';
                                             }
                                             ?>
                                         </select>
