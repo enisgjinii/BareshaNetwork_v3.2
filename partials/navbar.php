@@ -31,6 +31,9 @@
         </button>
 
         <ul class="dropdown-menu p-2">
+          <li class="rounded-5 mt-1 text-center py-1" style="border:1px solid lightgrey;font-size:11px;"> <?php echo $user_info['email'] ?>
+
+          </li>
           <li>
             <a class="dropdown-item rounded-5 mt-1" style="border:1px solid lightgrey;" href="logout.php">
               <i class="fi fi-rr-exit me-2"></i>

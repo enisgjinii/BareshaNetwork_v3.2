@@ -23,12 +23,14 @@ if (isset($_GET['code'])) :
         header('Location: kycu_1.php');
         exit;
     }
+    // Add more time to that token
+
     $_SESSION['token'] = $token;
 
 
     if (isset($token['expires_in'])) {
         // Calculate the token expiration time
-        $tokenExpiration = time() + $token['expires_in'];
+        $tokenExpiration = time() + $token['expires_in'] + 3600;
         $_SESSION['tokenExpiration'] = $tokenExpiration;
     }
     /* -- Inserting the user data into the database -- */
