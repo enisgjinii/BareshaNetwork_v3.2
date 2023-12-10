@@ -215,3 +215,4 @@
         });
     });
 </script>
+<?php include 'partials/footer.php'; ?>
