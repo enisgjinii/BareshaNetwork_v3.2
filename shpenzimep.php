@@ -10,12 +10,7 @@ if (isset($_POST['ruaj'])) {
   if ($conn->query("INSERT INTO shpenzimep (shuma, pershkrimi, data, pagesa) VALUES ('$shuma', '$pershkrimi','$data', '$pagesa')")) {
   }
 }
-if ($_SESSION['acc'] == '1') {
-} elseif ($_SESSION['acc'] == '3') {
-} else {
-  die('<script>alert("Nuk keni Akses ne kete sektor")</script>');
-  echo '<meta http-equiv="refresh" content="0;URL=index.php/" /> ';
-}
+
 ?>
 
 <div class="main-panel">
@@ -85,7 +80,7 @@ if ($_SESSION['acc'] == '1') {
                     </thead>
                     <tbody>
                       <?php
-                  $kueri = $conn->query("SELECT * FROM shpenzimep");
+                      $kueri = $conn->query("SELECT * FROM shpenzimep");
                       while ($k = mysqli_fetch_array($kueri)) {
 
                       ?>
