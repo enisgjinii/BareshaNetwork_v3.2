@@ -188,7 +188,7 @@ function format_page_name($page)
         return 'Krijo fatur&euml; ( Facebook )';
     }
     if ($page == 'ascap.php') {
-        return 'ASCAP';
+        return 'Ascap';
     }
     if ($page == 'klient-avanc.php') {
         return 'Lista e avanceve te klienteve';
@@ -205,6 +205,13 @@ function format_page_name($page)
     }
     if ($page == 'office_requirements.php') {
         return 'Kerkesat';
+    }
+
+    if ($page == 'faturat2.php') {
+        return 'Platformat Tjera';
+    }
+    if ($page == 'quick_platform_invoice.php') {
+        return 'Fature e shpejte e platformave';
     }
 }
 $pages = array(
@@ -261,7 +268,10 @@ $pages = array(
     'klient-avanc.php' => format_page_name('klient-avanc.php'),
     'list_of_invoices.php' => format_page_name('list_of_invoices.php'),
     'office_investments.php' => format_page_name('office_investments.php'),
-    'office_damages.php' => format_page_name('office_damages.php'), 'office_requirements.php' => format_page_name('office_requirements.php'),
+    'office_damages.php' => format_page_name('office_damages.php'), 
+    'office_requirements.php' => format_page_name('office_requirements.php'),
+    'quick_platform_invoice.php' => format_page_name('quick_platform_invoice.php'),
+
 );
 // Check if the role ID is present in the URL
 if (isset($_GET['role_id'])) {

@@ -420,6 +420,13 @@
                             </a> 
                         </li>';
             }
+            // if ($menu_pages[$i] == "ascap.php") {
+            //   echo '<li class="nav-item">
+            //                 <a class="nav-link" href="' . $menu_pages[$i] . '">
+            //                     <span class="menu-title">Ascap</span>
+            //                 </a> 
+            //             </li>';
+            // }
             $i++;
           }
           ?>
@@ -582,6 +589,13 @@
                         </a> 
                     </li>';
             }
+            if ($menu_pages[$i] == "quick_platform_invoice.php") {
+              echo '<li class="nav-item">
+                        <a class="nav-link" href="' . $menu_pages[$i] . '">
+                            <span class="menu-title">Fature e shpejte e platformave</span>
+                        </a> 
+                    </li>';
+            }
             $i++;
           }
           ?>
@@ -641,6 +655,20 @@
                             <a class="nav-link" href="' . $menu_pages[$i] . '">
                             <i class="fi fi-rr-copyright menu-icon pe-3"></i>
                                 <span class="menu-title">Autor</span>
+                            </a>
+                        </li>';
+      }
+      $i++;
+    }
+    ?>
+    <?php
+    $i = 0;
+    while ($i < count($menu_pages)) {
+      if ($menu_pages[$i] == "ascap.php") {
+        echo '<li class="nav-item">
+                            <a class="nav-link" href="' . $menu_pages[$i] . '">
+                            <i class="fi fi-rr-copyright menu-icon pe-3"></i>
+                                <span class="menu-title">ASCAP</span>
                             </a>
                         </li>';
       }

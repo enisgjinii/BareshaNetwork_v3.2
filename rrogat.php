@@ -44,6 +44,8 @@ if (isset($_POST['ruaj'])) {
   $kontributi2 = $_POST['kontributi2'];
   $kont =  ($kontributi / 100) * $shuma;
   $kont2 =  ($kontributi2 / 100) * $shuma;
+  // Check if the checkbox is checked
+  $prepaid = isset($_POST['parapagim']) ? 1 : 0;
 
   // Kalkulo shumat dhe përpuno përshtatjet e tyre
   $pagaa = $shuma - $kont;
@@ -85,8 +87,8 @@ if (isset($_POST['ruaj'])) {
   $neto = $pagaa - $paga1 - $paga2 - $paga3;
 
   // Përdorimi i deklaratës së përgatitur për të futur të dhënat në bazën e të dhënave
-  $insertStatement = $conn->prepare("INSERT INTO rrogat (stafi, muaji, viti, shuma, kontributi, kontributi2, tatimi, neto, data, pagesa, lexuar) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '0')");
-  $insertStatement->bind_param("ssssssssss", $stafi, $muaji, $viti, $shuma, $kont, $kont2, $tatimi, $neto, $data, $pagesa);
+  $insertStatement = $conn->prepare("INSERT INTO rrogat (stafi, muaji, viti, shuma, kontributi, kontributi2, tatimi, neto, data, pagesa, lexuar, parapagim) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '0', ?)");
+  $insertStatement->bind_param("ssssssssssi", $stafi, $muaji, $viti, $shuma, $kont, $kont2, $tatimi, $neto, $data, $pagesa, $prepaid);
   $result = $insertStatement->execute();
 
   // Nëse ndodh ndonjë gabim gjatë përpunimit të kërkesës
@@ -133,7 +135,7 @@ if (isset($_POST['ruaj'])) {
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <label for="password" class="form-label">Fjalëkalimi</label>
+        <label class="form-label" for="password" class="form-label">Fjalëkalimi</label>
         <input type="password" class="form-control rounded-5 shadow-sm" id="password">
       </div>
       <div class="modal-footer">
@@ -147,7 +149,7 @@ if (isset($_POST['ruaj'])) {
 <div class="main-panel blurred">
   <div class="content-wrapper">
     <div class="container">
-      <nav style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='currentColor'/%3E%3C/svg%3E&#34;);" aria-label="breadcrumb">
+      <nav class="bg-white px-2 rounded-5" class="bg-white px-2 rounded-5" style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='currentColor'/%3E%3C/svg%3E&#34;);width:fit-content;border-style:1px solid black;" aria-label="breadcrumb">
         <ol class="breadcrumb">
           <li class="breadcrumb-item "><a class="text-reset" style="text-decoration: none;">Financat</a>
           </li>
@@ -163,7 +165,7 @@ if (isset($_POST['ruaj'])) {
       </button>
 
       <?php include 'salaries_modal.php'; ?>
-      <div class="card rounded-5 shadow-sm">
+      <div class="card rounded-5" style="border-style:1px solid red;">
         <div class="card-body">
           <div class="row">
             <div class="col-12">
@@ -172,8 +174,7 @@ if (isset($_POST['ruaj'])) {
                   <thead class="bg-light">
                     <tr>
                       <th style="white-space: normal;">Stafi</th>
-                      <th style="white-space: normal;">Muaji</th>
-                      <th style="white-space: normal;">Viti</th>
+                      <th style="white-space: normal;">Muaji & Viti</th>
                       <th style="white-space: normal;">Bruto</th>
                       <th style="white-space: normal;">Kontributi i punëdhënësit</th>
                       <th style="white-space: normal;">Kontributi i punëtorit</th>
@@ -181,6 +182,7 @@ if (isset($_POST['ruaj'])) {
                       <th style="white-space: normal;">Neto</th>
                       <th style="white-space: normal;">Data</th>
                       <th style="white-space: normal;">Forma</th>
+                      <th style="white-space: normal;">Vepro</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -200,9 +202,17 @@ if (isset($_POST['ruaj'])) {
                       }
                     ?>
                       <tr>
-                        <td><?php echo $name; ?></td>
-                        <td><?php echo $k['muaji']; ?></td>
-                        <td><?php echo $k['viti']; ?></td>
+                        <td><?php echo $name; ?> <br>
+                          <?php
+                          if ($k['parapagim'] == 1) {
+                            echo "<p class='rounded-5 bg-warning text-dark my-2 px-1' style='width:max-content'>Pages e para-kohshme</p> ";
+                          } else if ($k['parapagim'] == 0) {
+                            echo "<p class='rounded-5 bg-success text-white my-2 px-1' style='width:max-content'>Pages me rregull</p> ";
+                          } else {
+                            echo "Mungon informacion";
+                          }
+                          ?></td>
+                        <td><?php echo $k['muaji']; ?> & <?php echo $k['viti']; ?></td>
                         <td><?php echo $k['shuma']; ?>&euro;</td>
                         <td><?php echo $k['kontributi']; ?>&euro;</td>
                         <td><?php echo $k['kontributi2']; ?>&euro;</td>
@@ -210,6 +220,17 @@ if (isset($_POST['ruaj'])) {
                         <td><?php echo $k['neto']; ?>&euro;</td>
                         <td><?php echo $k['data']; ?></td>
                         <td><?php echo $k['pagesa']; ?></td>
+
+                        </td>
+                        <td>
+                          <button class="btn btn-primary text-white rounded-5 px-2 py-2 edit-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" data-row-id="<?php echo $k['id']; ?>">
+                            <i class="fi fi-rr-edit"></i>
+                          </button>
+                          <button class="btn btn-danger text-white rounded-5 px-2 py-2 delete-btn" type="button" data-bs-toggle="modal" data-bs-target="#deleteModal" data-row-id="<?php echo $k['id']; ?>">
+                            <i class="fi fi-rr-trash"></i>
+                          </button>
+
+                        </td>
                       </tr>
                     <?php } ?>
 
@@ -225,14 +246,144 @@ if (isset($_POST['ruaj'])) {
     </div>
   </div>
 </div>
+<div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="offcanvasRightLabel">Përditso të dhënat e rroges se puntorit</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body">
+    <form id="editForm">
+      <!-- <label class="form-label" for="editedName">Stafi</label>
+      <input type="text" class="form-control rounded-5 border border-2 mb-2" id="editedName" name="editedName" required> -->
+
+      <label class="form-label" for="editedMuaji">Muaji</label>
+      <input type="text" class="form-control rounded-5 border border-2 mb-2" id="editedMuaji" name="editedMuaji" required>
+      <!-- Add more input fields based on your data -->
+
+      <label class="form-label" for="editedBruto">Bruto</label>
+      <input type="text" class="form-control rounded-5 border border-2 mb-2" id="editedBruto" name="editedBruto" required>
+
+      <label class="form-label" for="editedKontributi">Kontributi</label>
+      <input type="text" class="form-control rounded-5 border border-2 mb-2" id="editedKontributi" name="editedKontributi" required>
+
+      <label class="form-label" for="editedKontributi2">Kontributi 2</label>
+      <input type="text" class="form-control rounded-5 border border-2 mb-2" id="editedKontributi2" name="editedKontributi2" required>
+
+      <label class="form-label" for="editedTatimi">Tatimi</label>
+      <input type="text" class="form-control rounded-5 border border-2 mb-2" id="editedTatimi" name="editedTatimi" required>
+
+      <label class="form-label" for="editedNeto">Neto</label>
+      <input type="text" class="form-control rounded-5 border border-2 mb-2" id="editedNeto" name="editedNeto" required>
+
+      <br>
+      <button type="button" class="input-custom-css px-3 py-2" id="saveChanges">Ruaj ndryshimet</button>
+    </form>
+  </div>
 </div>
+</div>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.edit-btn').forEach(function(button) {
+      button.addEventListener('click', function() {
+        var rowId = this.getAttribute('data-row-id');
+
+        // Fetch corresponding data using AJAX
+        $.ajax({
+          type: 'GET', // Assuming you have a server endpoint to fetch data
+          url: 'fetch_specificUpdateSalary.php?id=' + rowId,
+          success: function(data) {
+            // Pre-populate form fields with the fetched data
+            $('#editedName').val(data.stafi);
+            $('#editedMuaji').val(data.muaji);
+            $('#editedBruto').val(data.shuma);
+            $('#editedKontributi').val(data.kontributi);
+            $('#editedKontributi2').val(data.kontributi2);
+            $('#editedTatimi').val(data.tatimi);
+            $('#editedNeto').val(data.neto);
+            $('#editedData').val(data.data);
+            $('#editedPagesa').val(data.pagesa);
+            // ... add more fields as needed
+
+            // Show the off-canvas
+            $('#offcanvasRight').offcanvas('show');
+          },
+          error: function(xhr, status, error) {
+            console.error('Error:', xhr.responseText);
+            Swal.fire({
+              title: 'Error!',
+              text: 'An error occurred while fetching data.',
+              icon: 'error'
+            });
+          }
+        });
+      });
+    });
+  });
+</script>
 
 <?php include 'partials/footer.php'; ?>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.delete-btn').forEach(function(button) {
+      button.addEventListener('click', function() {
+        var rowId = this.getAttribute('data-row-id');
 
+        // Show SweetAlert2 confirmation dialog
+        Swal.fire({
+          title: 'A je i sigurt?',
+          text: 'Ju nuk do të jeni në gjendje ta ktheni këtë!',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#d33',
+          cancelButtonColor: '#3085d6',
+          confirmButtonText: 'Po, fshije atë!'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            // If confirmed, perform the deletion using AJAX
+            $.ajax({
+              type: 'POST', // You can also use 'GET' based on your server-side implementation
+              url: 'delete_salary.php', // Replace with the actual URL or script
+              data: {
+                id: rowId
+              },
+              success: function(response) {
+                // Handle the response from the server, e.g., show a success message
+                if (response.success) {
+                  Swal.fire({
+                    title: 'U fshi!',
+                    text: 'Rreshti është fshirë.',
+                    icon: 'success'
+                  });
+                  // Remove the row from the table (optional)
+                  $(button).closest('tr').remove();
+                } else {
+                  Swal.fire({
+                    title: 'Gabim!',
+                    text: 'Ndodhi një gabim gjatë fshirjes së rreshtit.',
+                    icon: 'error'
+                  });
+                }
+              },
+              error: function(xhr, status, error) {
+                // Handle the error, e.g., show an error message
+                console.error('Error:', xhr.responseText);
+                Swal.fire({
+                  title: 'Gabim!',
+                  text: 'Ndodhi një gabim gjatë përpunimit të kërkesës suaj.',
+                  icon: 'error'
+                });
+              }
+            });
+          }
+        });
+      });
+    });
+  });
+</script>
 <script>
   $(document).ready(function() {
     $('#table_of_salaries_of_staff').DataTable({
-      responsive: true,
+      // responsive: true,
       "searching": {
         "regex": true
       },

@@ -72,17 +72,19 @@
                         </div>
                         <div class="col">
                             <div class="form-group">
-                                <label for="emri" class="form-label">Zgjidh nj&euml;rin nga stafi</label>
-                                <select name="stafi" class="form-select">
+                                <label for="emri" class="form-label">Zgjidh njërin nga stafi</label>
+                                <select name="stafi" id="stafi" class="form-select">
                                     <?php
                                     $get_employees = $conn->query("SELECT * FROM googleauth");
                                     if ($get_employees->num_rows > 0) {
                                         while ($row = $get_employees->fetch_assoc()) {
-                                            echo '<option value="' . $row['id'] . '">' . $row['firstName'] .  ' ' . $row['last_name'] . '</option>';
+                                            echo '<option value="' . $row['id'] . '">' . $row['firstName'] . ' ' . $row['last_name'] . '</option>';
                                         }
                                     }
                                     ?>
                                 </select>
+
+
                                 <script>
                                     new Selectr('select[name="stafi"]', {
                                         searchable: true,
@@ -95,12 +97,36 @@
 
 
                     <div class="form-group">
-                        <label for="datab" class="form-label">Shuma</label>
-                        <div class="input-group mb-3">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text" id="basic-addon1">&euro;</span>
+                        <div class="row">
+                            <div class="col"><label for="salary-display" class="form-label"> Rroga statike</label>
+                                <input type="text" class="form-control rounded-5 shadow-sm border border-2" id="salary-display"></input>
+                                <script>
+                                    document.getElementById('stafi').addEventListener('change', function() {
+                                        var selectedId = this.value;
+
+                                        // Make an AJAX request to fetch salary based on the selected employee ID
+                                        var xhr = new XMLHttpRequest();
+                                        xhr.open('GET', 'get_salary.php?id=' + selectedId, true);
+
+                                        xhr.onload = function() {
+                                            if (xhr.status == 200) {
+                                                document.getElementById('salary-display').value = xhr.responseText;
+                                            }
+                                        };
+
+                                        xhr.send();
+                                    });
+                                </script>
                             </div>
-                            <input type="text" class="form-control" name="shuma" class="form-control" id="inlineFormInputGroup" value="0.00" placeholder="Username" aria-label="Username" aria-describedby="basic-addon1">
+                            <div class="col">
+                                <label for="datab" class="form-label">Shuma</label>
+                                <div class="input-group mb-3">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text" id="basic-addon1">&euro;</span>
+                                    </div>
+                                    <input type="text" class="form-control" name="shuma" class="form-control" id="inlineFormInputGroup" value="0.00" placeholder="Username" aria-label="Username" aria-describedby="basic-addon1">
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="row">
@@ -142,9 +168,16 @@
                         </div>
                     </div>
 
-
-
-
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group">
+                                <!-- I want to make a checkbox like if that month salary is prepaid -->
+                                <label for="parapagim" class="form-label">Pagesa e para-kohshme</label>
+                                <br>
+                                <input type="checkbox" name="parapagim" style="width: 20px; height: 20px;">
+                            </div>
+                        </div>
+                    </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Mbylle</button>

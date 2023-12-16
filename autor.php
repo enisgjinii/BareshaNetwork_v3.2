@@ -357,7 +357,7 @@
                                         <div class="col">
                                             <label for="kategoria" class="form-label">Kategoria</label>
                                             <select class="form-select shadow-sm rounded-5 py-2" name="kategoria">
-                                                <option value="ASCAP">ASCAP</option>
+                                                <option value="Ascap">Ascap</option>
                                                 <option value="IBM">IBM</option>
                                                 <option value="PRS">PRS</option>
                                                 <option value="GEMA.DE">GEMA.DE</option>

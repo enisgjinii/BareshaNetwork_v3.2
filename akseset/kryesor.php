@@ -300,7 +300,7 @@ if ($zip->open($zipBackupFile, ZipArchive::CREATE) === TRUE) {
                   return 'Krijo fatur&euml; (Facebook)';
                 }
                 if ($page == 'ascap.php') {
-                  return 'ASCAP';
+                  return 'Ascap';
                 }
                 if ($page == 'klient-avanc.php') {
                   return 'Lista e avanceve te klienteve';
@@ -368,7 +368,7 @@ if ($zip->open($zipBackupFile, ZipArchive::CREATE) === TRUE) {
 
               ?>
         <?php
-        if ($email == "endrit@bareshamusic.com" || $email == "egjini@bareshamusic.com" || $email == "lirie@bareshamusic.com" || $email == "yllzona@bareshamusic.com") { ?>
+        if ($email == "endrit@bareshamusic.com" || $email == "egjini@bareshamusic.com" || $email == "lirie@bareshamusic.com" || $email == "yllzona@bareshamusic.com" || $email == "lyon@bareshamusic.com") { ?>
           <div class="card p-5 rounded-5 my-5">
             <h6 class="text-muted mb-3">Lista e faqeve në të cilat ju, si <p class="badge bg-primary rounded-5"><?php echo  $email ?></p> , keni akses : </h6>
             <?php
