@@ -16,3 +16,6 @@ Classes
 # Ignore vendor from composer
 vendor
 .cosine
+
+# Ignore tmp directory
+.php_tmp
