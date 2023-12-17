@@ -281,6 +281,9 @@
                                         if ($page == 'office_requirements.php') {
                                             return 'Kerkesat';
                                         }
+                                        if ($page == 'quick_platform_invoice.php') {
+                                            return 'Raportet e platformave';
+                                        }
                                     }
                                     $pages = array(
                                         'stafi.php',
@@ -330,7 +333,8 @@
                                         'klient-avanc.php',
                                         'office_investments.php',
                                         'office_damages.php',
-                                        'office_requirements.php'
+                                        'office_requirements.php',
+                                        'quick_platform_invoice.php'
                                     );
                                     echo '<table id="tabelaEFaqeve" class="table table-bordered table-hover">';
                                     echo '<thead class="bg-light"><tr><th>Emri i faqes</th><th>Zgjedhe</th></tr></thead>';
