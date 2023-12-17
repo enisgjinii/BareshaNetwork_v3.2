@@ -592,7 +592,7 @@
             if ($menu_pages[$i] == "quick_platform_invoice.php") {
               echo '<li class="nav-item">
                         <a class="nav-link" href="' . $menu_pages[$i] . '">
-                            <span class="menu-title">Fature e shpejte e platformave</span>
+                            <span class="menu-title">Raporte te platformave</span>
                         </a> 
                     </li>';
             }

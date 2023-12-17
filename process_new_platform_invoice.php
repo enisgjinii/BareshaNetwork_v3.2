@@ -1,53 +1,50 @@
 <?php
-include 'conn-d.php'; // Include your database connection code
+// Connect to the database
+require_once "conn-d.php";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Retrieve form data
+    // Client and time-related details
     $client_id = $_POST["id_of_client"];
-    $platform = $_POST["platform"];
-    $platform_income = $_POST["platform_income"];
-    $platform_income_after_percentage = $_POST["platform_income_after_percentage"];
-    $date = $_POST["date"];
-    $description = $_POST["description"];
+    $month = $_POST["month"];
+    $year = $_POST["year"];
 
-    // Create a prepared statement
-    $stmt = $conn->prepare("INSERT INTO platform_invoices (client_id, platform, platform_income, platform_income_after_percentage, date, description) VALUES (?, ?, ?, ?, ?, ?)");
+    // Prepare and execute the statement
+    $stmt = $conn->prepare("INSERT INTO platform_invoices (client_id, amazon_music_income, anghami_income, apple_music_income, audiomack_income, deezer_income, facebook_income, iheartradio_income, kkbox_income, medianet_income, netease_income, qobuz_income, resso_income, saavn_income, soundtrack_income, spotify_income, tencent_income, tidal_income, tiktok_income, youtube_income, total_income, tax_withholding, month, year) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
-    // Check if the statement was prepared successfully
-    if ($stmt) {
-        // Bind parameters
-        $stmt->bind_param("isddss", $client_id, $platform, $platform_income, $platform_income_after_percentage, $date, $description);
+    // Bind parameters dynamically
+    $stmt->bind_param(
+        "ssssssssssssssssssssssss",
+        $client_id,
+        $_POST["amazon_music_income"],
+        $_POST["anghami_income"],
+        $_POST["apple_music_income"],
+        $_POST["audiomack_income"],
+        $_POST["deezer_income"],
+        $_POST["facebook_income"],
+        $_POST["iheartradio_income"],
+        $_POST["kkbox_income"],
+        $_POST["medianet_income"],
+        $_POST["netease_income"],
+        $_POST["qobuz_income"],
+        $_POST["resso_income"],
+        $_POST["saavn_income"],
+        $_POST["soundtrack_income"],
+        $_POST["spotify_income"],
+        $_POST["tencent_income"],
+        $_POST["tidal_income"],
+        $_POST["tiktok_income"],
+        $_POST["youtube_income"],
+        $_POST["totalAmount"],
+        $_POST["tax"],
+        $month,
+        $year
+    );
 
-        // Execute the statement
-        if ($stmt->execute()) {
-            // Success message using JavaScript alert
-            echo "<script>
-                        alert('Kërkesa u regjistrua me sukses');
-                        window.location.href = 'quick_platform_invoice.php'; // Redirect to the form page
-                      </script>";
-        } else {
-            // Error message using JavaScript alert
-            echo "<script>
-                        alert('Gabim gjate regjistrimit. Error: " . $stmt->error . "');
-                        window.location.href = 'quick_platform_invoice.php'; // Redirect to the form page
-                      </script>";
-        }
+    $stmt->execute();
+    $stmt->close();
 
-        // Close statement
-        $stmt->close();
-    } else {
-        // Error message if the statement was not prepared
-        echo "<script>
-                    alert('Gabim gjate regjistrimit. Error: Statement not prepared');
-                    window.location.href = 'quick_platform_invoice.php'; // Redirect to the form page
-                  </script>";
-    }
-
-    // Close connection
-    $conn->close();
-} else {
-    // Redirect to the form page if accessed directly without submission
     header("Location: quick_platform_invoice.php");
     exit();
 }
-?>
+
+$conn->close();

@@ -56,5 +56,3 @@ $output = array(
 );
 
 echo json_encode($output);
-
-mysqli_close($conn);

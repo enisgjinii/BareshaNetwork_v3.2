@@ -11,16 +11,16 @@ if (isset($_POST['ruaj'])) {
 
   // Split the links into an array
   $linksArray = array_map('trim', explode(',', $linku));
-  
+
   // Limit the number of links to 6
   $limitedLinksArray = array_slice($linksArray, 0, 6);
-  
+
   // Combine the limited links back into a string
   $limitedLinksString = implode(',', $limitedLinksArray);
-  
+
   // Now, $limitedLinksString contains up to 6 YouTube links
-  
-  if ($stafi === false || $shuma === false || empty($data) || empty($linku)) {
+
+  if ($stafi === false || $shuma === false || empty($data)) {
     echo "Invalid input data.";
     exit;
   }
