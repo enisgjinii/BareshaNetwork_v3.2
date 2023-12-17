@@ -106,15 +106,7 @@ if (isset($_GET['delete'])) {
                         </tr>
                       <?php } ?>
                     </tbody>
-                    <tfoot class="bg-light">
-                      <tr>
-                        <th>Email</th>
-                        <th>ADS ID</th>
-                        <th>Shteti</th>
-                        <th>Klientet</th>
-                        <th></th>
-                      </tr>
-                    </tfoot>
+                    
                   </table>
                 </div>
               </div>
