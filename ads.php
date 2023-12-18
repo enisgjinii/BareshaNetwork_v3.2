@@ -106,7 +106,6 @@ if (isset($_GET['delete'])) {
                         </tr>
                       <?php } ?>
                     </tbody>
-                    
                   </table>
                 </div>
               </div>
