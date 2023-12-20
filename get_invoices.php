@@ -76,7 +76,7 @@ $start = $_REQUEST['start'];
 $length = $_REQUEST['length'];
 $orderColumn = $columns[$_REQUEST['order'][0]['column']]['db'];
 $orderDirection = $_REQUEST['order'][0]['dir'];
-$sql .= " ORDER BY $orderColumn $orderDirection LIMIT $start, $length";
+$sql .= " ORDER BY id DESC LIMIT $start, $length";
 
 // Execute the modified SQL query
 $query = mysqli_query($conn, $sql);
