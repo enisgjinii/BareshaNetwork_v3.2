@@ -5,7 +5,7 @@
 include 'conn-d.php';
 
 // Retrieve data from the "investimi" table
-$sql = "SELECT * FROM investimi";
+$sql = "SELECT * FROM investimi ORDER BY id DESC";
 $result = $conn->query($sql);
 
 $data = array();

@@ -13,7 +13,9 @@
             <button type="button" class="input-custom-css px-3 py-2 mb-2" data-bs-toggle="modal" data-bs-target="#exampleModal">
                 <i class="fi fi-rr-add"></i> &nbsp; Raporto prishje
             </button>
-            <button id="deleteRowsBtn" class="input-custom-css px-3 py-2 mb-2">Fshi rreshtat e përzgjedhur</button>
+            <button id="deleteRowsBtn" class="input-custom-css px-3 py-2 mb-2">
+                <i class="fi fi-rr-trash"></i> &nbsp; Fshij
+            </button>
             <!-- Modal -->
             <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                 <div class="modal-dialog">
@@ -49,7 +51,11 @@
                                         ?>
                                     </select>
                                 </div>
-                                <button type="submit" class="btn btn-primary">Raporto</button>
+                                <hr>
+                                <div class="text-end">
+                                    <button type="submit" class="input-custom-css px-3 py-2">Raporto</button>
+                                </div>
+
                             </form>
                         </div>
                     </div>
@@ -146,45 +152,60 @@
                 return dataTable.row($(this).closest('tr')).data().id;
             }).get();
 
-            // Perform deletion using AJAX
-            $.ajax({
-                url: 'delete_damage.php',
-                method: 'POST',
-                data: {
-                    ids: ids
-                },
-                dataType: 'json',
-                success: function(response) {
-                    // Check if the deletion was successful
-                    if (response.success) {
-                        // Update DataTable
-                        dataTable.ajax.reload();
+            // Show a confirmation dialog with SweetAlert2
+            Swal.fire({
+                title: 'A jeni të sigurt që dëshironi të fshini këto rreshta?',
+                text: 'Ky veprim nuk mund të kthehet mbrapa!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Po, fshij!',
+                cancelButtonText: 'Anulo'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // If the user confirms, perform the deletion using AJAX
+                    $.ajax({
+                        url: 'delete_damage.php',
+                        method: 'POST',
+                        data: {
+                            ids: ids
+                        },
+                        dataType: 'json',
+                        success: function(response) {
+                            // Check if the deletion was successful
+                            if (response.success) {
+                                // Update DataTable
+                                dataTable.ajax.reload();
 
-                        // Show success message with SweetAlert2
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Rreshtat janë fshirë',
-                            text: 'Rreshtat e përzgjedhura janë fshirë me sukses.',
-                        });
-                    } else {
-                        // Show error message with SweetAlert2
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: 'Gabim gjatë fshirjes së rreshtave. Ju lutemi provoni përsëri.',
-                        });
-                    }
-                },
-                error: function() {
-                    // Show error message with SweetAlert2
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: 'Gabim gjatë fshirjes së rreshtave. Ju lutemi provoni përsëri.',
+                                // Show success message with SweetAlert2
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Rreshtat janë fshirë',
+                                    text: 'Rreshtat e përzgjedhura janë fshirë me sukses.',
+                                });
+                            } else {
+                                // Show error message with SweetAlert2
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Gabim',
+                                    text: 'Gabim gjatë fshirjes së rreshtave. Ju lutemi provoni përsëri.',
+                                });
+                            }
+                        },
+                        error: function() {
+                            // Show error message with SweetAlert2
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Gabim',
+                                text: 'Gabim gjatë fshirjes së rreshtave. Ju lutemi provoni përsëri.',
+                            });
+                        }
                     });
                 }
             });
         });
+
     });
 </script>
 

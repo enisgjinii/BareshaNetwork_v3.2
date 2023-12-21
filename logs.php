@@ -1,9 +1,4 @@
 <?php
-
-
-
-
-
 ob_start();
 include 'partials/header.php';
 $current_url = $_SERVER['REQUEST_URI'];

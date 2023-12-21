@@ -52,14 +52,14 @@ require_once 'vendor/autoload.php';
 <div class="main-panel">
     <div class="content-wrapper">
         <div class="container-fluid">
-            <div class="p-5 rounded-5 shadow-sm mb-4 card">
-                <h4 class="font-weight-bold text-gray-800 mb-4">Investime</h4>
-                <nav class="d-flex">
-                    <h6 class="mb-0">
-                        <a href="investime.php" class="text-reset">Investime</a>
-                    </h6>
-                </nav>
-            </div>
+            <nav class="bg-white px-2 rounded-5" style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='currentColor'/%3E%3C/svg%3E&#34;);width:fit-content;border-style:1px solid black;" aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item active" aria-current="page">
+                        <a href="investime.php" class="text-reset" style="text-decoration: none;">
+                            Investime
+                        </a>
+                    </li>
+            </nav>
             <div class="p-5 rounded-5 shadow-sm mb-4 card">
 
                 <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
@@ -180,23 +180,24 @@ require_once 'vendor/autoload.php';
                     'border-radius': '0.25rem',
                 });
             },
-            dom: '<"row mb-3"<"col-sm-6"l><"col-sm-6"f>>' +
-                'Brtip',
+            dom: "<'row'<'col-md-3'l><'col-md-6'B><'col-md-3'f>>" +
+                "<'row'<'col-md-12'tr>>" +
+                "<'row'<'col-md-6'><'col-md-6'p>>",
             buttons: [{
                 extend: 'pdfHtml5',
                 text: '<i class="fi fi-rr-file-pdf fa-lg"></i>&nbsp;&nbsp; PDF',
                 titleAttr: 'Eksporto tabelen ne formatin PDF',
-                className: 'btn btn-light border shadow-2 me-2'
+                className: 'btn btn-sm btn-light border rounded-5 me-2'
             }, {
                 extend: 'copyHtml5',
                 text: '<i class="fi fi-rr-copy fa-lg"></i>&nbsp;&nbsp; Kopjo',
                 titleAttr: 'Kopjo tabelen ne formatin Clipboard',
-                className: 'btn btn-light border shadow-2 me-2'
+                className: 'btn btn-sm btn-light border rounded-5 me-2'
             }, {
                 extend: 'excelHtml5',
                 text: '<i class="fi fi-rr-file-excel fa-lg"></i>&nbsp;&nbsp; Excel',
                 titleAttr: 'Eksporto tabelen ne formatin Excel',
-                className: 'btn btn-light border shadow-2 me-2',
+                className: 'btn btn-sm btn-light border rounded-5 me-2',
                 exportOptions: {
                     modifier: {
                         search: 'applied',
@@ -208,13 +209,16 @@ require_once 'vendor/autoload.php';
                 extend: 'print',
                 text: '<i class="fi fi-rr-print fa-lg"></i>&nbsp;&nbsp; Printo',
                 titleAttr: 'Printo tabel&euml;n',
-                className: 'btn btn-light border shadow-2 me-2'
+                className: 'btn btn-sm btn-light border rounded-5 me-2'
             }, ],
             fixedHeader: true,
             language: {
                 url: "https://cdn.datatables.net/plug-ins/1.13.1/i18n/sq.json",
             },
             stripeClasses: ['stripe-color'],
+            order: [
+                [0, "desc"]
+            ],
             ajax: {
                 url: 'get_investimi_data.php', // Your PHP script to fetch data
                 dataSrc: '', // Since your response is an array, set this to an empty string
