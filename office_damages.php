@@ -2,82 +2,88 @@
 
 <div class="main-panel">
     <div class="content-wrapper">
-        <div class="container"> <!-- Added 'mt-4' for top margin -->
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="#" class="text-reset" style="text-decoration: none;">Objekti</a></li>
-                    <li class="breadcrumb-item active" aria-current="page"><a href="office_damages.php" class="text-reset" style="text-decoration: none;">Prishjet</a></li>
-                </ol>
-            </nav>
-            <!-- Button trigger modal -->
-            <button type="button" class="input-custom-css px-3 py-2 mb-2" data-bs-toggle="modal" data-bs-target="#exampleModal">
-                <i class="fi fi-rr-add"></i> &nbsp; Raporto prishje
-            </button>
-            <button id="deleteRowsBtn" class="input-custom-css px-3 py-2 mb-2">
-                <i class="fi fi-rr-trash"></i> &nbsp; Fshij
-            </button>
-            <!-- Modal -->
-            <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="exampleModalLabel">Raporto prishje</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <!-- Form for reporting office damages -->
-                            <form id="damageForm" action="process_damage.php" method="post">
-                                <div class="mb-3">
-                                    <label for="damageType" class="form-label">Lloji i prishjes</label>
-                                    <input type="text" class="form-control rounded-5 border border-2" id="damageType" name="damageType" required>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="damageDescription" class="form-label">Përshkrimi i prishjes</label>
-                                    <textarea class="form-control rounded-5 border border-2" id="damageDescription" name="damageDescription" rows="3" required></textarea>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="damageDate" class="form-label">Data e prishjes</label>
-                                    <input type="date" class="form-control rounded-5 border border-2" id="damageDate" name="damageDate" required>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="reporterName" class="form-label">Emri i raportuesit</label>
-                                    <select name="reporterName" id="reporterName" class="form-select rounded-5">
-                                        <?php
-                                        $result = $conn->query("SELECT * FROM googleauth");
-                                        while ($row = mysqli_fetch_array($result)) {
-                                            $reporterFullName = $row['firstName'] . " " . $row['last_name'];
-                                            echo '<option value="' . $row['id'] . '">' . $reporterFullName . '</option>';
-                                        }
-                                        ?>
-                                    </select>
-                                </div>
-                                <hr>
-                                <div class="text-end">
-                                    <button type="submit" class="input-custom-css px-3 py-2">Raporto</button>
-                                </div>
+        <div class="container-fluid">
+            <div class="container">
+                <nav class="bg-white px-2 rounded-5" style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='currentColor'/%3E%3C/svg%3E&#34;);width:fit-content;border-style:1px solid black;" aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item "><a class="text-reset" style="text-decoration: none;">Objekti</a>
+                        </li>
+                        <li class="breadcrumb-item active" aria-current="page">
+                            <a href="<?php echo $SERVER['PHP_SELF']; ?>" class="text-reset" style="text-decoration: none;">
+                                Prishjet
+                            </a>
+                        </li>
+                </nav>
+                <!-- Button trigger modal -->
+                <button type="button" class="input-custom-css px-3 py-2 mb-3" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                    <i class="fi fi-rr-add"></i> &nbsp; Raporto prishje
+                </button>
+                <button id="deleteRowsBtn" class="input-custom-css px-3 py-2 mb-3">
+                    <i class="fi fi-rr-trash"></i> &nbsp; Fshij
+                </button>
+                <!-- Modal -->
+                <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLabel">Raporto prishje</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <!-- Form for reporting office damages -->
+                                <form id="damageForm" action="process_damage.php" method="post">
+                                    <div class="mb-3">
+                                        <label for="damageType" class="form-label">Lloji i prishjes</label>
+                                        <input type="text" class="form-control rounded-5 border border-2" id="damageType" name="damageType" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="damageDescription" class="form-label">Përshkrimi i prishjes</label>
+                                        <textarea class="form-control rounded-5 border border-2" id="damageDescription" name="damageDescription" rows="3" required></textarea>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="damageDate" class="form-label">Data e prishjes</label>
+                                        <input type="date" class="form-control rounded-5 border border-2" id="damageDate" name="damageDate" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="reporterName" class="form-label">Emri i raportuesit</label>
+                                        <select name="reporterName" id="reporterName" class="form-select rounded-5">
+                                            <?php
+                                            $result = $conn->query("SELECT * FROM googleauth");
+                                            while ($row = mysqli_fetch_array($result)) {
+                                                $reporterFullName = $row['firstName'] . " " . $row['last_name'];
+                                                echo '<option value="' . $row['id'] . '">' . $reporterFullName . '</option>';
+                                            }
+                                            ?>
+                                        </select>
+                                    </div>
+                                    <hr>
+                                    <div class="text-end">
+                                        <button type="submit" class="input-custom-css px-3 py-2">Raporto</button>
+                                    </div>
 
-                            </form>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
 
-            <!-- Table for Displaying Investments -->
-            <div class="card p-3">
-                <table class='table table-bordered' id="damagesTable">
-                    <thead class="table-light">
-                        <tr>
-                            <th scope='col'></th>
-                            <th scope='col'>Lloji</th>
-                            <th scope='col'>Pershkrimi</th>
-                            <th scope='col'>Data</th>
-                            <th scope='col'>Raportuesi</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
+                <!-- Table for Displaying Investments -->
+                <div class="card p-3">
+                    <table class='table table-bordered' id="damagesTable">
+                        <thead class="table-light">
+                            <tr>
+                                <th scope='col'></th>
+                                <th scope='col'>Lloji</th>
+                                <th scope='col'>Pershkrimi</th>
+                                <th scope='col'>Data</th>
+                                <th scope='col'>Raportuesi</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
 
+                </div>
             </div>
         </div>
     </div>

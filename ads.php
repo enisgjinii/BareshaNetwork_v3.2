@@ -153,7 +153,7 @@ while ($k = mysqli_fetch_array($kueri)) {
             </li>
         </nav>
 
-        <button type="button" class="input-custom-css px-3 py-2 mb-2" data-bs-toggle="modal" data-bs-target="#exampleModal">
+        <button type="button" class="input-custom-css px-3 py-2 mb-3" data-bs-toggle="modal" data-bs-target="#exampleModal">
           <i class="fi fi-rr-add"></i> Shto kategori
         </button>
         <div class="card rounded-5 shadow-sm">
