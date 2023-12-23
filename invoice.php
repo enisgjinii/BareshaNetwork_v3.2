@@ -140,19 +140,64 @@ function getChannelDetails($channelId, $apiKey)
 ?>
 
 
+  <style>
+    .custom-tooltip {
+      position: relative;
+      display: inline-block;
+      white-space: normal;
+      cursor: pointer;
+    }
+
+    .custom-dot {
+      width: 10px;
+      height: 10px;
+      background-color: red;
+      /* Change the dot color as desired */
+      border-radius: 50%;
+      display: inline-block;
+      white-space: normal;
+      cursor: pointer;
+    }
+
+    .custom-tooltiptext {
+      visibility: hidden;
+      width: 80px;
+      background-color: #333;
+      color: #fff;
+      text-align: center;
+      border-radius: 6px;
+      padding: 5px;
+      position: absolute;
+      z-index: 1;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      opacity: 0.9;
+      transition: opacity 0.3s;
+      white-space: normal;
+      cursor: pointer;
+    }
+
+    .custom-tooltip:hover .custom-tooltiptext {
+      cursor: pointer;
+      visibility: visible;
+      white-space: normal;
+      opacity: 0.9;
+    }
+  </style>
   <div class="main-panel">
     <div class="content-wrapper">
       <div class="container-fluid">
         <div class="container">
-          <nav class="bg-white px-2 rounded-5" style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='currentColor'/%3E%3C/svg%3E&#34;);" aria-label="breadcrumb">
+          <nav class="bg-white px-2 rounded-5" style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='currentColor'/%3E%3C/svg%3E&#34;);width:fit-content;border-style:1px solid black;" aria-label="breadcrumb">
             <ol class="breadcrumb">
               <li class="breadcrumb-item "><a class="text-reset" style="text-decoration: none;">Financat</a>
               </li>
-              <li class="breadcrumb-item active" aria-current="page"><a href="invoice.php" class="text-reset" style="text-decoration: none;">
-                  Pagesat Youtube ( Version i ri )
-                  <span class="badge bg-success rounded-5">v3.3 Punon</span>
-
-                </a></li>
+              <li class="breadcrumb-item active" aria-current="page">
+                <a href="<?php echo __FILE__; ?>" class="text-reset" style="text-decoration: none;">
+                  Pagesat Youtube
+                </a>
+              </li>
           </nav>
           <div id="alert_message"></div>
           <div class="row mb-2">
@@ -754,6 +799,26 @@ function getChannelDetails($channelId, $apiKey)
           },
           {
             data: 'customer_name',
+            render: function(data, type, row) {
+              const loanAmount = row.customer_loan_amount;
+              const loanPaid = row.customer_loan_paid;
+              const difference = loanAmount - loanPaid;
+
+              // Check if the difference is greater than 0 before displaying the dot and tooltip
+              if (difference > 0) {
+                // Create a dot with a tooltip
+                const dotHTML = '<div class="custom-tooltip" >' +
+                  '<div class="custom-dot"></div>' +
+                  '<span class="custom-tooltiptext">' + difference + ' €</span>' +
+                  '</div>';
+
+                // Return the customer name and dot with tooltip
+                return '<p style="white-space: normal;">' + data + '</p>' + dotHTML;
+              } else {
+                // If the difference is not greater than 0, only return the customer name
+                return '<p style="white-space: normal;">' + data + '</p>';
+              }
+            },
           },
           {
             data: 'item',
@@ -1026,9 +1091,8 @@ function getChannelDetails($channelId, $apiKey)
             data: 'invoice_number'
           },
           {
-            data: 'client_name'
-          }, // Update to use the client_name field
-
+            data: 'client_name',
+          },
           {
             data: 'item'
           },
