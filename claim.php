@@ -25,17 +25,16 @@ if (isset($_GET['claim'])) {
   <div class="content-wrapper">
     <div class="container-fluid">
       <div class="container">
-
-        <div class="p-5 rounded-5 shadow-sm mb-4 card">
-          <h4 class="font-weight-bold text-gray-800 mb-4">Release Claim</h4>
-          <nav class="d-flex">
-            <h6 class="mb-0">
-              <a href="" class="text-reset">Content ID</a>
-              <span>/</span>
-              <a href="claim.php" class="text-reset" data-bs-placement="top" data-bs-toggle="tooltip" title="<?php echo __FILE__; ?>"><u>Release Claim</u></a>
-            </h6>
-          </nav>
-        </div>
+        <nav class="bg-white px-2 rounded-5" style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='currentColor'/%3E%3C/svg%3E&#34;);width:fit-content;border-style:1px solid black;" aria-label="breadcrumb">
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item "><a class="text-reset" style="text-decoration: none;">Content ID</a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">
+              <a href="<?php echo __FILE__; ?>" class="text-reset" style="text-decoration: none;">
+                Release Claim
+              </a>
+            </li>
+        </nav>
         <div class="card rounded-5">
           <div class="card-body">
             <div class="row">
