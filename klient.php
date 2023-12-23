@@ -124,58 +124,42 @@ if (isset($_POST['ruaj'])) {
 }
 ?>
 
-<link rel="stylesheet" type="text/css" href="https://paneli.bareshaoffice.com/vendors/simple-line-icons/css/simple-line-icons.css">
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
+<style>
+  tr a .active {
+    background-color: green;
+  }
+
+  tr a .inactive {
+    background-color: yellow;
+  }
+</style>
 <!-- DataTales Example -->
 <div class="main-panel">
   <div class="content-wrapper">
     <div class="container-fluid">
 
-      <div class="p-5 rounded-5 shadow-sm card">
-        <h4 class="font-weight-bold text-gray-800 mb-4">Lista e klient&euml;ve</h4> <!-- Breadcrumb -->
-        <nav class="d-flex">
-          <h6 class="mb-0">
-            <a href="" class="text-reset">Klient&euml;t</a>
-            <span>/</span>
-            <a href="klient.php" class="text-reset" data-bs-placement="top" data-bs-toggle="tooltip" title="<?php echo __FILE__; ?>"><u>Lista e klient&euml;ve</u></a>
-          </h6>
-        </nav>
-        <!-- Breadcrumb -->
+      <nav class="bg-white px-2 rounded-5" style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='currentColor'/%3E%3C/svg%3E&#34;);width:fit-content;border-style:1px solid black;" aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item "><a class="text-reset" style="text-decoration: none;">Klientët</a>
+          </li>
+          <li class="breadcrumb-item active" aria-current="page">
+            <a href="<?php echo __FILE__; ?>" class="text-reset" style="text-decoration: none;">
+              Lista e klientëve
+            </a>
+          </li>
+      </nav>
+      <div class="row mb-3">
+        <div>
+          <a style="text-transform: none;text-decoration:none;" class="input-custom-css px-3 py-2" href="shtok.php"><i class="fi fi-rr-add"></i>
+            &nbsp;
+            Shto klientë
+          </a>
+        </div>
       </div>
+      <div class="row text-center mb-3">
 
-      <div class="row my-5 text-center">
-        <div class="col ">
-          <div class="card p-2 rounded-5 shadow-sm">
-            <?php
-            $kueri = $conn->query("SELECT COUNT(monetizuar) FROM klientet");
-            $result = $kueri->fetch_assoc();
-            ?>
-            <i class="fi fi-rr-user fa-2x"></i>
-            <br>
-            <p>Numri total i klient&euml;ve </p>
-            <h1>
-              <?php echo $result["COUNT(monetizuar)"]; ?>
-            </h1>
-          </div>
-        </div>
-        <div class="col">
-          <div class="card p-3 rounded-5 shadow-sm">
-            <?php
-            $kueri = $conn->query("SELECT COUNT(monetizuar) FROM klientet where monetizuar = 'PO'");
-            $result = $kueri->fetch_assoc();
-            ?>
-            <i class="fi fi-rr-dollar fa-2x"></i>
-            <br>
-            <p>Numri i klient&euml;ve te monetizuar </p>
-            <h1>
-              <?php echo $result["COUNT(monetizuar)"]; ?>
-            </h1>
-            <div>
-              <button type="button" class="btn btn-primary btn-sm text-white" style="text-transform: none" data-bs-toggle="modal" data-bs-target="#modal_of_monetized">
-                Shiko list&euml;n
-              </button>
-            </div>
-          </div>
-        </div>
         <div class="modal fade" id="modal_of_monetized" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
           <div class="modal-dialog modal-xl">
             <div class="modal-content">
@@ -200,29 +184,107 @@ if (isset($_POST['ruaj'])) {
             </div>
           </div>
         </div>
-
-
-
-
-        <div class="col">
-          <div class="card p-3 rounded-5 shadow-sm">
-            <?php
-            $kueri = $conn->query("SELECT COUNT(monetizuar) FROM klientet where monetizuar = 'JO'");
-            $result = $kueri->fetch_assoc();
-            ?>
-            <del><i class="fi fi-rr-dollar fa-2x"></i></del>
-            <br>
-            <p>Numri i klient&euml;ve te pa-monetizuar </p>
-            <h1>
-              <?php echo $result["COUNT(monetizuar)"]; ?>
-            </h1>
-            <div>
-              <button type="button" class="btn btn-primary btn-sm text-white" style="text-transform: none" data-bs-toggle="modal" data-bs-target="#modal_of_non_monetized">
-                Shiko list&euml;n
-              </button>
-            </div>
+        <?php
+        $total_client_query = $conn->query("SELECT COUNT(id) FROM klientet");
+        $total_result =  $total_client_query->fetch_assoc();
+        $total_result["COUNT(id)"];
+        $monetized_query = $conn->query("SELECT COUNT(monetizuar) FROM klientet WHERE monetizuar = 'PO'");
+        $monetized_result = $monetized_query->fetch_assoc();
+        $monetized_result["COUNT(monetizuar)"];
+        $non_monetized_query = $conn->query("SELECT COUNT(monetizuar) FROM klientet WHERE monetizuar = 'JO'");
+        $non_monetized_result = $non_monetized_query->fetch_assoc();
+        $non_monetized_result["COUNT(monetizuar)"];
+        ?>
+        <div class="col-8">
+          <div class="card p-2 rounded-5 shadow-sm">
+            <!-- Add a container for the ApexCharts chart -->
+            <div id="chart-container"></div>
           </div>
         </div>
+        <div class="col-4">
+
+          <div class="accordion" id="accordionExample">
+            <div class="accordion-item">
+              <h2 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                  Të monetizuar - <?php echo $monetized_result["COUNT(monetizuar)"]; ?> klientë
+                </button>
+              </h2>
+              <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+                <div class="accordion-body">
+                  <button type="button" class="input-custom-css px-3 py-2" style="text-transform: none" data-bs-toggle="modal" data-bs-target="#modal_of_monetized">
+                    Shiko list&euml;n
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="accordion-item">
+              <h2 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                  Të pa-monetizuar - <?php echo $non_monetized_result["COUNT(monetizuar)"]; ?> klientë
+                </button>
+              </h2>
+              <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+                <div class="accordion-body">
+                  <button type="button" class="input-custom-css px-3 py-2" style="text-transform: none" data-bs-toggle="modal" data-bs-target="#modal_of_non_monetized">
+                    Shiko list&euml;n
+                  </button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+
+
+        <script>
+          // JavaScript function to render the ApexCharts chart
+          function renderChart(totalClients, monetizedCount, nonMonetizedCount) {
+            var options = {
+              chart: {
+                type: 'bar',
+                height: 350,
+              },
+              series: [{
+                  name: "Numri total i klientëve",
+                  data: [totalClients]
+                },
+                {
+                  name: 'Numri total i klientëve të monetizuar',
+                  data: [monetizedCount],
+                }, {
+                  name: 'Numri total i klientëve të pa-monetizuar',
+                  data: [nonMonetizedCount],
+                }
+              ],
+              xaxis: {
+                categories: ['Të dhënat e përmbledhura për klientët'],
+              },
+            };
+
+            var chart = new ApexCharts(document.querySelector("#chart-container"), options);
+            chart.render();
+            // Event listener for clicking on the Monetized series
+            chart.addEventListener("dataPointClick", function(event, chartContext, config) {
+              if (config.seriesIndex === 0) { // Monetized series
+                // Open the modal for monetized clients
+                $('#modal_of_monetized').modal('show');
+              }
+            });
+
+            // Event listener for clicking on the Non-Monetized series
+            chart.addEventListener("dataPointClick", function(event, chartContext, config) {
+              if (config.seriesIndex === 1) { // Non-Monetized series
+                // Open the modal for non-monetized clients
+                $('#modal_of_non_monetized').modal('show');
+              }
+            });
+          }
+
+          // Call the renderChart function with the counts
+          renderChart(<?php echo $total_result["COUNT(id)"] ?>, <?php echo $monetized_result["COUNT(monetizuar)"]; ?>, <?php echo $non_monetized_result["COUNT(monetizuar)"]; ?>);
+        </script>
         <div class="modal fade" id="modal_of_non_monetized" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
           <div class="modal-dialog modal-xl">
             <div class="modal-content">
@@ -266,85 +328,18 @@ if (isset($_POST['ruaj'])) {
         <div class="card-body">
           <div class="row">
             <div class="table-responsive">
-              <table id="example">
+              <table id="example" class="table">
                 <thead class="bg-light">
                   <tr>
                     <th>Emri & Mbiemri</th>
-                    <th>Emri Artistik</th>
+                    <th>Emri artistik</th>
                     <th>Adresa e email-it</th>
                     <th>Data e kontrates</th>
                     <th>Data e skadimit</th>
-                    <th>Monetizuar</th>
-                    <th></th>
+                    <th>Veprim</th>
                   </tr>
                 </thead>
-                <tbody>
-                  <?php
-                  $kueri = $conn->query("SELECT * FROM klientet ORDER BY id DESC");
-                  while ($k = mysqli_fetch_array($kueri)) {
-                    if ($k['monetizuar'] == "PO") {
-                      $moni = "<td style='color:green;'>PO</td>";
-                    } else {
-                      $moni = "<td style='color:red;'>JO</td>";
-                    }
-                    if ($k['glist'] == '0') {
-                      $aktive = '<a href="klient.php?aktivizo=' . $k['id'] . '&s=1"><i class="far fa-eye"></i></a>';
-                    } else {
-                      $aktive = '<a href="klient.php?aktivizo=' . $k['id'] . '&s=0"><i class="far fa-eye-slash"></i></a>';
-                    }
-                    if ($k['blocked'] == 1) {
-                      $emribl = '<del style="color:red;">' . $k['emri'] . '</del>';
-                      $blockii = 0;
-                    } else {
-                      $emribl = $k['emri'];
-                      $blockii = 1;
-                    }
-                  ?>
-                    <tr>
-                      <td><a class="badge rounded-pill text-bg-success text-white w-100 shadow-sm" href="kanal.php?kid=<?php echo $k['id']; ?>"><?php echo $emribl; ?></a></td>
-                      <td><a class="badge rounded-pill text-bg-success text-white w-100 shadow-sm" href="kanal.php?kid=<?php echo $k['id']; ?>"><?php echo $k['emriart']; ?></a></td>
-                      <td>
-                        <?php echo $k['emailadd']; ?>
-                      </td>
-                      <td>
-                        <?php echo $k['dk']; ?>
-                      </td>
-                      <td>
-                        <?php echo $k['dks']; ?>
-                      </td>
-                      <?php echo $moni; ?>
-                      <td>
-                        <a class="btn btn-success py-2 rounded-5 shadow-sm text-white" href="editk.php?id=<?php echo $k['id']; ?>"><i class="fi fi-rr-edit"></i></a>
-                        <a class="btn btn-primary py-2 rounded-5 shadow-sm text-white" data-bs-toggle="modal" data-bs-target="#pass<?php echo $k['id']; ?>"><i class="fi fi-rr-lock"></i></a>
-                        <a class="btn btn-danger py-2 rounded-5 shadow-sm text-white" href="klient.php?blocked=<?php echo $k['id']; ?>&block=<?php echo $blockii; ?>"><i class="fi fi-rr-ban"></i></a>
-                      </td>
-                    </tr>
-                    <div class="modal fade" id="pass<?php echo $k['id']; ?>" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                      <div class="modal-dialog" role="document">
-                        <div class="modal-content">
-                          <div class="modal-header">
-                            <h5 class="modal-title" id="exampleModalLabel">Fjal&euml;kalimi i ri</h5>
-                            <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                              <span aria-hidden="true">&times;</span>
-                            </button>
-                          </div>
-                          <div class="modal-body">
-                            <form method="POST" action="">
-                              <label>Vendos fjalkalimin e klientit:</label>
-                              <input type="hidden" name="idup" value="<?php echo $k['id']; ?>">
-                              <input type="text" name="fjalkalim" class="form-control" placeholder="Fjalkalimi i ri">
-                          </div>
-                          <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anulo</button>
-                            <button type="submit" name="upp" class="btn btn-primary">Ruaj Ndryshimin</button>
-                            </form>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  <?php } ?>
-                </tbody>
-
+                <tbody></tbody>
               </table>
             </div>
           </div>
@@ -533,32 +528,106 @@ if (isset($_POST['ruaj'])) {
 
 
 <?php include 'partials/footer.php'; ?>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    // Fetch the client count data from your PHP script using AJAX
+    fetch("get-client-count.php")
+      .then((response) => response.json())
+      .then((data) => {
+        // Extract the client count value from the response
+        const clientCount = data.count;
+
+        // Create a chart using ApexCharts
+        const options = {
+          chart: {
+            type: "bar", // Change the chart type to "bar" for a bar chart
+          },
+          xaxis: {
+            categories: ["Totali i klientëve"],
+          },
+          plotOptions: {
+            bar: {
+              horizontal: false, // Set to true for horizontal bars, false for vertical bars
+            },
+          },
+          series: [{
+            name: "Client Count",
+            data: [clientCount],
+          }, ],
+        };
+
+        const chart = new ApexCharts(
+          document.querySelector("#clientCountChart"),
+          options
+        );
+
+        chart.render();
+      })
+      .catch((error) => {
+        console.error("Error fetching data: ", error);
+      });
+  });
+</script>
 
 <script>
   $('#example').DataTable({
-    // responsive: true,
-    search: {
-      return: true,
+    ordering: false,
+    searching: true,
+    processing: true,
+    serverSide: true,
+    ajax: {
+      url: 'get-clients.php', // Replace with your server-side script URL
+      type: 'GET',
     },
-    lengthMenu: [
-      [10, 25, 50, -1],
-      [10, 25, 50, "T&euml; gjitha"]
+    columns: [
+
+      {
+        data: 'emri',
+
+        render: function(data, type, row) {
+          if (row.monetizuar == 'PO') {
+            return '<p>' + data + '</p>' +
+              '<span class="text-success">Klient i monetizuar </span>';
+          } else {
+            return '<p>' + data + '</p>' + '<span class="text-danger rounded-5">Klient i pa-monetizuar </span>';
+          }
+
+        }
+
+
+      }, {
+        data: 'emriart'
+      },
+      {
+        data: 'emailadd'
+      },
+      {
+        data: 'dk'
+      },
+      {
+        data: 'dks',
+      },
+      { // Custom column for buttons
+        data: 'id', // Assuming 'id' is the property containing the ID
+        render: function(data, type, row) {
+          var buttonsHtml = `
+            <a class="btn btn-sm btn-success py-2 px-2 rounded-5 shadow-sm text-white" href="editk.php?id=${data}"><i class="fi fi-rr-edit"></i></a>
+           
+            
+        `;
+          return buttonsHtml;
+        }
+      }
+      //  <a class="btn btn-sm btn-primary py-2 px-2 rounded-5 shadow-sm text-white" data-bs-toggle="modal" data-bs-target="#pass${data}"><i class="fi fi-rr-lock"></i></a>
+      // <a class="btn btn-sm btn-danger py-2 px-2 rounded-5 shadow-sm text-white" href="klient.php?blocked=${data}&block=${row.blockii}"><i class="fi fi-rr-ban"></i></a>
     ],
-    initComplete: function() {
-      var btns = $('.dt-buttons');
-      btns.addClass('');
-      btns.removeClass('dt-buttons btn-group');
-      var lengthSelect = $('div.dataTables_length select');
-      lengthSelect.addClass('form-select'); // add Bootstrap form-select class
-      lengthSelect.css({
-        'width': 'auto', // adjust width to fit content
-        'margin': '0 8px', // add some margin around the element
-        'padding': '0.375rem 1.75rem 0.375rem 0.75rem', // adjust padding to match Bootstrap's styles
-        'line-height': '1.5', // adjust line-height to match Bootstrap's styles
-        'border': '1px solid #ced4da', // add border to match Bootstrap's styles
-        'border-radius': '0.25rem', // add border radius to match Bootstrap's styles
-      }); // adjust width to fit content
-    },
+    columnDefs: [{
+      "targets": [0, 1, 2, 3, 4, 5], // Indexes of the columns you want to apply the style to
+      "render": function(data, type, row) {
+        // Apply the style to the specified columns
+        return type === 'display' && data !== null ? '<div style="white-space: normal;">' + data + '</div>' : data;
+      }
+    }],
     dom: "<'row'<'col-md-3'l><'col-md-6'B><'col-md-3'f>>" +
       "<'row'<'col-md-12'tr>>" +
       "<'row'<'col-md-6'><'col-md-6'p>>",
@@ -566,29 +635,36 @@ if (isset($_POST['ruaj'])) {
       extend: 'pdfHtml5',
       text: '<i class="fi fi-rr-file-pdf fa-lg"></i>&nbsp;&nbsp; PDF',
       titleAttr: 'Eksporto tabelen ne formatin PDF',
-      className: 'btn btn-light btn-sm border  me-2'
+      className: 'btn btn-light btn-sm bg-light border me-2 rounded-5'
     }, {
       extend: 'excelHtml5',
       text: '<i class="fi fi-rr-file-excel fa-lg"></i>&nbsp;&nbsp; Excel',
       titleAttr: 'Eksporto tabelen ne formatin CSV',
-      className: 'btn btn-light btn-sm border  me-2'
+      className: 'btn btn-light btn-sm bg-light border me-2 rounded-5'
+    }, {
+      extend: "copyHtml5",
+      text: '<i class="fi fi-rr-copy fa-lg"></i>&nbsp;&nbsp; Kopjo',
+      titleAttr: "Kopjo tabelen ne formatin Clipboard",
+      className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
     }, {
       extend: 'print',
       text: '<i class="fi fi-rr-print fa-lg"></i>&nbsp;&nbsp; Printo',
       titleAttr: 'Printo tabel&euml;n',
-      className: 'btn btn-light btn-sm border  me-2'
-    }, {
-      text: '<i class="fi fi-rr-user-add fa-lg"></i>&nbsp;&nbsp; Shto klient&euml;',
-      className: 'btn btn-light btn-sm border  me-2',
-      action: function(e, node, config) {
-        window.location.href = 'shtok.php';
-      }
+      className: 'btn btn-light btn-sm bg-light border me-2 rounded-5'
     }, ],
     initComplete: function() {
-      var btns = $('.dt-buttons');
-      btns.addClass('');
-      btns.removeClass('dt-buttons btn-group');
-
+      var btns = $(".dt-buttons");
+      btns.addClass("").removeClass("dt-buttons btn-group");
+      var lengthSelect = $("div.dataTables_length select");
+      lengthSelect.addClass("form-select");
+      lengthSelect.css({
+        width: "auto",
+        margin: "0 8px",
+        padding: "0.375rem 1.75rem 0.375rem 0.75rem",
+        lineHeight: "1.5",
+        border: "1px solid #ced4da",
+        borderRadius: "0.25rem",
+      });
     },
     fixedHeader: true,
     language: {
@@ -655,59 +731,5 @@ if (isset($_POST['ruaj'])) {
 
       },
     });
-  });
-</script>
-
-
-<script>
-  var ctx = document.getElementById('client-chart').getContext('2d');
-  var myChart = new Chart(ctx, {
-    type: 'doughnut',
-    data: {
-      labels: ['Numri total i klient&euml;ve', 'Numri i klient&euml;ve te monetizuar', 'Numri i klient&euml;ve te pa-monetizuar'],
-      datasets: [{
-        label: '# of Clients',
-        data: [
-          <?php
-          $kueri = $conn->query("SELECT COUNT(*) FROM klientet");
-          $result = $kueri->fetch_assoc();
-          echo $result["COUNT(*)"] . ",";
-          $kueri = $conn->query("SELECT COUNT(*) FROM klientet WHERE monetizuar = 'PO'");
-          $result = $kueri->fetch_assoc();
-          echo $result["COUNT(*)"] . ",";
-          $kueri = $conn->query("SELECT COUNT(*) FROM klientet WHERE monetizuar = 'JO'");
-          $result = $kueri->fetch_assoc();
-          echo $result["COUNT(*)"];
-          ?>
-        ],
-        backgroundColor: [
-          'rgba(255, 99, 132)',
-          'rgba(54, 162, 235)',
-          'rgba(255, 206, 86)'
-        ],
-        borderColor: [
-          'rgba(255, 99, 132)',
-          'rgba(54, 162, 235)',
-          'rgba(255, 206, 86)'
-        ],
-        borderWidth: 1
-      }]
-    },
-
-
-    options: {
-      scales: {
-        y: {
-          beginAtZero: true
-        }
-      },
-      legend: {
-        display: true,
-        position: 'right',
-        labels: {
-          fontColor: 'rgb(255, 99, 132)'
-        }
-      }
-    }
   });
 </script>
