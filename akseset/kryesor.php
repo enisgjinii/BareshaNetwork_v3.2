@@ -67,8 +67,84 @@ if ($zip->open($zipBackupFile, ZipArchive::CREATE) === TRUE) {
 } else {
 }
 
+// Replace 'YOUR_API_KEY' with your actual YouTube API key
+// $api_key = 'AIzaSyDKt-ziSnLKQfYGgAxqwjRtCc6ss-PFIaM';
 
-?><style>
+
+// The channel ID of the YouTube channel you want to fetch videos from
+$channel_id = 'UCV6ZBT0ZUfNbtZMbsy-L3CQ';
+
+// Define the time periods for filtering
+$time_periods = [
+  '24 hours' => strtotime('-1 day'),
+  '48 hours' => strtotime('-2 days'),
+  '3 days' => strtotime('-3 days'),
+  '7 days' => strtotime('-7 days'),
+  '14 days ( Përdor shumë tokena , mos e perdorni shpesh ne afate te shkurta kohore)' => strtotime('-14 days'),
+  '30 days ( Përdor shumë tokena , mos e perdorni shpesh ne afate te shkurta kohore)' => strtotime('-30 days'),
+];
+
+// Check if a time period is selected
+$selected_period = isset($_GET['period']) ? $_GET['period'] : '24 hours';
+
+// Calculate the start date for the selected period
+$start_date = date('Y-m-d\TH:i:s\Z', $time_periods[$selected_period]);
+
+// Initialize variables for pagination
+$next_page_token = null;
+$max_results = 10; // Number of videos to fetch per page
+
+// Initialize an empty array to store videos
+$videos = [];
+
+do {
+  // Construct the API request URL with the nextPageToken
+  $url = "https://www.googleapis.com/youtube/v3/search?key=$api_key&channelId=$channel_id&order=date&publishedAfter=$start_date&maxResults=$max_results&pageToken=$next_page_token&type=video&part=snippet";
+
+  // Make the API request
+  $response = file_get_contents($url);
+
+  if ($response) {
+    $data = json_decode($response);
+
+    foreach ($data->items as $item) {
+      // Get video snippet data
+      $snippet = $item->snippet;
+
+      // Extract video details
+      $video_title = $snippet->title;
+
+      // $published_date = date('mm/dd/yyyy/hh:mm', strtotime($snippet->publishedAt));
+
+      // Make this published date to look good formated
+      $published_date = date('d/m/Y H:i:s', strtotime($snippet->publishedAt));
+      // Add video details to the array
+      $videos[] = [
+        'title' => $video_title,
+        'published' => $published_date,
+      ];
+    }
+
+    $next_page_token = isset($data->nextPageToken) ? $data->nextPageToken : null;
+  }
+} while ($next_page_token);
+
+$max = max($janarRezultatiShitjeve['sum'], $shkurtRezultatiShitjeve['sum'], $marsRezultatiShitjeve['sum'], $prillRezultatiShitjeve['sum']);
+$min = min($janarRezultatiShitjeve['sum'], $shkurtRezultatiShitjeve['sum'], $marsRezultatiShitjeve['sum'], $prillRezultatiShitjeve['sum']);
+$dd = strtotime("-6 Months");
+$ggdata = date("Y-m-d", $dd);
+
+$mp6 = $conn->query("SELECT SUM(klientit) AS sum FROM shitje WHERE data >= '$ggdata' AND data <= '$dataAktuale'");
+$m6 = mysqli_fetch_array($mp6);
+
+$api_key = "AIzaSyBrE0kFGTQJwn36FeR4NIyf4FEw2HqSSIQ";
+$apiu = file_get_contents('https://www.googleapis.com/youtube/v3/channels?part=snippet&id=UCV6ZBT0ZUfNbtZMbsy-L3CQ&key=' . $api_key);
+$apid = json_decode($apiu, true);
+
+$aa = file_get_contents('https://www.googleapis.com/youtube/v3/channels?part=statistics&id=UCV6ZBT0ZUfNbtZMbsy-L3CQ&key=' . $api_key);
+$aaa = json_decode($aa, true);
+?>
+<style>
   #container {
     height: 400px;
   }
@@ -95,282 +171,332 @@ if ($zip->open($zipBackupFile, ZipArchive::CREATE) === TRUE) {
   <div class="content-wrapper">
     <div class="container-fluid">
       <div class="container">
-        <div class="row my-1">
+        <!-- <div class="row my-1">
           <div class="col-12 col-xl-5 mb-4 mb-xl-0">
-            <h4 class="font-weight-bold">P&euml;rshendetje! <?php echo $user_info['givenName'] . ' ' . $user_info['familyName']; ?>
-            </h4>
+            <h4 class="font-weight-bold"></h4>
           </div>
-        </div><?php
-              function format_page_name($page)
-              {
-                if ($page == 'index.php') {
-                  return 'Shtepia';
-                }
+        </div> -->
+        <div class="row mb-3">
+          <div class="col-12 bordered card rounded-5">
+            <h5 class="text-center pt-3">Përmbledhje e përgjithshme</h5>
+            <div class="row">
+              <div class="col-4">
+                <div class="card bg-primary rounded-5 text-white mx-auto text-center py-3 my-2">
 
-                if ($page == 'roles.php') {
-                  return 'Rolet';
-                }
-
-                if ($page == 'stafi.php') {
-                  return 'Klientet';
-                }
-
-                if ($page == 'ads.php') {
-                  return 'Llogarit&euml; e ADS';
-                }
-
-                if ($page == 'emails.php') {
-                  return 'Lista e email-eve';
-                }
-
-                if ($page == 'klient.php') {
-                  return 'Lista e klient&euml;ve';
-                }
-
-                if ($page == 'klient2.php') {
-                  return 'Lista e klient&euml;ve tjer&euml;';
-                }
+                  <h3 class="font-weight-light me-2 mb-1">Abonues
+                    <?php echo number_format($aaa['items'][0]['statistics']['subscriberCount'], 2, '.', ','); ?>
+                  </h3>
 
 
-                if ($page == 'kategorit.php') {
-                  return 'Lista e kategorive';
-                }
+                  <p>Numri total i abonues&euml;ve :
+                    <?php echo number_format($aaa['items'][0]['statistics']['subscriberCount'], 2, '.', ','); ?>
+                  </p>
+                </div>
+              </div>
+              <div class="col-4">
+                <div class="card bg-primary rounded-5 text-white mx-auto text-center py-3 my-2">
 
-                if ($page == 'claim.php') {
-                  return 'Recent Claim';
-                }
-
-                if ($page == 'tiketa.php') {
-                  return 'Lista e tiketave';
-                }
-
-                if ($page == 'listang.php') {
-                  return 'Lista e k&euml;ng&euml;ve';
-                }
-
-                if ($page == 'shtoy.php') {
-                  return 'Regjistro k&euml;ng&euml;';
-                }
-
-                if ($page == 'listat.php') {
-                  return 'Lista e tiketave';
-                }
-
-                if ($page == 'tiketa.php') {
-                  return 'Tiket e re';
-                }
+                  <h3 class="font-weight-light me-2 mb-1">Shikime
+                    <?php echo number_format($aaa['items'][0]['statistics']['viewCount'], 2, '.', ','); ?>
+                  </h3>
 
 
-                if ($page == 'whitelist.php') {
-                  return 'Whitelist';
-                }
+                  <p>Numri total i shikimeve :
+                    <?php echo number_format($aaa['items'][0]['statistics']['viewCount'], 2, '.', ','); ?>
+                  </p>
+                </div>
+              </div>
+              <div class="col-4">
+                <div class="card bg-primary rounded-5 text-white mx-auto text-center py-3 my-2">
 
-                if ($page == 'faturat.php') {
-                  return 'Pagesat Youtube';
-                }
-
-                if ($page == 'invoice.php') {
-                  return 'Pagesat Youtube_channel ( New )';
-                }
-                if ($page == 'pagesat_youtube.php') {
-                  return 'Pagesat YouTube ( Faza Test )';
-                }
+                  <h3 class="font-weight-light me-2 mb-1">Ngarkime
+                    <?php echo $aaa['items'][0]['statistics']['videoCount']; ?>
+                  </h3>
 
 
-                if ($page == 'faturat2.php') {
-                  return 'Platformat Tjera';
-                }
+                  <p>
+                    Numri total i ngarkimeve :
+                    <?php echo $aaa['items'][0]['statistics']['videoCount']; ?>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
 
-                if ($page == 'pagesat.php') {
-                  return 'Pagesat e kryera';
-                }
+        </div>
+        <?php
+        function format_page_name($page)
+        {
+          if ($page == 'index.php') {
+            return 'Shtepia';
+          }
 
-                if ($page == 'rrogat.php') {
-                  return 'Pagat';
-                }
+          if ($page == 'roles.php') {
+            return 'Rolet';
+          }
 
-                if ($page == 'shpenzimep.php') {
-                  return 'Shpenzimet personale';
-                }
+          if ($page == 'stafi.php') {
+            return 'Klientet';
+          }
 
-                if ($page == 'tatimi.php') {
-                  return 'Tatimi';
-                }
-                if ($page == 'yinc.php') {
-                  return 'Shpenzimet';
-                }
+          if ($page == 'ads.php') {
+            return 'Llogarit&euml; e ADS';
+          }
 
-                if ($page == 'filet.php') {
-                  return 'Dokumente tjera';
-                }
-                if ($page == 'github_logs.php') {
-                  return 'Aktiviteti ne Github';
-                }
+          if ($page == 'emails.php') {
+            return 'Lista e email-eve';
+          }
 
-                if ($page == 'klient_CSV.php') {
-                  return 'Klient CSV';
-                }
+          if ($page == 'klient.php') {
+            return 'Lista e klient&euml;ve';
+          }
 
-                if ($page == 'logs.php') {
-                  return 'Logs';
-                }
-
-                if ($page == 'notes.php') {
-                  return 'Shenime';
-                }
-
-                if ($page == 'takimet.php') {
-                  return 'Takimet';
-                }
+          if ($page == 'klient2.php') {
+            return 'Lista e klient&euml;ve tjer&euml;';
+          }
 
 
-                if ($page == 'todo_list.php') {
-                  return 'To Do';
-                }
+          if ($page == 'kategorit.php') {
+            return 'Lista e kategorive';
+          }
 
-                if ($page == 'kontrata_2.php') {
-                  return 'Kontrata e re';
-                }
+          if ($page == 'claim.php') {
+            return 'Recent Claim';
+          }
 
-                if ($page == 'lista_kontratave.php') {
-                  return 'Lista e kontratave';
-                }
+          if ($page == 'tiketa.php') {
+            return 'Lista e tiketave';
+          }
 
-                if ($page == 'csvFiles.php') {
-                  return 'Inserto CSV';
-                }
+          if ($page == 'listang.php') {
+            return 'Lista e k&euml;ng&euml;ve';
+          }
 
-                if ($page == 'filtroCSV.php') {
-                  return 'Filtro CSV';
-                }
+          if ($page == 'shtoy.php') {
+            return 'Regjistro k&euml;ng&euml;';
+          }
 
-                if ($page == 'listaEFaturaveTePlatformave.php') {
-                  return 'Lista e faturave';
-                }
+          if ($page == 'listat.php') {
+            return 'Lista e tiketave';
+          }
+
+          if ($page == 'tiketa.php') {
+            return 'Tiket e re';
+          }
 
 
-                if ($page == 'pagesatEKryera.php') {
-                  return 'Pagesat e perfunduara';
-                }
+          if ($page == 'whitelist.php') {
+            return 'Whitelist';
+          }
 
-                if ($page == 'check_musics.php') {
-                  return 'Konfirmimi i kengeve';
-                }
+          if ($page == 'faturat.php') {
+            return 'Pagesat Youtube';
+          }
 
-                if ($page == 'dataYT.php') {
-                  return 'Statistikat nga Youtube';
-                }
-                if ($page == 'channel_selection.php') {
-                  return 'Kanalet';
-                }
+          if ($page == 'invoice.php') {
+            return 'Pagesat Youtube_channel ( New )';
+          }
+          if ($page == 'pagesat_youtube.php') {
+            return 'Pagesat YouTube ( Faza Test )';
+          }
 
-                if ($page == 'ofertat.php') {
-                  return 'Ofertat';
-                }
 
-                if ($page == 'youtube_studio.php') {
-                  return 'Baresha analytics';
-                }
+          if ($page == 'faturat2.php') {
+            return 'Platformat Tjera';
+          }
 
-                if ($page == 'kontrata_gjenelare_2.php') {
-                  return 'Kontrate e re ( Gjenerale )';
-                }
+          if ($page == 'pagesat.php') {
+            return 'Pagesat e kryera';
+          }
 
-                if ($page == 'lista_kontratave_gjenerale.php') {
-                  return 'Lista e kontratave ( Gjenerale )';
-                }
+          if ($page == 'rrogat.php') {
+            return 'Pagat';
+          }
 
-                if ($page == 'facebook.php') {
-                  return 'Vegla Facebook';
-                }
+          if ($page == 'shpenzimep.php') {
+            return 'Shpenzimet personale';
+          }
 
-                if ($page == 'lista_faturave_facebook.php') {
-                  return 'Lista e faturave (Facebook)';
-                }
+          if ($page == 'tatimi.php') {
+            return 'Tatimi';
+          }
+          if ($page == 'yinc.php') {
+            return 'Shpenzimet';
+          }
 
-                if ($page == 'autor.php') {
-                  return 'Autor';
-                }
+          if ($page == 'filet.php') {
+            return 'Dokumente tjera';
+          }
+          if ($page == 'github_logs.php') {
+            return 'Aktiviteti ne Github';
+          }
 
-                if ($page == 'lista_kopjeve_rezerve.php') {
-                  return 'Lista e kopjeve rezerve';
-                }
+          if ($page == 'klient_CSV.php') {
+            return 'Klient CSV';
+          }
 
-                if ($page == 'faturaFacebook.php') {
-                  return 'Krijo fatur&euml; (Facebook)';
-                }
-                if ($page == 'ascap.php') {
-                  return 'Ascap';
-                }
-                if ($page == 'klient-avanc.php') {
-                  return 'Lista e avanceve te klienteve';
-                }
-                if ($page == 'office_investments.php') {
-                  return 'Investimet e objektit';
-                }
-                if ($page == 'office_damages.php') {
-                  return 'Prishjet';
-                }
-                if ($page == 'office_requirements.php') {
-                  return 'Kerkesat';
-                }
-              }
-              $pages = array(
-                'stafi.php',
-                'roles.php',
-                'klient.php',
-                'klient2.php',
-                'kategorit.php',
-                'ads.php',
-                'emails.php',
-                'shtoy.php',
-                'listang.php',
-                'tiketa.php',
-                'listat.php',
-                'claim.php',
-                'whitelist.php',
-                'rrogat.php',
-                'tatimi.php',
-                'yinc.php',
-                'shpenzimep.php',
-                'faturat.php',
-                'pagesat.php',
-                'faturat2.php',
-                'filet.php',
-                'notes.php',
-                'github_logs.php',
-                'todo_list.php',
-                'takimet.php',
-                'klient_CSV.php',
-                'logs.php',
-                'kontrata_2.php',
-                'lista_kontratave.php',
-                'csvFiles.php',
-                'filtroCSV.php',
-                'listaEFaturaveTePlatformave.php',
-                'pagesatEKryera.php',
-                'check_musics.php',
-                'dataYT.php',
-                'ofertat.php',
-                'youtube_studio.php',
-                'kontrata_gjenelare_2.php',
-                'lista_kontratave_gjenerale.php',
-                'facebook.php',
-                'lista_faturave_facebook.php',
-                'autor.php',
-                'faturaFacebook.php',
-                'ascap.php',
-                'klient-avanc.php',
-                'office_investments.php',
-                'office_damages.php',
-                'office_requirements.php'
-              );
+          if ($page == 'logs.php') {
+            return 'Logs';
+          }
 
-              ?>
+          if ($page == 'notes.php') {
+            return 'Shenime';
+          }
+
+          if ($page == 'takimet.php') {
+            return 'Takimet';
+          }
+
+
+          if ($page == 'todo_list.php') {
+            return 'To Do';
+          }
+
+          if ($page == 'kontrata_2.php') {
+            return 'Kontrata e re';
+          }
+
+          if ($page == 'lista_kontratave.php') {
+            return 'Lista e kontratave';
+          }
+
+          if ($page == 'csvFiles.php') {
+            return 'Inserto CSV';
+          }
+
+          if ($page == 'filtroCSV.php') {
+            return 'Filtro CSV';
+          }
+
+          if ($page == 'listaEFaturaveTePlatformave.php') {
+            return 'Lista e faturave';
+          }
+
+
+          if ($page == 'pagesatEKryera.php') {
+            return 'Pagesat e perfunduara';
+          }
+
+          if ($page == 'check_musics.php') {
+            return 'Konfirmimi i kengeve';
+          }
+
+          if ($page == 'dataYT.php') {
+            return 'Statistikat nga Youtube';
+          }
+          if ($page == 'channel_selection.php') {
+            return 'Kanalet';
+          }
+
+          if ($page == 'ofertat.php') {
+            return 'Ofertat';
+          }
+
+          if ($page == 'youtube_studio.php') {
+            return 'Baresha analytics';
+          }
+
+          if ($page == 'kontrata_gjenelare_2.php') {
+            return 'Kontrate e re ( Gjenerale )';
+          }
+
+          if ($page == 'lista_kontratave_gjenerale.php') {
+            return 'Lista e kontratave ( Gjenerale )';
+          }
+
+          if ($page == 'facebook.php') {
+            return 'Vegla Facebook';
+          }
+
+          if ($page == 'lista_faturave_facebook.php') {
+            return 'Lista e faturave (Facebook)';
+          }
+
+          if ($page == 'autor.php') {
+            return 'Autor';
+          }
+
+          if ($page == 'lista_kopjeve_rezerve.php') {
+            return 'Lista e kopjeve rezerve';
+          }
+
+          if ($page == 'faturaFacebook.php') {
+            return 'Krijo fatur&euml; (Facebook)';
+          }
+          if ($page == 'ascap.php') {
+            return 'Ascap';
+          }
+          if ($page == 'klient-avanc.php') {
+            return 'Lista e avanceve te klienteve';
+          }
+          if ($page == 'office_investments.php') {
+            return 'Investimet e objektit';
+          }
+          if ($page == 'office_damages.php') {
+            return 'Prishjet';
+          }
+          if ($page == 'office_requirements.php') {
+            return 'Kerkesat';
+          }
+        }
+        $pages = array(
+          'stafi.php',
+          'roles.php',
+          'klient.php',
+          'klient2.php',
+          'kategorit.php',
+          'ads.php',
+          'emails.php',
+          'shtoy.php',
+          'listang.php',
+          'tiketa.php',
+          'listat.php',
+          'claim.php',
+          'whitelist.php',
+          'rrogat.php',
+          'tatimi.php',
+          'yinc.php',
+          'shpenzimep.php',
+          'faturat.php',
+          'pagesat.php',
+          'faturat2.php',
+          'filet.php',
+          'notes.php',
+          'github_logs.php',
+          'todo_list.php',
+          'takimet.php',
+          'klient_CSV.php',
+          'logs.php',
+          'kontrata_2.php',
+          'lista_kontratave.php',
+          'csvFiles.php',
+          'filtroCSV.php',
+          'listaEFaturaveTePlatformave.php',
+          'pagesatEKryera.php',
+          'check_musics.php',
+          'dataYT.php',
+          'ofertat.php',
+          'youtube_studio.php',
+          'kontrata_gjenelare_2.php',
+          'lista_kontratave_gjenerale.php',
+          'facebook.php',
+          'lista_faturave_facebook.php',
+          'autor.php',
+          'faturaFacebook.php',
+          'ascap.php',
+          'klient-avanc.php',
+          'office_investments.php',
+          'office_damages.php',
+          'office_requirements.php'
+        );
+
+        ?>
         <?php
         if ($email == "endrit@bareshamusic.com" || $email == "egjini@bareshamusic.com" || $email == "lirie@bareshamusic.com" || $email == "yllzona@bareshamusic.com" || $email == "lyon@bareshamusic.com") { ?>
           <div class="card p-5 rounded-5 my-5">
-            <h6 class="text-muted mb-3">Lista e faqeve në të cilat ju, si <p class="badge bg-primary rounded-5"><?php echo  $email ?></p> , keni akses : </h6>
+            <h6 class="text-muted mb-3">Lista e faqeve në të cilat ju, si <p class="badge bg-primary rounded-5">
+                <?php echo $email ?>
+              </p> , keni akses : </h6>
             <?php
             $sql = 'SELECT googleauth.firstName AS user_name, roles.name AS role_name, roles.id AS role_id, GROUP_CONCAT(DISTINCT role_pages.page) AS pages
         FROM googleauth
@@ -416,255 +542,138 @@ if ($zip->open($zipBackupFile, ZipArchive::CREATE) === TRUE) {
         <?php } else { ?>
 
           <div class="row">
-            <div class="col-md-3 grid-margin stretch-card">
-              <div class="card rounded-5 shadow-sm">
-                <div class="card-body">
-                  <p class="fw-bold text-md-left text-xl-left ">Fitimi n&euml; platform&euml;n YouTube</span>
-                  </p>
-                  <div class="d-flex flex-wrap justify-content-between justify-content-md-center justify-content-xl-between align-items-center">
-                    <h3 class="mb-0 mb-md-2 mb-xl-0 order-md-1 order-xl-0">
-                      <?php echo $summ6['sum']; ?>&euro;
-                    </h3>
-                    <i class="ti-calendar icon-md text-muted mb-0 mb-md-3 mb-xl-0"></i>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="col-md-3 grid-margin stretch-card">
-              <div class="card rounded-5 shadow-sm">
-                <div class="card-body">
-                  <p class="fw-bold text-md-left text-xl-left">Pagesa klient&euml;ve</p>
-                  <div class="d-flex flex-wrap justify-content-between justify-content-md-center justify-content-xl-between align-items-center">
-                    <h3 class="mb-0 mb-md-2 mb-xl-0 order-md-1 order-xl-0">
-                      <?php echo $summ5['sum']; ?>&euro;
-                    </h3>
-                    <i class="ti-calendar icon-md text-muted mb-0 mb-md-3 mb-xl-0"></i>
-                  </div>
-
-                </div>
-              </div>
-            </div>
-            <div class="col-md-3 grid-margin stretch-card">
-              <div class="card rounded-5 shadow-sm">
-                <div class="card-body">
-                  <p class="fw-bold text-md-left text-xl-left">Paga bruto e punonj&euml;sve</p>
-                  <div class="d-flex flex-wrap justify-content-between justify-content-md-center justify-content-xl-between align-items-center">
-                    <h3 class="mb-0 mb-md-2 mb-xl-0 order-md-1 order-xl-0">
-                      <?php echo $summ7['sum']; ?>&euro;
-                    </h3>
-                    <i class="ti-calendar icon-md text-muted mb-0 mb-md-3 mb-xl-0"></i>
-                  </div>
-
-                </div>
-              </div>
-            </div>
-            <div class="col-md-3 grid-margin stretch-card">
-              <div class="card rounded-5 shadow-sm">
-                <div class="card-body">
-                  <p class="fw-bold text-md-left text-xl-left">Fitimi n&euml; platformat tjera
-
-                  </p>
-                  <div class="d-flex flex-wrap justify-content-between justify-content-md-center justify-content-xl-between align-items-center">
-                    <h3 class="mb-0 mb-md-2 mb-xl-0 order-md-1 order-xl-0">
-                      <?php echo $summ8['sum']; ?>&euro;
-                    </h3>
-                    <i class="ti-calendar icon-md text-muted mb-0 mb-md-3 mb-xl-0"></i>
-                  </div>
-
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="row">
-            <div class="col-md-3 grid-margin stretch-card">
-              <div class="card rounded-5 shadow-sm">
-                <div class="card-body">
-                  <p class="fw-bold text-md-left text-xl-left">Numri i takimeve</p>
-                  <div class="d-flex flex-wrap justify-content-between justify-content-md-center justify-content-xl-between align-items-center">
-                    <h3 class="mb-0 mb-md-2 mb-xl-0 order-md-1 order-xl-0">
-                      <?php echo $takimet2; ?>
-                    </h3>
-                    <i class="ti-calendar icon-md text-muted mb-0 mb-xl-0"></i>
-                  </div>
-
-                </div>
-              </div>
-            </div>
-            <div class="col-md-3 grid-margin stretch-card">
-              <div class="card rounded-5 shadow-sm">
-                <div class="card-body">
-                  <?php
-                  $gc = $conn->query("SELECT * FROM ngarkimi");
-                  $ngc = mysqli_num_rows($gc);
-                  ?>
-                  <p class="fw-bold text-md-left text-xl-left">Numri i ngarkim&euml;ve</p>
-                  <div class="d-flex flex-wrap justify-content-between justify-content-md-center justify-content-xl-between align-items-center">
-                    <h3 class="mb-0 mb-md-2 mb-xl-0 order-md-1 order-xl-0">
-                      <?php echo $ngc; ?>
-                    </h3>
-                    <i class="ti-youtube icon-md text-muted mb-0 mb-md-3 mb-xl-0"></i>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="col-md-3 grid-margin stretch-card">
-              <div class="card rounded-5 shadow-sm">
-                <div class="card-body">
-                  <p class="fw-bold text-md-left text-xl-left">Takimet e realizuara</p>
-                  <div class="d-flex flex-wrap justify-content-between justify-content-md-center justify-content-xl-between align-items-center">
-                    <h3 class="mb-0 mb-md-2 mb-xl-0 order-md-1 order-xl-0">
-                      <?php echo $tm2; ?>
-                    </h3>
-                    <i class="ti-agenda icon-md text-muted mb-0 mb-md-3 mb-xl-0"></i>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="col-md-3 grid-margin stretch-card">
-              <div class="card rounded-5 shadow-sm">
-                <div class="card-body">
-                  <p class="fw-bold text-md-left text-xl-left">Takimet e pa realizuara</p>
-                  <div class="d-flex flex-wrap justify-content-between justify-content-md-center justify-content-xl-between align-items-center">
-                    <h3 class="mb-0 mb-md-2 mb-xl-0 order-md-1 order-xl-0">
-                      <?php echo $tp2; ?>
-                    </h3>
-                    <i class="ti-layers-alt icon-md text-muted mb-0 mb-md-3 mb-xl-0"></i>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-
-
-
-
-
-          <div class="row my-2">
             <div class="col-8">
-              <div class="card rounded-5 shadow-sm ">
-                <div class="card-body">
-                  <div id="monthlyChart"></div>
+              <div class="row gap-2">
+                <div class="card rounded-5 bordered col">
+                  <div class="card-body">
+                    <p class="fw-bold text-md-left text-xl-left ">Fitimi n&euml; platform&euml;n YouTube</span>
+                    </p>
+                    <div class="d-flex flex-wrap justify-content-between justify-content-md-center justify-content-xl-between align-items-center">
+                      <h3 class="mb-0 mb-md-2 mb-xl-0 order-md-1 order-xl-0">
+                        <?php echo $summ6['sum']; ?>&euro;
+                      </h3>
+                      <i class="ti-calendar icon-md text-muted mb-0 mb-md-3 mb-xl-0"></i>
+                    </div>
+                  </div>
+                </div>
+                <div class="card rounded-5 bordered col">
+                  <div class="card-body">
+                    <p class="fw-bold text-md-left text-xl-left">Fitimi n&euml; platformat tjera
+
+                    </p>
+                    <div class="d-flex flex-wrap justify-content-between justify-content-md-center justify-content-xl-between align-items-center">
+                      <h3 class="mb-0 mb-md-2 mb-xl-0 order-md-1 order-xl-0">
+                        <?php echo $summ8['sum']; ?>&euro;
+                      </h3>
+                      <i class="ti-calendar icon-md text-muted mb-0 mb-md-3 mb-xl-0"></i>
+                    </div>
+
+                  </div>
                 </div>
               </div>
-            </div>
-            <div class="col-4">
-              <div class="card rounded-5 shadow-sm">
-                <div class="card-body">
-                  <div id="yearlyChart"></div>
+              <br>
+              <div class="row gap-2">
+                <div class="card rounded-5 bordered col">
+                  <div class="card-body">
+                    <p class="fw-bold text-md-left text-xl-left">Pagesa klient&euml;ve</p>
+                    <div class="d-flex flex-wrap justify-content-between justify-content-md-center justify-content-xl-between align-items-center">
+                      <h3 class="mb-0 mb-md-2 mb-xl-0 order-md-1 order-xl-0">
+                        <?php echo $summ5['sum']; ?>&euro;
+                      </h3>
+                      <i class="ti-calendar icon-md text-muted mb-0 mb-md-3 mb-xl-0"></i>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-          </div>
-
-
-
-
-
-
-          <?php
-          $max = max($janarRezultatiShitjeve['sum'], $shkurtRezultatiShitjeve['sum'], $marsRezultatiShitjeve['sum'], $prillRezultatiShitjeve['sum']);
-          $min = min($janarRezultatiShitjeve['sum'], $shkurtRezultatiShitjeve['sum'], $marsRezultatiShitjeve['sum'], $prillRezultatiShitjeve['sum']);
-          $dd = strtotime("-6 Months");
-          $ggdata = date("Y-m-d", $dd);
-
-          $mp6 = $conn->query("SELECT SUM(klientit) AS sum FROM shitje WHERE data >= '$ggdata' AND data <= '$dataAktuale'");
-          $m6 = mysqli_fetch_array($mp6);
-          ?>
-
-          <?php
-
-          $api_key = "AIzaSyBrE0kFGTQJwn36FeR4NIyf4FEw2HqSSIQ";
-          $apiu = file_get_contents('https://www.googleapis.com/youtube/v3/channels?part=snippet&id=UCV6ZBT0ZUfNbtZMbsy-L3CQ&key=' . $api_key);
-          $apid = json_decode($apiu, true);
-
-          $aa = file_get_contents('https://www.googleapis.com/youtube/v3/channels?part=statistics&id=UCV6ZBT0ZUfNbtZMbsy-L3CQ&key=' . $api_key);
-          $aaa = json_decode($aa, true);
-          ?>
-          <div class="row">
-            <div class="col-md-12 grid-margin">
-              <div class="card rounded-5 shadow-sm bg-primary border-0 position-relative">
-                <div class="card-body">
-                  <p class="fw-bold text-white">Baresha Overview</p>
-                  <div id="performanceOverview" class="carousel slide performance-overview-carousel position-static pt-2" data-bs-ride="carousel">
-                    <div class="carousel-inner">
-                      <div class="carousel-item active">
-                        <div class="row">
-                          <div class="col-md-4 item">
-                            <div class="d-flex flex-column flex-xl-row mt-4 mt-md-0">
-                              <div class="icon icon-a text-white me-3">
-                                <i class="ti-cup icon-lg ms-3"></i>
-                              </div>
-                              <div class="content text-white">
-                                <div class="d-flex flex-wrap align-items-center mb-2 mt-3 mt-xl-1">
-                                  <h3 class="font-weight-light me-2 mb-1">Abonues
-                                    <?php echo number_format($aaa['items'][0]['statistics']['subscriberCount'], 2, '.', ','); ?>
-                                  </h3>
-                                </div>
-
-                                <p class="text-white font-weight-light pr-lg-2 pr-xl-5">Numri total i abonues&euml;ve
-                                  n&euml; kanalin
-                                  <?php echo $apid['items'][0]['snippet']['title']; ?> &euml;sht&euml;
-                                  <?php echo number_format($aaa['items'][0]['statistics']['subscriberCount'], 2, '.', ','); ?>
-                                </p>
-                              </div>
-                            </div>
-                          </div>
-                          <div class="col-md-4 item">
-                            <div class="d-flex flex-column flex-xl-row mt-5 mt-md-0">
-                              <div class="icon icon-b text-white me-3">
-                                <i class="ti-bar-chart icon-lg ms-3"></i>
-                              </div>
-                              <div class="content text-white">
-                                <div class="d-flex flex-wrap align-items-center mb-2 mt-3 mt-xl-1">
-                                  <h3 class="font-weight-light me-2 mb-1">Shikime</h3>
-                                  <h3 class="mb-0">
-                                    <?php echo number_format($aaa['items'][0]['statistics']['viewCount'], 2, '.', ','); ?>
-                                  </h3>
-                                </div>
-                                <p class="text-white font-weight-light pr-lg-2 pr-xl-5">Numri total i shikimeve n&euml;
-                                  kanalin
-                                  <?php echo $apid['items'][0]['snippet']['title']; ?> &euml;sht&euml;
-                                  <?php echo number_format($aaa['items'][0]['statistics']['viewCount'], 2, '.', ','); ?>
-                                </p>
-                              </div>
-                            </div>
-                          </div>
-                          <div class="col-md-4 item">
-                            <div class="d-flex flex-column flex-xl-row mt-5 mt-md-0">
-                              <div class="icon icon-c text-white me-3">
-                                <i class="ti-shopping-cart-full icon-lg ms-3"></i>
-                              </div>
-                              <div class="content text-white">
-                                <div class="d-flex flex-wrap align-items-center mb-2 mt-3 mt-xl-1">
-                                  <h3 class="font-weight-light me-2 mb-1">Ngarkime</h3>
-                                  <h3 class="mb-0">
-                                    <?php echo $aaa['items'][0]['statistics']['videoCount']; ?>
-                                  </h3>
-                                </div>
-
-                                <p class="text-white font-weight-light pr-lg-2 pr-xl-5">Numri total i ngarkimeve n&euml;
-                                  kanalin
-                                  <?php echo $apid['items'][0]['snippet']['title']; ?> &euml;sht&euml;
-                                  <?php echo $aaa['items'][0]['statistics']['videoCount']; ?>
-                                </p>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
+                <div class="card rounded-5 bordered col">
+                  <div class="card-body">
+                    <?php
+                    $gc = $conn->query("SELECT * FROM ngarkimi");
+                    $ngc = mysqli_num_rows($gc);
+                    ?>
+                    <p class="fw-bold text-md-left text-xl-left">Numri i ngarkim&euml;ve</p>
+                    <div class="d-flex flex-wrap justify-content-between justify-content-md-center justify-content-xl-between align-items-center">
+                      <h3 class="mb-0 mb-md-2 mb-xl-0 order-md-1 order-xl-0">
+                        <?php echo $ngc; ?>
+                      </h3>
+                      <i class="ti-youtube icon-md text-muted mb-0 mb-md-3 mb-xl-0"></i>
                     </div>
                   </div>
                 </div>
               </div>
+              <br>
+              <div class="row gap-2">
+                <div class="card rounded-5 bordered col">
+                  <div class="card-body">
+                    <div id="monthlyChart"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-4">
+              <div class="card rounded-5 bordered">
+                <!-- <img src="images/brand-icon.png" class="mx-auto px-3 py-3" width="25%" alt="..."> -->
+                <!-- <hr /> -->
+                <div class="card-body">
+                  <h5 class="card-title" style="text-transform: none;text-decoration: none;">Faturat e fundit</h5>
+                  <!-- <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>-->
+                  <a href="invoices.php" class="input-custom-css px-3 py-2 mb-3" style="text-decoration: none;">Kalo tek faturat</a>
+                  <br><br>
+                  <table class="table table-bordered">
+                    <thead>
+                      <tr>
+                        <th>Emri</th>
+                        <th>Shuma e fatures</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <?php
+                      $invoice_data = $conn->query("SELECT * FROM invoices  ORDER BY id DESC LIMIT 8");
+                      while ($row = $invoice_data->fetch_assoc()) {
+                        // Go in table klientet and based on customer_id fetch emri
+                        $customer_data = $conn->query("SELECT * FROM klientet WHERE id = '{$row['customer_id']}'");
+                        $customer = $customer_data->fetch_assoc();
+                        $row['customer_name'] = $customer['emri'];
+                      ?>
+                        <tr>
+                          <td><?php echo $row['customer_name'] ?></td>
+                          <td><?php echo $row['total_amount']; ?></td>
+                        </tr>
+                      <?php
+                      }
+                      ?>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div class="row">
+
+
+
+
+
+
+
+
+
+
+
+          <?php
+
+          ?>
+
+          <?php
+
+
+          ?>
+
+
+          <!-- <div class="row">
             <div class="col-12 grid-margin stretch-card">
-              <div class="card rounded-5 shadow-sm">
-                <div class="card-body"><!-- Add a dropdown select element for selecting the year -->
+              <div class="card rounded-5 bordered">
+                <div class="card-body">
                   <select id="year-select">
                     <option value="2021">2021</option>
                     <option value="2022">2022</option>
@@ -676,12 +685,13 @@ if ($zip->open($zipBackupFile, ZipArchive::CREATE) === TRUE) {
                 </div>
               </div>
             </div>
-          </div>
-          <div class="row">
+          </div> -->
+          <!-- <div class="row">
             <div class="col-md-12 grid-margin stretch-card">
-              <div class="card rounded-5 shadow-sm">
+              <div class="card rounded-5 bordered">
                 <div class="card-body">
-                  <p class="fw-bold mb-3">20 p&euml;rdoruesit m&euml; t&euml; mir&euml; me shumic&euml;n e abonent&euml;ve</p>
+                  <p class="fw-bold mb-3">20 p&euml;rdoruesit m&euml; t&euml; mir&euml; me shumic&euml;n e abonent&euml;ve
+                  </p>
                   <div class="table-responsive">
                     <table class="table border ">
                       <thead class="table-light">
@@ -748,7 +758,8 @@ if ($zip->open($zipBackupFile, ZipArchive::CREATE) === TRUE) {
                             </td>
                             <td>
                               <?php echo $totalii; ?>&euro;
-                              </b></td>
+                              </b>
+                            </td>
                           </tr>
                         <?php
                         }
@@ -764,10 +775,10 @@ if ($zip->open($zipBackupFile, ZipArchive::CREATE) === TRUE) {
               </div>
             </div>
 
-          </div>
-          <div class="row">
+          </div> -->
+          <!-- <div class="row">
             <div class="col-md-4 stretch-card grid-margin grid-margin-md-0">
-              <div class="card rounded-5 shadow-sm">
+              <div class="card rounded-5 bordered">
                 <div class="card-body">
                   <p class="fw-bold mb-0">Ngarkimet n&euml; Baresha</p>
                   <table class="table table-bordered">
@@ -786,7 +797,9 @@ if ($zip->open($zipBackupFile, ZipArchive::CREATE) === TRUE) {
                       ?>
                         <tr>
                           <td class="text-muted">
-                            <a href="<?php echo $row['linku']; ?>"> <?php echo $row['emri']; ?></a>
+                            <a href="<?php echo $row['linku']; ?>">
+                              <?php echo $row['emri']; ?>
+                            </a>
                           </td>
                           <td class="text-muted">
                             <?php echo $row['platforma']; ?>
@@ -804,7 +817,7 @@ if ($zip->open($zipBackupFile, ZipArchive::CREATE) === TRUE) {
             <div class="col-md-4 stretch-card">
               <div class="row">
                 <div class="col-md-12 grid-margin stretch-card">
-                  <div class="card rounded-5 shadow-sm">
+                  <div class="card rounded-5 bordered">
                     <div class="card-body">
                       <p class="fw-bold">Pamja vizuale e klienteve te monetizuar dhe te pamonetizuar</p>
                       <br>
@@ -813,7 +826,7 @@ if ($zip->open($zipBackupFile, ZipArchive::CREATE) === TRUE) {
                   </div>
                 </div>
                 <div class="col-md-12 stretch-card grid-margin grid-margin-md-0">
-                  <div class="card rounded-5 shadow-sm">
+                  <div class="card rounded-5 bordered">
                     <div class="card-body">
                       <p class="fw-bold">Numri i takim&euml;ve</p>
                       <br>
@@ -832,7 +845,7 @@ if ($zip->open($zipBackupFile, ZipArchive::CREATE) === TRUE) {
               </div>
             </div>
             <div class="col-md-4 stretch-card">
-              <div class="card rounded-5 shadow-sm">
+              <div class="card rounded-5 bordered">
                 <div class="card-body">
                   <p class="fw-bold">Regjistri i aktiviteteve</p>
 
@@ -842,7 +855,7 @@ if ($zip->open($zipBackupFile, ZipArchive::CREATE) === TRUE) {
                       $merri = $conn->query("SELECT * FROM logs ORDER BY id DESC LIMIT 5");
                       while ($k = mysqli_fetch_array($merri)) {
                       ?>
-                        <div class="card rounded-5 shadow-sm mb-3">
+                        <div class="card rounded-5 bordered mb-3">
                           <div class="card-body">
                             <h5 class="card-title">
                               <?php echo $k['stafi']; ?>
@@ -864,7 +877,7 @@ if ($zip->open($zipBackupFile, ZipArchive::CREATE) === TRUE) {
                 </div>
               </div>
             </div>
-          </div>
+          </div> -->
       </div>
     </div>
   </div>
@@ -1266,10 +1279,10 @@ if ($zip->open($zipBackupFile, ZipArchive::CREATE) === TRUE) {
   });
 
   // Set up the chart
-  const chartsecond = new Highcharts.Chart({
+  const chartOptions = {
     chart: {
       renderTo: 'monthlyChart', // Use the ID of the div where you want to render the chart
-      type: 'column' // Use 'column' for basic column chart
+      type: 'column' // Use 'column' for a basic column chart
     },
     xAxis: {
       categories: monthNames,
@@ -1290,19 +1303,30 @@ if ($zip->open($zipBackupFile, ZipArchive::CREATE) === TRUE) {
       text: ''
     },
     legend: {
-      enabled: false
+      enabled: true, // Enable legend
+      align: 'left',
+      verticalAlign: 'top',
+      layout: 'horizontal',
     },
 
     plotOptions: {
       column: {
-        color: '#0070C0' // Blue color
+        color: '#0070C0',
+        dataLabels: {
+          enabled: true,
+          format: '{point.y:.2f} €' // Show data labels with two decimal places
+        }
       }
     },
+
     series: [{
-      name: 'Sales',
+      name: 'Shitjet',
       data: monthValues
     }]
-  });
+  };
+
+  // Create the Highcharts chart
+  const chartsecond = new Highcharts.Chart(chartOptions);
 </script>
 
 <?php } ?>

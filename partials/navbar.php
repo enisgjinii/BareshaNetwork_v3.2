@@ -24,8 +24,16 @@
       </li>
     </ul>
     <ul class="navbar-nav navbar-nav-right d-flex align-items-center ms-2">
+      <li class="nav-item dropdown me-4">
+        <a class="nav-link count-indicator dropdown-toggle d-flex align-items-center justify-content-center notification-dropdown" id="notificationDropdown" href="#" data-bs-toggle="modal" data-bs-target="#exampleModal2">
+          <i class="fi fi-rr-bell text-dark mx-0"></i>
+          <span class="count"></span>
+        </a>
+        <!-- Modal -->
+
+      </li>
       <li class="dropdown-center ms-auto mt-2">
-        <button class="btn btn-light btn-sm shadow-sm rounded-3 dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border:1px solid lightgrey;">
+        <button class="btn btn-light btn-sm shadow-sm rounded-6 dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border:1px solid lightgrey;">
           <img src="<?php echo $user_info['picture']; ?>" alt="profile" width="25px" style="border-radius:50%;margin-right:15px" />
           <?php echo $user_info['givenName'] . ' ' . $user_info['familyName']; ?>
         </button>
@@ -42,13 +50,137 @@
           </li>
         </ul>
       </li>
+
+
+
     </ul>
     <button class="navbar-toggler navbar-toggler-right d-lg-none align-self-center" type="button" data-mdb-toggle="offcanvas">
       <span class="mdi mdi-menu"></span>
     </button>
   </div>
 </nav>
+<div class="modal fade" id="exampleModal2" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="exampleModalLabel">Lajmrimet</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <?php
+        include 'conn-d.php';
 
+        // Replace 'YOUR_API_KEY' with your actual YouTube API key
+        $api_key = 'AIzaSyDKt-ziSnLKQfYGgAxqwjRtCc6ss-PFIaM';
+        // $api_key = 'AIzaSyBrE0kFGTQJwn36FeR4NIyf4FEw2HqSSIQ';
+
+        // The channel ID of the YouTube channel you want to fetch videos from
+        $channel_id = 'UCV6ZBT0ZUfNbtZMbsy-L3CQ';
+
+        // Define the time periods for filtering
+        $time_periods = [
+          '24 hours' => strtotime('-1 day'),
+          '48 hours' => strtotime('-2 days'),
+          '3 days' => strtotime('-3 days'),
+          '7 days' => strtotime('-7 days'),
+          '14 days ( Përdor shumë tokena , mos e perdorni shpesh ne afate te shkurta kohore)' => strtotime('-14 days'),
+          '30 days ( Përdor shumë tokena , mos e perdorni shpesh ne afate te shkurta kohore)' => strtotime('-30 days'),
+        ];
+
+        // Check if a time period is selected
+        $selected_period = isset($_GET['period']) ? $_GET['period'] : '24 hours';
+
+        // Calculate the start date for the selected period
+        $start_date = date('Y-m-d\TH:i:s\Z', $time_periods[$selected_period]);
+
+        // Initialize variables for pagination
+        $next_page_token = null;
+        $max_results = 10; // Number of videos to fetch per page
+
+        // Initialize an empty array to store videos
+        $videos = [];
+
+        do {
+          // Construct the API request URL with the nextPageToken
+          $url = "https://www.googleapis.com/youtube/v3/search?key=$api_key&channelId=$channel_id&order=date&publishedAfter=$start_date&maxResults=$max_results&pageToken=$next_page_token&type=video&part=snippet";
+
+          // Make the API request
+          $response = file_get_contents($url);
+
+          if ($response) {
+            $data = json_decode($response);
+
+            foreach ($data->items as $item) {
+              // Get video snippet data
+              $snippet = $item->snippet;
+
+              // Extract video details
+              $video_title = $snippet->title;
+
+              // $published_date = date('mm/dd/yyyy/hh:mm', strtotime($snippet->publishedAt));
+
+              // Make this published date to look good formated
+              $published_date = date('d/m/Y H:i:s', strtotime($snippet->publishedAt));
+              // Add video details to the array
+              $videos[] = [
+                'title' => $video_title,
+                'published' => $published_date,
+              ];
+            }
+
+            $next_page_token = isset($data->nextPageToken) ? $data->nextPageToken : null;
+          }
+        } while ($next_page_token);
+
+        ?>
+        <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="get" class="mb-4">
+          <div class="form-group">
+            <label for="period">Filtro</label>
+            <select id="period" name="period" class="form-control">
+              <?php foreach ($time_periods as $period => $start) { ?>
+                <option value="<?php echo $period; ?>" <?php echo $selected_period === $period ? 'selected' : ''; ?>>
+                  <?php echo $period; ?>
+                </option>
+              <?php } ?>
+            </select>
+            <br>
+            <button type="submit" class="input-custom-css px-3 py-2">
+              <i class="fi fi-rr-filter"></i> Filtro</button>
+          </div>
+        </form>
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <td>ID</td>
+              <th>Titulli i këngës</th>
+              <th>Data dhe ora e publikimit</th>
+            </tr>
+          </thead>
+          <tbody>
+            <?php
+
+            $valueOfMusic = 0;
+
+            foreach ($videos as $video) {
+              $valueOfMusic++;
+            ?>
+              <tr>
+                <td><?php echo $valueOfMusic ?></td>
+                <td><?php echo $video['title']; ?></td>
+                <td><?php echo $video['published']; ?></td>
+                <!-- <td><input type="checkbox" name="videos[]" value="<?php echo $video['title']; ?>"></td> -->
+              </tr>
+            <?php } ?>
+          </tbody>
+        </table>
+      </div>
+      <!-- <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Save changes</button>
+      </div> -->
+    </div>
+  </div>
+</div>
 <script>
   function updateTokenCountdown() {
     const countdownElement = document.getElementById('token-countdown');

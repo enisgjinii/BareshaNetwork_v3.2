@@ -10,7 +10,7 @@ $tp = $conn->query("SELECT * FROM takimet WHERE statusi='0'");
 $tp2 = mysqli_num_rows($tp);
 $sum5 = $conn->query("SELECT SUM(klientit) AS sum FROM shitje WHERE data >= '$gdata' AND data <= '$dataAktuale'");
 $summ5 = mysqli_fetch_array($sum5);
-$sum6 = $conn->query("SELECT SUM(mbetja) AS sum FROM shitje WHERE data >= '$gdata' AND data <= '$dataAktuale'");
+$sum6 = $conn->query("SELECT SUM(total_amount) AS sum FROM invoices WHERE created_date >= '$gdata' AND created_date <= '$dataAktuale'");
 $summ6 = mysqli_fetch_array($sum6);
 
 $sum7 = $conn->query("SELECT SUM(shuma) AS sum FROM rrogat WHERE data >= '$gdata' AND data <= '$dataAktuale'");
@@ -195,45 +195,3 @@ $dhjetorShitje2023 = $conn->query("SELECT SUM(klientit) AS sum FROM shitje WHERE
 $dhjetorRezultatiShitjeve2023 = mysqli_fetch_array($dhjetorShitje2023);
 $dhjetorMbetje2023 = $conn->query("SELECT SUM(mbetja) AS sum FROM shitje WHERE data >= '2023-12-01' AND data <= '2023-12-31'");
 $dhjetorRezultatiMbetjes2023 = mysqli_fetch_array($dhjetorMbetje2023);
-
-
-
-
-
-
-
-// $february = $conn->query("SELECT SUM(klientit) AS sum FROM shitje WHERE data >= '2022-03-01' AND data <= '2022-03-31'");
-// $shkurt = mysqli_fetch_array($february);
-// $februarym = $conn->query("SELECT SUM(mbetja) AS sum FROM shitje WHERE data >= '2022-03-01' AND data <= '2022-03-31'");
-// $shkurtRezultatiMbetje = mysqli_fetch_array($februarym);
-
-
-
-
-// $march = $conn->query("SELECT SUM(klientit) AS sum FROM shitje WHERE data >= '2022-04-01' AND data <= '2022-04-30'");
-// $mars = mysqli_fetch_array($march);
-// $marchm = $conn->query("SELECT SUM(mbetja) AS sum FROM shitje WHERE data >= '2022-04-01' AND data <= '2022-04-30'");
-// $marsRezultatiMbetje = mysqli_fetch_array($marchm);
-
-// $april = $conn->query("SELECT SUM(klientit) AS sum FROM shitje WHERE data >= '2022-05-01' AND data <= '2022-05-31'");
-// $prill = mysqli_fetch_array($april);`aC H
-// $aprilm = $conn->query("SELECT SUM(mbetja) AS sum FROM shitje WHERE data >= '2022-05-01' AND data <= '2022-05-31'");
-// $prillm = mysqli_fetch_array($aprilm);
-
-// $may = $conn->query("SELECT SUM(klientit) AS sum FROM shitje WHERE data >= '2022-06-01' AND data <= '2022-06-30'");
-// $maj = mysqli_fetch_array($may);
-// $maym = $conn->query("SELECT SUM(mbetja) AS sum FROM shitje WHERE data >= '2022-06-01' AND data <= '2022-06-30'");
-// $majm = mysqli_fetch_array($maym);
-
-// $qersh = $conn->query("SELECT SUM(klientit) AS sum FROM shitje WHERE data >= '2022-07-01' AND data <= '2022-07-30'");
-// $qersho = mysqli_fetch_array($qersh);
-// $qershm = $conn->query("SELECT SUM(mbetja) AS sum FROM shitje WHERE data >= '2022-07-01' AND data <= '2022-07-30'");
-// $qershor = mysqli_fetch_array($qershm);
-
-// $korr = $conn->query("SELECT SUM(klientit) AS sum FROM shitje WHERE data >= '2022-08-01' AND data <= '2022-08-31'");
-// $korrik = mysqli_fetch_array($korr);
-// $korri = $conn->query("SELECT SUM(mbetja) AS sum FROM shitje WHERE data >= '2022-08-01' AND data <= '2022-08-31'");
-// $korrikm = mysqli_fetch_array($korri);
-
-
-

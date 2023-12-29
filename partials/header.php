@@ -64,6 +64,8 @@ if ($result->num_rows > 0) {
   header('Location: denied.php');
   exit;
 }
+
+
 ?>
 
 

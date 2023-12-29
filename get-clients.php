@@ -9,7 +9,8 @@ $columnsToDisplay = array(
     'emailadd',
     'dk',
     'dks',
-    'monetizuar', 'id'
+    'monetizuar',
+    'id'
 );
 
 // DataTables server-side processing
@@ -20,28 +21,22 @@ $columns = array(
     'emailadd',
     'dk',
     'dks',
-    'monetizuar', 'id'
+    'monetizuar',
+    'id'
 );
 
 // Construct the SQL query based on DataTables request
 $sql = "SELECT ";
 $sql .= implode(", ", $columnsToDisplay); // Join the columns with a comma
-$sql .= " FROM klientet ORDER BY id DESC";
+$sql .= " FROM klientet";
 $sqlTotal = $sql; // Total query (without paging)
 $sqlFiltered = $sql; // Query for data filtering
-
-// Check if the 'order' key exists and is not empty
-if (isset($requestData['order']) && !empty($requestData['order'])) {
-    $orderByColumn = $columns[$requestData['order'][0]['column']];
-    $orderDirection = $requestData['order'][0]['dir'];
-    $sqlFiltered .= " ORDER BY $orderByColumn $orderDirection";
-}
 
 // Apply search filter if a search term is provided
 if (!empty($requestData['search']['value'])) {
     $sqlFiltered .= " WHERE (";
     for ($i = 0; $i < count($columns); $i++) {
-        $sqlFiltered .= $columns[$i] . " LIKE '%" . $requestData['search']['value'] . "%'";
+        $sqlFiltered .= $columns[$i] . " LIKE '%" . $conn->real_escape_string($requestData['search']['value']) . "%'";
         if ($i < count($columns) - 1) {
             $sqlFiltered .= " OR ";
         }
@@ -55,6 +50,7 @@ $totalRecords = $conn->query($sqlFiltered)->num_rows;
 // Apply length (limit) and offset for pagination
 $length = intval($requestData['length']);
 $start = intval($requestData['start']);
+$sqlFiltered .= " ORDER BY id DESC"; // Example sorting by the first column
 $sqlFiltered .= " LIMIT $start, $length";
 
 // Execute the filtered and ordered query to get the data
