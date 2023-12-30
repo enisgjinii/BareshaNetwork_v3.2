@@ -31,7 +31,7 @@
                             </div>
                             <div class="modal-body">
                                 <div class="mb-4"> <!-- Added margin-bottom for spacing -->
-                                    <form action="process_investment.php" method="post" enctype="multipart/form-data">
+                                    <form action="process_investment.php" method="post" enctype="multipart/form-data" id="investmentForm">
                                         <!-- Supplier Name -->
                                         <div class="mb-2">
                                             <label for="supplier_name" class="form-label">Emri i furnizuesit</label>
@@ -98,6 +98,7 @@
                         <thead class="table-light">
                             <tr>
                                 <th scope='col'></th>
+                                <td scope='col'>Id</td>
                                 <th scope='col'>Emri i furnitorit</th>
                                 <th scope='col'>Numri i faturës</th>
                                 <th scope='col'>Vlera e faturës</th>
@@ -113,6 +114,48 @@
         </div>
     </div>
 </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('investmentForm').addEventListener('submit', function(e) {
+            e.preventDefault(); // Prevent the default form submission
+
+            // Serialize the form data
+            var formData = new FormData(this);
+
+            // Send an AJAX request to process_investment.php
+            fetch('process_investment.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(function(response) {
+                    return response.json(); // Parse the response as JSON
+                })
+                .then(function(data) {
+                    // Check the response status
+                    if (data.status === 'success') {
+                        // Display success message using SweetAlert2
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: data.message
+                        }).then(function() {
+                            window.location.href = 'office_investments.php'; // Redirect to another page if needed
+                        });
+                    } else {
+                        // Display error message using SweetAlert2
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: data.message
+                        });
+                    }
+                })
+                .catch(function(error) {
+                    console.error('Error:', error);
+                });
+        });
+    });
+</script>
 
 <script>
     $(document).ready(function() {
@@ -144,9 +187,13 @@
                 type: 'POST',
                 dataSrc: ''
             },
-            columns: [{
+            columns: [
+
+                {
                     data: null,
                     defaultContent: '<input type="checkbox" class="deleteCheckbox">'
+                }, {
+                    data: "id",
                 },
                 {
                     data: 'supplier_name'

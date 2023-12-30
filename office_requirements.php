@@ -63,6 +63,7 @@
                         <thead class="table-light">
                             <tr>
                                 <th scope='col'></th>
+                                <th scope='col'>ID</th>
                                 <th scope='col'>Përshkrimi i kërkesës</th>
                                 <th scope='col'>Data e parashikuar</th>
                             </tr>
@@ -109,6 +110,9 @@
             columns: [{
                     data: null,
                     defaultContent: '<input type="checkbox" class="deleteCheckbox">'
+                },
+                {
+                    data:'id'
                 },
                 {
                     data: 'description_of_the_requirement'

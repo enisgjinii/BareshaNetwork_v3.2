@@ -1,7 +1,9 @@
 <?php
-
 // Establish a connection to the database
 include 'conn-d.php';
+
+// Create a response array
+$response = array();
 
 // Check if the form is submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -37,31 +39,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->bind_param("ssdsss", $supplierName, $invoiceNumber, $invoiceAmount, $invoiceDate, $paymentStatus, $uploadFile);
 
         if ($stmt->execute()) {
-            // Success message using JavaScript alert
-            echo "<script>
-                    alert('Investimi u regjistrua me sukses');
-                    window.location.href = 'office_investments.php'; // Redirect to the form page
-                  </script>";
+            // Success message in the response
+            $response['status'] = 'success';
+            $response['message'] = 'Investimi u regjistrua me sukses';
         } else {
-            // Error message using JavaScript alert
-            echo "<script>
-                    alert('Gabim gjate regjistrimit. Error: " . $stmt->error . "');
-                    window.location.href = 'office_investments.php'; // Redirect to the form page
-                  </script>";
+            // Error message in the response
+            $response['status'] = 'error';
+            $response['message'] = "Gabim gjate regjistrimit. Error: " . $stmt->error;
         }
 
         // Close statement
         $stmt->close();
     } else {
-        // Error message for file upload using JavaScript alert
-        echo "<script>
-                alert('Gabim gjate ngarkimit te fatures');
-                window.location.href = 'your_form_page.php'; // Redirect to the form page
-              </script>";
+        // Error message for file upload in the response
+        $response['status'] = 'error';
+        $response['message'] = 'Gabim gjate ngarkimit te fatures';
     }
 
     // Close connection
     $conn->close();
+
+    // Send the response as JSON
+    header('Content-Type: application/json');
+    echo json_encode($response);
 } else {
     // Redirect to the form page if accessed directly without submission
     header("Location: office_investments.php");

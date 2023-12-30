@@ -1,7 +1,7 @@
 <?php
 include 'conn-d.php';
 
-$sql = "SELECT * FROM requirements";
+$sql = "SELECT * FROM requirements ORDER by ID DESC";
 $result = $conn->query($sql);
 
 $data = [];

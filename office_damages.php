@@ -74,6 +74,7 @@
                         <thead class="table-light">
                             <tr>
                                 <th scope='col'></th>
+                                <th scope='col'>ID</th>
                                 <th scope='col'>Lloji</th>
                                 <th scope='col'>Pershkrimi</th>
                                 <th scope='col'>Data</th>
@@ -88,6 +89,48 @@
         </div>
     </div>
 </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('damageForm').addEventListener('submit', function(e) {
+            e.preventDefault(); // Prevent the default form submission
+
+            // Serialize the form data
+            var formData = new FormData(this);
+
+            // Send an AJAX request to process_damage.php
+            fetch('process_damage.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(function(response) {
+                    return response.json(); // Parse the response as JSON
+                })
+                .then(function(data) {
+                    // Check the response status
+                    if (data.status === 'success') {
+                        // Display success message using SweetAlert2
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: data.message
+                        }).then(function() {
+                            window.location = 'office_damages.php'; // Redirect to another page if needed
+                        });
+                    } else {
+                        // Display error message using SweetAlert2
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: data.message
+                        });
+                    }
+                })
+                .catch(function(error) {
+                    console.error('Error:', error);
+                });
+        });
+    });
+</script>
 
 <script>
     $(document).ready(function() {
@@ -122,6 +165,9 @@
             columns: [{
                     data: null,
                     defaultContent: '<input type="checkbox" class="deleteCheckbox">'
+                },
+                {
+                    data: 'id',
                 },
                 {
                     data: 'damage_type',
