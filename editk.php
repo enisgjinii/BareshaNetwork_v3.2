@@ -25,6 +25,9 @@ if (isset($_POST['ndrysho'])) {
   $nrllog = mysqli_real_escape_string($conn, $_POST['nrllog']);
   $perdoruesi = mysqli_real_escape_string($conn, $_POST['perdoruesi']);
   $emails = mysqli_real_escape_string($conn, $_POST['emails']);
+  $perqindja_check = isset($conn, $_POST['perqindja_check']) ? '1' : '0';
+  $perqindja_e_platformave_check = isset($conn, $_POST['perqindja_e_platformave_check']) ? '1' : '0';
+
   $targetfolder = "dokument/";
 
   $ok = 1;
@@ -53,7 +56,7 @@ if (isset($_POST['ndrysho'])) {
 
 
 
-  if ($conn->query("UPDATE klientet SET emri='$emri', np='$np', monetizuar='$mon', emails='$emails', dk='$dk', dks='$dks', youtube='$yt', info='$info', perqindja='$perq', perqindja2='$perq2', fb='$fb', ig='$ig', adresa='$adresa', kategoria='$kategoria', nrtel='$nrtel', emailp='$emailp', emailadd='$emailadd', emriart='$emriart', nrllog='$nrllog', ads='$adsa', perdoruesi='$perdoruesi' WHERE id='$editid'")) {
+  if ($conn->query("UPDATE klientet SET emri='$emri', np='$np', monetizuar='$mon', emails='$emails', dk='$dk', dks='$dks', youtube='$yt', info='$info', perqindja='$perq', perqindja2='$perq2', fb='$fb', ig='$ig', adresa='$adresa', kategoria='$kategoria', nrtel='$nrtel', emailp='$emailp', emailadd='$emailadd', emriart='$emriart', nrllog='$nrllog', ads='$adsa', perdoruesi='$perdoruesi'  ,perqindja_check='$perqindja_check', perqindja_platformave_check = '$perqindja_e_platformave_check' WHERE id='$editid'")) {
     echo '<script>alert("Kengetari u perditsua me sukses");</script>';
     $cdata = date("Y-m-d H:i:s");
     $cname = $_SESSION['emri'];
@@ -239,6 +242,22 @@ $editcl = mysqli_fetch_array($editc);
 
             <label for="imei">Perqindja:</label>
             <input type="text" name="perqindja" class="form-control shadow-sm rounded-5" value="<?php echo $editcl['perqindja']; ?>" placeholder="0.00%">
+            <?php
+            //  $perqindja_check contains the value from the database (either '1' or '0')
+            $perqindja_check = $editcl['perqindja_check']; // Replace this with the actual value from your database
+            ?>
+            <input type="checkbox" name="perqindja_check" id="perqindja_check" <?php echo $checked; ?> />
+            <p><?php if ($perqindja_check == "1") {
+                ?>
+                <label for="perqindja_check" style="color:green;">Statusi i kesaj perqindje ne sistemin e klientit eshte e vrojtueshme</label>
+              <?php
+                } else {
+              ?>
+                <label for="perqindja_check" style="color:red;">JO</label>
+              <?php
+                } ?>
+            </p>
+
           </div>
         <?php
           } ?>
@@ -246,6 +265,7 @@ $editcl = mysqli_fetch_array($editc);
 
           <label for="imei">Perqindja platformave tjera:</label>
           <input type="text" name="perqindja2" class="form-control shadow-sm rounded-5" value="<?php echo $editcl['perqindja2']; ?>" placeholder="0.00%">
+          <input type="checkbox" name="perqindja_e_platformave_check" id="perqindja_e_platformave_check" />
         </div>
         <div class="col">
           <label><i class="ti-facebook"></i> Facebook URL:</label>

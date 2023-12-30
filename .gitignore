@@ -20,3 +20,4 @@ vendor
 # Ignore tmp directory
 .php_tmp/
 .php_tmp/roles.php
+second_config.php
