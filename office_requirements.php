@@ -24,7 +24,7 @@
                 <!-- Modal -->
                 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                     <div class="modal-dialog">
-                        <form action="process_requirement.php" method="post" enctype="multipart/form-data">
+                        <form action="process_requirement.php" method="post" enctype="multipart/form-data" id="requirementForm">
                             <div class="modal-content">
                                 <div class="modal-header">
                                     <h5 class="modal-title" id="exampleModalLabel">Shto investim</h5>
@@ -76,6 +76,50 @@
         </div>
     </div>
 </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('requirementForm').addEventListener('submit', function(e) {
+            e.preventDefault(); // Prevent the default form submission
+
+            // Serialize the form data
+            var formData = new FormData(this);
+
+            // Send an AJAX request to process_requirement.php
+            fetch('process_requirement.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(function(response) {
+                    return response.json(); // Parse the response as JSON
+                })
+                .then(function(data) {
+                    // Check the response status
+                    if (data.status === 'success') {
+                        // Display success message using SweetAlert2
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: data.message
+                        }).then(function() {
+                            // Reload DataTable
+                            var dataTable = $('#requirementsTable').DataTable();
+                            dataTable.ajax.reload();
+                        });
+                    } else {
+                        // Display error message using SweetAlert2
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: data.message
+                        });
+                    }
+                })
+                .catch(function(error) {
+                    console.error('Error:', error);
+                });
+        });
+    });
+</script>
 
 <script>
     $(document).ready(function() {
@@ -112,7 +156,7 @@
                     defaultContent: '<input type="checkbox" class="deleteCheckbox">'
                 },
                 {
-                    data:'id'
+                    data: 'id'
                 },
                 {
                     data: 'description_of_the_requirement'

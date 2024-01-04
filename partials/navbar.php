@@ -9,8 +9,8 @@
     </div>
   </div>
   <div class="navbar-menu-wrapper d-flex align-items-center justify-content-end">
-    <span class="badge rounded-pill text-bg-primary" id="token-countdown">Hover over me</span>
-    <span class="badge rounded-pill text-bg-danger text-white ms-2" id="time_of_token_expiry">This is shown on hover</span>
+    <!-- <span class="badge rounded-pill text-bg-primary" id="token-countdown">Hover over me</span>
+    <span class="badge rounded-pill text-bg-danger text-white ms-2" id="time_of_token_expiry">This is shown on hover</span> -->
     <ul class="navbar-nav mr-lg-4 w-100">
       <li class="nav-item nav-search d-none d-lg-block w-100">
         <div class="toggle-button shadow">
@@ -29,8 +29,6 @@
           <i class="fi fi-rr-bell text-dark mx-0"></i>
           <span class="count"></span>
         </a>
-        <!-- Modal -->
-
       </li>
       <li class="dropdown-center ms-auto mt-2">
         <button class="btn btn-light btn-sm shadow-sm rounded-6 dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border:1px solid lightgrey;">
@@ -72,7 +70,6 @@
 
         // Replace 'YOUR_API_KEY' with your actual YouTube API key
         $api_key = 'AIzaSyDKt-ziSnLKQfYGgAxqwjRtCc6ss-PFIaM';
-        // $api_key = 'AIzaSyBrE0kFGTQJwn36FeR4NIyf4FEw2HqSSIQ';
 
         // The channel ID of the YouTube channel you want to fetch videos from
         $channel_id = 'UCV6ZBT0ZUfNbtZMbsy-L3CQ';
@@ -102,7 +99,14 @@
 
         do {
           // Construct the API request URL with the nextPageToken
-          $url = "https://www.googleapis.com/youtube/v3/search?key=$api_key&channelId=$channel_id&order=date&publishedAfter=$start_date&maxResults=$max_results&pageToken=$next_page_token&type=video&part=snippet";
+          $url = "https://www.googleapis.com/youtube/v3/search?key=$api_key"
+            . "&channelId=$channel_id"
+            . "&order=date"
+            . "&publishedAfter=$start_date"
+            . "&maxResults=$max_results"
+            . "&pageToken=$next_page_token"
+            . "&type=video"
+            . "&part=snippet";
 
           // Make the API request
           $response = file_get_contents($url);
@@ -117,10 +121,9 @@
               // Extract video details
               $video_title = $snippet->title;
 
-              // $published_date = date('mm/dd/yyyy/hh:mm', strtotime($snippet->publishedAt));
-
-              // Make this published date to look good formated
+              // Make this published date to look good formatted
               $published_date = date('d/m/Y H:i:s', strtotime($snippet->publishedAt));
+
               // Add video details to the array
               $videos[] = [
                 'title' => $video_title,
@@ -131,6 +134,7 @@
             $next_page_token = isset($data->nextPageToken) ? $data->nextPageToken : null;
           }
         } while ($next_page_token);
+
 
         ?>
         <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="get" class="mb-4">

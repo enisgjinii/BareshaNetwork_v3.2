@@ -55,7 +55,7 @@
     while ($i < count($menu_pages)) {
       if ($menu_pages[$i] == "lista_kopjeve_rezerve.php") {
         echo '<li class="nav-item">
-                            <a class="nav-link" href="' . $menu_pages[$i] . '">
+                            <a class="nav-link " href="' . $menu_pages[$i] . '">
                             <i class="fi fi-rr-database menu-icon pe-3"></i>
                                 <span class="menu-title">Lista e kopjeve rezerve</span>
                             </a>
@@ -373,63 +373,48 @@
           while ($i < count($menu_pages)) {
             if ($menu_pages[$i] == "filet.php") {
               echo '<li class="nav-item">
-                            <a class="nav-link" href="' . $menu_pages[$i] . '">
-                                <span class="menu-title">Dokumente tjera</span>
-                            </a>
-                        </li>';
-            }
-            if ($menu_pages[$i] == "notes.php") {
+                    <a class="nav-link" href="' . $menu_pages[$i] . '">
+                        <span class="menu-title">Dokumente tjera</span>
+                    </a>
+                </li>';
+            } elseif ($menu_pages[$i] == "notes.php") {
               echo '<li class="nav-item">
-                            <a class="nav-link" href="' . $menu_pages[$i] . '">
-                                <span class="menu-title">Shenime</span>
-                            </a> 
-                        </li>';
-            }
-            if ($menu_pages[$i] == "github_logs.php") {
+                    <a class="nav-link" href="' . $menu_pages[$i] . '">
+                        <span class="menu-title">Shenime</span>
+                    </a> 
+                </li>';
+            } elseif ($menu_pages[$i] == "todo_list.php") {
               echo '<li class="nav-item">
-                            <a class="nav-link" href="' . $menu_pages[$i] . '">
-                                <span class="menu-title">Aktiviteti ne Github</span>
-                            </a> 
-                        </li>';
-            }
-            if ($menu_pages[$i] == "todo_list.php") {
+                    <a class="nav-link" href="' . $menu_pages[$i] . '">
+                        <span class="menu-title">To do</span>
+                    </a> 
+                </li>';
+            } elseif ($menu_pages[$i] == "takimet.php") {
               echo '<li class="nav-item">
-                            <a class="nav-link" href="' . $menu_pages[$i] . '">
-                                <span class="menu-title">To do</span>
-                            </a> 
-                        </li>';
-            }
-            if ($menu_pages[$i] == "takimet.php") {
+                    <a class="nav-link" href="' . $menu_pages[$i] . '">
+                        <span class="menu-title">Takimet</span>
+                    </a> 
+                </li>';
+            } elseif ($menu_pages[$i] == "klient_CSV.php") {
               echo '<li class="nav-item">
-                            <a class="nav-link" href="' . $menu_pages[$i] . '">
-                                <span class="menu-title">Takimet</span>
-                            </a> 
-                        </li>';
-            }
-            if ($menu_pages[$i] == "klient_CSV.php") {
+                    <a class="nav-link" href="' . $menu_pages[$i] . '">
+                        <span class="menu-title">Klient CSV</span>
+                    </a> 
+                </li>';
+            } elseif ($menu_pages[$i] == "logs.php") {
               echo '<li class="nav-item">
-                            <a class="nav-link" href="' . $menu_pages[$i] . '">
-                                <span class="menu-title">Klient CSV</span>
-                            </a> 
-                        </li>';
+                    <a class="nav-link" href="' . $menu_pages[$i] . '">
+                        <span class="menu-title">Logs</span>
+                    </a> 
+                </li>';
+            } else {
+              // Handle the case where $menu_pages[$i] doesn't match any condition
+              // For example, display a default menu item or take other action
             }
-            if ($menu_pages[$i] == "logs.php") {
-              echo '<li class="nav-item">
-                            <a class="nav-link" href="' . $menu_pages[$i] . '">
-                                <span class="menu-title">Logs</span>
-                            </a> 
-                        </li>';
-            }
-            // if ($menu_pages[$i] == "ascap.php") {
-            //   echo '<li class="nav-item">
-            //                 <a class="nav-link" href="' . $menu_pages[$i] . '">
-            //                     <span class="menu-title">Ascap</span>
-            //                 </a> 
-            //             </li>';
-            // }
             $i++;
           }
           ?>
+
         </ul>
       </div>
     </li>

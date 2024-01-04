@@ -124,8 +124,6 @@ if ($result->num_rows > 0) {
   <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/searchbuilder/1.3.1/css/searchBuilder.bootstrap5.min.css">
   <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/select/1.3.3/css/select.bootstrap5.min.css">
 
-
-
   <!-- Fav Icon ne formatin .png -->
   <link rel="shortcut icon" href="images/favicon.png" />
 

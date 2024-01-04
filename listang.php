@@ -1,1 +1,224 @@
-<?php include 'partials/header.php';if (isset($_GET['import'])) { $linkuof = $_GET['import']; $curl = curl_init('https://bareshamusic.sourceaudio.com/api/import/upload?token=6636-66f549fbe813b2087a8748f2b8243dbc&url=http://paneli.bareshaoffice.com/' . $linkuof); curl_setopt_array( $curl, array( CURLOPT_RETURNTRANSFER => true ) ); $cdata = json_decode(curl_exec($curl), true); curl_close($curl); if ($cdata['error']) { echo '<script>alert("' . $cdata['error'] . '");</script>'; } else { echo '<script>alert("' . $cdata['status'] . '");</script>'; }}if (isset($_GET['del'])) { $stmt = $conn->prepare("DELETE FROM ngarkimi WHERE id=?"); $stmt->bind_param("s", $_GET['del']); if ($stmt->execute()) { echo '<script>alert("Eshte fshir me sukses")</script>'; } else { echo "Pershkrimi i gabimit: " . $conn->error; }}?><div class="main-panel"> <div class="content-wrapper"> <div class="container-fluid"> <div class="container"> <div class="p-5 rounded-5 shadow-sm mb-4 card"> <h4 class="font-weight-bold text-gray-800 mb-4">Lista e keng&euml;ve</h4> <nav class="d-flex"> <h6 class="mb-0"> <a href="" class="text-reset">Video - Ngarkimi</a> <span>/</span> <a href="klient.php" class="text-reset" data-bs-placement="top" data-bs-toggle="tooltip" title="<?php echo __FILE__; ?>"><u>Lista e keng&euml;ve</u></a> </h6> </nav> </div> <div class="card rounded-5 shadow-sm"> <div class="card-body"> <div class="table-responsive"> <table id="example" class="table w-100"> <thead class="bg-light"> <tr> <th>K&euml;ng&euml;tari</th> <th>Emri</th> <th>T.Shkruesi</th> <th>Muzika</th> <th>Orkesetra</th> <th>C/O</th> <th>FB</th> <th>IG</th> <th>Veper nga Koha</th> <th>Klienti</th> <th>Platformat Tjera</th> <th style="color:green;">Linku</th> <th style="color:green;">Linku Plat.</th> <th>Data</th> <th>Gjuha</th> <th>Info Shtes</th> <th>Postuar Nga</th> </tr> </thead> </table> </div> </div> </div> </div> </div> </div></div><?php include 'partials/footer.php'; ?><script> $(document).ready(function () { $('#example').DataTable({ responsive: true, order: [[12, "desc"]], search: { return: true }, dom: 'Bfrtip', buttons: [ { extend: 'pdfHtml5', text: '<i class="fi fi-rr-file-pdf fa-lg"></i>&nbsp;&nbsp; PDF', titleAttr: 'Eksporto tabelen ne formatin PDF', className: 'btn btn-light border shadow-2 me-2' }, { extend: 'copyHtml5', text: '<i class="fi fi-rr-copy fa-lg"></i>&nbsp;&nbsp; Kopjo', titleAttr: 'Kopjo tabelen ne formatin Clipboard', className: 'btn btn-light border shadow-2 me-2' }, { extend: 'excelHtml5', text: '<i class="fi fi-rr-file-excel fa-lg"></i>&nbsp;&nbsp; Excel', titleAttr: 'Eksporto tabelen ne formatin CSV', className: 'btn btn-light border shadow-2 me-2' }, { extend: 'print', text: '<i class="fi fi-rr-print fa-lg"></i>&nbsp;&nbsp; Printo', titleAttr: 'Printo tabel&euml;n', className: 'btn btn-light border shadow-2 me-2' } ], initComplete: function () { var btns = $('.dt-buttons'); btns.addClass(''); btns.removeClass('dt-buttons btn-group'); }, fixedHeader: true, language: { url: "https://cdn.datatables.net/plug-ins/1.13.1/i18n/sq.json" }, stripeClasses: ['stripe-color'], ajax: { url: 'fetch_music.php', type: 'POST', dataType: 'json', dataSrc: 'data' }, columns: [ { data: 'kengetari' }, { data: 'emri' }, { data: 'teksti' }, { data: 'muzika' }, { data: 'orkestra' }, { data: 'co' }, { data: 'facebook' }, { data: 'instagram' }, { data: 'veper' }, { data: 'klienti_emri' }, { data: 'platformat' }, { data: 'linku' }, { data: 'linkuplat' }, { data: 'data' }, { data: 'gjuha' }, { data: 'infosh' }, { data: 'postuar_nga' } ] }); });</script>
+<?php include 'partials/header.php';
+if (isset($_GET['import'])) {
+    $linkuof = $_GET['import'];
+    $curl = curl_init('https://bareshamusic.sourceaudio.com/api/import/upload?token=6636-66f549fbe813b2087a8748f2b8243dbc&url=http://paneli.bareshaoffice.com/' . $linkuof);
+    curl_setopt_array($curl, array(CURLOPT_RETURNTRANSFER => true));
+    $cdata = json_decode(curl_exec($curl), true);
+    curl_close($curl);
+    if ($cdata['error']) {
+        echo '<script>alert("' . $cdata['error'] . '");</script>';
+    } else {
+        echo '<script>alert("' . $cdata['status'] . '");</script>';
+    }
+}
+if (isset($_GET['del'])) {
+    $stmt = $conn->prepare("DELETE FROM ngarkimi WHERE id=?");
+    $stmt->bind_param("s", $_GET['del']);
+    if ($stmt->execute()) {
+        echo '<script>alert("Eshte fshir me sukses")</script>';
+    } else {
+        echo "Pershkrimi i gabimit: " . $conn->error;
+    }
+} ?><div class="main-panel">
+    <div class="content-wrapper">
+        <div class="container-fluid">
+            <nav class="bg-white px-2 rounded-5" style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='currentColor'/%3E%3C/svg%3E&#34;);width:fit-content;border-style:1px solid black;" aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item "><a class="text-reset" style="text-decoration: none;">Videot / Ngarkimi</a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">
+                        <a href="<?php echo __FILE__; ?>" class="text-reset" style="text-decoration: none;">
+                            Lista e këngëve
+                        </a>
+                    </li>
+            </nav>
+            <div class="card rounded-5 shadow-sm">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table id="example" class="table w-100">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th>Id</th>
+                                    <th>K&euml;ng&euml;tari</th>
+                                    <th>Informacioni</th>
+                                    <!-- <th>Emri</th> -->
+                                    <!-- <th>T.Shkruesi</th> -->
+                                    <!-- <th>Muzika</th> -->
+                                    <!-- <th>Orkesetra</th> -->
+                                    <!-- <th>C/O</th> -->
+                                    <th>Rrjete sociale</th>
+                                    <!-- <th>Veper nga Koha</th> -->
+                                    <th>Klienti</th>
+                                    <!-- <th>Platformat Tjera</th> -->
+                                    <!-- <th style="color:green;">Linku</th>
+                                        <th style="color:green;">Linku Plat.</th> -->
+                                    <!-- <th>Data</th> -->
+                                    <!-- <th>Gjuha</th> -->
+                                    <th>Info Shtes</th>
+                                    <!-- <th>Postuar Nga</th> -->
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<?php include 'partials/footer.php'; ?>
+<script>
+    $(document).ready(function() {
+        $('#example').DataTable({
+            // responsive: true,
+            order: [
+                [0, 'desc'] // Default sorting on the first column in ascending order
+            ],
+            searching: true,
+            dom: "<'row'<'col-md-3'l><'col-md-6'B><'col-md-3'f>>" +
+                "<'row'<'col-md-12'tr>>" +
+                "<'row'<'col-md-6'><'col-md-6'p>>",
+            buttons: [{
+                    extend: "pdfHtml5",
+                    text: '<i class="fi fi-rr-file-pdf fa-lg"></i>&nbsp;&nbsp; PDF',
+                    titleAttr: "Eksporto tabelen ne formatin PDF",
+                    className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
+
+                },
+                {
+                    extend: "copyHtml5",
+                    text: '<i class="fi fi-rr-copy fa-lg"></i>&nbsp;&nbsp; Kopjo',
+                    titleAttr: "Kopjo tabelen ne formatin Clipboard",
+                    className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
+                },
+                {
+                    extend: "excelHtml5",
+                    text: '<i class="fi fi-rr-file-excel fa-lg"></i>&nbsp;&nbsp; Excel',
+                    titleAttr: "Eksporto tabelen ne formatin Excel",
+                    className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
+                    exportOptions: {
+                        modifier: {
+                            search: "applied",
+                            order: "applied",
+                            page: "all",
+                        },
+                    },
+                },
+                {
+                    extend: "print",
+                    text: '<i class="fi fi-rr-print fa-lg"></i>&nbsp;&nbsp; Printo',
+                    titleAttr: "Printo tabel&euml;n",
+                    className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
+                },
+            ],
+            initComplete: function() {
+                var btns = $(".dt-buttons");
+                btns.addClass("").removeClass("dt-buttons btn-group");
+                var lengthSelect = $("div.dataTables_length select");
+                lengthSelect.addClass("form-select");
+                lengthSelect.css({
+                    width: "auto",
+                    margin: "0 8px",
+                    padding: "0.375rem 1.75rem 0.375rem 0.75rem",
+                    lineHeight: "1.5",
+                    border: "1px solid #ced4da",
+                    borderRadius: "0.25rem",
+                });
+            },
+            fixedHeader: true,
+            language: {
+                url: "https://cdn.datatables.net/plug-ins/1.13.1/i18n/sq.json"
+            },
+            stripeClasses: ['stripe-color'],
+            ajax: {
+                url: 'fetch_music.php',
+                type: 'POST',
+                dataType: 'json',
+                dataSrc: 'data'
+            },
+
+            columns: [{
+                    data: "id"
+                },
+                {
+                    data: 'kengetari'
+                },
+                {
+                    data: null,
+                    render: function(data, type, row) {
+                        if (type === 'display') {
+                            const paragraphHTML = `
+                <p><strong>Emri:</strong> ${row.emri}</p>
+                <p><strong>Teksti:</strong> ${row.teksti}</p>
+                <p><strong>Muzika:</strong> ${row.muzika}</p>
+                <p><strong>Orkestra:</strong> ${row.orkestra}</p>
+                <p><strong>C/O:</strong> ${row.co}</p>
+                <p><strong>Veper nga koha:</strong> ${row.veper}</p>
+                <p><strong>Data:</strong> ${row.data}</p>
+                <p><strong>Gjuha:</strong> ${row.gjuha}</p>
+                <p><strong>Postuar nga:</strong> ${row.postuar_nga}</p>
+
+            `;
+                            return paragraphHTML;
+                        } else {
+                            return `${row.emri} - ${row.teksti} - ${row.muzika} - ${row.orkestra} - ${row.co} - ${row.veper}- ${row.data} - ${row.gjuha} - ${row.postuar_nga}`;
+                        }
+                    }
+                },
+
+                {
+                    data: null,
+                    render: function(data, type, row) {
+                        if (type === 'display') {
+                            // Define icon classes for each platform
+                            const icons = {
+                                'Spotify': 'fab fa-spotify',
+                                'Youtube Music': 'fab fa-youtube',
+                                'iTunes': 'fab fa-itunes',
+                                'Apple Music': 'fab fa-apple',
+                                'TikTok': 'fab fa-tiktok',
+                                'Instagram Stories': 'fab fa-instagram',
+                                'Tidal': 'fab fa-tidal',
+                                'Amazon Music': 'fab fa-amazon',
+                                'Pandora': 'fab fa-pandora',
+                                'AudioMack': 'fas fa-music',
+                                // Add more platforms as needed
+                            };
+
+                            // Split the 'platformat' data into individual platform names
+                            const platformNames = row.platformat.split(', ');
+
+                            // Generate HTML for platform icons
+                            const platformIconsHTML = platformNames.map(platformName => {
+                                const iconClass = icons[platformName] || 'fas fa-question'; // Default icon if platform not found
+                                return `<i class="${iconClass} fa-lg"></i>`;
+                            }).join(' ');
+
+                            const paragraphHTML = `
+                <p><strong>Facebook:</strong> ${row.facebook}</p>
+                <p><strong>Instagram:</strong> ${row.instagram}</p>
+                <p><strong>Linku Youtube:</strong> ${row.linku}</p>
+                <p><strong>Linku Platform:</strong> ${row.linkuplat}</p>
+                <br>
+                <p style='white-space: normal;'>${platformIconsHTML}</p>
+            `;
+                            return paragraphHTML;
+                        } else {
+                            return `${row.facebook} - ${row.instagram} - ${row.linku} - ${row.linkuplat} - ${row.platformat}`;
+                        }
+                    }
+                }, {
+                    data: 'klienti_emri'
+                }, {
+                    data: 'infosh'
+                },
+            ],
+            columnDefs: [{
+                "targets": [2, 3, 4, 5], // Indexes of the original columns you want to hide
+                "render": function(data, type, row) {
+                    // Apply the style to the specified columns
+                    return type === 'display' && data !== null ? '<div style="white-space: normal;">' + data + '</div>' : data;
+                }
+            }],
+        });
+    });
+</script>

@@ -1,42 +1,9 @@
 <?php
 ob_start();
 include 'partials/header.php';
-// $current_url = $_SERVER['REQUEST_URI'];
-// $has_access = false;
 
-// $userName = $_SESSION['emri'];
-// $sql = "SELECT users.name AS user_name, roles.name AS role_name, GROUP_CONCAT(DISTINCT role_pages.page) AS pages 
-//         FROM users 
-//         LEFT JOIN user_roles ON users.id = user_roles.user_id 
-//         LEFT JOIN roles ON user_roles.role_id = roles.id 
-//         LEFT JOIN role_pages ON roles.id = role_pages.role_id 
-//         WHERE users.name = '$userName'
-//         GROUP BY users.id, roles.id";
-
-// if ($result = $conn->query($sql)) {
-//   while ($row = $result->fetch_assoc()) {
-//     $menu_pages = explode(',', $row['pages']);
-
-//     // Check if the user has access to the current page
-//     if (in_array(basename($current_url), $menu_pages)) {
-//       $has_access = true;
-//       break;
-//     }
-//   }
-
-//   $result->free();
-// }
-
-// if (!$has_access) {
-//   // Redirect the user to an error page or show an error message
-//   header('Location:error.php');
-//   exit;
-// }
-
-// ob_flush();
 $current_url = $_SERVER['REQUEST_URI'];
 $filename = basename($current_url);
-
 // Check if the current page is 'logs.php'
 if ($filename == "logs.php") {
   // Prepare data for insertion
@@ -58,56 +25,7 @@ if ($filename == "logs.php") {
   // Close the prepared statement
   $stmt->close();
 }
-
 ?>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<?php
-
-
-
-if (in_array($current_url, $menu_pages)) {
-  // User has access to this page, show menu item
-  echo '<li class="nav-item">
-          <a class="nav-link" href="' . $current_url . '">
-            <i class="fi fi-rr-users-alt menu-icon pe-3"></i>
-            <span class="menu-title">' . $page . ' </span>
-          </a>
-        </li>';
-} else {
-  // User doesn't have access to this page, don't show menu item
-}
-?>
-
-
-
-
-
 <div class="main-panel">
   <div class="content-wrapper">
     <div class="container-fluid">
@@ -137,15 +55,7 @@ if (in_array($current_url, $menu_pages)) {
                       </tr>
                     </thead>
                     <tbody>
-
                     </tbody>
-                    <tfoot class="bg-light">
-                      <tr>
-                        <th>Stafi</th>
-                        <th>Sherbimi</th>
-                        <th>Koha</th>
-                      </tr>
-                    </tfoot>
                   </table>
                 </div>
               </div>
