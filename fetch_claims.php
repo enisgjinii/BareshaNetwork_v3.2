@@ -1,37 +1,37 @@
 <?php
 
-// Include necessary configurations and database connections here
+// Përfshij konfigurimet dhe lidhjen me bazën e të dhënave të nevojshme këtu
 include 'conn-d.php';
 
-// Get user-defined parameters from the GET request
+// Merr parametrat e përcaktuar nga përdoruesi nga kërkesa GET
 $show = isset($_POST['show']) ? $_POST['show'] : 10;
 $pg = isset($_POST['pg']) ? $_POST['pg'] : 1;
 
-// Define the base URL for the API endpoint
+// Përcakto URL-në bazë për endpointin e API-së
 $baseUrl = 'https://bareshamusic.sourceaudio.com/api/contentid/claims';
 
-// Define your request parameters
+// Përcakto parametrat e kërkesës tuaj
 $params = array(
     'token' => '6636-66f549fbe813b2087a8748f2b8243dbc',
-    'show' => $show, // Number of claims to show per page (e.g., 10 claims per page)
-    'pg' => $pg,    // Page of claim data to retrieve (e.g., page 1)
-    // You can add more parameters here as needed
+    'show' => $show, // Numri i pretendimeve për t'u shfaqur në çdo faqe (p.sh., 10 pretendime për faqe)
+    'pg' => $pg,    // Faqja e të dhënave për pretendimin për të marrë (p.sh., faqja 1)
+    // Mund të shtoni më shumë parametra këtu sipas nevojës
 );
 
-// Build the final URL with query parameters
+// Krijo URL-në përfundimtare me parametrat e kërkesës
 $url = $baseUrl . '?' . http_build_query($params);
 
-// Make a GET request using file_get_contents()
+// Bëj një kërkesë GET duke përdorur file_get_contents()
 $response = file_get_contents($url);
 
-// Check if the response is valid
+// Kontrollo nëse përgjigja është e vlefshme
 if ($response === false) {
-    die('Error: Failed to retrieve data from the API');
+    die('Gabim: Dështoi në marrjen e të dhënave nga API-ja');
 }
 
-// Decode JSON data
+// Dekodo të dhënat JSON
 $data = json_decode($response, true);
 
-// Return the JSON data
+// Kthe të dhënat JSON
 header('Content-Type: application/json');
-echo json_encode(['claim' => $data['claim']]);
+echo json_encode(['pretendim' => $data['pretendim']]);
