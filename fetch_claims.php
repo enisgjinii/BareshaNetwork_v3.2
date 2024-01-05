@@ -34,4 +34,4 @@ $data = json_decode($response, true);
 
 // Kthe të dhënat JSON
 header('Content-Type: application/json');
-echo json_encode(['pretendim' => $data['pretendim']]);
+echo json_encode(['claim' => $data['claim']]);  

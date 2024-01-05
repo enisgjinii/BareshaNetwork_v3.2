@@ -1,31 +1,69 @@
 <?php
-
 include 'partials/header.php';
+
 if (isset($_GET['claim'])) {
   $cid = $_GET['claim'];
-  $cdata = date("Y-m-d H:i:s");
-  $cname = $_SESSION['emri'];
-  $cnd = $cname . " ka ber Release Claim k&euml;ng&euml;n me Claim ID " . $cid;
-  $query = "INSERT INTO logs (stafi, ndryshimi, koha) VALUES ('$cname', '$cnd', '$cdata')";
-  if ($conn->query($query)) {
+
+  // Përgatisni të dhënat për futjen
+  $user_informations = $user_info['givenName'] . ' ' . $user_info['familyName'];
+  $log_description = $user_informations . " ka bërë Release Claim këngën me Claim ID " . $cid;
+  $date_information = date('Y-m-d H:i:s');
+
+  // Përgatisni deklaratën INSERT
+  $stmt = $conn->prepare("INSERT INTO logs (stafi, ndryshimi, koha) VALUES (?, ?, ?)");
+  $stmt->bind_param("sss", $user_informations, $log_description, $date_information);
+
+  // Ekzekutoni deklaratën dhe kontrolloni për gabime
+  if ($stmt->execute()) {
+    // Njoftim me SweetAlert2 për sukses
+    echo '<script>
+                Swal.fire({
+                    icon: "success",
+                    title: "Sukses!",
+                    text: "Të dhënat u futën me sukses!"
+                });
+             </script>';
   } else {
-    echo '<script>alert("' . $conn->error . '")</script>';
+    // Njoftim me SweetAlert2 për gabim
+    echo '<script>
+                Swal.fire({
+                    icon: "error",
+                    title: "Gabim!",
+                    text: "' . $stmt->error . '"
+                });
+             </script>';
   }
+
   $cjson = file_get_contents('https://bareshamusic.sourceaudio.com/api/contentid/releaseclaim?token=6636-66f549fbe813b2087a8748f2b8243dbc&release[0][type]=claim&release[0][id]=' . $cid);
 
   $cdata = json_decode($cjson, true);
   if (isset($cdata['error']) && $cdata['error'] == true) {
-    echo '<script>alert("' . $cdata['error'] . '");</script>';
+    // Njoftim me SweetAlert2 për gabim
+    echo '<script>
+                Swal.fire({
+                    icon: "error",
+                    title: "Gabim!",
+                    text: "' . $cdata['error'] . '"
+                });
+             </script>';
   } else {
-    echo '<script>Sukses.</script>';
+    // Njoftim me SweetAlert2 për sukses
+    echo '<script>
+                Swal.fire({
+                    icon: "success",
+                    title: "Sukses!",
+                    text: "Sukses."
+                });
+             </script>';
   }
 }
+
 /**
- * Formats the size of a file.
+ * Formatizon madhësinë e një dosjeje.
  *
- * @param string $filename The name of the file.
- * @throws Exception If the file does not exist.
- * @return string The formatted size of the file.
+ * @param string $filename Emri i dosjes.
+ * @throws Exception Nëse dosja nuk ekziston.
+ * @return string Madhësia e formatizuar e dosjes.
  */
 const UNITS = array('B', 'KB', 'MB', 'GB', 'TB');
 
@@ -36,7 +74,7 @@ function formatFileSize($filename)
   } else {
     $size = filesize($filename);
   }
-  
+
   $formattedSize = $size;
   $i = 0;
   while ($size >= 1024 && $i < count(UNITS) - 1) {
@@ -44,17 +82,19 @@ function formatFileSize($filename)
     $formattedSize = round($size, 2);
     $i++;
   }
-  
+
   if ($size === false) {
-    return 'Unknown';
+    return 'E panjohur';
   }
-  
+
   return sprintf('%.2f %s', $formattedSize, UNITS[$i]);
 }
-$filename =   __FILE__;
+
+$filename = __FILE__;
 $fileSize = formatFileSize($filename);
 $text = 'Madhësia e dosjes: ' . $fileSize;
 ?>
+
 <div class="main-panel">
   <div class="content-wrapper">
     <div class="container-fluid">
@@ -115,7 +155,7 @@ $text = 'Madhësia e dosjes: ' . $fileSize;
                     </p>
                   </div>
                   <div class="modal-footer">
-                    <button type="button" class="input-custom-css px-3 py-2" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="input-custom-css px-3 py-2" data-bs-dismiss="modal">Mbylle</button>
                   </div>
                 </div>
               </div>

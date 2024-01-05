@@ -3,7 +3,7 @@
 session_start();
 
 // Replace 'your_secret_password' with your actual password
-$expectedPassword = 'baresha_2023';
+$expectedPassword = 'baresha_2024';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Get the entered password from the POST data
