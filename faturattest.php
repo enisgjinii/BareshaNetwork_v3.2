@@ -27,12 +27,7 @@ if (isset($_POST['ruaj'])) {
         echo "Gabim: " . $conn->error;
     }
 }
-if ($_SESSION['acc'] == '1') {
-} elseif ($_SESSION['acc'] == '3') {
-} else {
-    die('<script>alert("Nuk keni Akses ne kete sektor")</script>');
-    echo '<meta http-equiv="refresh" content="0;URL=index.php/" /> ';
-}
+
 if (isset($_GET['fshij'])) {
     $fshijid = $_GET['fshij'];
     $mfsh4 = $conn->query("SELECT * FROM fatura WHERE fatura='$fshijid'");

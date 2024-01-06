@@ -228,9 +228,7 @@ $text = 'Madhësia e dosjes: ' . $fileSize;
 
     // Initialize the DataTable separately (outside the submit handler)
     $('#claims_table').DataTable({
-      search: {
-        return: true,
-      },
+      searching: true,
       dom: "<'row'<'col-md-3'l><'col-md-6'B><'col-md-3'f>>" +
         "<'row'<'col-md-12'tr>>" +
         "<'row'<'col-md-6'><'col-md-6'p>>",

@@ -110,6 +110,8 @@ endif;
     <title>Baresha Panel - Google Login</title>
     <script src="https://kit.fontawesome.com/a1927a49ea.js" crossorigin="anonymous"></script>
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' http://paneli.bareshaoffice.com;">
 
 </head>
 
@@ -153,7 +155,7 @@ endif;
         }
     </script>
 
-    <script src="vendors/base/vendor.bundle.base.js"></script>
+    <script src="vendors/base/vendor.bundle.base.js" defer></script>
     <script src="js/off-canvas.js"></script>
     <script src="js/hoverable-collapse.js"></script>
     <script src="js/template.js"></script>
