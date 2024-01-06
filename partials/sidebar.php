@@ -1,83 +1,64 @@
 <nav class="sidebar sidebar-offcanvas">
   <ul class="nav">
     <?php
-
     // Include the database connection file
     include 'conn-d.php';
+
+    // Enable error reporting (for debugging purposes)
+    error_reporting(1);
+
+    // Function to generate menu items
+    function generateMenuItem($page, $icon, $title)
+    {
+      echo "<li class='nav-item'>
+            <a class='nav-link' href='$page'>
+            <i class='$icon menu-icon pe-3'></i>
+            <span class='menu-title'>$title</span>
+            </a>
+          </li>";
+    }
 
     // Check if the 'id' session variable is set
     if (isset($_SESSION['id'])) {
       // You can now use $_SESSION['id'] in this script
       $userName = $_SESSION['id'];
-    } else {
-      // The 'id' session variable is not set, handle the situation accordingly
-      echo "User ID is not set in the session.";
-    }
-    // Enable error reporting (for debugging purposes)
-    error_reporting(1);
 
+      // Define the SQL query to retrieve user roles and associated pages
+      $sql = "SELECT roles.name AS role_name, GROUP_CONCAT(DISTINCT role_pages.page) AS pages
+            FROM roles
+            LEFT JOIN user_roles ON roles.id = user_roles.role_id
+            LEFT JOIN role_pages ON roles.id = role_pages.role_id
+            WHERE user_roles.user_id = '$userName'
+            GROUP BY roles.id";
 
-    // Define the SQL query to retrieve user roles and associated pages
-    $sql = "SELECT roles.name AS role_name, GROUP_CONCAT(DISTINCT role_pages.page) AS pages
-        FROM roles
-        LEFT JOIN user_roles ON roles.id = user_roles.role_id
-        LEFT JOIN role_pages ON roles.id = role_pages.role_id
-        WHERE user_roles.user_id = '$userName'
-        GROUP BY roles.id";
+      if ($result = $conn->query($sql)) {
+        while ($row = $result->fetch_assoc()) {
+          $menu_title = $row['role_name'];
+          $menu_pages = explode(',', $row['pages']);
 
+          // Generate the home menu item
+          generateMenuItem('index.php', 'fi fi-rr-home', 'Sht&euml;pia');
 
-    if ($result = $conn->query($sql)) {
-      while ($row = $result->fetch_assoc()) {
-        $menu_title = $row['role_name'] . ': ' . $row['user_name'];
-        $menu_url = 'rolet.php?user_id=' . $row['role_name'];
-        $menu_pages = explode(',', $row['pages']);
-
-        // echo '<li class="nav-item">';
-        // // echo '<a class="nav-link" href="' . $menu_url . '">';
-        // echo '<i class="fi fi-rr-user-gear menu-icon pe-3"></i>';
-        // echo '<span class="menu-title">' . $menu_title . '</span>';
-        // echo '</a>';
-
-        if (!empty($menu_pages)) {
-          echo '<li class="nav-item">
-                  <a class="nav-link" href="index.php">
-                    <i class="fi fi-rr-home menu-icon pe-3"></i>
-                    <span class="menu-title">Sht&euml;pia</span>
-                  </a>
-                </li>';
+          // Iterate over menu pages and generate menu items
+          foreach ($menu_pages as $page) {
+            switch ($page) {
+              case "lista_kopjeve_rezerve.php":
+                generateMenuItem($page, 'fi fi-rr-database', 'Lista e kopjeve rezerve');
+                break;
+              case "investime.php":
+                generateMenuItem($page, 'fi fi-rr-money-check-edit', 'Investime');
+                break;
+                // Add more cases as needed
+            }
+          }
         }
       }
+    } else {
+      // The 'id' session variable is not set, handle the situation accordingly
+      echo "<p>User ID is not set in the session.</p>";
     }
     ?>
 
-    <?php
-    $i = 0;
-    while ($i < count($menu_pages)) {
-      if ($menu_pages[$i] == "lista_kopjeve_rezerve.php") {
-        echo '<li class="nav-item">
-                            <a class="nav-link " href="' . $menu_pages[$i] . '">
-                            <i class="fi fi-rr-database menu-icon pe-3"></i>
-                                <span class="menu-title">Lista e kopjeve rezerve</span>
-                            </a>
-                        </li>';
-      }
-      $i++;
-    }
-    ?>
-    <?php
-    $i = 0;
-    while ($i < count($menu_pages)) {
-      if ($menu_pages[$i] == "investime.php") {
-        echo '<li class="nav-item">
-                            <a class="nav-link" href="' . $menu_pages[$i] . '">
-                            <i class="fi fi-rr-money-check-edit menu-icon pe-3"></i>
-                                <span class="menu-title">Investime</span>
-                            </a>
-                        </li>';
-      }
-      $i++;
-    }
-    ?>
 
     <li class="nav-item">
       <a class="nav-link" data-bs-toggle="collapse" href="#menaxhimi" aria-expanded="false" aria-controls="menaxhimi">
@@ -421,76 +402,43 @@
 
 
     <li class="nav-item">
-      <a class="nav-link" data-bs-toggle="collapse" href="#kontratat" aria-expanded="false" aria-controls="kontratat">
+      <a class="nav-link" data-bs-toggle="collapse" href="#allKontratat" aria-expanded="false" aria-controls="allKontratat">
         <i class="fi fi-rr-document-signed menu-icon pe-3"></i>
-        <span class="menu-title">Kontrata (Keng&euml;)</span>
+        <span class="menu-title">Kontratat</span>
         <i class="menu-arrow pe-3"></i>
       </a>
-      <div class="collapse" id="kontratat">
+      <div class="collapse" id="allKontratat">
+        <style>
+          .small-text {
+            font-size: 0.8em;
+            /* Adjust the size as needed */
+          }
+        </style>
+
         <ul class="nav flex-column sub-menu">
           <?php
-          $i = 0;
-          while ($i < count($menu_pages)) {
-            if ($menu_pages[$i] == "kontrata_2.php") {
+          $all_menu_pages = [
+            "kontrata_2.php" => "Kontrate e re <span class='small-text'>(Kengë)</span>",
+            "lista_kontratave.php" => "Lista e kontratave <span class='small-text'>(Kengë)</span>",
+            "ofertat.php" => "Ofertat <span class='small-text'>(Kengë)</span>",
+            "kontrata_gjenelare_2.php" => "Kontrata e re <span class='small-text'>(Gjenerale)</span>",
+            "lista_kontratave_gjenerale.php" => "Lista e kontratave <span class='small-text'>(Gjenerale)</span>",
+          ];
+
+          foreach ($all_menu_pages as $page => $title) {
+            if (in_array($page, $menu_pages)) {
               echo '<li class="nav-item">
-                            <a class="nav-link" href="' . $menu_pages[$i] . '">
-                                <span class="menu-title">Kontrate e re</span>
-                            </a>
-                        </li>';
+              <a class="nav-link" href="' . $page . '">
+                <span class="menu-title">' . $title . '</span>
+              </a>
+            </li>';
             }
-            if ($menu_pages[$i] == "lista_kontratave.php") {
-              echo '<li class="nav-item">
-                            <a class="nav-link" href="' . $menu_pages[$i] . '">
-                                <span class="menu-title">Lista e kontratave</span>
-                            </a> 
-                        </li>';
-            }
-            if ($menu_pages[$i] == "ofertat.php") {
-              echo '<li class="nav-item">
-                            <a class="nav-link" href="' . $menu_pages[$i] . '">
-                                <span class="menu-title">Ofertat</span>
-                            </a> 
-                        </li>';
-            }
-            $i++;
           }
           ?>
         </ul>
       </div>
     </li>
-    <li class="nav-item">
-      <a class="nav-link" data-bs-toggle="collapse" href="#kontratatGjenerale" aria-expanded="false" aria-controls="kontratatGjenerale">
-        <i class="fi fi-rr-poll-h menu-icon pe-3"></i>
-        <span class="menu-title">Kontrata (Gjenerale)</span>
-        <i class="menu-arrow pe-3"></i>
-      </a>
-      <div class="collapse" id="kontratatGjenerale">
-        <ul class="nav flex-column sub-menu">
-          <?php
 
-          $i = 0;
-          while ($i < count($menu_pages)) {
-            if ($menu_pages[$i] == "kontrata_gjenelare_2.php") {
-              echo '<li class="nav-item">
-                        <a class="nav-link" href="' . $menu_pages[$i] . '">
-                            <span class="menu-title">Kontrata e re</span>
-                        </a>
-                    </li>';
-            }
-            if ($menu_pages[$i] == "lista_kontratave_gjenerale.php") {
-              echo '<li class="nav-item">
-                        <a class="nav-link" href="' . $menu_pages[$i] . '">
-                            <span class="menu-title">Lista e kontratave</span>
-                        </a> 
-                    </li>';
-            }
-
-            $i++;
-          }
-          ?>
-        </ul>
-      </div>
-    </li>
     <li class="nav-item">
       <a class="nav-link" data-bs-toggle="collapse" href="#facebook" aria-expanded="false" aria-controls="facebook">
         <i class="fa-brands fa-facebook menu-icon pe-3"></i>
@@ -588,7 +536,7 @@
       </div>
     </li>
 
-    <li class="nav-item">
+    <!-- <li class="nav-item">
       <a class="nav-link" data-bs-toggle="collapse" href="#youtube" aria-expanded="false" aria-controls="youtube">
         <i class="fa-brands fa-youtube menu-icon pe-3"></i>
         <span class="menu-title">Youtube Dashboard</span>
@@ -628,7 +576,7 @@
           ?>
         </ul>
       </div>
-    </li>
+    </li> -->
 
 
 
