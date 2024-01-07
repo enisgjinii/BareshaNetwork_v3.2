@@ -1,31 +1,76 @@
 <?php
+// Fshij çdo output që do të shfaqet në ekran
 ob_start();
+
+// Përfshij header-in e faqes
 include 'partials/header.php';
 
+// Merr URL-në aktuale
 $current_url = $_SERVER['REQUEST_URI'];
+
+// Merr emrin e skedarit nga URL-ja aktuale
 $filename = basename($current_url);
-// Check if the current page is 'logs.php'
+
+// Përgatitja për regjistrimin e aktivitetit
 if ($filename == "logs.php") {
-  // Prepare data for insertion
   $user_informations = $user_info['givenName'] . ' ' . $user_info['familyName'];
   $log_description = $user_informations . " ka vrojtuar listen e aktiviteteve";
   $date_information = date('Y-m-d H:i:s');
 
-  // Prepare the INSERT statement
+  // Përgatitja e deklaruar për të futur të dhënat në tabelën 'logs'
   $stmt = $conn->prepare("INSERT INTO logs (stafi, ndryshimi, koha) VALUES (?, ?, ?)");
   $stmt->bind_param("sss", $user_informations, $log_description, $date_information);
 
-  // Execute the statement and check for errors
   if ($stmt->execute()) {
-    // echo "Data inserted successfully!";
+    // Regjistrimi u fut me sukses
   } else {
-    echo "Error: " . $stmt->error;
+    echo "Gabim: " . $stmt->error;
   }
 
-  // Close the prepared statement
   $stmt->close();
 }
+
+$has_access = false;
+
+// Put in session that page 
+$_SESSION['page'] = $filename;
+
+$user_credentials = $_SESSION['id'];
+
+// Kërkesa SQL e përgatitur me deklaratën e përgatitur
+$stmt = $conn->prepare("SELECT googleauth.firstName AS user_name, roles.name AS role_name, roles.id AS role_id, GROUP_CONCAT(DISTINCT role_pages.page) AS pages
+FROM googleauth
+LEFT JOIN user_roles ON googleauth.id = user_roles.user_id
+LEFT JOIN roles ON user_roles.role_id = roles.id
+LEFT JOIN role_pages ON roles.id = role_pages.role_id
+WHERE googleauth.id = ?
+GROUP BY googleauth.id, roles.id");
+
+$stmt->bind_param("i", $user_credentials);
+$stmt->execute();
+$result = $stmt->get_result();
+
+if ($result) {
+  while ($row = $result->fetch_assoc()) {
+    $menu_pages = explode(',', $row['pages']);
+
+    if (in_array(basename($filename), $menu_pages)) {
+      $has_access = true;
+      break;
+    }
+  }
+
+  $result->free();
+}
+
+// Nëse nuk ka qasje, ridrejto tek faqja e gabimit dhe mbyll programin
+if (!$has_access) {
+  header('Location:error.php');
+  exit;
+}
 ?>
+
+
 <div class="main-panel">
   <div class="content-wrapper">
     <div class="container-fluid">
