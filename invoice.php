@@ -95,9 +95,72 @@ if ($conn->connect_errno) {
   exit();
 }
 
-// Retrieve user-submitted start and end dates
-$startDate = isset($_POST['startDate']) ? $_POST['startDate'] : '2016-01-01';
-$endDate = isset($_POST['endDate']) ? $_POST['endDate'] : date('Y-m-d', strtotime('-2 days'));
+// Retrieve user-submitted date range or set a default
+$selectedRange = isset($_POST['dateRange']) ? $_POST['dateRange'] : 'last7days';
+
+// Define an array with predefined time periods
+$timePeriods = array(
+  "last7days" => "7 ditët e fundit",
+  "last28days" => "28 ditët e fundit",
+  "last90days" => "90 ditët e fundit",
+  "last365days" => "365 ditët e fundit",
+  "lifetime" => "Gjatë gjithë jetës"
+);
+
+// Check if the selected range is in the predefined time periods
+if (array_key_exists($selectedRange, $timePeriods)) {
+  // Handle predefined time periods here
+  $rangeLabel = $timePeriods[$selectedRange];
+
+  // Calculate start and end dates based on the selected range
+  switch ($selectedRange) {
+    case "last7days":
+      $startDate = date('Y-m-d', strtotime('-6 days'));
+      $endDate = date('Y-m-d');
+      break;
+    case "last28days":
+      $startDate = date('Y-m-d', strtotime('-27 days'));
+      $endDate = date('Y-m-d');
+      break;
+    case "last90days":
+      $startDate = date('Y-m-d', strtotime('-89 days'));
+      $endDate = date('Y-m-d');
+      break;
+    case "last365days":
+      $startDate = date('Y-m-d', strtotime('-364 days'));
+      $endDate = date('Y-m-d');
+      break;
+    case "lifetime":
+      // Add a date of start date of Youtube Compnary
+      $startDate = '2005-01-01';
+      $endDate = date('Y-m-d');
+      break;
+  }
+
+  // Set formatted date range for display
+  $formattedDate = $rangeLabel;
+} else {
+  // Handle the case when a specific month/year is selected
+  list($year, $month) = explode('-', $selectedRange);
+
+  // Translate the month name to Albanian
+  $albanianMonthNames = array(
+    "Janar", "Shkurt", "Mars", "Prill", "Maj", "Qershor", "Korrik", "Gusht", "Shtator", "Tetor", "Nëntor", "Dhjetor"
+  );
+  $monthName = $albanianMonthNames[(int)$month - 1];
+
+  // Combine the formatted date
+  $formattedDate = "Muaji $monthName - $year";
+
+  // Set start and end dates for the selected month
+  $startDate = "$year-$month-01";
+  $endDate = date("Y-m-t", strtotime($startDate)); // 't' gives the last day of the month
+}
+
+$_SESSION['selectedDate'] = $formattedDate;
+$_SESSION['startDate'] = $startDate;
+$_SESSION['endDate'] = $endDate;
+
 
 $refreshTokens = getRefreshTokensFromDatabase();
 
@@ -222,8 +285,6 @@ function getChannelDetails($channelId, $apiKey)
                 </li>
               </ul>
 
-
-
             </div>
           </div>
           <div class="p-3 shadow-sm rounded-5 mb-4 card">
@@ -338,45 +399,114 @@ function getChannelDetails($channelId, $apiKey)
                 <div class="tab-pane fade" id="pills-lista_e_kanaleve" role="tabpanel" aria-labelledby="pills-lista_e_kanaleve-tab">
                   <?php if (!empty($refreshTokens)) { ?>
                     <div class="row">
-                      <form method="post" class="mb-4">
+                      <?php
+                      $albanianMonthNames = array(
+                        "Janar", "Shkurt", "Mars", "Prill", "Maj", "Qershor", "Korrik", "Gusht", "Shtator", "Tetor", "Nëntor", "Dhjetor"
+                      );
+
+                      // Predefined time periods
+                      $timePeriods = array(
+                        "7 ditët e fundit" => "last7days",
+                        "28 ditët e fundit" => "last28days",
+                        "90 ditët e fundit" => "last90days",
+                        "365 ditët e fundit" => "last365days",
+                        "Gjatë gjithë jetës" => "lifetime"
+                      );
+
+                      // Generate year and month options
+                      $options = "";
+                      $currentYear = date('Y');
+                      $currentMonth = date('m');
+
+                      // Add predefined time periods to options within an optgroup
+                      $options .= "<optgroup label='Periudhat kohore'>";
+                      foreach ($timePeriods as $periodName => $periodValue) {
+                        $options .= "<option value='{$periodValue}'>$periodName</option>";
+                      }
+                      $options .= "</optgroup>";
+
+                      // Add years and months to options within an optgroup
+                      $options .= "<optgroup label='Muajt'>";
+                      for ($year = 2023; $year <= $currentYear; $year++) {
+                        for ($month = 1; $month <= 12; $month++) {
+                          if ($year == $currentYear && $month > $currentMonth) {
+                            break; // Do not list future months of the current year
+                          }
+                          $monthPadded = str_pad($month, 2, '0', STR_PAD_LEFT);
+                          $monthName = $albanianMonthNames[$month - 1]; // Get Albanian month name
+                          $options .= "<option value='{$year}-{$monthPadded}'>$monthName $year</option>";
+                        }
+                      }
+                      $options .= "</optgroup>";
+                      ?>
+
+                      <form method="post" class="mb-2">
                         <div class="row">
                           <div class="col">
-                            <label for="startDate" class="form-label">Data e fillimit:</label>
-                            <input type="text" class="form-control rounded-5 shadow-sm datepicker" id="startDate" name="startDate" value="<?= $startDate ?>" required>
-                          </div>
-                          <div class="col">
-                            <label for="endDate" class="form-label">Data e përfundimit:</label>
-                            <input type="text" class="form-control rounded-5 shadow-sm datepicker" id="endDate" name="endDate" value="<?= $endDate ?>" required>
+                            <label for="dateRange" class="form-label">Zgjidh Muajin:</label>
+                            <select class="form-control rounded-5 shadow-sm" id="dateRange" name="dateRange" required>
+                              <?php echo $options; ?>
+                            </select>
                           </div>
                         </div>
                         <br>
                         <button type="submit" class="input-custom-css px-3 py-2" style="text-decoration: none;"><i class="fi fi-rr-filter"></i> Filtro</button>
                       </form>
-                      <table class="table table-bordered">
-                        <thead>
-                          <tr>
-                            <th style="font-size: 12px">Arti i kopertinës</th>
-                            <th style="font-size: 12px">Emri i kanalit</th>
-                            <th style="font-size: 12px">ID-ja e kanalit</th>
-                            <th style="font-size: 12px">Te ardhurat nga Youtube</th>
-                            <th style="font-size: 12px">Veprimet</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <?php foreach ($refreshTokens as $tokenInfo) { ?>
-                            <tr>
-                              <td>
-                                <?php // Get the cover art URL
-                                $coverArtUrl = getChannelDetails($tokenInfo['channel_id'], 'AIzaSyD56A1QU67vIkP1CYSDX2sYona2nxOJ9R0');
 
-                                // Display cover art image
-                                if ($coverArtUrl) {
-                                  echo '<img src="' . $coverArtUrl . '" class="figure-img img-fluid rounded w-25" alt="Channel Cover">';
-                                } ?>
-                              </td>
-                              <td><?= $tokenInfo['channel_name'] ?></td>
-                              <td><?= $tokenInfo['channel_id'] ?></td>
-                              <td>
+                      <script>
+                        new Selectr('#dateRange', {
+                          searchable: true
+                        });
+                      </script>
+
+                      <!-- Add a form for inserting values into the database -->
+                      <form id="insertForm" action="insert_channels.php" method="post" class="mb-2">
+                        <!-- Include a hidden field to store all values you want to insert -->
+                        <input type="hidden" name="allValues" id="allValues" value="">
+                        <td>
+                          <!-- Add a button to trigger the insertion process -->
+                          <button type="button" class="input-custom-css px-3 py-2 insert-values-btn" style="text-transform: none">Krijo fatura per kanalet e meposhtme</button>
+                        </td>
+                      </form>
+                      <div class="table-responsive">
+                        <table class="table table-bordered">
+                          <thead class="bg-light">
+                            <tr>
+                              <th style="font-size: 12px">Numri i fatures</th>
+                              <th style="font-size: 12px">ID e klientit</th>
+                              <th style="font-size: 12px">Data</th>
+                              <th style="font-size: 12px">Fitimi</th>
+                              <th style="font-size: 12px">Fitimi pas perqindjes</th>
+                              <th style="font-size: 12px">Data e krijimit</th>
+                              <th style="font-size: 12px">Të dhenat e kanalit</th>
+                              <th style="font-size: 12px">Statusi i faturës</th>
+                              <!-- <th style="font-size: 12px">Veprimet</th> -->
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <?php foreach ($refreshTokens as $tokenInfo) {
+                              // Based on this channel id, fetch column youtube from the table klientet
+                              $sql = "SELECT * FROM klientet WHERE youtube = '$tokenInfo[channel_id]'";
+                              $result = mysqli_query($conn, $sql);
+                              while ($row = mysqli_fetch_assoc($result)) {
+                                $id = $row['id'];
+                                $emri = $row['emri'];
+                                $perqindja = $row['perqindja'];
+                              }
+                            ?>
+                              <tr>
+                                <td>
+                                  <?php echo $invoiceNumber . $id ?>
+                                </td>
+                                <td>
+                                  <?php
+                                  // Put in the session the  id
+                                  $_SESSION['id'] = $id;
+                                  echo  $id ?>
+                                </td>
+                                <td>
+                                  <?php echo $_SESSION['selectedDate'] ?>
+                                </td>
                                 <?php
                                 $client = new Google_Client();
                                 $client->setClientId('84339742200-g674o1df674m94a09tppcufciavp0bo1.apps.googleusercontent.com');
@@ -398,31 +528,87 @@ function getChannelDetails($channelId, $apiKey)
                                   'currency' => 'EUR',
                                   'startDate' => $startDate,
                                   'endDate' => $endDate,
-                                  'metrics' => 'estimatedRevenue,views,estimatedAdRevenue,estimatedRedPartnerRevenue,grossRevenue,adImpressions,cpm,playbackBasedCpm,monetizedPlaybacks'
+                                  'metrics' => 'estimatedRevenue'
                                 ];
 
                                 $response = $youtubeAnalytics->reports->query($params);
                                 $row = $response->getRows()[0];
 
-                                echo '<p class="w-100 border px-3 py-3 bg-light rounded">';
+                                // Initialize a variable to store the value
+                                $storedValue = '';
 
-                                // Loop through all the metrics and display them
+                                // Display only the numeric values (without column headers)
                                 foreach ($row as $index => $value) {
-                                  echo ucfirst($response->getColumnHeaders()[$index]['name']) . ': ' . $value . '<br>';
+                                  // Append the value to the storedValue variable
+                                  $storedValue .= $value . '<br>';
                                 }
 
-                                echo '</p>';
-
+                                // Echo the storedValue outside of the loop
+                                echo '<td>' . $storedValue . '</td>';
                                 ?>
-                              </td>
-                              <td>
-                                <!-- <button class="btn btn-primary btn-sm mb-3 text-white krijo-fature-btn" style="text-transform: none" data-bs-toggle="modal" data-bs-target="#newInvoice" data-revenue="<?= $youtubeAnalyticsValue ?>" data-channel-id="<?= $tokenInfo['channel_id'] ?>">Krijo faturë</button> -->
-                                <!-- Replace 'original_page.php' with the actual file name where you want to redirect after deletion -->
+
+                                <td>
+                                  <?php
+                                  $difference = $value - ($value * ($perqindja / 100));
+                                  echo number_format($difference, 2);
+                                  ?>
+                                </td>
+                                <td>
+                                  <?php
+                                  // Get the actual date
+                                  echo date('Y-m-d'); ?>
+                                </td>
+                                <td>
+                                  <?php // Get the cover art URL
+                                  $coverArtUrl = getChannelDetails($tokenInfo['channel_id'], 'AIzaSyD56A1QU67vIkP1CYSDX2sYona2nxOJ9R0');
+
+                                  // Display cover art image
+                                  if ($coverArtUrl) {
+                                    echo '<img src="' . $coverArtUrl . '" class="figure-img img-fluid rounded w-25" alt="Channel Cover">';
+                                  }
+
+                                  ?>
+
+
+                                </td>
+                                <td>
+                                  <?php
+                                  $selectedDate = $_SESSION['selectedDate']; // Store the session variable in a separate variable
+                                  $difference = $value - ($value * ($perqindja / 100));
+
+                                  $sql = "SELECT * FROM invoices WHERE customer_id = '$_SESSION[id]' AND item = '$selectedDate'";
+                                  $result = mysqli_query($conn, $sql);
+
+                                  if ($row = mysqli_fetch_assoc($result)) {
+                                    $item = $row['item'];
+                                    // echo $item . '<br>';
+                                    // Display a icon about like check
+                                    echo '<p> Kjo faturë ekziston</p><br>';
+                                    echo '<i class="fi fi-rr-check text-success"></i>';
+                                  } else {
+                                    // Display a icon about like x
+                                    echo '<p> Kjo faturë nuk ekziston</p><br>';
+                                    echo '<i class="fa-solid fa-x"></i>';
+                                  }
+                                  ?>
+
+
+                                </td>
+
+
+
+
+
+
+
+                                <!-- <td>
+                                 <button class="btn btn-primary btn-sm mb-3 text-white krijo-fature-btn" style="text-transform: none" data-bs-toggle="modal" data-bs-target="#newInvoice" data-revenue="<?= $youtubeAnalyticsValue ?>" data-channel-id="<?= $tokenInfo['channel_id'] ?>">Krijo faturë</button> 
+                                 Replace 'original_page.php' with the actual file name where you want to redirect after deletion 
                                 <form id="deleteForm" action="delete_refresh_token.php" method="post">
                                   <input type="hidden" name="token" value="<?= $tokenInfo['token'] ?>">
-                                  <button type="button" class="btn btn-danger btn-sm mb-3" name="delete_token" onclick="confirmDelete()">Fshije</button>
+                                  <button style="text-transform: none" type="button" class="input-custom-css px-3 py-2" name="delete_token" onclick="confirmDelete()">Fshije</button>
                                 </form>
-
+                                <br>
                                 <script>
                                   function confirmDelete() {
                                     Swal.fire({
@@ -436,14 +622,13 @@ function getChannelDetails($channelId, $apiKey)
                                       cancelButtonText: 'Anulo'
                                     }).then((result) => {
                                       if (result.isConfirmed) {
-                                        // If the user clicks "Po, fshije!", submit the form
+                                        
                                         submitForm();
                                       }
                                     });
                                   }
 
                                   function submitForm() {
-                                    // Using jQuery for AJAX request, you can adjust this based on your preference
                                     $.ajax({
                                       type: 'POST',
                                       url: 'delete_refresh_token.php',
@@ -471,27 +656,42 @@ function getChannelDetails($channelId, $apiKey)
                                   }
                                 </script>
 
-                                <a class="btn btn-info mb-3" href="channel_details.php?channel_token=<?= $tokenInfo['token'] ?>">Shiko detajet</a>
-                              </td>
-                            </tr>
-                          <?php } ?>
-                        </tbody>
-                        <tfoot>
-                          <tr>
-                            <th scope="col">Arti i kopertinës</th>
-                            <th scope="col">Emri i kanalit</th>
-                            <th scope="col">ID-ja e kanalit</th>
-                            <th scope="col">Te ardhurat nga Youtube</th>
-                            <th scope="col">Veprimet</th>
+                                <a style="text-decoration:none;" class="input-custom-css px-3 py-2" href="channel_details.php?channel_token=<?= $tokenInfo['token'] ?>">Shiko detajet</a> 
 
-                          </tr>
-                        </tfoot>
-                      </table>
+                              </td> -->
+                              </tr>
+                            <?php } ?>
+                          </tbody>
+                        </table>
+                      </div>
                     </div>
                   <?php } else { ?>
                     <p>Nuk u gjetën argumente rifreskimi në bazën e të dhënave.</p>
                   <?php } ?>
+                  <script>
+                    document.addEventListener("DOMContentLoaded", function() {
+                      // Get all values from the table and store them in a JavaScript array
+                      const tableRows = document.querySelectorAll("tbody tr");
+                      const allValues = [];
 
+                      tableRows.forEach((row) => {
+                        const rowData = [];
+                        row.querySelectorAll("td").forEach((cell) => {
+                          rowData.push(cell.textContent.trim());
+                        });
+                        allValues.push(rowData.join(", "));
+                      });
+
+                      // Attach a click event listener to the "Insert Values" button
+                      const insertButton = document.querySelector(".insert-values-btn");
+                      insertButton.addEventListener("click", function() {
+                        // Set the hidden field's value with all the values from the table
+                        document.getElementById("allValues").value = allValues.join(";");
+                        // Submit the form to insert values into the database
+                        document.getElementById("insertForm").submit();
+                      });
+                    });
+                  </script>
 
                 </div>
 
@@ -1270,6 +1470,42 @@ function getChannelDetails($channelId, $apiKey)
     });
   </script>.
 
+  <script>
+    const tabs = document.querySelectorAll('.nav-link[data-bs-toggle="pill"]');
+    const tabContent = document.querySelectorAll('.tab-pane');
+
+    // Retrieve the active tab from localStorage
+    const activeTab = localStorage.getItem('activeTab');
+
+    // Initialize the active tab and tab content if it was saved in localStorage
+    if (activeTab) {
+      tabs.forEach(tab => {
+        if (tab.getAttribute('id') === activeTab) {
+          tab.classList.add('active');
+          tab.setAttribute('aria-selected', 'true');
+        } else {
+          tab.classList.remove('active');
+          tab.setAttribute('aria-selected', 'false');
+        }
+      });
+
+      tabContent.forEach(content => {
+        if (content.getAttribute('id') === activeTab.replace('-tab', '')) {
+          content.classList.add('show', 'active');
+        } else {
+          content.classList.remove('show', 'active');
+        }
+      });
+    }
+
+    // Add click event listeners to the tab buttons
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        const tabId = tab.getAttribute('id');
+        localStorage.setItem('activeTab', tabId);
+      });
+    });
+  </script>
 
   <script>
     $(document).ready(function() {

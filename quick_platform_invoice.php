@@ -517,14 +517,16 @@
                                                     <td><strong>Të ardhurat totale</strong></td>
                                                     <td>$ <?= $total ?></td>
                                                 </tr>
-                                                <tr>
-                                                    <td><strong>Tax Withholding (Mbajtja e tatimit në burim)</strong></td>
-                                                    <td>$ <?= $tax ?></td>
-                                                </tr>
-                                                <tr>
-                                                    <td><strong>Të ardhurat totale pas tatimit</strong></td>
-                                                    <td>$ <?= $total - $tax  ?></td>
-                                                </tr>
+                                                <?php if (!empty($tax)) { ?>
+                                                    <tr>
+                                                        <td><strong>Tax Withholding (Mbajtja e tatimit në burim)</strong></td>
+                                                        <td>$ <?= $tax ?></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><strong>Të ardhurat totale pas tatimit</strong></td>
+                                                        <td>$ <?= $total - $tax ?></td>
+                                                    </tr>
+                                                <?php } ?>
                                             </tbody>
                                         </table>
                                     </div>

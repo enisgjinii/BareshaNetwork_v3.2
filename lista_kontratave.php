@@ -180,7 +180,7 @@ include('partials/header.php');
 
                                                     <?php } else {
                                                     ?>
-                                                        <button type="button" class="btn btn-success rounded-5 text-white" data-bs-toggle="modal" data-bs-target="#exampleModal" data-id="<?php echo $k['id']; ?>" data-email="<?php echo $k['klient_email']; ?>" onclick="updateEmailInput(this)" data-link="http://paneli.bareshaoffice.com/kontrataPerKlient.php?id=">
+                                                        <button type="button" class="btn btn-success rounded-5 text-white" data-bs-toggle="modal" data-bs-target="#exampleModal" data-id="<?php echo $k['id']; ?>" data-email="<?php echo $k['klient_email']; ?>" onclick="updateEmailInput(this)" data-link="https://paneli.bareshaoffice.com/kontrataPerKlient.php?id=">
                                                             <i class="fi fi-rr-envelope"></i>
                                                         </button>
                                                     <?php } ?>
