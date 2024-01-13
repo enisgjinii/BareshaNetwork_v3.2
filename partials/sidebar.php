@@ -60,581 +60,179 @@
     ?>
 
 
-    <li class="nav-item">
-      <a class="nav-link" data-bs-toggle="collapse" href="#menaxhimi" aria-expanded="false" aria-controls="menaxhimi">
-        <i class="fi fi-rr-users-gear menu-icon pe-3"></i>
-        <span class="menu-title">Menaxhimi</span>
-        <i class="menu-arrow pe-3"></i>
-      </a>
-      <div class="collapse" id="menaxhimi">
-        <ul class="nav flex-column sub-menu">
-          <?php
-          $i = 0;
-          while ($i < count($menu_pages)) {
-            if ($menu_pages[$i] == "stafi.php") {
-              echo '<li class="nav-item">
-                            <a class="nav-link" href="' . $menu_pages[$i] . '">
-                                <span class="menu-title">Stafi</span>
-                            </a>
-                        </li>';
-            }
-            if ($menu_pages[$i] == "roles.php") {
-              echo '<li class="nav-item">
-                            <a class="nav-link" href="' . $menu_pages[$i] . '">
-                                <span class="menu-title">Rolet</span>
-                            </a> 
-                        </li>';
-            }
-            $i++;
-          }
-          ?>
-        </ul>
-      </div>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" data-bs-toggle="collapse" href="#objekti" aria-expanded="false" aria-controls="objekti">
-        <i class="fi fi-rr-chair-office menu-icon pe-3"></i>
-        <span class="menu-title">Objekti</span>
-        <i class="menu-arrow pe-3"></i>
-      </a>
-      <div class="collapse" id="objekti">
-        <ul class="nav flex-column sub-menu">
-          <?php
-          $i = 0;
-          while ($i < count($menu_pages)) {
-            if ($menu_pages[$i] == "office_investments.php") {
-              echo '<li class="nav-item">
-                            <a class="nav-link" href="' . $menu_pages[$i] . '">
-                                <span class="menu-title">Investimet e objektit</span>
-                            </a>
-                        </li>';
-            }
-            if ($menu_pages[$i] == "office_damages.php") {
-              echo '<li class="nav-item">
-                            <a class="nav-link" href="' . $menu_pages[$i] . '">
-                                <span class="menu-title">Prishjet</span>
-                            </a> 
-                        </li>';
-            }
-            if ($menu_pages[$i] == "office_requirements.php") {
-              echo '<li class="nav-item">
-                            <a class="nav-link" href="' . $menu_pages[$i] . '">
-                                <span class="menu-title">Kerkesat</span>
-                            </a> 
-                        </li>';
-            }
-            $i++;
-          }
-          ?>
-        </ul>
-      </div>
-    <li class="nav-item">
-      <a class="nav-link" data-bs-toggle="collapse" href="#klienti" aria-expanded="false" aria-controls="klienti">
-        <i class="fi fi-rr-handshake menu-icon pe-3"></i>
-        <span class="menu-title">Klient&euml;t</span>
-        <i class="menu-arrow pe-3"></i>
-      </a>
-      <div class="collapse" id="klienti">
-        <ul class="nav flex-column sub-menu">
-          <?php
-          $i = 0;
-          while ($i < count($menu_pages)) {
-            if ($menu_pages[$i] == "klient.php") {
-              echo '<li class="nav-item">
-                            <a class="nav-link" href="' . $menu_pages[$i] . '">
-                                <span class="menu-title">Lista e klient&euml;ve</span>
-                            </a>
-                        </li>';
-            }
-            if ($menu_pages[$i] == "klient2.php") {
-              echo '<li class="nav-item">
-                            <a class="nav-link" href="' . $menu_pages[$i] . '">
-                                <span class="menu-title">Lista e klient&euml;ve tjer</span>
-                            </a> 
-                        </li>';
-            }
-            if ($menu_pages[$i] == "kategorit.php") {
-              echo '<li class="nav-item">
-                            <a class="nav-link" href="' . $menu_pages[$i] . '">
-                                <span class="menu-title">Lista e kategorive</span>
-                            </a> 
-                        </li>';
-            }
-            if ($menu_pages[$i] == "ads.php") {
-              echo '<li class="nav-item">
-                            <a class="nav-link" href="' . $menu_pages[$i] . '">
-                                <span class="menu-title">Llogarit&euml; e ADS</span>
-                            </a> 
-                        </li>';
-            }
-            if ($menu_pages[$i] == "emails.php") {
-              echo '<li class="nav-item">
-                            <a class="nav-link" href="' . $menu_pages[$i] . '">
-                                <span class="menu-title">Lista e email-ave</span>
-                            </a> 
-                        </li>';
-            }
-            if ($menu_pages[$i] == "klient-avanc.php") {
-              echo '<li class="nav-item">
-                            <a class="nav-link" href="' . $menu_pages[$i] . '">
-                                <span class="menu-title">Lista e avanceve te klienteve</span>
-                            </a> 
-                        </li>';
-            }
-            $i++;
-          }
-          ?>
-        </ul>
-      </div>
-    </li>
+    <?php
+    $menuSections = [
+      [
+        "title" => "Menaxhimi",
+        "icon" => "fi fi-rr-users-gear menu-icon pe-3",
+        "collapseId" => "menaxhimi",
+        "menuItems" => [
+          "stafi.php" => "Stafi",
+          "roles.php" => "Rolet",
+        ],
+      ],
+      [
+        "title" => "Objekti",
+        "icon" => "fi fi-rr-chair-office menu-icon pe-3",
+        "collapseId" => "objekti",
+        "menuItems" => [
+          "office_investments.php" => "Investimet e objektit",
+          "office_damages.php" => "Prishjet",
+          "office_requirements.php" => "Kerkesat",
+        ],
+      ],
+      [
+        "title" => "Klientët",
+        "icon" => "fi fi-rr-handshake menu-icon pe-3",
+        "collapseId" => "klienti",
+        "menuItems" => [
+          "klient.php" => "Lista e klientëve",
+          "klient2.php" => "Lista e klientëve tjerë",
+          "kategorit.php" => "Lista e kategorive",
+          "ads.php" => "Llogari të ADS",
+          "emails.php" => "Lista e email-ave",
+          "klient-avanc.php" => "Lista e avanceve të klienteve",
+        ],
+      ],
+      [
+        "title" => "Videot / Ngarkimi",
+        "icon" => "fi fi-rr-cloud-upload-alt menu-icon pe-3",
+        "collapseId" => "video",
+        "menuItems" => [
+          "shtoy.php" => "Regjistro një këngë",
+          "listang.php" => "Lista e këngëve",
+        ],
+      ],
+      [
+        "title" => "Content ID",
+        "icon" => "fi fi-rr-photo-video menu-icon pe-3",
+        "collapseId" => "content",
+        "menuItems" => [
+          "claim.php" => "Recent Claim",
+          "whitelist.php" => "Whitelist",
+        ],
+      ],
+      [
+        "title" => "Financat",
+        "icon" => "fi fi-rr-chart-histogram menu-icon pe-3",
+        "collapseId" => "financat",
+        "menuItems" => [
+          "invoice.php" => "Pagesat YouTube <span class='badge bg-success rounded'>New</span>",
+          "faturat.php" => "Pagesat YouTube",
+          "pagesat.php" => "Pagesat e kryera",
+          "faturat2.php" => "Platformat Tjera",
+          "rrogat.php" => "Pagat",
+          "tatimi.php" => "Tatimi",
+          "yinc.php" => "Shpenzimet",
+          "shpenzimep.php" => "Shpenzimet personale",
+        ],
+      ],
+      [
+        "title" => "Vegla te shpejta",
+        "icon" => "fi fi-rr-magic-wand menu-icon pe-3",
+        "collapseId" => "quicklyTool",
+        "menuItems" => [
+          "filet.php" => "Dokumente tjera",
+          "notes.php" => "Shenime",
+          "todo_list.php" => "To do",
+          "takimet.php" => "Takimet",
+          "klient_CSV.php" => "Klient CSV",
+          "logs.php" => "Logs",
+        ],
+      ],
+      [
+        "title" => "Kontratat",
+        "icon" => "fi fi-rr-document-signed menu-icon pe-3",
+        "collapseId" => "allKontratat",
+        "menuItems" => [
+          "kontrata_2.php" => "Kontrate e re <span class='small-text'>(Kengë)</span>",
+          "lista_kontratave.php" => "Lista e kontratave <span class='small-text'>(Kengë)</span>",
+          "ofertat.php" => "Ofertat <span class='small-text'>(Kengë)</span>",
+          "kontrata_gjenelare_2.php" => "Kontrata e re <span class='small-text'>(Gjenerale)</span>",
+          "lista_kontratave_gjenerale.php" => "Lista e kontratave <span class='small-text'>(Gjenerale)</span>",
+        ],
+      ],
+      [
+        "title" => "Facebook",
+        "icon" => "fa-brands fa-facebook menu-icon pe-3",
+        "collapseId" => "facebook",
+        "menuItems" => [
+          "facebook.php" => "Vegla Facebook",
+          "faturaFacebook.php" => "Krijo fatur&euml; (Facebook)",
+          "lista_faturave_facebook.php" => "Lista e faturave (Facebook)",
+        ],
+      ],
+      [
+        "title" => "Platformat",
+        "icon" => "fi fi-rr-share menu-icon pe-3",
+        "collapseId" => "platformat2",
+        "menuItems" => [
+          "csvFiles.php" => "Inserto CSV",
+          "filtroCSV.php" => "Filtro CSV",
+          "listaEFaturaveTePlatformave.php" => "Lista e faturave",
+          "pagesatEKryera.php" => "Pagesat e perfunduara",
+          "quick_platform_invoice.php" => "Raporte te platformave",
+        ],
+      ],
+    ];
 
-    <li class="nav-item">
-      <a class="nav-link" data-bs-toggle="collapse" href="#video" aria-expanded="false" aria-controls="menaxhimi">
-        <i class="fi fi-rr-cloud-upload-alt menu-icon pe-3"></i>
-        <span class="menu-title">Videot / Ngarkimi</span>
-        <i class="menu-arrow pe-3"></i>
-      </a>
-      <div class="collapse" id="video">
-        <ul class="nav flex-column sub-menu">
-          <?php
-          $i = 0;
-          while ($i < count($menu_pages)) {
-            if ($menu_pages[$i] == "shtoy.php") {
-              echo '<li class="nav-item">
-                            <a class="nav-link" href="' . $menu_pages[$i] . '">
-                                <span class="menu-title">Regjistro nj&euml; k&euml;ng&euml;</span>
-                            </a>
-                        </li>';
-            }
-            if ($menu_pages[$i] == "listang.php") {
-              echo '<li class="nav-item">
-                            <a class="nav-link" href="' . $menu_pages[$i] . '">
-                                <span class="menu-title">Lista e k&euml;ng&euml;ve</span>
-                            </a> 
-                        </li>';
-            }
-            $i++;
-          }
-          ?>
-        </ul>
-      </div>
-    </li>
+    foreach ($menuSections as $section) {
+      echo '<li class="nav-item">
+          <a class="nav-link" data-bs-toggle="collapse" href="#' . $section['collapseId'] . '" aria-expanded="false" aria-controls="' . $section['collapseId'] . '">
+            <i class="' . $section['icon'] . '"></i>
+            <span class="menu-title">' . $section['title'] . '</span>
+            <i class="menu-arrow pe-3"></i>
+          </a>
+          <div class="collapse" id="' . $section['collapseId'] . '">
+            <ul class="nav flex-column sub-menu">';
 
-
-
-
-    <li class="nav-item">
-      <a class="nav-link" data-bs-toggle="collapse" href="#content" aria-expanded="false" aria-controls="content">
-        <i class="fi fi-rr-photo-video menu-icon pe-3"></i>
-        <span class="menu-title">Content ID</span>
-        <i class="menu-arrow pe-3"></i>
-      </a>
-      <div class="collapse" id="content">
-        <ul class="nav flex-column sub-menu">
-          <?php
-          $i = 0;
-          while ($i < count($menu_pages)) {
-            if ($menu_pages[$i] == "claim.php") {
-              echo '<li class="nav-item">
-                            <a class="nav-link" href="' . $menu_pages[$i] . '">
-                                <span class="menu-title">Recent Claim</span>
-                            </a>
-                        </li>';
-            }
-            if ($menu_pages[$i] == "whitelist.php") {
-              echo '<li class="nav-item">
-                            <a class="nav-link" href="' . $menu_pages[$i] . '">
-                                <span class="menu-title">Whitelist</span>
-                            </a> 
-                        </li>';
-            }
-            $i++;
-          }
-          ?>
-        </ul>
-      </div>
-    </li>
-
-    <li class="nav-item">
-      <a class="nav-link" data-bs-toggle="collapse" href="#financat" aria-expanded="false" aria-controls="financat">
-        <i class="fi fi-rr-chart-histogram menu-icon pe-3"></i>
-        <span class="menu-title">Financat</span>
-        <i class="menu-arrow pe-3"></i>
-      </a>
-      <div class="collapse" id="financat">
-        <ul class="nav flex-column sub-menu">
-          <?php
-          $i = 0;
-          while ($i < count($menu_pages)) {
-            if ($menu_pages[$i] == "rrogat.php") {
-              echo '<li class="nav-item">
-                            <a class="nav-link" href="' . $menu_pages[$i] . '">
-                                <span class="menu-title">Pagat</span>
-                            </a>
-                        </li>';
-            }
-            if ($menu_pages[$i] == "tatimi.php") {
-              echo '<li class="nav-item">
-                            <a class="nav-link" href="' . $menu_pages[$i] . '">
-                                <span class="menu-title">Tatimi</span>
-                            </a> 
-                        </li>';
-            }
-            if ($menu_pages[$i] == "yinc.php") {
-              echo '<li class="nav-item">
-                            <a class="nav-link" href="' . $menu_pages[$i] . '">
-                                <span class="menu-title">Shpenzimet</span>
-                            </a> 
-                        </li>';
-            }
-            if ($menu_pages[$i] == "shpenzimep.php") {
-              echo '<li class="nav-item">
-                            <a class="nav-link" href="' . $menu_pages[$i] . '">
-                                <span class="menu-title">Shpenzimet personale</span>
-                            </a> 
-                        </li>';
-            }
-            if ($menu_pages[$i] == "faturat.php") {
-              echo '<li class="nav-item">
-                            <a class="nav-link" href="' . $menu_pages[$i] . '">
-                                <span class="menu-title">Pagesat YouTube</span>
-                            </a> 
-                        </li>';
-            }
-            if ($menu_pages[$i] == "invoice.php") {
-              echo '<li class="nav-item">
-                            <a class="nav-link" href="' . $menu_pages[$i] . '">
-                                <span class="menu-title">Pagesat YouTube <span class="badge bg-success rounded">New</span>
-                                </span>
-                            </a> 
-                        </li>';
-            }
-
-
-
-
-            if ($menu_pages[$i] == "pagesat_youtube.php") {
-              echo '<li class="nav-item">
-                            <a class="nav-link" href="' . $menu_pages[$i] . '">
-                                <span class="menu-title">Pagesat YouTube ( Faza Test )</span>
-                            </a> 
-                        </li>';
-            }
-            if ($menu_pages[$i] == "pagesat.php") {
-              echo '<li class="nav-item">
-                            <a class="nav-link" href="' . $menu_pages[$i] . '">
-                                <span class="menu-title">Pagesat e kryera</span>
-                            </a> 
-                        </li>';
-            }
-            if ($menu_pages[$i] == "faturat2.php") {
-              echo '<li class="nav-item">
-                            <a class="nav-link" href="' . $menu_pages[$i] . '">
-                                <span class="menu-title">Platformat Tjera</span>
-                            </a> 
-                        </li>';
-            }
-            $i++;
-          }
-          ?>
-        </ul>
-      </div>
-    </li>
-
-    <li class="nav-item">
-      <a class="nav-link" data-bs-toggle="collapse" href="#quicklyTool" aria-expanded="false" aria-controls="quicklyTool">
-        <i class="fi fi-rr-magic-wand menu-icon pe-3"></i>
-        <span class="menu-title">Vegla te shpejta</span>
-        <i class="menu-arrow pe-3"></i>
-      </a>
-      <div class="collapse" id="quicklyTool">
-        <ul class="nav flex-column sub-menu">
-          <?php
-          $i = 0;
-          while ($i < count($menu_pages)) {
-            if ($menu_pages[$i] == "filet.php") {
-              echo '<li class="nav-item">
-                    <a class="nav-link" href="' . $menu_pages[$i] . '">
-                        <span class="menu-title">Dokumente tjera</span>
+      foreach ($section['menuItems'] as $page => $title) {
+        if (in_array($page, $menu_pages)) {
+          echo '<li class="nav-item">
+                    <a class="nav-link" href="' . $page . '">
+                      <span class="menu-title">' . $title . '</span>
                     </a>
-                </li>';
-            } elseif ($menu_pages[$i] == "notes.php") {
-              echo '<li class="nav-item">
-                    <a class="nav-link" href="' . $menu_pages[$i] . '">
-                        <span class="menu-title">Shenime</span>
-                    </a> 
-                </li>';
-            } elseif ($menu_pages[$i] == "todo_list.php") {
-              echo '<li class="nav-item">
-                    <a class="nav-link" href="' . $menu_pages[$i] . '">
-                        <span class="menu-title">To do</span>
-                    </a> 
-                </li>';
-            } elseif ($menu_pages[$i] == "takimet.php") {
-              echo '<li class="nav-item">
-                    <a class="nav-link" href="' . $menu_pages[$i] . '">
-                        <span class="menu-title">Takimet</span>
-                    </a> 
-                </li>';
-            } elseif ($menu_pages[$i] == "klient_CSV.php") {
-              echo '<li class="nav-item">
-                    <a class="nav-link" href="' . $menu_pages[$i] . '">
-                        <span class="menu-title">Klient CSV</span>
-                    </a> 
-                </li>';
-            } elseif ($menu_pages[$i] == "logs.php") {
-              echo '<li class="nav-item">
-                    <a class="nav-link" href="' . $menu_pages[$i] . '">
-                        <span class="menu-title">Logs</span>
-                    </a> 
-                </li>';
-            } else {
-              // Handle the case where $menu_pages[$i] doesn't match any condition
-              // For example, display a default menu item or take other action
-            }
-            $i++;
-          }
-          ?>
-
-        </ul>
-      </div>
-    </li>
-
-
-    <li class="nav-item">
-      <a class="nav-link" data-bs-toggle="collapse" href="#allKontratat" aria-expanded="false" aria-controls="allKontratat">
-        <i class="fi fi-rr-document-signed menu-icon pe-3"></i>
-        <span class="menu-title">Kontratat</span>
-        <i class="menu-arrow pe-3"></i>
-      </a>
-      <div class="collapse" id="allKontratat">
-        <style>
-          .small-text {
-            font-size: 0.8em;
-            /* Adjust the size as needed */
-          }
-        </style>
-
-        <ul class="nav flex-column sub-menu">
-          <?php
-          $all_menu_pages = [
-            "kontrata_2.php" => "Kontrate e re <span class='small-text'>(Kengë)</span>",
-            "lista_kontratave.php" => "Lista e kontratave <span class='small-text'>(Kengë)</span>",
-            "ofertat.php" => "Ofertat <span class='small-text'>(Kengë)</span>",
-            "kontrata_gjenelare_2.php" => "Kontrata e re <span class='small-text'>(Gjenerale)</span>",
-            "lista_kontratave_gjenerale.php" => "Lista e kontratave <span class='small-text'>(Gjenerale)</span>",
-          ];
-
-          foreach ($all_menu_pages as $page => $title) {
-            if (in_array($page, $menu_pages)) {
-              echo '<li class="nav-item">
-              <a class="nav-link" href="' . $page . '">
-                <span class="menu-title">' . $title . '</span>
-              </a>
-            </li>';
-            }
-          }
-          ?>
-        </ul>
-      </div>
-    </li>
-
-    <li class="nav-item">
-      <a class="nav-link" data-bs-toggle="collapse" href="#facebook" aria-expanded="false" aria-controls="facebook">
-        <i class="fa-brands fa-facebook menu-icon pe-3"></i>
-        <span class="menu-title">Facebook</span>
-        <i class="menu-arrow pe-3"></i>
-      </a>
-      <div class="collapse" id="facebook">
-        <ul class="nav flex-column sub-menu">
-          <?php
-
-          $i = 0;
-          while ($i < count($menu_pages)) {
-            if ($menu_pages[$i] == "facebook.php") {
-              echo '<li class="nav-item">
-                        <a class="nav-link" href="' . $menu_pages[$i] . '">
-                            <span class="menu-title">Vegla Facebook</span>
-                        </a>
-                    </li>';
-            }
-
-
-            if ($menu_pages[$i] == "faturaFacebook.php") {
-              echo '<li class="nav-item">
-                        <a class="nav-link" href="' . $menu_pages[$i] . '">
-                            <span class="menu-title">Krijo fatur&euml; (Facebook)</span>
-                        </a> 
-                    </li>';
-            }
-
-            if ($menu_pages[$i] == "lista_faturave_facebook.php") {
-              echo '<li class="nav-item">
-                        <a class="nav-link" href="' . $menu_pages[$i] . '">
-                            <span class="menu-title">Lista e faturave (Facebook)</span>
-                        </a> 
-                    </li>';
-            }
-            $i++;
-          }
-          ?>
-        </ul>
-      </div>
-    </li>
-
-    <li class="nav-item">
-      <a class="nav-link" data-bs-toggle="collapse" href="#platformat2" aria-expanded="false" aria-controls="platformat2">
-        <i class="fi fi-rr-share menu-icon pe-3"></i>
-        <span class="menu-title">Platformat</span>
-        <i class="menu-arrow pe-3"></i>
-      </a>
-      <div class="collapse" id="platformat2">
-        <ul class="nav flex-column sub-menu">
-          <?php
-
-          $i = 0;
-          while ($i < count($menu_pages)) {
-            if ($menu_pages[$i] == "csvFiles.php") {
-              echo '<li class="nav-item">
-                        <a class="nav-link" href="' . $menu_pages[$i] . '">
-                            <span class="menu-title">Inserto CSV</span>
-                        </a>
-                    </li>';
-            }
-            if ($menu_pages[$i] == "filtroCSV.php") {
-              echo '<li class="nav-item">
-                        <a class="nav-link" href="' . $menu_pages[$i] . '">
-                            <span class="menu-title">Filtro CSV</span>
-                        </a> 
-                    </li>';
-            }
-            if ($menu_pages[$i] == "listaEFaturaveTePlatformave.php") {
-              echo '<li class="nav-item">
-                        <a class="nav-link" href="' . $menu_pages[$i] . '">
-                            <span class="menu-title">Lista e faturave</span>
-                        </a> 
-                    </li>';
-            }
-            if ($menu_pages[$i] == "pagesatEKryera.php") {
-              echo '<li class="nav-item">
-                        <a class="nav-link" href="' . $menu_pages[$i] . '">
-                            <span class="menu-title">Pagesat e perfunduara</span>
-                        </a> 
-                    </li>';
-            }
-            if ($menu_pages[$i] == "quick_platform_invoice.php") {
-              echo '<li class="nav-item">
-                        <a class="nav-link" href="' . $menu_pages[$i] . '">
-                            <span class="menu-title">Raporte te platformave</span>
-                        </a> 
-                    </li>';
-            }
-            $i++;
-          }
-          ?>
-        </ul>
-      </div>
-    </li>
-
-    <!-- <li class="nav-item">
-      <a class="nav-link" data-bs-toggle="collapse" href="#youtube" aria-expanded="false" aria-controls="youtube">
-        <i class="fa-brands fa-youtube menu-icon pe-3"></i>
-        <span class="menu-title">Youtube Dashboard</span>
-        <i class="menu-arrow pe-3"></i>
-      </a>
-      <div class="collapse" id="youtube">
-        <ul class="nav flex-column sub-menu">
-          <?php
-
-          $i = 0;
-          while ($i < count($menu_pages)) {
-            if ($menu_pages[$i] == "youtube_studio.php") {
-              echo '<li class="nav-item">
-                        <a class="nav-link" href="' . $menu_pages[$i] . '">
-                            <span class="menu-title">Baresha Analystic</span>
-                        </a>
-                    </li>';
-            }
-            if ($menu_pages[$i] == "dataYT.php") {
-              echo '<li class="nav-item">
-                        <a class="nav-link" href="' . $menu_pages[$i] . '">
-                            <span class="menu-title">Regjistro kanal</span>
-                        </a> 
-                    </li>';
-            }
-
-
-            if ($menu_pages[$i] == "channel_selection.php") {
-              echo '<li class="nav-item">
-                        <a class="nav-link" href="' . $menu_pages[$i] . '">
-                            <span class="menu-title">Kanalet</span>
-                        </a> 
-                    </li>';
-            }
-            $i++;
-          }
-          ?>
-        </ul>
-      </div>
-    </li> -->
-
-
-
-    <?php
-    $i = 0;
-    while ($i < count($menu_pages)) {
-      if ($menu_pages[$i] == "autor.php") {
-        echo '<li class="nav-item">
-                            <a class="nav-link" href="' . $menu_pages[$i] . '">
-                            <i class="fi fi-rr-copyright menu-icon pe-3"></i>
-                                <span class="menu-title">Autor</span>
-                            </a>
-                        </li>';
+                  </li>';
+        }
       }
-      $i++;
+
+      echo '</ul>
+      </div>
+    </li>';
+    }
+
+    foreach ($menu_pages as $page) {
+      if ($page == "autor.php") {
+        echo '<li class="nav-item">
+                <a class="nav-link" href="' . $page . '">
+                  <i class="fi fi-rr-copyright menu-icon pe-3"></i>
+                  <span class="menu-title">Autor</span>
+                </a>
+              </li>';
+      }
+    }
+
+    foreach ($menu_pages as $page) {
+      if ($page == "ascap.php") {
+        echo '<li class="nav-item">
+                <a class="nav-link" href="' . $page . '">
+                  <i class="fi fi-rr-copyright menu-icon pe-3"></i>
+                  <span class="menu-title">ASCAP</span>
+                </a>
+              </li>';
+      }
+    }
+
+    foreach ($menu_pages as $page) {
+      if ($page == "check_musics.php") {
+        echo '<li class="nav-item">
+                <a class="nav-link" href="' . $page . '">
+                  <i class="fi fi-rr-list-check menu-icon pe-3"></i>
+                  <span class="menu-title">Konfirmimi i kengeve</span>
+                </a>
+              </li>';
+      }
     }
     ?>
-    <?php
-    $i = 0;
-    while ($i < count($menu_pages)) {
-      if ($menu_pages[$i] == "ascap.php") {
-        echo '<li class="nav-item">
-                            <a class="nav-link" href="' . $menu_pages[$i] . '">
-                            <i class="fi fi-rr-copyright menu-icon pe-3"></i>
-                                <span class="menu-title">ASCAP</span>
-                            </a>
-                        </li>';
-      }
-      $i++;
-    }
-    ?>
-
-
-
-
-
-
-
-    <?php
-    $i = 0;
-    while ($i < count($menu_pages)) {
-      if ($menu_pages[$i] == "check_musics.php") {
-        echo '<li class="nav-item">
-                            <a class="nav-link" href="' . $menu_pages[$i] . '">
-                            <i class="fi fi-rr-list-check menu-icon pe-3"></i>
-
-                                <span class="menu-title">Konfirmimi i kengeve</span>
-                            </a>
-                        </li>';
-      }
-      $i++;
-    }
-    ?>
-
-
-
-
-
-
   </ul>
 </nav>
