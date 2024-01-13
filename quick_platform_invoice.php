@@ -56,6 +56,12 @@
                                             </script>
                                         </div>
                                     </div>
+                                    <div class="row">
+                                        <div class="col mb-3">
+                                            <label for="title_of_song" class="form-label">Titulli i këngës</label>
+                                            <input type="text" name="title_of_song" id="title_of_song" class="form-control rounded-5 border border-2">
+                                        </div>
+                                    </div>
 
                                     <!-- Add month and year selectors -->
                                     <div class="row">
@@ -92,6 +98,7 @@
                                                 <option value="2023">2023</option>
                                             </select>
                                         </div>
+
                                     </div>
 
                                     <div class="row px-5">
@@ -302,6 +309,7 @@
                     <table class="table table-striped table-bordered" id="dataTable" width="100%" cellspacing="0">
                         <thead>
                             <tr>
+                                <th>Emri i muzikes</th>
                                 <th>ID</th>
                                 <th>Emri i klientit</th>
                                 <th>Amazon Music</th>
@@ -324,6 +332,7 @@
                             $result = mysqli_query($conn, $sql);
                             if (mysqli_num_rows($result) > 0) {
                                 while ($row = mysqli_fetch_assoc($result)) {
+                                    $title_of_song = $row['title_of_song'];
                                     $id = $row['id'];
                                     $client_name = $row['client_id'];
                                     // Make a query in table klientet
@@ -358,6 +367,7 @@
                             ?>
 
                                     <tr>
+                                        <td><?= $title_of_song ?></td>
                                         <td><?= $id ?></td>
                                         <td><?= $client_emri ?></td>
                                         <td><?= $amazon_music ?></td>
@@ -388,6 +398,7 @@
                     $result = mysqli_query($conn, $sql);
                     if (mysqli_num_rows($result) > 0) {
                         while ($row = mysqli_fetch_assoc($result)) {
+                            $title_of_song = $row['title_of_song'];
                             $id = $row['id'];
                             $client_name = $row['client_id'];
                             // Make a query in table klientet
@@ -435,8 +446,16 @@
 
                                         </form>
                                         <br>
-                                        <table class="table table-bordered">
+                                        <table class="table table-bordered  ">
                                             <tbody>
+                                                <tr>
+                                                    <td><strong>Titulli i muzikes</strong></td>
+                                                    <td><?= $title_of_song ?></td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>Emri</strong></td>
+                                                    <td><?= $client_emri ?></td>
+                                                </tr>
                                                 <tr>
                                                     <td><strong>Amazon Music</strong></td>
                                                     <td>$ <?= $amazon_music ?></td>
