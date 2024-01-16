@@ -53,9 +53,7 @@ function handleAuthentication($client)
 
     $_SESSION['refresh_token'] = $refreshToken;
 
-    echo "<script>console.log('Refresh Token: " . json_encode($refreshToken) . "');</script>";
-    echo "<script>console.log('Channel ID: $channelId');</script>";
-    echo "<script>console.log('Channel Name: $channelName');</script>";
+
 
     // Redirect to a different page after authentication
     header('Location: authenticated_channels.php');
@@ -451,6 +449,10 @@ function getChannelDetails($channelId, $apiKey)
                         </div>
                         <br>
                         <button type="submit" class="input-custom-css px-3 py-2" style="text-decoration: none;"><i class="fi fi-rr-filter"></i> Filtro</button>
+                     
+                        <div>
+                          <button id="submitSql" type="button" class="input-custom-css px-3 py-2 mt-2">Dorëzoje në bazën e të dhënave</button>
+                        </div>
                       </form>
 
                       <script>
@@ -459,17 +461,16 @@ function getChannelDetails($channelId, $apiKey)
                         });
                       </script>
 
-                      <!-- Add a form for inserting values into the database -->
-                      <form id="insertForm" action="insert_channels.php" method="post" class="mb-2">
-                        <!-- Include a hidden field to store all values you want to insert -->
-                        <input type="hidden" name="allValues" id="allValues" value="">
-                        <td>
-                          <!-- Add a button to trigger the insertion process -->
-                          <button type="button" class="input-custom-css px-3 py-2 insert-values-btn" style="text-transform: none">Krijo fatura per kanalet e meposhtme</button>
-                        </td>
-                      </form>
+
+                      <!-- SQL Commands Display Section -->
+                      <div class="sql-commands-container" style="display: none;">
+                        <p>Komandat SQL për shtimin e të dhënave në tabelën e faturave. Këto përfshijnë "INSERT INTO" për shtimin e rreshtave të reja në një tabelë.</p>
+                        <pre id="sqlCommands" class="sql-commands"></pre>
+                      </div>
+
+                      <br>
                       <div class="table-responsive">
-                        <table class="table table-bordered">
+                        <table class="table table-bordered" id="dataTable">
                           <thead class="bg-light">
                             <tr>
                               <th style="font-size: 12px">Numri i fatures</th>
@@ -480,7 +481,6 @@ function getChannelDetails($channelId, $apiKey)
                               <th style="font-size: 12px">Data e krijimit</th>
                               <th style="font-size: 12px">Të dhenat e kanalit</th>
                               <th style="font-size: 12px">Statusi i faturës</th>
-                              <!-- <th style="font-size: 12px">Veprimet</th> -->
                             </tr>
                           </thead>
                           <tbody>
@@ -582,11 +582,11 @@ function getChannelDetails($channelId, $apiKey)
                                   if ($row = mysqli_fetch_assoc($result)) {
                                     $item = $row['item'];
                                     // echo $item . '<br>';
-                                    // Display a icon about like check
+                                    // Display an icon about like check
                                     echo '<p> Kjo faturë ekziston</p><br>';
                                     echo '<i class="fi fi-rr-check text-success"></i>';
                                   } else {
-                                    // Display a icon about like x
+                                    // Display an icon about like x
                                     echo '<p> Kjo faturë nuk ekziston</p><br>';
                                     echo '<i class="fa-solid fa-x"></i>';
                                   }
@@ -594,71 +594,6 @@ function getChannelDetails($channelId, $apiKey)
 
 
                                 </td>
-
-
-
-
-
-
-
-                                <!-- <td>
-                                 <button class="btn btn-primary btn-sm mb-3 text-white krijo-fature-btn" style="text-transform: none" data-bs-toggle="modal" data-bs-target="#newInvoice" data-revenue="<?= $youtubeAnalyticsValue ?>" data-channel-id="<?= $tokenInfo['channel_id'] ?>">Krijo faturë</button> 
-                                 Replace 'original_page.php' with the actual file name where you want to redirect after deletion 
-                                <form id="deleteForm" action="delete_refresh_token.php" method="post">
-                                  <input type="hidden" name="token" value="<?= $tokenInfo['token'] ?>">
-                                  <button style="text-transform: none" type="button" class="input-custom-css px-3 py-2" name="delete_token" onclick="confirmDelete()">Fshije</button>
-                                </form>
-                                <br>
-                                <script>
-                                  function confirmDelete() {
-                                    Swal.fire({
-                                      title: 'Jeni të sigurt?',
-                                      text: 'Ky veprim do të fshijë tokenin e rifreskimit.',
-                                      icon: 'warning',
-                                      showCancelButton: true,
-                                      confirmButtonColor: '#d33',
-                                      cancelButtonColor: '#3085d6',
-                                      confirmButtonText: 'Po, fshije!',
-                                      cancelButtonText: 'Anulo'
-                                    }).then((result) => {
-                                      if (result.isConfirmed) {
-                                        
-                                        submitForm();
-                                      }
-                                    });
-                                  }
-
-                                  function submitForm() {
-                                    $.ajax({
-                                      type: 'POST',
-                                      url: 'delete_refresh_token.php',
-                                      data: $('#deleteForm').serialize(),
-                                      success: function(response) {
-                                        // Handle success response
-                                        Swal.fire({
-                                          title: 'Sukses!',
-                                          text: 'Tokeni është fshirë me sukses.',
-                                          icon: 'success',
-                                        }).then((result) => {
-                                          // Redirect to another page or perform other actions
-                                          window.location.href = 'invoice.php';
-                                        });
-                                      },
-                                      error: function(xhr, textStatus, errorThrown) {
-                                        // Handle error response
-                                        Swal.fire({
-                                          title: 'Gabim!',
-                                          text: 'Diçka shkoi keq. Ju lutemi, provoni përsëri.',
-                                          icon: 'error',
-                                        });
-                                      }
-                                    });
-                                  }
-                                </script>
-
-                                <a style="text-decoration:none;" class="input-custom-css px-3 py-2" href="channel_details.php?channel_token=<?= $tokenInfo['token'] ?>">Shiko detajet</a> 
-
-                              </td> -->
                               </tr>
                             <?php } ?>
                           </tbody>
@@ -741,6 +676,7 @@ function getChannelDetails($channelId, $apiKey)
 
   </div>
 
+
   <script>
     document.getElementById('customer_id').addEventListener('change', function() {
       var selectedOption = this.options[this.selectedIndex];
@@ -760,9 +696,7 @@ function getChannelDetails($channelId, $apiKey)
       var totalAmountAfterPercentage = totalAmount - (totalAmount * (percentage / 100));
       document.getElementById('total_amount_after_percentage').value = totalAmountAfterPercentage.toFixed(2);
     });
-  </script>
 
-  <script>
     function getCustomerName(customerId) {
       var customerName = '';
 
@@ -784,78 +718,14 @@ function getChannelDetails($channelId, $apiKey)
 
 
     $(document).ready(function() {
-
-      var completePayments = $('#completePayments').DataTable({
-        "processing": true,
-        "serverSide": true,
-        "ordering": false,
-        "ajax": {
-          "url": "get_history_of_payments.php", // Replace with the actual URL of your server-side PHP script
-          "type": "POST"
-        },
-        "columns": [{
-            "data": 0
-          },
-          {
-            "data": 1
-          },
-          {
-            "data": 2
-          },
-          {
-            "data": 3
-          },
-          {
-            "data": 4
-          }
-        ]
-      });
-
-      var completePayments2 = $('#completePayments2').DataTable({
-        "processing": true,
-        "serverSide": true,
-        "ajax": {
-          "url": "your_server_side_script.php", // Replace with the actual server-side script URL
-          "type": "POST"
-        },
-        "columns": [{
-            "data": "customer_name"
-          },
-          {
-            "data": "invoice_id"
-          },
-          {
-            "data": "total_payment_amount"
-          },
-          {
-            "data": "payment_date"
-          } // Assuming 'latest_payment_date' is now 'payment_date' from the server-side API
-        ],
-        "order": [
-          [1, "desc"] // Default ordering by invoice_id in descending order
-        ],
-        "columnDefs": [
-          // Format the date column as you need
-          {
-            "targets": 3, // Assuming 'payment_date' is at index 3 in the columns array
-            "render": function(data, type, row) {
-              return moment(data).format('YYYY-MM-DD'); // Format the date using Moment.js or any other library you prefer
-            }
-          }
-        ]
-      });
-
-
       var table = $('#invoiceList').DataTable({
-        // responsive:true,
         processing: true,
         serverSide: true,
         "searching": {
           "regex": true
         },
         "paging": true,
-        "pageLength": 10, // Adjust as needed
-
+        "pageLength": 10,
         dom: "<'row'<'col-md-3'l><'col-md-6'B><'col-md-3'f>>" +
           "<'row'<'col-md-12'tr>>" +
           "<'row'<'col-md-6'><'col-md-6'p>>",
@@ -918,10 +788,7 @@ function getChannelDetails($channelId, $apiKey)
               $('.row-checkbox:checked').each(function() {
                 selectedIds.push($(this).data('id'));
               });
-
-              // Check if any checkboxes are selected
               if (selectedIds.length > 0) {
-                // Show SweetAlert2 confirmation dialog
                 Swal.fire({
                   icon: 'warning',
                   title: 'Konfirmo Fshirjen',
@@ -931,7 +798,6 @@ function getChannelDetails($channelId, $apiKey)
                   cancelButtonText: 'Anulo',
                 }).then((result) => {
                   if (result.isConfirmed) {
-                    // User confirmed, send an AJAX request to delete the selected items
                     $.ajax({
                       url: 'delete_invoice.php',
                       type: 'POST',
@@ -939,24 +805,13 @@ function getChannelDetails($channelId, $apiKey)
                         ids: selectedIds
                       },
                       success: function(response) {
-                        // Handle the response from the server (if needed)
                         Swal.fire({
                           icon: 'success',
                           title: 'Fshirja u krye me sukses!',
                           text: response,
                         });
-
-                        // Store the current page number
                         const currentPage = table.page.info().page;
-                        const currentInvoiceTrash = invoice_trash.page.info().page;
-                        const currentPaymentTable = payment_table.page.info().page;
-
-                        // Reload the DataTable and restore the current page
-                        table.ajax.reload(function() {
-                          table.page(currentPage).draw(false);
-                          invoice_trash.page(currentInvoiceTrash).draw(false);
-                          paymentsTable.page(currentPaymentTable).draw(false);
-                        });
+                        
                       },
                       error: function(error) {
                         console.error('Error deleting items:', error);
@@ -970,7 +825,6 @@ function getChannelDetails($channelId, $apiKey)
                   }
                 });
               } else {
-                // Alert if no checkboxes are selected
                 Swal.fire({
                   icon: 'info',
                   title: 'Nuk ke zgjedhur elemente',
@@ -982,9 +836,8 @@ function getChannelDetails($channelId, $apiKey)
         ],
         stripeClasses: ["stripe-color"],
         columnDefs: [{
-          "targets": [0, 1, 2, 3, 4, 5, 6, 7], // Indexes of the columns you want to apply the style to
+          "targets": [0, 1, 2, 3, 4, 5, 6, 7], 
           "render": function(data, type, row) {
-            // Apply the style to the specified columns
             return type === 'display' && data !== null ? '<div style="white-space: normal;">' + data + '</div>' : data;
           }
         }],
@@ -1061,8 +914,6 @@ function getChannelDetails($channelId, $apiKey)
                 '</table>';
             }
           },
-
-
           {
             data: 'paid_amount'
           },
@@ -1097,9 +948,7 @@ function getChannelDetails($channelId, $apiKey)
 
 
 
-      var currentPage = 0; // Initialize with page 1 (zero-based index)
-
-      // Handle click on "Paguaj" button
+      var currentPage = 0;
       $(document).on('click', '.open-payment-modal', function(e) {
         e.preventDefault();
         var id = $(this).data('id');
@@ -1109,10 +958,7 @@ function getChannelDetails($channelId, $apiKey)
         var totalAmount = $(this).data('total-amount');
         var paidAmount = $(this).data('paid-amount');
         var remainingAmount = $(this).data('remaining-amount');
-
-        var customerName = getCustomerName(customerId); // Fetch customer name
-
-        // Populate modal content
+        var customerName = getCustomerName(customerId);
         $('#invoiceId').val(id);
         $('#invoiceNumber').text(invoiceNumber);
         $('#customerName').text(customerName);
@@ -1120,34 +966,17 @@ function getChannelDetails($channelId, $apiKey)
         $('#totalAmount').text(totalAmount);
         $('#paidAmount').text(paidAmount);
         $('#remainingAmount').text(remainingAmount.toFixed(2));
-
         $('#paymentAmount').val(remainingAmount.toFixed(2));
-        // Show the modal
         $('#paymentModal').modal('show');
       });
-
       $('#paymentAmount').on('input', function() {
         var paymentAmount = parseFloat($(this).val());
         var remainingAmount = parseFloat($('#remainingAmount').text());
-
         if (paymentAmount > remainingAmount) {
-          // Payment amount exceeds remaining amount
-          // Display an error message or disable the "Make Payment" button
-          // You can customize this part to your preference.
-
-          // Display an error message:
           $('#paymentAmountError').text('Shuma e pagesës nuk mund të kalojë shumën e obligimit.');
-
-          // Disable the "Make Payment" button
           $('#submitPayment').prop('disabled', true);
         } else {
-          // Payment amount is within the acceptable range
-          // Clear the error message and enable the "Make Payment" button
-
-          // Clear the error message
           $('#paymentAmountError').text('');
-
-          // Enable the "Make Payment" button
           $('#submitPayment').prop('disabled', false);
         }
 
@@ -1598,6 +1427,112 @@ function getChannelDetails($channelId, $apiKey)
         }],
         "stripeClasses": ["stripe-color"],
       });
+
+      // Add a click event handler for the delete buttons
+      $('#paymentsTable').on('click', '.delete-btn', function() {
+        var invoiceId = $(this).data('invoice-id');
+
+        // Perform an AJAX request to delete the record
+        $.ajax({
+          url: 'delete_invoice_completed.php', // Create a PHP file for handling the delete action
+          method: 'POST',
+          data: {
+            invoice_id: invoiceId
+          },
+          success: function(response) {
+            if (response.success) {
+              alert('Record deleted successfully.');
+              paymentsTable.ajax.reload(); // Refresh the DataTable
+            } else {
+              var errorMessage = response.error || 'Unknown error';
+              alert('Error deleting record: ' + errorMessage);
+            }
+          },
+
+          error: function(xhr, status, error) {
+            alert('Error deleting record: ' + error);
+          }
+        });
+      });
+
+    });
+
+    try {
+      // Get the reference of the table by ID
+      const table = document.getElementById("dataTable");
+      const tbody = table.getElementsByTagName("tbody")[0];
+      const rows = tbody.getElementsByTagName("tr");
+
+      let sqlCommands = "";
+
+      // Iterate through the table rows and extract data from the first 5 columns
+      for (let i = 0; i < rows.length; i++) {
+        const row = rows[i];
+        const columns = row.getElementsByTagName("td");
+
+        if (columns.length >= 6) { // Check if there are at least 6 columns
+          // Extract data from the first 6 columns
+          const column1Value = columns[0].textContent.trim();
+          const column2Value = columns[1].textContent.trim();
+          const column3Value = columns[2].textContent.trim();
+          const column4Value = columns[3].textContent.trim();
+          const column5Value = columns[4].textContent.trim();
+          const column6Value = columns[5].textContent.trim();
+
+          // Generate the SQL INSERT statement
+          const sqlInsert = `INSERT INTO invoices (invoice_number, customer_id, item, total_amount, total_amount_after_percentage, created_date) VALUES ('${column1Value}', '${column2Value}', '${column3Value}', '${column4Value}', '${column5Value}', '${column6Value}');`;
+
+          sqlCommands += sqlInsert + "\n";
+        }
+      }
+
+      // Display the SQL commands with line breaks
+      const sqlCommandsElement = document.getElementById("sqlCommands");
+      sqlCommandsElement.textContent = sqlCommands;
+
+    } catch (error) {
+      // Handle any error and display an error message
+      const sqlCommandsElement = document.getElementById("sqlCommands");
+      sqlCommandsElement.textContent = "An error occurred while processing the SQL commands: " + error.message;
+    }
+
+    // Event listener for the submit button
+    document.getElementById('submitSql').addEventListener('click', function() {
+      const sqlCommands = document.getElementById('sqlCommands').textContent;
+
+      // Prepare the AJAX request
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', 'send_sql_commands.php', true);
+      xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+
+      // Send the SQL commands to the server
+      xhr.send('sqlCommands=' + encodeURIComponent(sqlCommands));
+
+      xhr.onreadystatechange = function() {
+        if (this.readyState == 4) {
+          if (this.status == 200) {
+            // Handle success
+            Swal.fire({
+              icon: 'success',
+              title: 'Sukses',
+              text: 'Te dhenat u derguan me sukses!',
+              confirmButtonText: 'OK',
+            });
+
+            // Call the datatable and refresh
+            $('#invoiceList').DataTable().ajax.reload();
+          } else {
+            // Handle error
+            Swal.fire({
+              icon: 'error',
+              title: 'Gabim',
+              text: 'Nje gabim ndodhi gjate dergimit te te dhenave.',
+              confirmButtonText: 'OK',
+            });
+          }
+        }
+      };
+
     });
   </script>
   <?php include 'partials/footer.php' ?>

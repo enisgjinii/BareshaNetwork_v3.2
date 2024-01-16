@@ -74,7 +74,10 @@ while ($row = $result->fetch_assoc()) {
     }
 
     // Add custom action link
-    $dataRow['action'] = '<a target="_blank" class="btn btn-primary btn-sm rounded-5 shadow-sm px-2 text-white" style="padding: 0.3rem 0.25rem; font-size: 0.7rem; text-decoration: none; text-transform: none;" href="print_invoice.php?id=' . $row['invoice_number'] . '"><i class="fi fi-rr-print"></i></a>';
+    $dataRow['action'] = '<a target="_blank" class="btn btn-primary btn-sm rounded-5 shadow-sm px-2 text-white" style="padding: 0.3rem 0.25rem; font-size: 0.7rem; text-decoration: none; text-transform: none;" href="print_invoice.php?id=' . $row['invoice_number'] . '"><i class="fi fi-rr-print"></i></a><br><br>
+    <button class="btn btn-danger btn-sm delete-btn text-white rounded-5 px-2" data-invoice-id="' . $row['invoice_id'] . '"><i class="fi fi-rr-trash"></i></button>
+    ';
+
 
     $data[] = $dataRow;
 }
