@@ -1477,10 +1477,12 @@ function getChannelDetails($channelId, $apiKey)
           const column3Value = columns[2].textContent.trim();
           const column4Value = columns[3].textContent.trim();
           const column5Value = columns[4].textContent.trim();
+          const column5ValueWithoutCommas = column5Value.replace(/,/g, '');
+
           const column6Value = columns[5].textContent.trim();
 
           // Generate the SQL INSERT statement
-          const sqlInsert = `INSERT INTO invoices (invoice_number, customer_id, item, total_amount, total_amount_after_percentage, created_date) VALUES ('${column1Value}', '${column2Value}', '${column3Value}', '${column4Value}', '${column5Value}', '${column6Value}');`;
+          const sqlInsert = `INSERT INTO invoices (invoice_number, customer_id, item, total_amount, total_amount_after_percentage, created_date) VALUES ('${column1Value}', '${column2Value}', '${column3Value}', '${column4Value}', '${column5ValueWithoutCommas}', '${column6Value}');`;
 
           sqlCommands += sqlInsert + "\n";
         }
