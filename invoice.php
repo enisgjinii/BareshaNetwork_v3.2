@@ -449,7 +449,7 @@ function getChannelDetails($channelId, $apiKey)
                         </div>
                         <br>
                         <button type="submit" class="input-custom-css px-3 py-2" style="text-decoration: none;"><i class="fi fi-rr-filter"></i> Filtro</button>
-                     
+
                         <div>
                           <button id="submitSql" type="button" class="input-custom-css px-3 py-2 mt-2">Dorëzoje në bazën e të dhënave</button>
                         </div>
@@ -811,7 +811,7 @@ function getChannelDetails($channelId, $apiKey)
                           text: response,
                         });
                         const currentPage = table.page.info().page;
-                        
+
                       },
                       error: function(error) {
                         console.error('Error deleting items:', error);
@@ -836,7 +836,7 @@ function getChannelDetails($channelId, $apiKey)
         ],
         stripeClasses: ["stripe-color"],
         columnDefs: [{
-          "targets": [0, 1, 2, 3, 4, 5, 6, 7], 
+          "targets": [0, 1, 2, 3, 4, 5, 6, 7],
           "render": function(data, type, row) {
             return type === 'display' && data !== null ? '<div style="white-space: normal;">' + data + '</div>' : data;
           }
@@ -1498,6 +1498,7 @@ function getChannelDetails($channelId, $apiKey)
 
     // Event listener for the submit button
     document.getElementById('submitSql').addEventListener('click', function() {
+      // Get the SQL commands from the HTML element
       const sqlCommands = document.getElementById('sqlCommands').textContent;
 
       // Prepare the AJAX request
@@ -1508,31 +1509,35 @@ function getChannelDetails($channelId, $apiKey)
       // Send the SQL commands to the server
       xhr.send('sqlCommands=' + encodeURIComponent(sqlCommands));
 
+      // Define a callback function to handle the AJAX response
       xhr.onreadystatechange = function() {
         if (this.readyState == 4) {
           if (this.status == 200) {
-            // Handle success
+            // Handle success: Show a success message using SweetAlert2
             Swal.fire({
               icon: 'success',
-              title: 'Sukses',
-              text: 'Te dhenat u derguan me sukses!',
+              title: 'Success',
+              text: 'Data sent successfully!',
               confirmButtonText: 'OK',
             });
 
-            // Call the datatable and refresh
+            // Call the DataTable and refresh it
             $('#invoiceList').DataTable().ajax.reload();
           } else {
-            // Handle error
+            // Handle error: Show an error message using SweetAlert2
             Swal.fire({
               icon: 'error',
-              title: 'Gabim',
-              text: 'Nje gabim ndodhi gjate dergimit te te dhenave.',
+              title: 'Error',
+              text: 'An error occurred while sending data.',
               confirmButtonText: 'OK',
             });
+
+            // Log the error details to the console
+            console.error('Error Status:', xhr.status);
+            console.error('Error Response:', xhr.responseText);
           }
         }
       };
-
     });
   </script>
   <?php include 'partials/footer.php' ?>

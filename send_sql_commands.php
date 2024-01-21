@@ -1,7 +1,7 @@
 <?php
 include 'conn-d.php';
 // Prevent direct access
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     // Get the SQL commands
     $sqlCommands = urldecode($_POST['sqlCommands']);
@@ -17,9 +17,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
     }
-
-    // Close the connection
-    $conn->close();
 } else {
     echo "No direct script access allowed.";
 }
