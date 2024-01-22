@@ -56,7 +56,7 @@ function handleAuthentication($client)
 
 
     // Redirect to a different page after authentication
-    header('Location: authenticated_channels.php');
+    header('Location: invoices.php');
     exit;
   } catch (Google\Service\Exception $e) {
     echo '<pre>';
@@ -484,15 +484,29 @@ function getChannelDetails($channelId, $apiKey)
                             </tr>
                           </thead>
                           <tbody>
-                            <?php foreach ($refreshTokens as $tokenInfo) {
-                              // Based on this channel id, fetch column youtube from the table klientet
-                              $sql = "SELECT * FROM klientet WHERE youtube = '$tokenInfo[channel_id]'";
-                              $result = mysqli_query($conn, $sql);
-                              while ($row = mysqli_fetch_assoc($result)) {
-                                $id = $row['id'];
-                                $emri = $row['emri'];
-                                $perqindja = $row['perqindja'];
+                            <?php
+
+
+                            // Prepare a query to fetch data
+                            $query = "SELECT id, emri, perqindja FROM klientet WHERE youtube = ?";
+                            $stmt = mysqli_prepare($conn, $query);
+
+
+                            foreach ($refreshTokens as $tokenInfo) {
+                              // Bind the channel_id parameter
+                              mysqli_stmt_bind_param($stmt, "s", $tokenInfo['channel_id']);
+
+                              // Execute the query
+                              if (mysqli_stmt_execute($stmt)) {
+                                $result = mysqli_stmt_get_result($stmt);
+
+                                while ($row = mysqli_fetch_assoc($result)) {
+                                  $id = $row['id'];
+                                  $emri = $row['emri'];
+                                  $perqindja = $row['perqindja'];
+                                }
                               }
+
                             ?>
                               <tr>
                                 <td>
@@ -546,6 +560,7 @@ function getChannelDetails($channelId, $apiKey)
                                 // Echo the storedValue outside of the loop
                                 echo '<td>' . $storedValue . '</td>';
                                 ?>
+
 
                                 <td>
                                   <?php

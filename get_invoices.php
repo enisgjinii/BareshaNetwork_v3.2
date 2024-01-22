@@ -29,7 +29,12 @@ $sql = "SELECT i.id, i.invoice_number, i.item, i.customer_id, i.state_of_invoice
                 k.emri AS customer_name,
                 y.customer_loan_amount,
                 y.customer_loan_paid
-        FROM invoices AS i
+        FROM (
+            SELECT id, invoice_number, item, customer_id, state_of_invoice,
+                   total_amount_after_percentage, paid_amount
+            FROM invoices
+            GROUP BY invoice_number
+        ) AS i
         JOIN klientet AS k ON i.customer_id = k.id
         LEFT JOIN (
             SELECT kanali, 
@@ -47,8 +52,7 @@ $sql = "SELECT i.id, i.invoice_number, i.item, i.customer_id, i.state_of_invoice
             GROUP BY invoice_number
         ) AS i_agg ON i.invoice_number = i_agg.invoice_number";
 
-// Add a condition to filter out rows with total_amount_after_percentage and paid_amount both equal to 0
-$sql .= " WHERE (i.total_amount_after_percentage - i.paid_amount) != 0";
+$sql .= " WHERE (i.total_amount_after_percentage - i.paid_amount) > 0";
 
 // Apply filtering (search)
 if (!empty($_REQUEST['search']['value'])) {
@@ -97,4 +101,3 @@ $response = array(
 
 // Return the JSON response
 echo json_encode($response);
-
