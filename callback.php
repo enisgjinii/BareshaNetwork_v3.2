@@ -56,7 +56,7 @@ function handleAuthentication($client)
         echo "<script>console.log('Channel Name: $channelName');</script>";
 
         // Redirect to a different page after authentication
-        header('Location: authenticated_channels.php');
+        header('Location: invoice.php');
         exit;
     } catch (Google\Service\Exception $e) {
         echo '<pre>';

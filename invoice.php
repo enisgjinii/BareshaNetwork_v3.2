@@ -481,6 +481,8 @@ function getChannelDetails($channelId, $apiKey)
                               <th style="font-size: 12px">Data e krijimit</th>
                               <th style="font-size: 12px">Të dhenat e kanalit</th>
                               <th style="font-size: 12px">Statusi i faturës</th>
+                              <th style="font-size: 12px">Veprim</th>
+                              <th style="font-size: 12px">Input Check</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -579,7 +581,9 @@ function getChannelDetails($channelId, $apiKey)
 
                                   // Display cover art image
                                   if ($coverArtUrl) {
-                                    echo '<img src="' . $coverArtUrl . '" class="figure-img img-fluid rounded w-25" alt="Channel Cover">';
+                                    echo '<img src="' . $coverArtUrl . '" class="figure-img img-fluid rounded" alt="Channel Cover">';
+                                    echo '<br>';
+                                    echo $tokenInfo['channel_name'];
                                   }
 
                                   ?>
@@ -609,6 +613,15 @@ function getChannelDetails($channelId, $apiKey)
 
 
                                 </td>
+                                <td>
+                                  <a class="btn btn-danger text-white btn-sm rounded-5 px-2 py-1 delete-button" data-channelid="<?php echo $tokenInfo['channel_id'] ?>">
+                                    <i class="fi fi-rr-trash"></i>
+                                  </a>
+                                </td>
+                                <td>
+                                  <input type="checkbox" name="selected_channels[]" value="<?php echo $tokenInfo['channel_id'] ?>">
+                                </td>
+
                               </tr>
                             <?php } ?>
                           </tbody>
@@ -1480,38 +1493,58 @@ function getChannelDetails($channelId, $apiKey)
 
       let sqlCommands = "";
 
-      // Iterate through the table rows and extract data from the first 5 columns
-      for (let i = 0; i < rows.length; i++) {
-        const row = rows[i];
-        const columns = row.getElementsByTagName("td");
+      // Function to update SQL commands
+      function updateSqlCommands() {
+        sqlCommands = ""; // Clear existing SQL commands
 
-        if (columns.length >= 6) { // Check if there are at least 6 columns
-          // Extract data from the first 6 columns
-          const column1Value = columns[0].textContent.trim();
-          const column2Value = columns[1].textContent.trim();
-          const column3Value = columns[2].textContent.trim();
-          const column4Value = columns[3].textContent.trim();
-          const column5Value = columns[4].textContent.trim();
-          const column5ValueWithoutCommas = column5Value.replace(/,/g, '');
+        // Iterate through the table rows and extract data from the first 6 columns
+        for (let i = 0; i < rows.length; i++) {
+          const row = rows[i];
+          const checkbox = row.querySelector("input[type='checkbox']");
 
-          const column6Value = columns[5].textContent.trim();
+          if (!checkbox.checked) { // Check if the checkbox is not checked
+            const columns = row.getElementsByTagName("td");
 
-          // Generate the SQL INSERT statement
-          const sqlInsert = `INSERT INTO invoices (invoice_number, customer_id, item, total_amount, total_amount_after_percentage, created_date) VALUES ('${column1Value}', '${column2Value}', '${column3Value}', '${column4Value}', '${column5ValueWithoutCommas}', '${column6Value}');`;
+            if (columns.length >= 6) { // Check if there are at least 6 columns
+              // Extract data from the first 6 columns
+              const column1Value = columns[0].textContent.trim();
+              const column2Value = columns[1].textContent.trim();
+              const column3Value = columns[2].textContent.trim();
+              const column4Value = columns[3].textContent.trim();
+              const column5Value = columns[4].textContent.trim();
+              const column5ValueWithoutCommas = column5Value.replace(/,/g, '');
 
-          sqlCommands += sqlInsert + "\n";
+              const column6Value = columns[5].textContent.trim();
+
+              // Generate the SQL INSERT statement
+              const sqlInsert = `INSERT INTO invoices (invoice_number, customer_id, item, total_amount, total_amount_after_percentage, created_date) VALUES ('${column1Value}', '${column2Value}', '${column3Value}', '${column4Value}', '${column5ValueWithoutCommas}', '${column6Value}');`;
+
+              sqlCommands += sqlInsert + "\n";
+            }
+          }
         }
+
+        // Display the SQL commands with line breaks
+        const sqlCommandsElement = document.getElementById("sqlCommands");
+        sqlCommandsElement.textContent = sqlCommands;
       }
 
-      // Display the SQL commands with line breaks
-      const sqlCommandsElement = document.getElementById("sqlCommands");
-      sqlCommandsElement.textContent = sqlCommands;
+      // Attach event listeners to checkboxes to update SQL commands on change
+      const checkboxes = table.querySelectorAll("input[type='checkbox']");
+      checkboxes.forEach((checkbox) => {
+        checkbox.addEventListener("change", updateSqlCommands);
+      });
+
+      // Initial update of SQL commands
+      updateSqlCommands();
 
     } catch (error) {
       // Handle any error and display an error message
       const sqlCommandsElement = document.getElementById("sqlCommands");
       sqlCommandsElement.textContent = "An error occurred while processing the SQL commands: " + error.message;
     }
+
+
 
     // Event listener for the submit button
     document.getElementById('submitSql').addEventListener('click', function() {
@@ -1555,6 +1588,45 @@ function getChannelDetails($channelId, $apiKey)
           }
         }
       };
+    });
+  </script>
+  <script>
+    $(document).ready(function() {
+      $('.delete-button').click(function(e) {
+        e.preventDefault();
+
+        const channelID = $(this).data('channelid');
+
+        Swal.fire({
+          title: 'Konfirmo Fshirjen',
+          text: 'A jeni të sigurt se dëshironi të fshini këtë kanal?',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonText: 'Po, fshijeni!',
+          cancelButtonText: 'Anulo'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            // Make an AJAX request to delete_channel.php with channel_id
+            $.ajax({
+              url: `delete_channel.php?channel_id=${channelID}`,
+              type: 'POST', // You can use POST or GET, depending on your implementation
+              success: function(response) {
+                // Handle success message here
+                Swal.fire('Sukses', 'Kanali është fshirë me sukses!', 'success');
+
+                // Wait for 2 seconds and then reload the page
+                setTimeout(function() {
+                  location.reload(); // Reload the page
+                }, 4000); // 2000 milliseconds (2 seconds)
+              },
+              error: function() {
+                // Handle error message here
+                Swal.fire('Gabim', 'Ndodhi një gabim gjatë fshirjes së kanalit.', 'error');
+              }
+            });
+          }
+        });
+      });
     });
   </script>
   <?php include 'partials/footer.php' ?>
