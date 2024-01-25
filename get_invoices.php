@@ -44,7 +44,7 @@ $sql = "SELECT i.id, i.invoice_number, i.item, i.customer_id, i.state_of_invoice
             GROUP BY kanali
         ) AS y ON i.customer_id = y.kanali
         LEFT JOIN (
-            SELECT invoice_number,
+            SELECT invoice_number,  
                 SUM(total_amount) as total_amount,
                 SUM(total_amount_after_percentage) as total_amount_after_percentage,
                 SUM(paid_amount) as paid_amount
@@ -52,7 +52,7 @@ $sql = "SELECT i.id, i.invoice_number, i.item, i.customer_id, i.state_of_invoice
             GROUP BY invoice_number
         ) AS i_agg ON i.invoice_number = i_agg.invoice_number";
 
-$sql .= " WHERE (i.total_amount_after_percentage - i.paid_amount) > 0";
+$sql .= " WHERE (i.total_amount_after_percentage - i.paid_amount) > 1";
 
 // Apply filtering (search)
 if (!empty($_REQUEST['search']['value'])) {

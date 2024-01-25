@@ -450,9 +450,7 @@ function getChannelDetails($channelId, $apiKey)
                         <br>
                         <button type="submit" class="input-custom-css px-3 py-2" style="text-decoration: none;"><i class="fi fi-rr-filter"></i> Filtro</button>
 
-                        <div>
-                          <button id="submitSql" type="button" class="input-custom-css px-3 py-2 mt-2">Dorëzoje në bazën e të dhënave</button>
-                        </div>
+
                       </form>
 
                       <script>
@@ -469,164 +467,175 @@ function getChannelDetails($channelId, $apiKey)
                       </div>
 
                       <br>
-                      <div class="table-responsive">
-                        <table class="table table-bordered" id="dataTable">
-                          <thead class="bg-light">
-                            <tr>
-                              <th style="font-size: 12px">Numri i fatures</th>
-                              <th style="font-size: 12px">ID e klientit</th>
-                              <th style="font-size: 12px">Data</th>
-                              <th style="font-size: 12px">Fitimi</th>
-                              <th style="font-size: 12px">Fitimi pas perqindjes</th>
-                              <th style="font-size: 12px">Data e krijimit</th>
-                              <th style="font-size: 12px">Të dhenat e kanalit</th>
-                              <th style="font-size: 12px">Statusi i faturës</th>
-                              <th style="font-size: 12px">Veprim</th>
-                              <th style="font-size: 12px">Input Check</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            <?php
 
+                      <?php
+                      // Check if the user has submitted the filter form
+                      if (isset($_POST['dateRange'])) {
+                        // User has applied the filter, proceed with displaying the table and making the API request
+                      ?>
+                        <div>
+                          <button id="submitSql" type="button" class="input-custom-css px-3 py-2 mt-2">Dorëzoje në bazën e të dhënave</button>
+                        </div>
 
-                            // Prepare a query to fetch data
-                            $query = "SELECT id, emri, perqindja FROM klientet WHERE youtube = ?";
-                            $stmt = mysqli_prepare($conn, $query);
-
-
-                            foreach ($refreshTokens as $tokenInfo) {
-                              // Bind the channel_id parameter
-                              mysqli_stmt_bind_param($stmt, "s", $tokenInfo['channel_id']);
-
-                              // Execute the query
-                              if (mysqli_stmt_execute($stmt)) {
-                                $result = mysqli_stmt_get_result($stmt);
-
-                                while ($row = mysqli_fetch_assoc($result)) {
-                                  $id = $row['id'];
-                                  $emri = $row['emri'];
-                                  $perqindja = $row['perqindja'];
-                                }
-                              }
-
-                            ?>
+                        <div class="table-responsive">
+                          <table class="table table-bordered" id="dataTable">
+                            <thead class="bg-light">
                               <tr>
-                                <td>
-                                  <?php echo $invoiceNumber . $id ?>
-                                </td>
-                                <td>
-                                  <?php
-                                  // Put in the session the  id
-                                  $_SESSION['id'] = $id;
-                                  echo  $id ?>
-                                </td>
-                                <td>
-                                  <?php echo $_SESSION['selectedDate'] ?>
-                                </td>
-                                <?php
-                                $client = new Google_Client();
-                                $client->setClientId('84339742200-g674o1df674m94a09tppcufciavp0bo1.apps.googleusercontent.com');
-                                $client->setClientSecret('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');
-                                $client->refreshToken($tokenInfo['token']);
-                                $client->addScope([
-                                  'https://www.googleapis.com/auth/youtube',
-                                  'https://www.googleapis.com/auth/youtube.readonly',
-                                  'https://www.googleapis.com/auth/youtubepartner',
-                                  'https://www.googleapis.com/auth/yt-analytics-monetary.readonly',
-                                  'https://www.googleapis.com/auth/yt-analytics.readonly'
-                                ]);
+                                <th style="font-size: 12px">Numri i fatures</th>
+                                <th style="font-size: 12px">ID e klientit</th>
+                                <th style="font-size: 12px">Data</th>
+                                <th style="font-size: 12px">Fitimi</th>
+                                <th style="font-size: 12px">Fitimi pas perqindjes</th>
+                                <th style="font-size: 12px">Data e krijimit</th>
+                                <th style="font-size: 12px">Të dhenat e kanalit</th>
+                                <th style="font-size: 12px">Statusi i faturës</th>
+                                <th style="font-size: 12px">Veprim</th>
+                                <th style="font-size: 12px">Input Check</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <?php
 
-                                $youtubeAnalytics = new Google\Service\YoutubeAnalytics($client);
 
-                                // Get the created date for that channel in YouTube using tokenInfo channel id
-                                $params = [
-                                  'ids' => 'channel==' . $tokenInfo['channel_id'],
-                                  'currency' => 'EUR',
-                                  'startDate' => $startDate,
-                                  'endDate' => $endDate,
-                                  'metrics' => 'estimatedRevenue'
-                                ];
+                              // Prepare a query to fetch data
+                              $query = "SELECT id, emri, perqindja FROM klientet WHERE youtube = ?";
+                              $stmt = mysqli_prepare($conn, $query);
 
-                                $response = $youtubeAnalytics->reports->query($params);
-                                $row = $response->getRows()[0];
 
-                                // Initialize a variable to store the value
-                                $storedValue = '';
+                              foreach ($refreshTokens as $tokenInfo) {
+                                // Bind the channel_id parameter
+                                mysqli_stmt_bind_param($stmt, "s", $tokenInfo['channel_id']);
 
-                                // Display only the numeric values (without column headers)
-                                foreach ($row as $index => $value) {
-                                  // Append the value to the storedValue variable
-                                  $storedValue .= $value . '<br>';
+                                // Execute the query
+                                if (mysqli_stmt_execute($stmt)) {
+                                  $result = mysqli_stmt_get_result($stmt);
+
+                                  while ($row = mysqli_fetch_assoc($result)) {
+                                    $id = $row['id'];
+                                    $emri = $row['emri'];
+                                    $perqindja = $row['perqindja'];
+                                  }
                                 }
 
-                                // Echo the storedValue outside of the loop
-                                echo '<td>' . $storedValue . '</td>';
-                                ?>
-
-
-                                <td>
+                              ?>
+                                <tr>
+                                  <td>
+                                    <?php echo $invoiceNumber . $id ?>
+                                  </td>
+                                  <td>
+                                    <?php
+                                    // Put in the session the  id
+                                    $_SESSION['id'] = $id;
+                                    echo  $id ?>
+                                  </td>
+                                  <td>
+                                    <?php echo $_SESSION['selectedDate'] ?>
+                                  </td>
                                   <?php
-                                  $difference = $value - ($value * ($perqindja / 100));
-                                  echo number_format($difference, 2);
-                                  ?>
-                                </td>
-                                <td>
-                                  <?php
-                                  // Get the actual date
-                                  echo date('Y-m-d'); ?>
-                                </td>
-                                <td>
-                                  <?php // Get the cover art URL
-                                  $coverArtUrl = getChannelDetails($tokenInfo['channel_id'], 'AIzaSyD56A1QU67vIkP1CYSDX2sYona2nxOJ9R0');
+                                  $client = new Google_Client();
+                                  $client->setClientId('84339742200-g674o1df674m94a09tppcufciavp0bo1.apps.googleusercontent.com');
+                                  $client->setClientSecret('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');
+                                  $client->refreshToken($tokenInfo['token']);
+                                  $client->addScope([
+                                    'https://www.googleapis.com/auth/youtube',
+                                    'https://www.googleapis.com/auth/youtube.readonly',
+                                    'https://www.googleapis.com/auth/youtubepartner',
+                                    'https://www.googleapis.com/auth/yt-analytics-monetary.readonly',
+                                    'https://www.googleapis.com/auth/yt-analytics.readonly'
+                                  ]);
 
-                                  // Display cover art image
-                                  if ($coverArtUrl) {
-                                    echo '<img src="' . $coverArtUrl . '" class="figure-img img-fluid rounded" alt="Channel Cover">';
-                                    echo '<br>';
-                                    echo $tokenInfo['channel_name'];
+                                  $youtubeAnalytics = new Google\Service\YoutubeAnalytics($client);
+
+                                  // Get the created date for that channel in YouTube using tokenInfo channel id
+                                  $params = [
+                                    'ids' => 'channel==' . $tokenInfo['channel_id'],
+                                    'currency' => 'EUR',
+                                    'startDate' => $startDate,
+                                    'endDate' => $endDate,
+                                    'metrics' => 'estimatedRevenue'
+                                  ];
+
+                                  $response = $youtubeAnalytics->reports->query($params);
+                                  $row = $response->getRows()[0];
+
+                                  // Initialize a variable to store the value
+                                  $storedValue = '';
+
+                                  // Display only the numeric values (without column headers)
+                                  foreach ($row as $index => $value) {
+                                    // Append the value to the storedValue variable
+                                    $storedValue .= $value . '<br>';
                                   }
 
+                                  // Echo the storedValue outside of the loop
+                                  echo '<td>' . $storedValue . '</td>';
                                   ?>
 
 
-                                </td>
-                                <td>
-                                  <?php
-                                  $selectedDate = $_SESSION['selectedDate']; // Store the session variable in a separate variable
-                                  $difference = $value - ($value * ($perqindja / 100));
+                                  <td>
+                                    <?php
+                                    $difference = $value - ($value * ($perqindja / 100));
+                                    echo number_format($difference, 2);
+                                    ?>
+                                  </td>
+                                  <td>
+                                    <?php
+                                    // Get the actual date
+                                    echo date('Y-m-d'); ?>
+                                  </td>
+                                  <td>
+                                    <?php // Get the cover art URL
+                                    $coverArtUrl = getChannelDetails($tokenInfo['channel_id'], 'AIzaSyD56A1QU67vIkP1CYSDX2sYona2nxOJ9R0');
 
-                                  $sql = "SELECT * FROM invoices WHERE customer_id = '$_SESSION[id]' AND item = '$selectedDate'";
-                                  $result = mysqli_query($conn, $sql);
+                                    // Display cover art image
+                                    if ($coverArtUrl) {
+                                      echo '<img src="' . $coverArtUrl . '" class="figure-img img-fluid rounded" alt="Channel Cover">';
+                                      echo '<br>';
+                                      echo $tokenInfo['channel_name'];
+                                    }
 
-                                  if ($row = mysqli_fetch_assoc($result)) {
-                                    $item = $row['item'];
-                                    // echo $item . '<br>';
-                                    // Display an icon about like check
-                                    echo '<p> Kjo faturë ekziston</p><br>';
-                                    echo '<i class="fi fi-rr-check text-success"></i>';
-                                  } else {
-                                    // Display an icon about like x
-                                    echo '<p> Kjo faturë nuk ekziston</p><br>';
-                                    echo '<i class="fa-solid fa-x"></i>';
-                                  }
-                                  ?>
+                                    ?>
 
 
-                                </td>
-                                <td>
-                                  <a class="btn btn-danger text-white btn-sm rounded-5 px-2 py-1 delete-button" data-channelid="<?php echo $tokenInfo['channel_id'] ?>">
-                                    <i class="fi fi-rr-trash"></i>
-                                  </a>
-                                </td>
-                                <td>
-                                  <input type="checkbox" name="selected_channels[]" value="<?php echo $tokenInfo['channel_id'] ?>">
-                                </td>
+                                  </td>
+                                  <td>
+                                    <?php
+                                    $selectedDate = $_SESSION['selectedDate']; // Store the session variable in a separate variable
+                                    $difference = $value - ($value * ($perqindja / 100));
 
-                              </tr>
-                            <?php } ?>
-                          </tbody>
-                        </table>
-                      </div>
+                                    $sql = "SELECT * FROM invoices WHERE customer_id = '$_SESSION[id]' AND item = '$selectedDate'";
+                                    $result = mysqli_query($conn, $sql);
+
+                                    if ($row = mysqli_fetch_assoc($result)) {
+                                      $item = $row['item'];
+                                      // echo $item . '<br>';
+                                      // Display an icon about like check
+                                      echo '<p> Kjo faturë ekziston</p><br>';
+                                      echo '<i class="fi fi-rr-check text-success"></i>';
+                                    } else {
+                                      // Display an icon about like x
+                                      echo '<p> Kjo faturë nuk ekziston</p><br>';
+                                      echo '<i class="fa-solid fa-x"></i>';
+                                    }
+                                    ?>
+
+
+                                  </td>
+                                  <td>
+                                    <a class="btn btn-danger text-white btn-sm rounded-5 px-2 py-1 delete-button" data-channelid="<?php echo $tokenInfo['channel_id'] ?>">
+                                      <i class="fi fi-rr-trash"></i>
+                                    </a>
+                                  </td>
+                                  <td>
+                                    <input type="checkbox" name="selected_channels[]" value="<?php echo $tokenInfo['channel_id'] ?>">
+                                  </td>
+
+                                </tr>
+                              <?php } ?>
+                            </tbody>
+                          </table>
+                        </div>
+                      <?php } ?>
                     </div>
                   <?php } else { ?>
                     <p>Nuk u gjetën argumente rifreskimi në bazën e të dhënave.</p>
