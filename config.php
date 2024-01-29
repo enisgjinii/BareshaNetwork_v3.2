@@ -19,6 +19,9 @@ $clientSecret = $clientConfig['web']['client_secret'];
 $client = new Google_Client();
 $client->setClientId($clientId);
 $client->setClientSecret($clientSecret);
+// Enable offline access
+$client->setAccessType('offline');  // Request offline access from the user
+$client->setApprovalPrompt('force');  // Force re-authorization even if previously granted
 
 // Set redirect URI based on environment
 $redirectUri = ($_SERVER['HTTP_HOST'] === 'localhost') ? LOCALHOST_URI : ONLINE_URI;

@@ -539,7 +539,9 @@ $aaa = json_decode($aa, true);
 
             <!-- <i class="fi fi-rr-sad text-danger"></i> -->
           </div>
-        <?php } else { ?>
+        <?php } else { 
+          
+          ?>
 
           <div class="row">
             <div class="col-8">

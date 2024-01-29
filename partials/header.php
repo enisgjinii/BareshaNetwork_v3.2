@@ -1,9 +1,8 @@
 <?php
 session_start();
 
-if (!isset($_SESSION['token'])) {
-  header('Location: kycu_1.php');
-  exit;
+if (!isset($_SESSION['token']) || !isset($_COOKIE['refreshToken'])) {
+  handleAuthenticationError();
 }
 
 include('./config.php');
@@ -12,46 +11,37 @@ include('conn-d.php');
 $client->setAccessToken($_SESSION['token']);
 
 if ($client->isAccessTokenExpired()) {
-  header('Location: logout.php');
-  exit;
+  if (isset($_COOKIE['refreshToken'])) {
+    try {
+      $client->refreshToken($_COOKIE['refreshToken']);
+      $_SESSION['token'] = $client->getAccessToken();
+    } catch (Exception $e) {
+      handleAuthenticationError();
+    }
+  } else {
+    handleAuthenticationError();
+  }
 }
 
 $google_oauth = new Google_Service_Oauth2($client);
+
 try {
   $user_info = $google_oauth->userinfo->get();
   // Proceed with the rest of your code
 } catch (Google_Service_Exception $e) {
-  // Handle the authentication error, e.g., by redirecting to the login page
-  header('Location: kycu_1.php');
-  exit;
+  handleAuthenticationError();
 }
 
 $allowedGmailEmails = array('afrimkolgeci@gmail.com', 'besmirakolgeci1@gmail.com', 'egjini17@gmail.com', 'bareshafinance@gmail.com');
 
-if (empty($user_info['email'])) {
-  // If the user doesn't have a valid email, deny access.
-  header('Location: denied.php');
-  exit;
+if (empty($user_info['email']) || !isValidEmailDomain($user_info['email'], $allowedGmailEmails)) {
+  handleAuthenticationError();
 }
 
-$domain = substr(strrchr($user_info['email'], "@"), 1);
-
-if ($domain === 'gmail.com' && !in_array($user_info['email'], $allowedGmailEmails)) {
-  // If the email is a Gmail address but not in the allowed list, deny access.
-  header('Location: denied.php');
-  exit;
-} elseif ($domain !== 'bareshamusic.com' && !in_array($user_info['email'], $allowedGmailEmails)) {
-  // If the email domain is not 'bareshamusic.com' and not in the allowed Gmail list, deny access.
-  header('Location: denied.php');
-  exit;
-}
-
-$gender = $user_info['gender']; // Retrieve the user's gender
-
+$gender = $user_info['gender'];
 $email = $user_info['email'];
 
 $sql = "SELECT * FROM googleauth WHERE email = '$email'";
-
 $result = $conn->query($sql);
 
 if ($result->num_rows > 0) {
@@ -60,13 +50,24 @@ if ($result->num_rows > 0) {
   $_SESSION['email'] = $row['email'];
   $_SESSION['oauth_uid'] = $row['oauth_uid'];
 } else {
-  // Handle the situation where the user data is not found in the database
   header('Location: denied.php');
   exit;
 }
 
+function handleAuthenticationError()
+{
+  header('Location: kycu_1.php');
+  exit;
+}
 
+function isValidEmailDomain($email, $allowedDomains)
+{
+  $domain = substr(strrchr($email, "@"), 1);
+  return in_array($email, $allowedDomains) || $domain === 'bareshamusic.com';
+}
 ?>
+
+
 
 
 <!DOCTYPE html>

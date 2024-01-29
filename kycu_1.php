@@ -3,18 +3,10 @@
     <meta name="google-site-verification" content="65Q9V_d_6p9mOYD05AFLNYLveEnM01AOs5cW2-qKrB0" />
 </head>
 <?php
-// error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
 include('./config.php');
-
-# the createAuthUrl() method generates the login URL.
 $login_url = $client->createAuthUrl();
+date_default_timezone_set('Europe/Tirane');
 
-/* 
- * After obtaining permission from the user,
- * Google will redirect to the kycu_1.php with the "code" query parameter.
- */
 if (isset($_GET['code'])) :
     session_start();
     $token = $client->fetchAccessTokenWithAuthCode($_GET['code']);
@@ -23,31 +15,28 @@ if (isset($_GET['code'])) :
         header('Location: kycu_1.php');
         exit;
     }
-    // Add more time to that token
 
     $_SESSION['token'] = $token;
 
-
     if (isset($token['expires_in'])) {
-        // Calculate the token expiration time
         $tokenExpiration = time() + $token['expires_in'] + 3600;
         $_SESSION['tokenExpiration'] = $tokenExpiration;
     }
-    /* -- Inserting the user data into the database -- */
 
-    # Fetching the user data from the Google account
+    $accessToken = $token['access_token'];
+    $refreshToken = isset($token['refresh_token']) ? $token['refresh_token'] : null;
+
+    $_SESSION['accessToken'] = $accessToken;
+    $_SESSION['refreshToken'] = $refreshToken;
+
+    setcookie('accessToken', $accessToken, time() + 3600, '/', '', true, true);
+    setcookie('refreshToken', $refreshToken, time() + 86400, '/', '', true, true);
+
     $client->setAccessToken($token);
     $google_oauth = new Google\Service\Oauth2($client);
     $user_info = $google_oauth->userinfo->get();
 
     $email = trim($user_info['email']);
-
-    // if (strpos($email, '@bareshamusic.com') === false) {
-    //     // If the email address is not from the allowed domain, deny access and pass the email as a query parameter.
-    //     header('Location: denied.php?email=' . urlencode($email)); // Include the email in the URL.
-    //     exit;
-    // }
-
 
     $google_id = trim($user_info['id']);
     $f_name = trim($user_info['given_name']);
@@ -56,37 +45,34 @@ if (isset($_GET['code'])) :
     $local = trim($user_info['local']);
     $picture = trim($user_info['picture']);
 
-    # Database connection
     include('conn-d.php');
 
-    # Checking whether the email already exists in our database.
     $check_email = $conn->prepare("SELECT `email` FROM `googleauth` WHERE `email`=?");
     $check_email->bind_param("s", $email);
     $check_email->execute();
     $check_email->store_result();
+    setcookie('user_id', $google_id, time() + 3600, '/', '', true, true);
+    setcookie('user_email', $email, time() + 3600, '/', '', true, true);
+    setcookie('user_first_name', $f_name, time() + 3600, '/', '', true, true);
+    setcookie('user_last_name', $l_name, time() + 3600, '/', '', true, true);
 
     if ($check_email->num_rows === 0) {
-        # Inserting the new user into the database
         $query_template = "INSERT INTO `googleauth` (`oauth_uid`, `firstName`, `last_name`,`email`,`profile_pic`,`gender`,`local`) VALUES (?,?,?,?,?,?,?)";
         $insert_stmt = $conn->prepare($query_template);
-        $insert_stmt->bind_param("sssssss", $google_id, $f_name, $l_name, $email, $picture, $gender, $local); // Correct the order of parameters
+        $insert_stmt->bind_param("sssssss", $google_id, $f_name, $l_name, $email, $picture, $gender, $local);
 
         if ($insert_stmt->execute()) {
-            // Store user data in session variables
             $_SESSION['user_id'] = $google_id;
             $_SESSION['user_email'] = $email;
             $_SESSION['user_first_name'] = $f_name;
             $_SESSION['user_last_name'] = $l_name;
-
             header('Location: index.php');
             exit;
         } else {
-            // Handle database error
             echo "Failed to insert user: " . $conn->error;
             exit;
         }
     }
-
 
     header('Location: index.php');
     exit;
@@ -110,8 +96,8 @@ endif;
     <title>Baresha Panel - Google Login</title>
     <script src="https://kit.fontawesome.com/a1927a49ea.js" crossorigin="anonymous"></script>
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-    
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' http://paneli.bareshaoffice.com;">
+
+    <!-- <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' http://paneli.bareshaoffice.com;"> -->
 
 </head>
 
