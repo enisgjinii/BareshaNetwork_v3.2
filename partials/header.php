@@ -1,31 +1,51 @@
 <?php
-session_start();
-
-if (!isset($_SESSION['token']) || !isset($_COOKIE['refreshToken'])) {
+if (!isset($_COOKIE['refreshToken'])) {
   handleAuthenticationError();
 }
 
 include('./config.php');
 include('conn-d.php');
 
-$client->setAccessToken($_SESSION['token']);
+// Use the existing Google_Client instance from config.php
+// Note: Ensure $client is available in this scope
 
-if ($client->isAccessTokenExpired()) {
-  if (isset($_COOKIE['refreshToken'])) {
-    try {
-      $client->refreshToken($_COOKIE['refreshToken']);
-      $_SESSION['token'] = $client->getAccessToken();
-    } catch (Exception $e) {
-      handleAuthenticationError();
-    }
-  } else {
+// Attempt to refresh the access token using the refresh token
+if (isset($_COOKIE['refreshToken'])) {
+  try {
+    // Set the refresh token
+    $client->refreshToken($_COOKIE['refreshToken']);
+
+    // Get the new access token
+    $accessToken = $client->getAccessToken();
+
+    // Log messages to the console using JavaScript
+    echo '<script>';
+    echo 'console.log("Refreshed Token: ' . json_encode($accessToken) . '");';
+    echo '</script>';
+
+    // Store the new access token in the session
+    $_SESSION['token'] = $accessToken;
+  } catch (Exception $e) {
     handleAuthenticationError();
   }
 }
 
+// Simulate an expired access token (set expiration time to a past timestamp)
+$_SESSION['token']['expires_at'] = time() - 1;
+
+// Rest of your code remains unchanged
 $google_oauth = new Google_Service_Oauth2($client);
 
 try {
+  // Set the access token for making API requests
+  $google_oauth->getClient()->setAccessToken($_SESSION['token']);
+
+  // Log messages to the console using JavaScript
+  echo '<script>';
+  echo 'console.log("Access Token Set: ' . json_encode($_SESSION['token']) . '");';
+  echo '</script>';
+
+  // Make a request to the userinfo endpoint
   $user_info = $google_oauth->userinfo->get();
   // Proceed with the rest of your code
 } catch (Google_Service_Exception $e) {
@@ -56,6 +76,11 @@ if ($result->num_rows > 0) {
 
 function handleAuthenticationError()
 {
+  // Log messages to the console using JavaScript
+  echo '<script>';
+  echo 'console.log("Authentication Error");';
+  echo '</script>';
+
   header('Location: kycu_1.php');
   exit;
 }
@@ -66,6 +91,8 @@ function isValidEmailDomain($email, $allowedDomains)
   return in_array($email, $allowedDomains) || $domain === 'bareshamusic.com';
 }
 ?>
+
+
 
 
 

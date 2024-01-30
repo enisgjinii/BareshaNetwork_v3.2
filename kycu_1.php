@@ -7,8 +7,8 @@ include('./config.php');
 $login_url = $client->createAuthUrl();
 date_default_timezone_set('Europe/Tirane');
 
-if (isset($_GET['code'])) :
-    session_start();
+if (isset($_GET['code'])) {
+    // Fetch the access token with the authorization code
     $token = $client->fetchAccessTokenWithAuthCode($_GET['code']);
 
     if (isset($token['error'])) {
@@ -16,28 +16,20 @@ if (isset($_GET['code'])) :
         exit;
     }
 
-    $_SESSION['token'] = $token;
-
-    if (isset($token['expires_in'])) {
-        $tokenExpiration = time() + $token['expires_in'] + 3600;
-        $_SESSION['tokenExpiration'] = $tokenExpiration;
-    }
-
+    // Set the access token and refresh token in cookies
     $accessToken = $token['access_token'];
     $refreshToken = isset($token['refresh_token']) ? $token['refresh_token'] : null;
 
-    $_SESSION['accessToken'] = $accessToken;
-    $_SESSION['refreshToken'] = $refreshToken;
+    // Set cookies for access token and refresh token with an expiration time set to a past timestamp (e.g., 1 minute ago)
+    setcookie('accessToken', $accessToken, time() - 60, '/', '', true, true); // Access token expired 1 minute ago
+    setcookie('refreshToken', $refreshToken, time() + 86400, '/', '', true, true); // Refresh token expires in 24 hours
 
-    setcookie('accessToken', $accessToken, time() + 3600, '/', '', true, true);
-    setcookie('refreshToken', $refreshToken, time() + 86400, '/', '', true, true);
-
+    // Fetch user data from Google
     $client->setAccessToken($token);
     $google_oauth = new Google\Service\Oauth2($client);
     $user_info = $google_oauth->userinfo->get();
 
     $email = trim($user_info['email']);
-
     $google_id = trim($user_info['id']);
     $f_name = trim($user_info['given_name']);
     $l_name = trim($user_info['family_name']);
@@ -47,6 +39,7 @@ if (isset($_GET['code'])) :
 
     include('conn-d.php');
 
+    // Check whether the email already exists in the database
     $check_email = $conn->prepare("SELECT `email` FROM `googleauth` WHERE `email`=?");
     $check_email->bind_param("s", $email);
     $check_email->execute();
@@ -57,11 +50,13 @@ if (isset($_GET['code'])) :
     setcookie('user_last_name', $l_name, time() + 3600, '/', '', true, true);
 
     if ($check_email->num_rows === 0) {
+        // Insert the new user into the database
         $query_template = "INSERT INTO `googleauth` (`oauth_uid`, `firstName`, `last_name`,`email`,`profile_pic`,`gender`,`local`) VALUES (?,?,?,?,?,?,?)";
         $insert_stmt = $conn->prepare($query_template);
         $insert_stmt->bind_param("sssssss", $google_id, $f_name, $l_name, $email, $picture, $gender, $local);
 
         if ($insert_stmt->execute()) {
+            // Store user data in session variables
             $_SESSION['user_id'] = $google_id;
             $_SESSION['user_email'] = $email;
             $_SESSION['user_first_name'] = $f_name;
@@ -76,9 +71,9 @@ if (isset($_GET['code'])) :
 
     header('Location: index.php');
     exit;
-
-endif;
+}
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
