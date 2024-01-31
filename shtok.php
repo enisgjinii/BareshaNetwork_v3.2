@@ -26,6 +26,7 @@ if (isset($_POST['ruaj'])) {
   $emailp = mysqli_real_escape_string($conn, $_POST['emailp']);
   $emriart = mysqli_real_escape_string($conn, $_POST['emriart']);
   $nrllog = mysqli_real_escape_string($conn, $_POST['nrllog']);
+  $bank_info = mysqli_real_escape_string($conn, $_POST['bank_info']);
   $perdoruesi = mysqli_real_escape_string($conn, $_POST['perdoruesi']);
   $password = mysqli_real_escape_string($conn, $_POST["password"]);
   $emails = '';
@@ -53,7 +54,7 @@ if (isset($_POST['ruaj'])) {
   $emails = addslashes($emails);
   if ($conn->query(
     "INSERT INTO klientet 
-    (emri, np, monetizuar, dk, dks, youtube, info, perqindja, perqindja2, kontrata, ads, fb, ig, adresa, kategoria, nrtel, emailadd, emailp, emriart, nrllog, fjalkalimi, perdoruesi, emails, blocked) VALUES ('$emri', '$np','$mon', '$dk', '$dks', '$yt', '$info', '$perq', '$perq2', '$targetfolder', '$ads', '$fb', '$ig', '$adresa', '$kategoria', '$nrtel', '$emailadd', '$emailp', '$emriart', '$nrllog', '$password', '$perdoruesi', '$emails', '0')"
+    (emri, np, monetizuar, dk, dks, youtube, info, perqindja, perqindja2, kontrata, ads, fb, ig, adresa, kategoria, nrtel, emailadd, emailp, emriart, nrllog, bank_name ,fjalkalimi, perdoruesi, emails, blocked) VALUES ('$emri', '$np','$mon', '$dk', '$dks', '$yt', '$info', '$perq', '$perq2', '$targetfolder', '$ads', '$fb', '$ig', '$adresa', '$kategoria', '$nrtel', '$emailadd', '$emailp', '$emriart', '$nrllog', '$bank_info', '$password', '$perdoruesi', '$emails', '0')"
   )) {
     $kueri = $conn->query("SELECT * FROM klientet ORDER BY id DESC");
     $k = mysqli_fetch_array($kueri);
@@ -103,7 +104,7 @@ if (isset($_POST['ruaj'])) {
   <div class="content-wrapper">
     <div class="container-fluid">
       <div class="container">
-        <div class="p-5 rounded-5 shadow-sm mb-4 card">
+        <div class="p-5 rounded-5 border border-2 mb-4 card">
           <div class="alert alert-successalert-dismissible" id="success" style="display:none;">
             <a href="#" class="close" data-dismiss="alert" aria-label="close">X</a>
           </div>
@@ -112,33 +113,33 @@ if (isset($_POST['ruaj'])) {
             <div class="form-group row">
               <div class="col">
                 <label class="form-label" for="emri">Emri & Mbiemri</label>
-                <input type="text" name="emri" id="emri" class="form-control shadow-sm rounded-5" placeholder="Shkruaj Emrin Mbiemrin">
+                <input type="text" name="emri" id="emri" class="form-control border border-2 rounded-5" placeholder="Shkruaj Emrin Mbiemrin">
               </div>
               <div class="col">
                 <label class="form-label" for="yt">Shkruaj ID e kanalit t&euml; YouTube</label>
-                <input type="text" name="yt" id="yt" class="form-control shadow-sm rounded-5" placeholder="Youtube Channel ID" autocomplete="off">
+                <input type="text" name="yt" id="yt" class="form-control border border-2 rounded-5" placeholder="Youtube Channel ID" autocomplete="off">
               </div>
 
             </div>
             <div class="form-group row">
               <div class="col">
                 <label class="form-label" for="emri">Emri artistik</label>
-                <input type="text" name="emriart" id="emriart" class="form-control shadow-sm rounded-5" placeholder="Emri artistik">
+                <input type="text" name="emriart" id="emriart" class="form-control border border-2 rounded-5" placeholder="Emri artistik">
               </div>
               <div class="col">
                 <label class="form-label" for="emri">ID Dokumentit</label>
-                <input type="text" name="np" id="emriart" class="form-control shadow-sm rounded-5" placeholder="ID Dokumentit">
+                <input type="text" name="np" id="emriart" class="form-control border border-2 rounded-5" placeholder="ID Dokumentit">
               </div>
 
             </div>
             <div class="form-group row">
               <div class="col">
                 <label class="form-label" for="dk">Data e Kontrates</label>
-                <input type="text" name="dk" id="dk" class="form-control shadow-sm rounded-5" placeholder="Shkruaj Daten e kontrates" autocomplete="off">
+                <input type="text" name="dk" id="dk" class="form-control border border-2 rounded-5" placeholder="Shkruaj Daten e kontrates" autocomplete="off">
               </div>
               <div class="col">
                 <label class="form-label" for="dks">Data e Skadimit <small>(Kontrates)</small></label>
-                <input type="text" name="dks" id="dks" class="form-control shadow-sm rounded-5" placeholder="Shkruaj Daten e skaditimit" autocomplete="off">
+                <input type="text" name="dks" id="dks" class="form-control border border-2 rounded-5" placeholder="Shkruaj Daten e skaditimit" autocomplete="off">
               </div>
 
 
@@ -147,7 +148,7 @@ if (isset($_POST['ruaj'])) {
               <div class="col">
 
                 <label class="form-label" for="yt">Kategoria</label>
-                <select class="form-select shadow-sm rounded-5 w-100" name="kategoria" id="kategoria">
+                <select class="form-select border border-2 rounded-5 w-100" name="kategoria" id="kategoria">
                   <?php
                   $kg = $conn->query("SELECT * FROM kategorit");
                   while ($kgg = mysqli_fetch_array($kg)) {
@@ -158,37 +159,60 @@ if (isset($_POST['ruaj'])) {
               </div>
               <div class="col">
                 <label class="form-label" for="yt">Adresa</label>
-                <input type="text" name="adresa" id="adresa" class="form-control shadow-sm rounded-5" placeholder="Adresa" autocomplete="off">
+                <input type="text" name="adresa" id="adresa" class="form-control border border-2 rounded-5" placeholder="Adresa" autocomplete="off">
               </div>
             </div>
             <div class="form-group row">
               <div class="col">
                 <label class="form-label" for="yt">Nr.Tel</label>
-                <input type="text" name="nrtel" id="nrtel" class="form-control shadow-sm rounded-5" placeholder="Nr.Tel" autocomplete="off">
+                <input type="text" name="nrtel" id="nrtel" class="form-control border border-2 rounded-5" placeholder="Nr.Tel" autocomplete="off">
               </div>
               <div class="col">
-                <label class="form-label" for="yt">Nr. Xhirollogaris</label>
-                <input type="text" name="nrllog" id="nrllog" class="form-control shadow-sm rounded-5" placeholder="Nr. Xhirollogaris" autocomplete="off">
+                <div class="form-group row">
+                  <div class="col">
+                    <label class="form-label" for="yt">Nr. Xhirollogaris</label>
+                    <input type="text" name="nrllog" id="nrllog" class="form-control border border-2 rounded-5" placeholder="Nr. Xhirollogaris" autocomplete="off">
+                  </div>
+                  <div class="col">
+                    <label class="form-label" for="yt">Zgjedh bankën</label>
+                    <select id="bank_info" name="bank_info" class="form-select rounded-5 border border-2 py-2">
+                      <option value="Banka Ekonomike">Banka Ekonomike (Kosovo)</option>
+                      <option value="Banka KombetareTregtare">Banka Kombëtare Tregtare (Albania)</option>
+                      <option value="Banka Per Biznes">Banka për Biznes (Kosovo)</option>
+                      <option value="NLB Komercijalna Banka">NLB Komercijalna banka (Slovenia)</option>
+                      <option value="NLB Banka">NLB Banka (Slovenia)</option>
+                      <option value="Pro Credit Bank">ProCredit Bank (Germany)</option>
+                      <option value="Raiffeisen Bank Kosovo">Raiffeisen Bank Kosovo (Austria)</option>
+                      <option value="TEB SHA">TEB SH.A. (Turkey)</option>
+                      <option value="Ziraat Bank">Ziraat Bank (Turkey)</option>
+                      <option value="Turkiye Is Bank">Turkiye Is Bank (Turkey)</option>
+                      <option value="PayPal">PayPal</option>
+                      <option value="Ria">Ria</option>
+                      <option value="Money Gram"> Money Gram</option>
+                      <option value="Western Union">Western Union</option>
+                    </select>
+                  </div>
+                </div>
               </div>
             </div>
             <div class="form-group row">
               <div class="col">
                 <label class="form-label" for="yt">Email Adresa</label>
-                <input type="text" name="emailadd" id="emailadd" class="form-control shadow-sm rounded-5" placeholder="Email Adresa" autocomplete="off">
+                <input type="text" name="emailadd" id="emailadd" class="form-control border border-2 rounded-5" placeholder="Email Adresa" autocomplete="off">
               </div>
               <div class="col">
                 <label class="form-label" for="yt">Email Adresa per platforma</label>
-                <input type="text" name="emailp" id="emailp" class="form-control shadow-sm rounded-5" placeholder="Email Adresa per platforma" autocomplete="off">
+                <input type="text" name="emailp" id="emailp" class="form-control border border-2 rounded-5" placeholder="Email Adresa per platforma" autocomplete="off">
               </div>
             </div>
             <div class="form-group row">
               <div class="col">
                 <label class="form-label">P&euml;rdoruesi <small>(Sistemit)</small>:</label>
-                <input type="text" name="perdoruesi" class="form-control shadow-sm rounded-5" placeholder="P&euml;rdoruesi i sistemit">
+                <input type="text" name="perdoruesi" class="form-control border border-2 rounded-5" placeholder="P&euml;rdoruesi i sistemit">
               </div>
               <div class="col">
                 <label class="form-label">Fjalekalimi <small>(Sistemit)</small>:</label>
-                <input type="password" name="password" class="form-control shadow-sm rounded-5" placeholder="Fjalkalimi i sistemit">
+                <input type="password" name="password" class="form-control border border-2 rounded-5" placeholder="Fjalkalimi i sistemit">
               </div>
             </div>
             <div class="form-group row">
@@ -203,7 +227,7 @@ if (isset($_POST['ruaj'])) {
 
               <div class="col">
                 <label class="form-label">Zgjidhni kategorin</label>
-                <select class="form-select shadow-sm rounded-5 w-100" name="ads" id="js-example-basic-single w-100">
+                <select class="form-select border border-2 rounded-5 w-100" name="ads" id="js-example-basic-single w-100">
                   <option value="">Zgjidhni Llogarin&euml;</option>
                   <?php
                   $mads = $conn->query("SELECT * FROM ads");
@@ -220,17 +244,17 @@ if (isset($_POST['ruaj'])) {
               <div class="col">
                 <label class="form-label" for="imei">Ngarko kontrat&euml;n:</label>
                 <div class="file-upload-wrapper">
-                  <input type="file" name="tipi" class="fileuploader form-control shadow-sm rounded-5" />
+                  <input type="file" name="tipi" class="fileuploader form-control border border-2 rounded-5" />
                 </div>
               </div>
 
               <div class="col">
                 <label class="form-label" for="imei">Perqindja:</label>
-                <input type="text" name="perqindja" class="form-control shadow-sm rounded-5" placeholder="0.00%">
+                <input type="text" name="perqindja" class="form-control border border-2 rounded-5" placeholder="0.00%">
               </div>
               <div class="col">
                 <label class="form-label" for="imei">Perqindja platformat tjera:</label>
-                <input type="text" name="perqindja2" class="form-control shadow-sm rounded-5" placeholder="0.00%">
+                <input type="text" name="perqindja2" class="form-control border border-2 rounded-5" placeholder="0.00%">
               </div>
             </div>
 
@@ -241,17 +265,17 @@ if (isset($_POST['ruaj'])) {
             <div class="form-group row">
               <div class="col">
                 <label class="form-label"><i class="ti-facebook"></i> Facebook URL:</label>
-                <input type="URL" name="fb" class="form-control shadow-sm rounded-5" placeholder="https://facebook.com/....">
+                <input type="URL" name="fb" class="form-control border border-2 rounded-5" placeholder="https://facebook.com/....">
               </div>
               <div class="col">
                 <label class="form-label"><i class="ti-instagram"></i> Instagram URL:</label>
-                <input type="URL" name="ig" class="form-control shadow-sm rounded-5" placeholder="https://instagram.com/....">
+                <input type="URL" name="ig" class="form-control border border-2 rounded-5" placeholder="https://instagram.com/....">
               </div>
             </div>
             <div class="form-group row">
               <div class="col">
                 <label class="form-label" for="imei">Email qe kan akses <small>(Mbaj shtypur CTRL)</small> </label>
-                <select multiple class="form-control shadow-sm rounded-5" name="emails[]" id="exampleFormControlSelect2">
+                <select multiple class="form-control border border-2 rounded-5" name="emails[]" id="exampleFormControlSelect2">
                   <?php
                   $getemails = $conn->query("SELECT * FROM emails");
                   while ($maillist = mysqli_fetch_array($getemails)) {
@@ -265,7 +289,7 @@ if (isset($_POST['ruaj'])) {
             <div class="form-group row">
               <div class="col">
                 <label class="form-label" for="info"> Info Shtes&euml;</label>
-                <textarea id="simpleMde" name="info" placeholder="Info Shtes&euml;" class="form-control shadow-sm rounded-5"></textarea>
+                <textarea id="simpleMde" name="info" placeholder="Info Shtes&euml;" class="form-control border border-2 rounded-5"></textarea>
               </div>
             </div>
         </div>
