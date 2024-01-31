@@ -302,7 +302,17 @@ $editcl = mysqli_fetch_array($editc);
                 </div>
                 <div class="form-group row">
                   <div class="col">
-                    <label for="perqindja" class="text-muted">Perqindja</label>
+                    <label for="perqindja" class="text-muted">Perqindja e kompanisë BareshaMusic</label>
+                    <input type="text" name="perqindja" class="form-control rounded-5 border border-2" value="<?php echo $editcl['perqindja']; ?>" placeholder="0.00%">
+                  </div>
+                  <div class="col">
+                    <label for="perqindja" class="text-muted">Perqindja platformave tjera e kompanisë BareshaMusic</label>
+                    <input type="text" name="perqindja2" class="form-control rounded-5 border border-2" value="<?php echo $editcl['perqindja2']; ?>" placeholder="0.00%">
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <div class="col">
+                    <label for="perqindja" class="text-muted">Perqindja e klientit</label>
                     <div class="input-group mb-3">
                       <div class="input-group-text bg-transparent border-0">
                         <?php
@@ -311,7 +321,7 @@ $editcl = mysqli_fetch_array($editc);
                         ?>
                         <input type="checkbox" name="perqindja_check" id="perqindja_check" <?php echo ($perqindja_check == "1") ? 'checked' : ''; ?> />
                       </div>
-                      <input type="text" name="perqindja" class="form-control rounded-5 border border-2" value="<?php echo $editcl['perqindja']; ?>" placeholder="0.00%">
+                      <input type="text" name="input1" disabled class="form-control rounded-5 border border-2" value="<?php echo 100 - $editcl['perqindja']; ?>" placeholder="0.00%">
                     </div>
                     <p><?php if ($perqindja_check == "1") {
                         ?>
@@ -325,7 +335,7 @@ $editcl = mysqli_fetch_array($editc);
                     </p>
                   </div>
                   <div class="col">
-                    <label for="perqindja" class="text-muted">Perqindja platformave tjera</label>
+                    <label for="perqindja" class="text-muted">Perqindja platformave tjera te klientit</label>
                     <div class="input-group mb-3">
                       <div class="input-group-text bg-transparent border-0">
                         <?php
@@ -334,7 +344,7 @@ $editcl = mysqli_fetch_array($editc);
                         ?>
                         <input type="checkbox" name="perqindja_platformave_check" id="perqindja_platformave_check" <?php echo ($perqindja_e_platformave_check == "1") ? 'checked' : ''; ?> />
                       </div>
-                      <input type="text" name="perqindja2" class="form-control rounded-5 border border-2" value="<?php echo $editcl['perqindja2']; ?>" placeholder="0.00%">
+                      <input type="text" name="input2" class="form-control rounded-5 border border-2" value="<?php echo 100 - $editcl['perqindja2'];  ?>" placeholder="0.00%" disabled>
                     </div>
                     <p>
                       <?php if ($perqindja_e_platformave_check == "1") { ?>
