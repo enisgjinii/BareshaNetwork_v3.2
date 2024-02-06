@@ -284,6 +284,9 @@
                                         if ($page == 'quick_platform_invoice.php') {
                                             return 'Raportet e platformave';
                                         }
+                                        if ($page == 'currency.php') {
+                                            return 'Valutimi';
+                                        }
                                     }
                                     $pages = array(
                                         'stafi.php',

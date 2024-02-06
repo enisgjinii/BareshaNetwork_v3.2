@@ -169,7 +169,55 @@
             format: 'MMMM Do YYYY'
         });
 
+        function getCurrentDate() {
+            var today = new Date();
+            var dd = String(today.getDate()).padStart(2, '0');
+            var mm = String(today.getMonth() + 1).padStart(2, '0');
+            var yyyy = today.getFullYear();
+            return yyyy + mm + dd;
+        }
         let table = $('#paymentTable').DataTable({
+            dom: "<'row'<'col-md-3'l><'col-md-6'B><'col-md-3'f>>" +
+                "<'row'<'col-md-12'tr>>" +
+                "<'row'<'col-md-6'><'col-md-6'p>>",
+
+            buttons: [{
+                    extend: "pdfHtml5",
+                    text: '<i class="fi fi-rr-file-pdf fa-lg"></i>&nbsp;&nbsp; PDF',
+                    titleAttr: "Eksporto tabelen ne formatin PDF",
+                    className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
+                    filename: "faturat_e_kryera_" + getCurrentDate() + "" // Set custom filename for PDF
+                },
+                {
+                    extend: "copyHtml5",
+                    text: '<i class="fi fi-rr-copy fa-lg"></i>&nbsp;&nbsp; Kopjo',
+                    titleAttr: "Kopjo tabelen ne formatin Clipboard",
+                    className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
+                    filename: "faturat_e_kryera_" + getCurrentDate() + "" // Set custom filename for Copy
+                },
+                {
+                    extend: "excelHtml5",
+                    text: '<i class="fi fi-rr-file-excel fa-lg"></i>&nbsp;&nbsp; Excel',
+                    titleAttr: "Eksporto tabelen ne formatin Excel",
+                    className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
+                    exportOptions: {
+                        modifier: {
+                            search: "applied",
+                            order: "applied",
+                            page: "all",
+                        },
+                    },
+                    filename: "faturat_e_kryera_" + getCurrentDate() + "" // Set custom filename for Excel
+                },
+                {
+                    extend: "print",
+                    text: '<i class="fi fi-rr-print fa-lg"></i>&nbsp;&nbsp; Printo',
+                    titleAttr: "Printo tabel&euml;n",
+                    className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
+                    filename: "faturat_e_kryera_" + getCurrentDate() + "" // Set custom filename for Print
+                },
+            ],
+
             order: [],
             stripeClasses: ['stripe-color'],
             columnDefs: [{

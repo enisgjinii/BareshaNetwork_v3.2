@@ -213,6 +213,9 @@ function format_page_name($page)
     if ($page == 'quick_platform_invoice.php') {
         return 'Fature e shpejte e platformave';
     }
+    if ($page == 'currency.php') {
+        return 'Valutimi';
+    }
 }
 $pages = array(
     'stafi.php' => format_page_name('stafi.php'),
@@ -271,6 +274,7 @@ $pages = array(
     'office_damages.php' => format_page_name('office_damages.php'), 
     'office_requirements.php' => format_page_name('office_requirements.php'),
     'quick_platform_invoice.php' => format_page_name('quick_platform_invoice.php'),
+    'currency.php' => format_page_name('currency.php')
 
 );
 // Check if the role ID is present in the URL

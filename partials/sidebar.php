@@ -172,6 +172,7 @@
           "listaEFaturaveTePlatformave.php" => "Lista e faturave",
           "pagesatEKryera.php" => "Pagesat e perfunduara",
           "quick_platform_invoice.php" => "Raporte te platformave",
+          "currency.php" => "Valutimi",
         ],
       ],
     ];
