@@ -1,4 +1,5 @@
 <?php
+
 // Include your database connection here
 include 'conn-d.php';
 
@@ -33,15 +34,43 @@ $sql = "SELECT
         INNER JOIN klientet ON invoices.customer_id = klientet.id";
 
 // Apply search
-if (!empty($_POST['search']['value'])) {
-    $searchValue = $_POST['search']['value'];
-    $sql .= " WHERE 
-                klientet.emri LIKE '%$searchValue%'";
+$searchValue = $_POST['search']['value'];
+if (!empty($searchValue)) {
+    if (!empty($startDate) && !empty($endDate)) {
+        $sql .= " AND ";
+    } else {
+        $sql .= " WHERE ";
+    }
+    $sql .= "(
+                klientet.emri LIKE '%$searchValue%' OR  
+                payments.payment_id LIKE '%$searchValue%' OR
+                invoices.invoice_number LIKE '%$searchValue%' OR  
+                payments.payment_date LIKE '%$searchValue%' OR  
+                payments.bank_info LIKE '%$searchValue%' OR  
+                payments.type_of_pay LIKE '%$searchValue%' OR  
+                payments.description LIKE '%$searchValue%' OR  
+                invoices.total_amount_after_percentage LIKE '%$searchValue%'
+            )";
 }
 
-// Apply grouping
+
+// Apply date range filter
+$startDate = $_POST['startDate'];
+$endDate = $_POST['endDate'];
+if (!empty($startDate) && !empty($endDate)) {
+    if (!empty($searchValue)) {
+        $sql .= " AND ";
+    } else {
+        $sql .= " WHERE ";
+    }
+    $sql .= "payments.payment_date BETWEEN '$startDate' AND '$endDate'";
+}
+
 $sql .= " GROUP BY invoices.customer_id, invoices.invoice_number, klientet.emri, payments.invoice_id";
 
+// Get the total number of records without filtering
+$sqlCount = "SELECT COUNT(*) as count FROM ($sql) AS countTable";
+$totalRecords = mysqli_fetch_assoc(mysqli_query($conn, $sqlCount))['count'];
 
 // Apply ordering
 if (!empty($_POST['order'])) {
@@ -50,18 +79,20 @@ if (!empty($_POST['order'])) {
     $sql .= " ORDER BY $orderByColumn $orderDirection";
 }
 
-
-// Get the total number of records after filtering
-$sqlCount = "SELECT COUNT(*) as count FROM ($sql) AS countTable";
-$totalRecords = mysqli_fetch_assoc(mysqli_query($conn, $sqlCount))['count'];
-
 // Apply pagination
 $start = $_POST['start'];
 $length = $_POST['length'];
-$sql .= " LIMIT $start, $length";
+if ($length != -1) { // Check if "All" option is selected
+    $sql .= " LIMIT $start, $length";
+}
 
 // Execute the final query
 $result = $conn->query($sql);
+
+if (!$result) {
+    // Handle query error
+    die("Query failed: " . $conn->error);
+}
 
 // Process the data for DataTables
 $data = array();
@@ -78,11 +109,8 @@ while ($row = $result->fetch_assoc()) {
     <button class="btn btn-danger btn-sm delete-btn text-white rounded-5 px-2" data-invoice-id="' . $row['invoice_id'] . '"><i class="fi fi-rr-trash"></i></button>
     ';
 
-
     $data[] = $dataRow;
 }
-
-
 
 // Convert data to JSON
 $output = array(
@@ -94,4 +122,5 @@ $output = array(
 
 echo json_encode($output);
 
+// Close the database connection
 $conn->close();

@@ -5,16 +5,11 @@ include 'modalPayment.php';
 include 'loan_modal.php';
 include 'invoices_trash_modal.php';
 require_once 'vendor/autoload.php';
-
-
 $config = require_once 'second_config.php';
-
 $client = initializeGoogleClient($config);
-
 if (isset($_GET['code'])) {
   handleAuthentication($client);
 }
-
 function initializeGoogleClient($config)
 {
   $client = new Google_Client();
@@ -23,7 +18,6 @@ function initializeGoogleClient($config)
   $client->setRedirectUri($config['redirect_uri']);
   $client->setAccessType('offline');
   $client->setApprovalPrompt('force');
-
   $client->addScope([
     'https://www.googleapis.com/auth/youtube',
     'https://www.googleapis.com/auth/youtube.readonly',
@@ -31,30 +25,22 @@ function initializeGoogleClient($config)
     'https://www.googleapis.com/auth/yt-analytics-monetary.readonly',
     'https://www.googleapis.com/auth/yt-analytics.readonly'
   ]);
-
   return $client;
 }
-
 function handleAuthentication($client)
 {
   try {
     $token = $client->fetchAccessTokenWithAuthCode($_GET['code']);
-
     $youtube = new Google\Service\YouTube($client);
     $channels = $youtube->channels->listChannels('snippet', ['mine' => true]);
     $channel = $channels->items[0];
     $channelId = $channel->id;
     $channelName = $channel->snippet->title;
-
     if (isset($token['refresh_token'])) {
       $refreshToken = $token['refresh_token'];
       storeRefreshTokenInDatabase($refreshToken, $channelId, $channelName);
     }
-
     $_SESSION['refresh_token'] = $refreshToken;
-
-
-
     // Redirect to a different page after authentication
     header('Location: invoices.php');
     exit;
@@ -64,38 +50,29 @@ function handleAuthentication($client)
     echo '</pre>';
   }
 }
-
 function getRefreshTokensFromDatabase()
 {
   require_once 'conn-d.php';
   global $conn; // Use the global keyword to make $conn accessible
-
   $sql = "SELECT token, channel_id, channel_name, created_at FROM refresh_tokens";
   $result = $conn->query($sql);
-
   $refreshTokens = [];
-
   if ($result->num_rows > 0) {
     while ($row = $result->fetch_assoc()) {
       $refreshTokens[] = $row;
     }
   }
-
   return $refreshTokens;
 }
-
 // Create database connection
 $conn = new mysqli($db_host, $db_user, $db_pass, $db_name);
-
 // Check connection
 if ($conn->connect_errno) {
   echo "Lidhja me MySQL d&euml;shtoi: " . $conn->connect_error;
   exit();
 }
-
 // Retrieve user-submitted date range or set a default
 $selectedRange = isset($_POST['dateRange']) ? $_POST['dateRange'] : 'last7days';
-
 // Define an array with predefined time periods
 $timePeriods = array(
   "last7days" => "7 ditët e fundit",
@@ -104,12 +81,10 @@ $timePeriods = array(
   "last365days" => "365 ditët e fundit",
   "lifetime" => "Gjatë gjithë jetës"
 );
-
 // Check if the selected range is in the predefined time periods
 if (array_key_exists($selectedRange, $timePeriods)) {
   // Handle predefined time periods here
   $rangeLabel = $timePeriods[$selectedRange];
-
   // Calculate start and end dates based on the selected range
   switch ($selectedRange) {
     case "last7days":
@@ -134,53 +109,39 @@ if (array_key_exists($selectedRange, $timePeriods)) {
       $endDate = date('Y-m-d');
       break;
   }
-
   // Set formatted date range for display
   $formattedDate = $rangeLabel;
 } else {
   // Handle the case when a specific month/year is selected
   list($year, $month) = explode('-', $selectedRange);
-
   // Translate the month name to Albanian
   $albanianMonthNames = array(
     "Janar", "Shkurt", "Mars", "Prill", "Maj", "Qershor", "Korrik", "Gusht", "Shtator", "Tetor", "Nëntor", "Dhjetor"
   );
   $monthName = $albanianMonthNames[(int)$month - 1];
-
   // Combine the formatted date
   $formattedDate = "Muaji $monthName - $year";
-
   // Set start and end dates for the selected month
   $startDate = "$year-$month-01";
   $endDate = date("Y-m-t", strtotime($startDate)); // 't' gives the last day of the month
 }
-
 $_SESSION['selectedDate'] = $formattedDate;
 $_SESSION['startDate'] = $startDate;
 $_SESSION['endDate'] = $endDate;
-
-
 $refreshTokens = getRefreshTokensFromDatabase();
-
 ?>
-
-
 <?php
-
 function getChannelDetails($channelId, $apiKey)
 {
   $url = "https://www.googleapis.com/youtube/v3/channels?part=snippet&id=$channelId&key=$apiKey";
   $response = file_get_contents($url);
   $data = json_decode($response, true);
-
   if (isset($data['items'][0]['snippet']['thumbnails']['high']['url'])) {
     return $data['items'][0]['snippet']['thumbnails']['high']['url'];
   }
-
   return null;
 }
 ?>
-
 <?php if (!isset($_SESSION['oauth_uid'])) {
   echo "
   <script>
@@ -199,8 +160,6 @@ function getChannelDetails($channelId, $apiKey)
 ";
 } else {
 ?>
-
-
   <style>
     .custom-tooltip {
       position: relative;
@@ -270,7 +229,6 @@ function getChannelDetails($channelId, $apiKey)
               <a style="text-transform: none;text-decoration: none;" href="<?php echo $client->createAuthUrl(); ?>" class="input-custom-css px-3 py-2">
                 <i class="fi fi-brands-youtube fa-lg"></i>&nbsp; Lidh kanal
               </a>
-
               <ul class="nav nav-pills bg-white my-3 mx-0 rounded-5" style="width: fit-content;border:1px solid lightgrey;" id="pills-tab" role="tablist">
                 <li class="nav-item" role="presentation">
                   <button class="nav-link rounded-5  active" style="text-transform: none" id="pills-lista_e_faturave-tab" data-bs-toggle="pill" data-bs-target="#pills-lista_e_faturave" type="button" role="tab" aria-controls="pills-lista_e_faturave" aria-selected="true">Lista e faturave</button>
@@ -282,11 +240,9 @@ function getChannelDetails($channelId, $apiKey)
                   <button class="nav-link rounded-5" style="text-transform: none" id="pills-lista_e_faturave_te_kryera-tab" data-bs-toggle="pill" data-bs-target="#pills-lista_e_faturave_te_kryera" type="button" role="tab" aria-controls="pills-lista_e_faturave_te_kryera" aria-selected="false">Pagesat e kryera</button>
                 </li>
               </ul>
-
             </div>
           </div>
           <div class="p-3 shadow-sm rounded-5 mb-4 card">
-
             <div class="row">
               <div class="modal fade" id="newInvoice" tabindex="-1" aria-labelledby="newInvoiceLabel" aria-hidden="true">
                 <div class="modal-dialog modal-lg modal-dialog-centered">
@@ -297,8 +253,6 @@ function getChannelDetails($channelId, $apiKey)
                     </div>
                     <div class="modal-body">
                       <!-- Your form goes here -->
-
-
                       <form action="create_invoice.php" method="POST">
                         <div class="mb-3">
                           <label for="invoice_number" class="form-label">Numri i faturës:</label>
@@ -308,27 +262,21 @@ function getChannelDetails($channelId, $apiKey)
                           ?>
                           <input type="text" class="form-control rounded-5 shadow-sm py-3" id="invoice_number" name="invoice_number" value="<?php echo $invoiceNumber; ?>" required readonly>
                         </div>
-
                         <div class="mb-3">
                           <label for="customer_id" class="form-label">Emri i klientit:</label>
                           <select class="form-control rounded-5 shadow-sm py-3" id="customer_id" name="customer_id" required>
                             <?php
-
                             require_once "conn-d.php";
-
                             $sql = "SELECT id,emri, perqindja FROM klientet ORDER BY id DESC";
                             $result = mysqli_query($conn, $sql);
-
                             if (mysqli_num_rows($result) > 0) {
                               while ($row = mysqli_fetch_assoc($result)) {
                                 echo "<option value='" . $row["id"] . "' data-percentage='" . $row["perqindja"] . "'>" . $row["emri"] . "</option>";
                               }
                             }
-
                             ?>
                           </select>
                         </div>
-
                         <script>
                           new Selectr('#customer_id', {
                             searchable: true,
@@ -353,7 +301,6 @@ function getChannelDetails($channelId, $apiKey)
                             <input type="text" class="form-control rounded-5 shadow-sm py-3" id="total_amount_after_percentage" name="total_amount_after_percentage" required>
                           </div>
                         </div>
-
                         <div class="mb-3">
                           <label for="created_date" class="form-label">Data e krijimit të faturës:</label>
                           <input type="date" class="form-control rounded-5 shadow-sm py-3" id="created_date" name="created_date" value="<?php echo date('Y-m-d'); ?>" required>
@@ -373,9 +320,7 @@ function getChannelDetails($channelId, $apiKey)
               </div>
               <div class="tab-content" id="pills-tabContent">
                 <div class="tab-pane fade show active" id="pills-lista_e_faturave" role="tabpanel" aria-labelledby="pills-lista_e_faturave-tab">
-
                   <!-- Modal Structure -->
-
                   <div class="table-responsive">
                     <table id="invoiceList" class="table table-bordered" data-source="get_invoices.php">
                       <thead class="table-light">
@@ -401,7 +346,6 @@ function getChannelDetails($channelId, $apiKey)
                       $albanianMonthNames = array(
                         "Janar", "Shkurt", "Mars", "Prill", "Maj", "Qershor", "Korrik", "Gusht", "Shtator", "Tetor", "Nëntor", "Dhjetor"
                       );
-
                       // Predefined time periods
                       $timePeriods = array(
                         "7 ditët e fundit" => "last7days",
@@ -410,19 +354,16 @@ function getChannelDetails($channelId, $apiKey)
                         "365 ditët e fundit" => "last365days",
                         "Gjatë gjithë jetës" => "lifetime"
                       );
-
                       // Generate year and month options
                       $options = "";
                       $currentYear = date('Y');
                       $currentMonth = date('m');
-
                       // Add predefined time periods to options within an optgroup
                       $options .= "<optgroup label='Periudhat kohore'>";
                       foreach ($timePeriods as $periodName => $periodValue) {
                         $options .= "<option value='{$periodValue}'>$periodName</option>";
                       }
                       $options .= "</optgroup>";
-
                       // Add years and months to options within an optgroup
                       $options .= "<optgroup label='Muajt'>";
                       for ($year = 2023; $year <= $currentYear; $year++) {
@@ -437,7 +378,6 @@ function getChannelDetails($channelId, $apiKey)
                       }
                       $options .= "</optgroup>";
                       ?>
-
                       <form method="post" class="mb-2">
                         <div class="row">
                           <div class="col">
@@ -449,25 +389,18 @@ function getChannelDetails($channelId, $apiKey)
                         </div>
                         <br>
                         <button type="submit" class="input-custom-css px-3 py-2" style="text-decoration: none;"><i class="fi fi-rr-filter"></i> Filtro</button>
-
-
                       </form>
-
                       <script>
                         new Selectr('#dateRange', {
                           searchable: true
                         });
                       </script>
-
-
                       <!-- SQL Commands Display Section -->
                       <div class="sql-commands-container" style="display: none;">
                         <p>Komandat SQL për shtimin e të dhënave në tabelën e faturave. Këto përfshijnë "INSERT INTO" për shtimin e rreshtave të reja në një tabelë.</p>
                         <pre id="sqlCommands" class="sql-commands"></pre>
                       </div>
-
                       <br>
-
                       <?php
                       // Check if the user has submitted the filter form
                       if (isset($_POST['dateRange'])) {
@@ -476,7 +409,6 @@ function getChannelDetails($channelId, $apiKey)
                         <div>
                           <button id="submitSql" type="button" class="input-custom-css px-3 py-2 mt-2">Dorëzoje në bazën e të dhënave</button>
                         </div>
-
                         <div class="table-responsive">
                           <table class="table table-bordered" id="dataTable">
                             <thead class="bg-light">
@@ -495,28 +427,21 @@ function getChannelDetails($channelId, $apiKey)
                             </thead>
                             <tbody>
                               <?php
-
-
                               // Prepare a query to fetch data
                               $query = "SELECT id, emri, perqindja FROM klientet WHERE youtube = ?";
                               $stmt = mysqli_prepare($conn, $query);
-
-
                               foreach ($refreshTokens as $tokenInfo) {
                                 // Bind the channel_id parameter
                                 mysqli_stmt_bind_param($stmt, "s", $tokenInfo['channel_id']);
-
                                 // Execute the query
                                 if (mysqli_stmt_execute($stmt)) {
                                   $result = mysqli_stmt_get_result($stmt);
-
                                   while ($row = mysqli_fetch_assoc($result)) {
                                     $id = $row['id'];
                                     $emri = $row['emri'];
                                     $perqindja = $row['perqindja'];
                                   }
                                 }
-
                               ?>
                                 <tr>
                                   <td>
@@ -543,9 +468,7 @@ function getChannelDetails($channelId, $apiKey)
                                     'https://www.googleapis.com/auth/yt-analytics-monetary.readonly',
                                     'https://www.googleapis.com/auth/yt-analytics.readonly'
                                   ]);
-
                                   $youtubeAnalytics = new Google\Service\YoutubeAnalytics($client);
-
                                   // Get the created date for that channel in YouTube using tokenInfo channel id
                                   $params = [
                                     'ids' => 'channel==' . $tokenInfo['channel_id'],
@@ -554,24 +477,18 @@ function getChannelDetails($channelId, $apiKey)
                                     'endDate' => $endDate,
                                     'metrics' => 'estimatedRevenue'
                                   ];
-
                                   $response = $youtubeAnalytics->reports->query($params);
                                   $row = $response->getRows()[0];
-
                                   // Initialize a variable to store the value
                                   $storedValue = '';
-
                                   // Display only the numeric values (without column headers)
                                   foreach ($row as $index => $value) {
                                     // Append the value to the storedValue variable
                                     $storedValue .= $value . '<br>';
                                   }
-
                                   // Echo the storedValue outside of the loop
                                   echo '<td>' . $storedValue . '</td>';
                                   ?>
-
-
                                   <td>
                                     <?php
                                     $difference = $value - ($value * ($perqindja / 100));
@@ -586,26 +503,20 @@ function getChannelDetails($channelId, $apiKey)
                                   <td>
                                     <?php // Get the cover art URL
                                     $coverArtUrl = getChannelDetails($tokenInfo['channel_id'], 'AIzaSyD56A1QU67vIkP1CYSDX2sYona2nxOJ9R0');
-
                                     // Display cover art image
                                     if ($coverArtUrl) {
                                       echo '<img src="' . $coverArtUrl . '" class="figure-img img-fluid rounded" alt="Channel Cover">';
                                       echo '<br>';
                                       echo $tokenInfo['channel_name'];
                                     }
-
                                     ?>
-
-
                                   </td>
                                   <td>
                                     <?php
                                     $selectedDate = $_SESSION['selectedDate']; // Store the session variable in a separate variable
                                     $difference = $value - ($value * ($perqindja / 100));
-
                                     $sql = "SELECT * FROM invoices WHERE customer_id = '$_SESSION[id]' AND item = '$selectedDate'";
                                     $result = mysqli_query($conn, $sql);
-
                                     if ($row = mysqli_fetch_assoc($result)) {
                                       $item = $row['item'];
                                       // echo $item . '<br>';
@@ -618,8 +529,6 @@ function getChannelDetails($channelId, $apiKey)
                                       echo '<i class="fa-solid fa-x"></i>';
                                     }
                                     ?>
-
-
                                   </td>
                                   <td>
                                     <a class="btn btn-danger text-white btn-sm rounded-5 px-2 py-1 delete-button" data-channelid="<?php echo $tokenInfo['channel_id'] ?>">
@@ -629,7 +538,6 @@ function getChannelDetails($channelId, $apiKey)
                                   <td>
                                     <input type="checkbox" name="selected_channels[]" value="<?php echo $tokenInfo['channel_id'] ?>">
                                   </td>
-
                                 </tr>
                               <?php } ?>
                             </tbody>
@@ -645,7 +553,6 @@ function getChannelDetails($channelId, $apiKey)
                       // Get all values from the table and store them in a JavaScript array
                       const tableRows = document.querySelectorAll("tbody tr");
                       const allValues = [];
-
                       tableRows.forEach((row) => {
                         const rowData = [];
                         row.querySelectorAll("td").forEach((cell) => {
@@ -653,7 +560,6 @@ function getChannelDetails($channelId, $apiKey)
                         });
                         allValues.push(rowData.join(", "));
                       });
-
                       // Attach a click event listener to the "Insert Values" button
                       const insertButton = document.querySelector(".insert-values-btn");
                       insertButton.addEventListener("click", function() {
@@ -664,10 +570,34 @@ function getChannelDetails($channelId, $apiKey)
                       });
                     });
                   </script>
-
                 </div>
-
                 <div class="tab-pane fade" id="pills-lista_e_faturave_te_kryera" role="tabpanel" aria-labelledby="pills-lista_e_faturave_te_kryera-tab">
+                  <div class="row">
+                    <div class="col">
+                      <label for="max" class="form-label" style="font-size: 14px;">Prej:</label>
+                      <p class="text-muted" style="font-size: 10px;">Zgjidhni një diapazon fillues të
+                        dates për të filtruar rezultatet</p>
+                      <div class="input-group rounded-5">
+                        <span class="input-group-text border-0" style="background-color: white;cursor: pointer;"><i class="fi fi-rr-calendar"></i></span><input type="date" id="startDate" name="startDate" class="form-control rounded-5" placeholder="Zgjidhni datën e fillimit" style="cursor: pointer;" readonly>
+                      </div>
+                    </div>
+                    <div class="col">
+                      <label for="max" class="form-label" style="font-size: 14px;">Deri:</label>
+                      <p class="text-muted" style="font-size: 10px;">Zgjidhni një diapazon mbarues të
+                        dates për të filtruar rezultatet.</p>
+                      <div class="input-group rounded-5">
+                        <span class="input-group-text border-0" style="background-color: white;cursor: pointer;"><i class="fi fi-rr-calendar"></i></span><input type="text" id="endDate" name="endDate" class="form-control rounded-5" placeholder="Zgjidhni datën e mbarimit" style="cursor: pointer;" readonly>
+                      </div>
+                    </div>
+
+                  </div>
+                  <div class="col-2 my-4">
+                    <button id="clearFiltersBtn" class="input-custom-css px-3 py-2">
+                      <i class="fi fi-rr-clear-alt"></i>
+                      Pastro filtrat
+                    </button>
+                  </div>
+                  <hr>
                   <table id="paymentsTable" class="table table-bordered table-hover w-100">
                     <thead class="table-light">
                       <tr>
@@ -686,14 +616,6 @@ function getChannelDetails($channelId, $apiKey)
                 </div>
               </div>
             </div>
-
-
-
-
-
-
-
-
           </div>
         </div>
       </div>
@@ -703,29 +625,22 @@ function getChannelDetails($channelId, $apiKey)
   {
     // Get the current date and time
     $currentDateTime = date("dmYHis");
-
     // Concatenate the prefix and date/time to create the invoice number
     $invoiceNumber = $currentDateTime;
-
     return $invoiceNumber;
   }
   ?>
-
   </div>
-
-
   <script>
     document.getElementById('customer_id').addEventListener('change', function() {
       var selectedOption = this.options[this.selectedIndex];
       var percentage = selectedOption.getAttribute('data-percentage');
       document.getElementById('percentage').value = percentage;
-
       // Calculate Total Amount after Percentage
       var totalAmount = parseFloat(document.getElementById('total_amount').value);
       var totalAmountAfterPercentage = totalAmount - (totalAmount * (percentage / 100));
       document.getElementById('total_amount_after_percentage').value = totalAmountAfterPercentage.toFixed(2);
     });
-
     document.getElementById('total_amount').addEventListener('input', function() {
       // Calculate Total Amount after Percentage when Total Amount changes
       var totalAmount = parseFloat(this.value);
@@ -736,7 +651,6 @@ function getChannelDetails($channelId, $apiKey)
 
     function getCustomerName(customerId) {
       var customerName = '';
-
       $.ajax({
         url: 'get_customer_name.php',
         type: 'POST',
@@ -748,12 +662,8 @@ function getChannelDetails($channelId, $apiKey)
           customerName = response;
         }
       });
-
       return customerName;
     }
-
-
-
     $(document).ready(function() {
       var table = $('#invoiceList').DataTable({
         processing: true,
@@ -820,7 +730,6 @@ function getChannelDetails($channelId, $apiKey)
             className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
             action: function() {
               const selectedIds = [];
-
               // Iterate over the checkboxes and get the selected IDs
               $('.row-checkbox:checked').each(function() {
                 selectedIds.push($(this).data('id'));
@@ -848,7 +757,6 @@ function getChannelDetails($channelId, $apiKey)
                           text: response,
                         });
                         const currentPage = table.page.info().page;
-
                       },
                       error: function(error) {
                         console.error('Error deleting items:', error);
@@ -893,7 +801,6 @@ function getChannelDetails($channelId, $apiKey)
               const loanAmount = row.customer_loan_amount;
               const loanPaid = row.customer_loan_paid;
               const difference = loanAmount - loanPaid;
-
               // Check if the difference is greater than 0 before displaying the dot and tooltip
               if (difference > 0) {
                 // Create a dot with a tooltip
@@ -901,7 +808,6 @@ function getChannelDetails($channelId, $apiKey)
                   '<div class="custom-dot"></div>' +
                   '<span class="custom-tooltiptext">' + difference + ' €</span>' +
                   '</div>';
-
                 // Return the customer name and dot with tooltip
                 return '<p style="white-space: normal;">' + data + '</p>' + dotHTML;
               } else {
@@ -916,14 +822,12 @@ function getChannelDetails($channelId, $apiKey)
               // Combine item and state_of_invoice information
               var stateOfInvoice = row.state_of_invoice;
               var badgeClass = '';
-
               // Check the value and apply Bootstrap badge accordingly
               if (stateOfInvoice === 'Parregullt') {
                 badgeClass = 'bg-danger';
               } else if (stateOfInvoice === 'Rregullt') {
                 badgeClass = 'bg-success';
               }
-
               // Combine item with state_of_invoice information
               var combinedData = '<div class="item-column">';
               combinedData += data; // Append the original item data
@@ -931,7 +835,6 @@ function getChannelDetails($channelId, $apiKey)
               combinedData += '<div class="badge-column">';
               combinedData += '<span class="badge ' + badgeClass + ' mx-1 rounded-5">' + stateOfInvoice + '</span>';
               combinedData += '</div>';
-
               return combinedData;
             }
           },
@@ -980,11 +883,6 @@ function getChannelDetails($channelId, $apiKey)
           }
         ],
       });
-
-
-
-
-
       var currentPage = 0;
       $(document).on('click', '.open-payment-modal', function(e) {
         e.preventDefault();
@@ -1016,7 +914,6 @@ function getChannelDetails($channelId, $apiKey)
           $('#paymentAmountError').text('');
           $('#submitPayment').prop('disabled', false);
         }
-
       }); // Handle click on "Make Payment" button within the modal
       $('#submitPayment').click(function(e) {
         e.preventDefault();
@@ -1025,8 +922,6 @@ function getChannelDetails($channelId, $apiKey)
         var bankInfo = $('#bankInfo').val();
         var type_of_pay = $('#type_of_pay').val();
         var description = $('#description').val();
-
-
         // Use AJAX to submit payment and update the DataTable
         $.ajax({
           url: 'make_payment.php',
@@ -1042,16 +937,13 @@ function getChannelDetails($channelId, $apiKey)
             if (response === 'success') {
               // Payment was successful, close the modal
               $('#paymentModal').modal('hide');
-
               // Apply a CSS class to the table row
               var row = table.row('#' + invoiceId).node();
               $(row).addClass('success-row');
-
               // Set a timeout to remove the CSS class after 3 seconds
               setTimeout(function() {
                 $(row).removeClass('success-row');
               }, 3000);
-
               // Show SweetAlert2 success toast message
               Swal.fire({
                 title: 'Pagesa është kryer me sukses',
@@ -1067,23 +959,16 @@ function getChannelDetails($channelId, $apiKey)
                   '</div>',
                 width: '500px'
               });
-
               // Store the current page number
               currentPage = table.page.info().page;
-
               // Reload the DataTable and restore the current page
               table.ajax.reload(function() {
                 table.page(currentPage).draw(false);
               });
-
               // Refresh the DataTable
               completePayments.ajax.reload();
-
-
-
             } else {
               // Handle any payment failure and display an error message
-
               // Show SweetAlert2 error toast message
               Swal.fire({
                 title: 'Pagesa dështoi',
@@ -1094,7 +979,6 @@ function getChannelDetails($channelId, $apiKey)
                 showConfirmButton: false,
                 timer: 5000 // Adjust the timer for how long the toast message will be displayed
               });
-
               console.log('Pagesa dështoi: ' + response);
             }
           },
@@ -1103,8 +987,6 @@ function getChannelDetails($channelId, $apiKey)
           }
         });
       });
-
-
       var invoice_trash = $('#invoices_trash').DataTable({
         responsive: true,
         processing: true,
@@ -1148,7 +1030,6 @@ function getChannelDetails($channelId, $apiKey)
             filename: "faturat_e_fshira_" + getCurrentDate() + "" // Set custom filename for Print
           },
         ],
-
         ajax: {
           url: 'invoices_trash_server.php',
           type: 'POST',
@@ -1210,10 +1091,8 @@ function getChannelDetails($channelId, $apiKey)
         var yyyy = today.getFullYear();
         return yyyy + mm + dd;
       }
-
       $('#invoices_trash tbody').on('click', '.restore-btn', function() {
         var invoiceId = $(this).data('id');
-
         // Send an AJAX request to restore the invoice
         $.ajax({
           url: 'restore_invoice.php', // Create a PHP file for restoring invoices
@@ -1224,7 +1103,6 @@ function getChannelDetails($channelId, $apiKey)
           success: function(response) {
             // Parse the JSON response
             var result = JSON.parse(response);
-
             if (result.success) {
               // Show success message with SweetAlert2
               Swal.fire({
@@ -1234,21 +1112,14 @@ function getChannelDetails($channelId, $apiKey)
                 timer: 3000,
                 showConfirmButton: false
               }).then(function() {
-
-
                 // Store the current page number
                 currentPage = invoice_trash.page.info().page;
                 currentTablePage = table.page.info().page;
-
-
-
                 // Reload the DataTable and restore the current page
                 invoice_trash.ajax.reload(function() {
                   invoice_trash.page(currentPage).draw(false);
                   table.page(currentTablePage).draw(false);
                 });
-
-
               });
             } else {
               // Show error message with SweetAlert2
@@ -1258,7 +1129,6 @@ function getChannelDetails($channelId, $apiKey)
                 text: result.message
               });
             }
-
           },
           error: function(error) {
             console.error('Error restoring invoice:', error);
@@ -1267,7 +1137,6 @@ function getChannelDetails($channelId, $apiKey)
       });
     });
   </script>
-
   <script>
     document.addEventListener('DOMContentLoaded', function() {
       // Initialize flatpickr for date inputs
@@ -1275,20 +1144,17 @@ function getChannelDetails($channelId, $apiKey)
         dateFormat: 'Y-m-d',
         allowInput: true,
         "locale": "sq" // locale for this instance only
-
       });
     });
     document.getElementById('customer_id').addEventListener('change', function() {
       var selectedOption = this.options[this.selectedIndex];
       var percentage = selectedOption.getAttribute('data-percentage');
       document.getElementById('percentage').value = percentage;
-
       // Calculate Total Amount after Percentage
       var totalAmount = parseFloat(document.getElementById('total_amount').value);
       var totalAmountAfterPercentage = totalAmount - (totalAmount * (percentage / 100));
       document.getElementById('total_amount_after_percentage').value = totalAmountAfterPercentage.toFixed(2);
     });
-
     document.getElementById('total_amount').addEventListener('input', function() {
       // Calculate Total Amount after Percentage when Total Amount changes
       var totalAmount = parseFloat(this.value);
@@ -1297,24 +1163,19 @@ function getChannelDetails($channelId, $apiKey)
       document.getElementById('total_amount_after_percentage').value = totalAmountAfterPercentage.toFixed(2);
     });
   </script>
-
   <script>
     $(document).ready(function() {
       $('.krijo-fature-btn').on('click', function() {
         // Get the channel ID from the clicked button
         var channelId = $(this).data('channel-id');
-
         // Get the YouTube Analytics Value
         var youtubeAnalyticsValue = $(this).data('revenue');
-
         // Update the modal content with the channel ID
         $('#channel_display').text(channelId);
-
         // Filter the select options based on the channel ID
         $('#customer_id option').each(function() {
           var option = $(this);
           var optionChannelId = option.data('youtube');
-
           // Compare the channel IDs
           if (optionChannelId === channelId) {
             // Show the option if the channel IDs match
@@ -1326,7 +1187,6 @@ function getChannelDetails($channelId, $apiKey)
         });
         // Update the total_amount input field with the YouTube Analytics value
         $('#total_amount').val(youtubeAnalyticsValue);
-
         // Select the first visible option (assuming at least one option matches)
         var visibleOptions = $('#customer_id option:visible');
         if (visibleOptions.length > 0) {
@@ -1335,14 +1195,11 @@ function getChannelDetails($channelId, $apiKey)
       });
     });
   </script>.
-
   <script>
     const tabs = document.querySelectorAll('.nav-link[data-bs-toggle="pill"]');
     const tabContent = document.querySelectorAll('.tab-pane');
-
     // Retrieve the active tab from localStorage
     const activeTab = localStorage.getItem('activeTab');
-
     // Initialize the active tab and tab content if it was saved in localStorage
     if (activeTab) {
       tabs.forEach(tab => {
@@ -1354,7 +1211,6 @@ function getChannelDetails($channelId, $apiKey)
           tab.setAttribute('aria-selected', 'false');
         }
       });
-
       tabContent.forEach(content => {
         if (content.getAttribute('id') === activeTab.replace('-tab', '')) {
           content.classList.add('show', 'active');
@@ -1363,7 +1219,6 @@ function getChannelDetails($channelId, $apiKey)
         }
       });
     }
-
     // Add click event listeners to the tab buttons
     tabs.forEach(tab => {
       tab.addEventListener('click', () => {
@@ -1372,48 +1227,48 @@ function getChannelDetails($channelId, $apiKey)
       });
     });
   </script>
-
   <script>
     $(document).ready(function() {
       var myModal = new bootstrap.Modal(document.getElementById('newInvoice'));
-
       myModal.addEventListener('show.bs.modal', function(event) {
         var button = event.relatedTarget;
         var channelId = button.getAttribute('data-channel-id');
-
         // Assuming you have a way to get the YouTube Analytics response value
         var youtubeAnalyticsValue = "Replace with actual value";
-
         // Update the modal content with the channel ID
         $('#channel_display').text(channelId);
-
         // Set the default selected option to the second one
         $('#customer_id option:eq(2)').prop('selected', true);
-
         // Filter and select the corresponding option if there is a match
         $('#customer_id option').each(function() {
           var option = $(this);
           var optionChannelId = option.data('youtube');
-
           if (optionChannelId === channelId) {
             option.prop('selected', true);
           }
         });
-
         // Update the total_amount input field
         $('#total_amount').val(youtubeAnalyticsValue);
       });
-
       document.querySelector('.krijo-fature-btn').addEventListener('click', function() {
         myModal.show();
       });
     });
   </script>
-
-
-
   <script>
     $(document).ready(function() {
+      flatpickr('#startDate', {
+        dateFormat: 'Y-m-d',
+        allowInput: true,
+        "locale": "sq" // locale for this instance only
+      }).set('maxDate', new Date() - 3 * 24 * 60 * 60 * 1000);
+      flatpickr('#endDate', {
+        dateFormat: 'Y-m-d',
+        allowInput: true,
+        "locale": "sq" // locale for this instance only
+        // Dont let future dates be selected
+      }).set('maxDate', new Date());
+      // });
       var columns = [{
           "data": "customer_name"
         },
@@ -1442,10 +1297,12 @@ function getChannelDetails($channelId, $apiKey)
           "data": "action"
         }
       ];
-
       var paymentsTable = $('#paymentsTable').DataTable({
         "processing": true,
         "serverSide": true,
+        order: [
+          [3, "desc"]
+        ],
         "dom": "<'row'<'col-md-3'l><'col-md-6'B><'col-md-3'f>>" + "<'row'<'col-md-12'tr>>" + "<'row'<'col-md-6'><'col-md-6'p>>",
         buttons: [{
             extend: "pdfHtml5",
@@ -1483,7 +1340,6 @@ function getChannelDetails($channelId, $apiKey)
             filename: "faturat_e_kryera_" + getCurrentDate() + "" // Set custom filename for Print
           },
         ],
-
         "lengthMenu": [
           [10, 25, 50, -1],
           [10, 25, 50, "All"]
@@ -1491,7 +1347,12 @@ function getChannelDetails($channelId, $apiKey)
         "search": true,
         "ajax": {
           "url": "complete_invoices.php",
-          "type": "POST"
+          "type": "POST",
+          "data": function(d) {
+            // Pass date range as parameters to the backend
+            d.startDate = $('#startDate').val();
+            d.endDate = $('#endDate').val();
+          }
         },
         "columns": columns,
         "columnDefs": [{
@@ -1502,56 +1363,89 @@ function getChannelDetails($channelId, $apiKey)
         }],
         "stripeClasses": ["stripe-color"],
       });
+      // Function to update DataTables with selected date range
+      function filterByDateRange() {
+        paymentsTable.ajax.reload();
+      }
+      // Attach event listener for Clear Filters button
+      $('#clearFiltersBtn').click(function() {
+        // Clear date inputs
+        $('#startDate').val('');
+        $('#endDate').val('');
 
+        // Reset DataTable filters
+        paymentsTable.search('').draw();
+      });
+      // Attach event listener for date range selection
+      $('#startDate, #endDate').change(filterByDateRange);
       // Add a click event handler for the delete buttons
       $('#paymentsTable').on('click', '.delete-btn', function() {
         var invoiceId = $(this).data('invoice-id');
-
-        // Perform an AJAX request to delete the record
-        $.ajax({
-          url: 'delete_invoice_completed.php', // Create a PHP file for handling the delete action
-          method: 'POST',
-          data: {
-            invoice_id: invoiceId
-          },
-          success: function(response) {
-            if (response.success) {
-              alert('Record deleted successfully.');
-              paymentsTable.ajax.reload(); // Refresh the DataTable
-            } else {
-              var errorMessage = response.error || 'Unknown error';
-              alert('Error deleting record: ' + errorMessage);
-            }
-          },
-
-          error: function(xhr, status, error) {
-            alert('Error deleting record: ' + error);
+        // Show a confirmation dialog using SweetAlert2
+        Swal.fire({
+          title: 'Jeni të sigurt?',
+          text: 'Nuk do të jeni në gjendje të rikuperoni këtë regjistrim!',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonText: 'Po, fshij!',
+          cancelButtonText: 'Anulo',
+          reverseButtons: true
+        }).then((result) => {
+          if (result.isConfirmed) {
+            // Perform an AJAX request to delete the record
+            $.ajax({
+              url: 'delete_invoice_completed.php', // Create a PHP file for handling the delete action
+              method: 'POST',
+              data: {
+                invoice_id: invoiceId
+              },
+              success: function(response) {
+                if (response.success) {
+                  Swal.fire(
+                    'Fshirë!',
+                    'Regjistrimi është fshirë.',
+                    'success'
+                  );
+                  paymentsTable.ajax.reload(); // Refresh the DataTable
+                } else {
+                  var errorMessage = response.error || 'Gabim i panjohur';
+                  Swal.fire(
+                    'Gabim!',
+                    'Gabim në fshirjen e regjistrimit: ' + errorMessage,
+                    'error'
+                  );
+                }
+              },
+              error: function(xhr, status, error) {
+                Swal.fire(
+                  'Gabim!',
+                  'Gabim në fshirjen e regjistrimit: ' + error,
+                  'error'
+                );
+              }
+            });
           }
         });
       });
-
     });
+
+
 
     try {
       // Get the reference of the table by ID
       const table = document.getElementById("dataTable");
       const tbody = table.getElementsByTagName("tbody")[0];
       const rows = tbody.getElementsByTagName("tr");
-
       let sqlCommands = "";
-
       // Function to update SQL commands
       function updateSqlCommands() {
         sqlCommands = ""; // Clear existing SQL commands
-
         // Iterate through the table rows and extract data from the first 6 columns
         for (let i = 0; i < rows.length; i++) {
           const row = rows[i];
           const checkbox = row.querySelector("input[type='checkbox']");
-
           if (!checkbox.checked) { // Check if the checkbox is not checked
             const columns = row.getElementsByTagName("td");
-
             if (columns.length >= 6) { // Check if there are at least 6 columns
               // Extract data from the first 6 columns
               const column1Value = columns[0].textContent.trim();
@@ -1560,52 +1454,39 @@ function getChannelDetails($channelId, $apiKey)
               const column4Value = columns[3].textContent.trim();
               const column5Value = columns[4].textContent.trim();
               const column5ValueWithoutCommas = column5Value.replace(/,/g, '');
-
               const column6Value = columns[5].textContent.trim();
-
               // Generate the SQL INSERT statement
               const sqlInsert = `INSERT INTO invoices (invoice_number, customer_id, item, total_amount, total_amount_after_percentage, created_date) VALUES ('${column1Value}', '${column2Value}', '${column3Value}', '${column4Value}', '${column5ValueWithoutCommas}', '${column6Value}');`;
-
               sqlCommands += sqlInsert + "\n";
             }
           }
         }
-
         // Display the SQL commands with line breaks
         const sqlCommandsElement = document.getElementById("sqlCommands");
         sqlCommandsElement.textContent = sqlCommands;
       }
-
       // Attach event listeners to checkboxes to update SQL commands on change
       const checkboxes = table.querySelectorAll("input[type='checkbox']");
       checkboxes.forEach((checkbox) => {
         checkbox.addEventListener("change", updateSqlCommands);
       });
-
       // Initial update of SQL commands
       updateSqlCommands();
-
     } catch (error) {
       // Handle any error and display an error message
       const sqlCommandsElement = document.getElementById("sqlCommands");
       sqlCommandsElement.textContent = "An error occurred while processing the SQL commands: " + error.message;
     }
-
-
-
     // Event listener for the submit button
     document.getElementById('submitSql').addEventListener('click', function() {
       // Get the SQL commands from the HTML element
       const sqlCommands = document.getElementById('sqlCommands').textContent;
-
       // Prepare the AJAX request
       const xhr = new XMLHttpRequest();
       xhr.open('POST', 'send_sql_commands.php', true);
       xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-
       // Send the SQL commands to the server
       xhr.send('sqlCommands=' + encodeURIComponent(sqlCommands));
-
       // Define a callback function to handle the AJAX response
       xhr.onreadystatechange = function() {
         if (this.readyState == 4) {
@@ -1617,7 +1498,6 @@ function getChannelDetails($channelId, $apiKey)
               text: 'Data sent successfully!',
               confirmButtonText: 'OK',
             });
-
             // Call the DataTable and refresh it
             $('#invoiceList').DataTable().ajax.reload();
           } else {
@@ -1628,7 +1508,6 @@ function getChannelDetails($channelId, $apiKey)
               text: 'An error occurred while sending data.',
               confirmButtonText: 'OK',
             });
-
             // Log the error details to the console
             console.error('Error Status:', xhr.status);
             console.error('Error Response:', xhr.responseText);
@@ -1641,9 +1520,7 @@ function getChannelDetails($channelId, $apiKey)
     $(document).ready(function() {
       $('.delete-button').click(function(e) {
         e.preventDefault();
-
         const channelID = $(this).data('channelid');
-
         Swal.fire({
           title: 'Konfirmo Fshirjen',
           text: 'A jeni të sigurt se dëshironi të fshini këtë kanal?',
@@ -1660,7 +1537,6 @@ function getChannelDetails($channelId, $apiKey)
               success: function(response) {
                 // Handle success message here
                 Swal.fire('Sukses', 'Kanali është fshirë me sukses!', 'success');
-
                 // Wait for 2 seconds and then reload the page
                 setTimeout(function() {
                   location.reload(); // Reload the page
