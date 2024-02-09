@@ -287,7 +287,7 @@ if (isset($_POST['submit'])) {
                 <div class="email-container">
                     <br>
                     <h1>Përshendetje nga stafi i Bareshës</h1>
-                    <p>Klikoni butonin më poshtë për të kaluar në faqen për të nënshkruar kontratën.</p>
+                    <p>Klikoni butonin më poshtë për të kaluar në faqen për të nënshkruar kontratën e këngës.</p>
                     <p><a href="' . $linkuKontrates . '" class="button">Kontrata</a></p>
                     <p>Ju faleminderit</p>
                     <i>Ky link skadon pas 24 ore prej ketij momenti</i>

@@ -1,7 +1,6 @@
 <?php
 include('partials/header.php');
 ?>
-
 <div class="main-panel">
     <div class="content-wrapper">
         <div class="container-fluid">
@@ -22,7 +21,6 @@ include('partials/header.php');
                         <button type="submit" id="deleteButton" name="delete_selected" class="btn btn-danger rounded-5 mb-4 text-white btn-sm" disabled>
                             <i class="fi fi-rr-trash"></i> Fshij
                         </button>
-
                         <div class="row">
                             <div class="col-12">
                                 <div class="table-responsive">
@@ -39,17 +37,13 @@ include('partials/header.php');
                                         </thead>
                                         <tbody>
                                             <?php
-                                            $kueri = $conn->query("SELECT * FROM kontrata_gjenerale");
+                                            $kueri = $conn->query("SELECT * FROM kontrata_gjenerale ORDER BY id DESC");
                                             while ($k = mysqli_fetch_array($kueri)) {
-
-
                                             ?>
                                                 <tr>
                                                     <td>
                                                         <input type="checkbox" name="selected_contracts[]" value="<?php echo $k['id']; ?>">
-
                                                     </td>
-
                                                     <td>
                                                         <?php echo $k['emri']; ?>
                                                         <?php echo $k['mbiemri']; ?>
@@ -123,26 +117,15 @@ include('partials/header.php');
                                                                         </div>
                                                                     </div>
                                                                 </div>
-
-
-
                                                             </div>
                                                         </div>
                                                     </div>
-
-
                                                     <td>
                                                         <?php echo $k['data_e_krijimit']; ?>
                                                     </td>
-
                                                     <td>
                                                         <?php echo $k['tvsh']; ?>
                                                     </td>
-
-
-
-
-
                                                     <td>
                                                         <div class="dropdown">
                                                             <button class="btn py-2 btn-primary dropdown-toggle shadow-sm rounded-5" type="button" id="kontrataDropdown" data-bs-toggle="dropdown" aria-expanded="false">
@@ -155,8 +138,6 @@ include('partials/header.php');
                                                             </ul>
                                                         </div>
                                                     </td>
-
-
                                                     <td>
                                                         <!-- Add edit and delete buttons -->
                                                         <a href="modifiko-kontraten-gjenerale.php?id=<?php echo $k['id']; ?>" class="btn btn-primary rounded-5 py-1 text-white"><i class="fi fi-rr-edit"></i></a>
@@ -170,9 +151,7 @@ include('partials/header.php');
                                                                 <i class="fi fi-rr-envelope"></i>
                                                             </button>
                                                         <?php } ?>
-
                                                         <br><br>
-
                                                     </td>
                                                 </tr>
                                             <?php } ?>
@@ -183,18 +162,12 @@ include('partials/header.php');
                                                 <th>Emri dhe mbiemri</th>
                                                 <th>Data e krijimit</th>
                                                 <th>Përqindja</th>
-
-
-
                                                 <th></th>
                                                 <th></th>
                                             </tr>
                                         </tfoot>
-
                                     </table>
                                 </div>
-
-
                     </form>
                 </div>
             </div>
@@ -203,7 +176,6 @@ include('partials/header.php');
 </div>
 </div>
 </div>
-
 <?php
 if (isset($_POST['submit'])) {
     $email = $_POST['email'];
@@ -212,9 +184,8 @@ if (isset($_POST['submit'])) {
     $imageData = file_get_contents($imagePath);
     $imageDataEncoded = base64_encode($imageData);
     $curl = curl_init();
-
     curl_setopt_array($curl, [
-        CURLOPT_URL => "https://rapidprod-sendgrid-v1.p.rapidapi.com/mail/send",
+        CURLOPT_URL => "https://mail-sender-api1.p.rapidapi.com/",
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_ENCODING => "",
         CURLOPT_MAXREDIRS => 10,
@@ -222,23 +193,12 @@ if (isset($_POST['submit'])) {
         CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
         CURLOPT_CUSTOMREQUEST => "POST",
         CURLOPT_POSTFIELDS => json_encode([
-            'personalizations' => [
-                [
-                    'to' => [
-                        [
-                            'email' => $email
-                        ]
-                    ],
-                    'subject' => 'Linku për të nenshkruar kontraten me Baresha Network'
-                ]
-            ],
-            'from' => [
-                'email' => 'no-reply@baresha.com'
-            ],
-            'content' => [
-                [
-                    'type' => 'text/html',
-                    'value' => '<html>
+            'sendto' => $email,
+            'name' => 'Baresha',
+            'replyTo' => 'bareshainfo@gmail.com',
+            'ishtml' => 'true',
+            'title' => 'Kontrata Gjenerale',
+            'body' => '<html>
                         <head>
                             <style>
                                 * {
@@ -298,38 +258,23 @@ if (isset($_POST['submit'])) {
                                 <br>
                                 <br>
                                 <h1>Përshendetje</h1>
-                                <p>Klikoni butonin më poshtë për të kaluar në faqen për të nënshkruar kontratën.</p>
-                                
+                                <p>Klikoni butonin më poshtë për të kaluar në faqen për të nënshkruar kontratën gjenerale.</p>
                                 <p><a href="' . $linkuKontrates . '" class="button">Kontrata</a></p>
                                 <p>Ju faleminderit</p>
                                 <i>Ky link skadon pas 24 ore prej ketij momenti</i>
                             </div>
                         </body>
-                    </html>'
-                ]
-            ],
-            'attachments' => [
-                [
-                    'content' => $imageDataEncoded,
-                    'type' => 'image/png',
-                    'filename' => 'brand-icon.png',
-                    'disposition' => 'inline',
-                    'content_id' => 'brand-icon'
-                ]
-            ]
+                    </html>',
         ]),
         CURLOPT_HTTPHEADER => [
-            "X-RapidAPI-Host: rapidprod-sendgrid-v1.p.rapidapi.com",
-            "X-RapidAPI-Key: 33f656218fmshd937dedf10c6d28p12bdbbjsnecb52a398f27",
+            "X-RapidAPI-Host: mail-sender-api1.p.rapidapi.com",
+            "X-RapidAPI-Key: 335200c4afmsh64cfbbf7fdf4cf2p1aae94jsn05a3bad585de",
             "content-type: application/json"
         ],
     ]);
-
     $response = curl_exec($curl);
     $err = curl_error($curl);
-
     curl_close($curl);
-
     if ($err) {
         echo "cURL Error #:" . $err;
     } else {
@@ -345,15 +290,11 @@ if (isset($_POST['submit'])) {
                     kontraten</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-
             <div class="modal-body">
-
-
                 <form method="POST" action="">
                     <div class="row">
                         <div class="col">
                             <div class="mb-3">
-
                                 <label for="email" class="form-label">Emaili
                                     klientit</label>
                                 <input type="email" name="email" id="email" class="form-control shadow-sm rounded-5">
@@ -361,18 +302,12 @@ if (isset($_POST['submit'])) {
                         </div>
                     </div>
                     <div class="row">
-
-
                         <div class="col">
                             <label for="linkuKontrates" class="form-label">Linku
                                 kontrates</label>
                             <input type="text" name="linkuKontrates" class="form-control shadow-sm rounded-5" id="linkuKontrates">
                         </div>
                     </div>
-
-
-
-
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -391,7 +326,6 @@ include('partials/footer.php');
 <script>
     function confirmDelete(event, id) {
         event.preventDefault();
-
         Swal.fire({
             title: 'Konfirmoni fshirjen',
             text: 'Jeni i sigurt që dëshironi ta fshini këtë rekord?',
@@ -417,7 +351,6 @@ include('partials/footer.php');
                 Swal.showLoading();
             }
         }).then((result) => {
-
             if (result.isConfirmed) {
                 Swal.fire({
                     title: 'Duke fshirë...',
@@ -426,7 +359,6 @@ include('partials/footer.php');
                         Swal.showLoading()
                     }
                 });
-
                 setTimeout(() => {
                     Swal.fire({
                         icon: 'success',
@@ -440,7 +372,6 @@ include('partials/footer.php');
         });
     }
 </script>
-
 <script>
     function updateEmailInput(button) {
         var id = button.getAttribute("data-id");
@@ -448,12 +379,9 @@ include('partials/footer.php');
         var link = button.getAttribute('data-link');
         var linkInput = document.getElementById('linkuKontrates');
         linkInput.value = link + id;
-
         // var email = tableRow.cells[4].textContent.trim();
         // document.getElementById("email").value = email;
         // document.getElementById("id").value = id;
-
-
         var emailInput = document.getElementById('email');
         var email = button.getAttribute('data-email');
         emailInput.value = email;
@@ -464,7 +392,6 @@ include('partials/footer.php');
     function toggleDeleteButton() {
         var checkboxes = document.querySelectorAll('input[name="selected_contracts[]"]:checked');
         var deleteButton = document.getElementById('deleteButton');
-
         // If two or more checkboxes are checked, enable the button; otherwise, disable it
         if (checkboxes.length >= 2) {
             deleteButton.disabled = false;
@@ -472,14 +399,12 @@ include('partials/footer.php');
             deleteButton.disabled = true;
         }
     }
-
     // Listen for changes in checkbox state
     var checkboxes = document.querySelectorAll('input[name="selected_contracts[]"]');
     checkboxes.forEach(function(checkbox) {
         checkbox.addEventListener('change', toggleDeleteButton);
     });
 </script>
-
 <script>
     $('#example').DataTable({
         responsive: false,
@@ -518,7 +443,6 @@ include('partials/footer.php');
             var btns = $('.dt-buttons');
             btns.addClass('');
             btns.removeClass('dt-buttons btn-group');
-
         },
         fixedHeader: true,
         language: {
