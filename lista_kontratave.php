@@ -1,28 +1,25 @@
 <?php
-
-ob_start();
+// ob_start();
 include('partials/header.php');
 ?>
-
 <style>
     .wrap-text {
         white-space: normal !important;
     }
 </style>
-
 <div class="main-panel">
     <div class="content-wrapper">
         <div class="container-fluid">
-            <div class="p-5 mb-4 card shadow-sm rounded-5">
-                <h4 class="font-weight-bold text-gray-800 mb-4">Lista e kontratave</h4>
-                <nav class="d-flex">
-                    <h6 class="mb-0">
-                        <a href="" class="text-reset">Kontrata</a>
-                        <span>/</span>
-                        <a href="lista_kontratave.php" class="text-reset" data-bs-placement="top" data-bs-toggle="tooltip" title="<?php echo __FILE__; ?>"><u>Lista e kontratave</u></a>
-                    </h6>
-                </nav>
-            </div>
+            <nav class="bg-white px-2 rounded-5" style="width:fit-content;border-style:1px solid black;" aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item "><a class="text-reset" style="text-decoration: none;">Kontratat</a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">
+                        <a href="<?php echo __FILE__; ?>" class="text-reset" style="text-decoration: none;">
+                            Lista e kontratave ( Këngë )
+                        </a>
+                    </li>
+            </nav>
             <div class="card shadow-sm rounded-5">
                 <div class="card-body">
                     <h4 class="card-title">Lista e kontratave</h4>
@@ -35,28 +32,22 @@ include('partials/header.php');
                                         <p class="text-muted" style="font-size: 10px;">Zgjidhni një diapazon fillues të
                                             dates për të filtruar rezultatet.</p>
                                         <div class="input-group rounded-5">
-
                                             <span class="input-group-text border-0" style="background-color: white;cursor: pointer;"><i class="fi fi-rr-calendar"></i></span>
                                             <input type="text" id="min" name="min" class="form-control rounded-5" placeholder="Zgjidhni datën e fillimit" style="cursor: pointer;">
                                         </div>
-
                                     </div>
                                     <div class="col-md-6">
                                         <label for="max" class="form-label" style="font-size: 14px;">Deri:</label>
                                         <p class="text-muted" style="font-size: 10px;">Zgjidhni një diapazon mbarues të
                                             dates për tëfiltruar rezultatet.</p>
                                         <div class="input-group rounded-5">
-
                                             <span class="input-group-text border-0" style="background-color: white;cursor: pointer;"><i class="fi fi-rr-calendar"></i></span><input type="text" id="max" name="max" class="form-control rounded-5" placeholder="Zgjidhni datën e mbarimit" style="cursor: pointer;">
                                         </div>
-
-
                                     </div>
                                 </div>
                                 <table id="example" class="table table-bordered">
                                     <thead class="bg-light">
                                         <tr>
-
                                             <th style="font-size: 14px;" style="font-size: 14px;">Emri dhe mbiemri</th>
                                             <th style="font-size: 14px;" style="font-size: 14px;">Perqindja</th>
                                             <th style="font-size: 14px;">Klienti</th>
@@ -71,8 +62,6 @@ include('partials/header.php');
                                         <?php
                                         $kueri = $conn->query("SELECT * FROM kontrata ORDER BY id DESC");
                                         while ($k = mysqli_fetch_array($kueri)) {
-
-
                                         ?>
                                             <tr>
                                                 <td style="font-size: 12px;" class="wrap-text" style="font-size: 12px;">
@@ -83,9 +72,7 @@ include('partials/header.php');
                                                     <button type="button" class="btn btn-primary rounded-5 text-white m-0 px-3 show-modal-button" data-bs-toggle="modal" data-bs-target="#nenshkrimiModal<?php echo $k['id']; ?>" data-row-id="1">
                                                         <i class="fi fi-rr-receipt"></i>
                                                     </button>
-
                                                 </td>
-
                                                 <!-- Modal -->
                                                 <div class="modal fade" id="nenshkrimiModal<?php echo $k['id']; ?>" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                                                     <div class="modal-dialog">
@@ -98,31 +85,25 @@ include('partials/header.php');
                                                                 <?php
                                                                 if ($k['nenshkrimi'] == !null) {
                                                                     $file_path = $k['nenshkrimi'];
-
                                                                     $download_filename = 'Nënshkrimi - ' . ' ' . $k['emri'] . ' ' . $k['mbiemri'] . '.png'; // Create the download filename
-
                                                                     // Generate the download link with the dynamic filename
                                                                     $download_link = '<a class="btn btn-sm btn-primary shadow-sm rounded-5 text-white" href="' . $file_path . '" download="' . $download_filename . '">
                             ' . '<i class="fi fi-rr-download"></i>' . '
                          </a>';
                                                                 ?>
                                                                     <img src="<?php echo $file_path; ?>" style="width: 100px; height: auto;">
-
                                                                     <div>
                                                                         <?php echo $download_link; ?>
                                                                         <a class="btn btn-sm btn-secondary shadow-sm rounded-5 text-white" href="<?php echo $file_path; ?>" target="_blank"><i class="fi fi-rr-resize"></i></a>
                                                                     </div>
                                                                 <?php
-
                                                                 } else {
                                                                     echo '<span class="badge rounded-pill text-bg-danger text-white w-100">Nuk është e nenshkruar</span>';
                                                                 } ?>
                                                             </div>
-
                                                         </div>
                                                     </div>
                                                 </div>
-
                                                 <td style="font-size: 12px;" class="wrap-text">
                                                     <?php echo $k['perqindja'] ?>
                                                 </td>
@@ -138,7 +119,6 @@ include('partials/header.php');
                                                 <td style="font-size: 12px;" class="wrap-text">
                                                     <?= date("d-m-Y", strtotime($k['data'])); ?>
                                                 </td>
-
                                                 <td style="font-size: 12px;" class="wrap-text">
                                                     <div class="dropdown">
                                                         <button class="btn py-2 btn-primary dropdown-toggle shadow-sm rounded-5" type="button" id="kontrataDropdown" data-bs-toggle="dropdown" aria-expanded="false">
@@ -153,7 +133,6 @@ include('partials/header.php');
                                                             </li>
                                                         </ul>
                                                     </div>
-
                                                 </td>
                                                 <td style="font-size: 12px;" class="wrap-text">
                                                     <?php
@@ -169,27 +148,18 @@ include('partials/header.php');
                                                     }
                                                     ?>
                                                 </td>
-
                                                 <td style="font-size: 12px;" class="wrap-text">
                                                     <!-- Add edit and delete buttons -->
                                                     <a href="modifiko_kontraten.php?id=<?php echo $k['id']; ?>" class="btn btn-primary rounded-5 text-white"><i class="fi fi-rr-edit"></i></a>
                                                     <a href="fshij_kontraten.php?id=<?php echo $k['id']; ?>" class="btn btn-danger text-white rounded-5" onclick="return confirm('Are you sure you want to delete this record?')"><i class="fi fi-rr-trash"></i></a>
                                                     <br><br>
-
                                                     <?php if ($k['nenshkrimi'] == !null) { ?>
-
                                                     <?php } else {
                                                     ?>
                                                         <button type="button" class="btn btn-success rounded-5 text-white" data-bs-toggle="modal" data-bs-target="#exampleModal" data-id="<?php echo $k['id']; ?>" data-email="<?php echo $k['klient_email']; ?>" onclick="updateEmailInput(this)" data-link="https://paneli.bareshaoffice.com/kontrataPerKlient.php?id=">
                                                             <i class="fi fi-rr-envelope"></i>
                                                         </button>
                                                     <?php } ?>
-
-
-
-
-
-
                                                 </td>
                                             </tr>
                                         <?php } ?>
@@ -215,44 +185,32 @@ include('partials/header.php');
         </div>
     </div>
 </div>
-
 <?php
-
 $dateComponent = date('Ymd');
 $nameComponent = 'BAR';
-
 $token = $dateComponent . $nameComponent;
-
 if (isset($_POST['submit'])) {
-
     $expirationTime = time() + (24 * 60 * 60);
     // Prepare the SQL statement
     $query = "INSERT INTO tokens (token, expiration_time) VALUES (?, ?)";
     $stmt = mysqli_prepare($conn, $query);
-
     if ($stmt) {
         // Bind the values to the statement parameters
         mysqli_stmt_bind_param($stmt, "si", $token, $expirationTime);
-
         // Execute the statement
         $result = mysqli_stmt_execute($stmt);
-
         if (!$result) {
             // Handle the query execution error
             echo "Error executing query: " . mysqli_stmt_error($stmt);
         }
-
         // Close the statement
         mysqli_stmt_close($stmt);
     } else {
         // Handle the statement preparation error
         echo "Error preparing statement: " . mysqli_error($conn);
     }
-
     // $deleteQuery = "DELETE FROM tokens WHERE expiration_time < " . time();
     // mysqli_query($conn, $deleteQuery);
-
-
     $email = $_POST['email'];
     $linkuKontrates = $_POST['linkuKontrates'];
     $imagePath = 'images/brand-icon.png';
@@ -260,7 +218,7 @@ if (isset($_POST['submit'])) {
     $imageDataEncoded = base64_encode($imageData);
     $curl = curl_init();
     curl_setopt_array($curl, [
-        CURLOPT_URL => "https://rapidprod-sendgrid-v1.p.rapidapi.com/mail/send",
+        CURLOPT_URL => "https://mail-sender-api1.p.rapidapi.com/",
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_ENCODING => "",
         CURLOPT_MAXREDIRS => 10,
@@ -268,107 +226,79 @@ if (isset($_POST['submit'])) {
         CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
         CURLOPT_CUSTOMREQUEST => "POST",
         CURLOPT_POSTFIELDS => json_encode([
-            'personalizations' => [
-                [
-                    'to' => [
-                        [
-                            'email' => $email
-                        ]
-                    ],
-                    'subject' => 'Veprimi i kërkuar: Nënshkrimi i kontratës me Baresha Network'
-                ]
-            ],
-            'from' => [
-                'email' => 'no-reply@baresha.com'
-            ],
-            'content' => [
-                [
-                    'type' => 'text/html',
-                    'value' => '<html>
-                        <head>
-                            <style>
-                                * {
-                                    font-family: -apple-system, system-ui, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
-                                }
-                                .email-container {
-                                    font-family: -apple-system, system-ui, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
-                                    max-width: 500px;
-                                    margin: 0 auto;
-                                    padding: 20px;
-                                    background-color: #ffffff;
-                                    border: 1px solid rgba(27, 31, 35, .15);
-                                    border-radius: 6px;
-                                    box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
-                                }
-                                h1 {
-                                    color: #333333;
-                                    font-size: 24px;
-                                    margin-bottom: 10px;
-                                }
-                                p {
-                                    color: #555555;
-                                    font-size: 16px;
-                                    margin-bottom: 10px;
-                                }
-                                .button {
-                                    appearance: none;
-                                    background-color: #ffffff;
-                                    border: 1px solid rgba(27, 31, 35, .15);
-                                    border-radius: 6px;
-                                    box-shadow: rgba(27, 31, 35, .1) 0 1px 0;
-                                    box-sizing: border-box;
-                                    color: #000000;
-                                    cursor: pointer;
-                                    display: inline-block;
-                                    font-family: -apple-system, system-ui, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
-                                    font-size: 14px;
-                                    font-weight: 600;
-                                    line-height: 20px;
-                                    padding: 6px 16px;
-                                    position: relative;
-                                    text-align: center;
-                                    text-decoration: none;
-                                    user-select: none;
-                                    -webkit-user-select: none;
-                                    touch-action: manipulation;
-                                    vertical-align: middle;
-                                    white-space: nowrap;
-                                }
-                            </style>
-                        </head>
-                        <body>
-                            <div class="email-container">
-                                <div style="text-align: center;">
-                                    <img src="cid:brand-icon" alt="" width="25%" style="display: inline-block;">
-                                </div>
-                                <br>
-                                <br>
-                                <h1>Përshendetje</h1>
-                                <p>Klikoni butonin më poshtë për të kaluar në faqen për të nënshkruar kontratën.</p>
-                                
-                                <p><a href="' . $linkuKontrates . '" class="button">Kontrata</a></p>
-                                <p>Ju faleminderit</p>
-                                <i>Ky link skadon pas 24 ore prej ketij momenti</i>
-                            </div>
-                        </body>
-                    </html>'
-                ]
-            ],
-            'attachments' => [
-                [
-                    'content' => $imageDataEncoded,
-                    'type' => 'image/png',
-                    'filename' => 'brand-icon.png',
-                    'disposition' => 'inline',
-                    'content_id' => 'brand-icon'
-                ]
-            ]
+            'sendto' => $email,
+            'name' => 'Baresha',
+            'replyTo' => 'bareshainfo@gmail.com',
+            'ishtml' => 'true',
+            'title' => 'Kontrata',
+            'body' => '<html>
+            <head>
+                <style>
+                    * {
+                        font-family: -apple-system, system-ui, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+                    }
+                    .email-container {
+                        font-family: -apple-system, system-ui, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+                        max-width: 500px;
+                        margin: 0 auto;
+                        padding: 20px;
+                        background-color: #ffffff;
+                        border: 1px solid rgba(27, 31, 35, .15);
+                        border-radius: 6px;
+                        box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
+                    }
+                    h1 {
+                        color: #333333;
+                        font-size: 24px;
+                        margin-bottom: 10px;
+                    }
+                    p {
+                        color: #555555;
+                        font-size: 16px;
+                        margin-bottom: 10px;
+                    }
+                    .button {
+                        appearance: none;
+                        background-color: #ffffff;
+                        border: 1px solid rgba(27, 31, 35, .15);
+                        border-radius: 6px;
+                        box-shadow: rgba(27, 31, 35, .1) 0 1px 0;
+                        box-sizing: border-box;
+                        color: #000000;
+                        cursor: pointer;
+                        display: inline-block;
+                        font-family: -apple-system, system-ui, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+                        font-size: 14px;
+                        font-weight: 600;
+                        line-height: 20px;
+                        padding: 6px 16px;
+                        position: relative;
+                        text-align: center;
+                        text-decoration: none;
+                        user-select: none;
+                        -webkit-user-select: none;
+                        touch-action: manipulation;
+                        vertical-align: middle;
+                        white-space: nowrap;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="email-container">
+                    <br>
+                    <h1>Përshendetje nga stafi i Bareshës</h1>
+                    <p>Klikoni butonin më poshtë për të kaluar në faqen për të nënshkruar kontratën.</p>
+                    <p><a href="' . $linkuKontrates . '" class="button">Kontrata</a></p>
+                    <p>Ju faleminderit</p>
+                    <i>Ky link skadon pas 24 ore prej ketij momenti</i>
+                </div>
+            </body>
+        </html>'
         ]),
         CURLOPT_HTTPHEADER => [
-            "X-RapidAPI-Host: rapidprod-sendgrid-v1.p.rapidapi.com",
-            "X-RapidAPI-Key: 0c7b6f5beemsh8e58b659d2ef8dbp1f0360jsn34cb942c7f68",
+            "X-RapidAPI-Host: mail-sender-api1.p.rapidapi.com",
+            "X-RapidAPI-Key: 335200c4afmsh64cfbbf7fdf4cf2p1aae94jsn05a3bad585de",
             "content-type: application/json"
-
         ],
     ]);
     $response = curl_exec($curl);
@@ -390,9 +320,137 @@ if (isset($_POST['submit'])) {
         </script>";
         exit();
     }
+    // curl_setopt_array($curl, [
+    //     CURLOPT_URL => "https://rapidprod-sendgrid-v1.p.rapidapi.com/mail/send",
+    //     CURLOPT_RETURNTRANSFER => true,
+    //     CURLOPT_ENCODING => "",
+    //     CURLOPT_MAXREDIRS => 10,
+    //     CURLOPT_TIMEOUT => 30,
+    //     CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+    //     CURLOPT_CUSTOMREQUEST => "POST",
+    //     CURLOPT_POSTFIELDS => json_encode([
+    //         'personalizations' => [
+    //             [
+    //                 'to' => [
+    //                     [
+    //                         'email' => $email
+    //                     ]
+    //                 ],
+    //                 'subject' => 'Veprimi i kërkuar: Nënshkrimi i kontratës me Baresha Network'
+    //             ]
+    //         ],
+    //         'from' => [
+    //             'email' => 'no-reply@baresha.com'
+    //         ],
+    //         'content' => [
+    //             [
+    //                 'type' => 'text/html',
+    //                 'value' => '<html>
+    //                     <head>
+    //                         <style>
+    //                             * {
+    //                                 font-family: -apple-system, system-ui, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+    //                             }
+    //                             .email-container {
+    //                                 font-family: -apple-system, system-ui, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+    //                                 max-width: 500px;
+    //                                 margin: 0 auto;
+    //                                 padding: 20px;
+    //                                 background-color: #ffffff;
+    //                                 border: 1px solid rgba(27, 31, 35, .15);
+    //                                 border-radius: 6px;
+    //                                 box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
+    //                             }
+    //                             h1 {
+    //                                 color: #333333;
+    //                                 font-size: 24px;
+    //                                 margin-bottom: 10px;
+    //                             }
+    //                             p {
+    //                                 color: #555555;
+    //                                 font-size: 16px;
+    //                                 margin-bottom: 10px;
+    //                             }
+    //                             .button {
+    //                                 appearance: none;
+    //                                 background-color: #ffffff;
+    //                                 border: 1px solid rgba(27, 31, 35, .15);
+    //                                 border-radius: 6px;
+    //                                 box-shadow: rgba(27, 31, 35, .1) 0 1px 0;
+    //                                 box-sizing: border-box;
+    //                                 color: #000000;
+    //                                 cursor: pointer;
+    //                                 display: inline-block;
+    //                                 font-family: -apple-system, system-ui, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+    //                                 font-size: 14px;
+    //                                 font-weight: 600;
+    //                                 line-height: 20px;
+    //                                 padding: 6px 16px;
+    //                                 position: relative;
+    //                                 text-align: center;
+    //                                 text-decoration: none;
+    //                                 user-select: none;
+    //                                 -webkit-user-select: none;
+    //                                 touch-action: manipulation;
+    //                                 vertical-align: middle;
+    //                                 white-space: nowrap;
+    //                             }
+    //                         </style>
+    //                     </head>
+    //                     <body>
+    //                         <div class="email-container">
+    //                             <div style="text-align: center;">
+    //                                 <img src="cid:brand-icon" alt="" width="25%" style="display: inline-block;">
+    //                             </div>
+    //                             <br>
+    //                             <br>
+    //                             <h1>Përshendetje</h1>
+    //                             <p>Klikoni butonin më poshtë për të kaluar në faqen për të nënshkruar kontratën.</p>
+    //                             <p><a href="' . $linkuKontrates . '" class="button">Kontrata</a></p>
+    //                             <p>Ju faleminderit</p>
+    //                             <i>Ky link skadon pas 24 ore prej ketij momenti</i>
+    //                         </div>
+    //                     </body>
+    //                 </html>'
+    //             ]
+    //         ],
+    //         'attachments' => [
+    //             [
+    //                 'content' => $imageDataEncoded,
+    //                 'type' => 'image/png',
+    //                 'filename' => 'brand-icon.png',
+    //                 'disposition' => 'inline',
+    //                 'content_id' => 'brand-icon'
+    //             ]
+    //         ]
+    //     ]),
+    //     CURLOPT_HTTPHEADER => [
+    //         "X-RapidAPI-Host: rapidprod-sendgrid-v1.p.rapidapi.com",
+    //         "X-RapidAPI-Key: 335200c4afmsh64cfbbf7fdf4cf2p1aae94jsn05a3bad585de",
+    //         "content-type: application/json"
+    //     ],
+    // ]);
+    // $response = curl_exec($curl);
+    // $err = curl_error($curl);
+    // curl_close($curl);
+    // if ($err) {
+    //     echo "cURL Error #:" . $err;
+    // } else {
+    //     echo "<script>
+    //         Swal.fire({
+    //             title: 'Sukses',
+    //             text: 'Email-i juaj është dërguar.',
+    //             icon: 'success',
+    //             timer: 3000,
+    //             showConfirmButton: false
+    //         }).then(function() {
+    //             location.href = '" . $_SERVER['PHP_SELF'] . "';
+    //         });
+    //     </script>";
+    //     exit();
+    // }
 }
 ?>
-
 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -422,7 +480,6 @@ if (isset($_POST['submit'])) {
                             </div>
                         </div>
                     </div>
-
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -437,9 +494,7 @@ if (isset($_POST['submit'])) {
 </div>
 <?php
 include('partials/footer.php');
-
 ob_flush();
-
 ?>
 <script>
     var token = "<?php echo isset($token) ? $token : ''; ?>";
@@ -461,7 +516,6 @@ ob_flush();
         const linkInput = document.getElementById("linkuKontrates");
         linkInput.select();
         document.execCommand("copy");
-
         Swal.fire({
             icon: 'success',
             title: 'Kopjuar!',
@@ -477,7 +531,6 @@ ob_flush();
 <script type="text/javascript">
     $(document).ready(function() {
         let minDate, maxDate;
-
         // Create date inputs
         minDate = new DateTime('#min', {
             format: 'MMMM Do YYYY'
@@ -485,7 +538,6 @@ ob_flush();
         maxDate = new DateTime('#max', {
             format: 'MMMM Do YYYY'
         });
-
         let table = $('#example').DataTable({
             responsive: false,
             "ordering": false,
@@ -553,7 +605,6 @@ ob_flush();
                         return moment(data, 'DD-MM-YYYY').format('YYYY-MM-DD');
                     }
                 }
-
             ],
         });
         // Custom filtering function which will search data in column four between two values
@@ -561,7 +612,6 @@ ob_flush();
             let min = minDate.val();
             let max = maxDate.val();
             let date = new Date(data[4]);
-
             if (
                 (min === null && max === null) ||
                 (min === null && date <= max) ||
@@ -572,7 +622,6 @@ ob_flush();
             }
             return false;
         });
-
         // Refilter the table
         $('#min, #max').on('change', function() {
             table.draw();
