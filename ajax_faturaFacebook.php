@@ -48,7 +48,7 @@ while ($data_row = mysqli_fetch_array($result)) {
             'shuma' => $shuma,
             'shuma_e_paguar' => $shuma_e_paguar,
             'obli' => $obli,
-            'aksion' => "<a class='btn btn-primary btn-sm py-2 rounded-5 text-white' href='shitjeFacebook.php?fatura=$sid' target='_blank'><i class='fi fi-rr-edit'></i></a> <a class='btn btn-success btn-sm py-2 rounded-5 text-white' target='_blank' href='fatura.php?invoice=$sid'><i class='fi fi-rr-print'></i></a> <a type='button' name='delete' class='btn btn-danger btn-xs delete py-2 rounded-5 text-white' id='$sid'><i class='fi fi-rr-trash'></i></a>"
+            'aksion' => "<a class='btn btn-primary btn-sm py-2 rounded-5 text-white' href='shitjeFacebook.php?fatura=$sid' target='_blank'><i class='fi fi-rr-edit'></i></a> <a class='btn btn-success btn-sm py-2 rounded-5 text-white' target='_blank' href='faturaDetajeFacebook.php?invoice=$sid'><i class='fi fi-rr-print'></i></a> <a type='button' name='delete' class='btn btn-danger btn-xs delete py-2 rounded-5 text-white' id='$sid'><i class='fi fi-rr-trash'></i></a>"
         );
     }
 }

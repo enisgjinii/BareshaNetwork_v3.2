@@ -27,12 +27,6 @@ if (isset($_POST['ruaj'])) {
     echo "Gabim: " . $conn->error;
   }
 }
-if ($_SESSION['acc'] == '1') {
-} elseif ($_SESSION['acc'] == '3') {
-} else {
-  die('<script>alert("Nuk keni Akses ne kete sektor")</script>');
-  echo '<meta http-equiv="refresh" content="0;URL=index.php/" /> ';
-}
 if (isset($_GET['fshij'])) {
   $fshijid = $_GET['fshij'];
   $mfsh4 = $conn->query("SELECT * FROM faturafacebook WHERE fatura='$fshijid'");
@@ -119,30 +113,19 @@ if (isset($_GET['fshij'])) {
   <div class="content-wrapper">
     <div class="container-fluid">
       <div class="container">
-        <div class="p-5 shadow-sm rounded-5 mb-4 card">
-          <h4 class="font-weight-bold text-gray-800 mb-4">Pagesat Youtube</h4>
-          <nav class="d-flex">
-            <h6 class="mb-0">
-              <a href="" class="text-reset">Financat</a>
-              <span>/</span>
-              <a href="faturatFacebook.php" class="text-reset" data-bs-placement="top" data-bs-toggle="tooltip" title="<?php echo __FILE__; ?>"><u>Pagesat Youtube</u></a>
-              <div class="modal fade" id="videoUdhezuese" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                <div class="modal-dialog modal-xl">
-                  <div class="modal-content">
-                    <div class="modal-header">
-                      <h1 class="modal-title fs-5" id="exampleModalLabel">Video udh&euml;zuese</h1>
-                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-footer">
-                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                      <button type="button" class="btn btn-primary">Save changes</button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </h6>
-          </nav>
-        </div>
+        <nav class="bg-white px-2 rounded-5" style="width:fit-content;border-style:1px solid black;" aria-label="breadcrumb">
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+              <a class="text-reset" style="text-decoration: none;">
+                Facebook
+              </a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">
+              <a href="<?php echo __FILE__; ?>" class="text-reset" style="text-decoration: none;">
+                Krijo faturë ( Facebook )
+              </a>
+            </li>
+        </nav>
         <div class="modal fade" id="pagesmodal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
           <div class="modal-dialog" role="document">
             <div class="modal-content">
