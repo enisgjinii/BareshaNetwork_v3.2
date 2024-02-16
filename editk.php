@@ -28,7 +28,7 @@ if (isset($_POST['ndrysho'])) {
   $perdoruesi = mysqli_real_escape_string($conn, $_POST['perdoruesi']);
   $fjalekalimi = md5(mysqli_real_escape_string($conn, $_POST['fjalekalimi']));
   // Convert the array to a comma-separated string
-  $emails = implode(',', $_POST['emails']);
+  $emails = isset($_POST['emails']) ? implode(',', $_POST['emails']) : '';
   $perqindja_check = isset($_POST['perqindja_check']) ? '1' : '0';
   $perqindja_e_platformave_check = isset($_POST['perqindja_platformave_check']) ? '1' : '0';
   // Define the target folder for file uploads
