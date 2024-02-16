@@ -229,12 +229,12 @@ $editcl = mysqli_fetch_array($editc);
                     <br>
                     <div class="col">
                       <label class="form-label" for="dk">Data e fillimit të kontrates</label>
-                      <input type="date" name="dk" class="form-control rounded-5 border border-2" placeholder="Shkruaj Daten e kontrates" value="<?php echo $editcl['dk']; ?>">
+                      <input type="date" name="dk" id="dk" class="form-control rounded-5 border border-2" placeholder="Shkruaj Daten e kontrates" value="<?php echo $editcl['dk']; ?>">
                     </div>
                     <br>
                     <div class="col">
                       <label class="form-label" for="dks">Data e e skadimit të kontrates</label>
-                      <input type="date" name="dks" class="form-control rounded-5 border border-2" placeholder="Shkruaj Daten e skaditimit" value="<?php echo $editcl['dks']; ?>">
+                      <input type="date" name="dks" id="dks" class="form-control rounded-5 border border-2" placeholder="Shkruaj Daten e skaditimit" value="<?php echo $editcl['dks']; ?>">
                     </div>
 
                     <br>
