@@ -2,86 +2,79 @@
 date_default_timezone_set('Europe/Tirane');
 include 'partials/header.php';
 
+class Database
+{
+  private $conn;
+
+  public function __construct($conn)
+  {
+    $this->conn = $conn;
+  }
+
+  public function insertData($insertQuery, $data)
+  {
+    $stmt = $this->conn->prepare($insertQuery);
+    if (!$stmt) {
+      return false;
+    }
+    $stmt->bind_param(...$data);
+    $success = $stmt->execute();
+    $stmt->close();
+    return $success;
+  }
+
+  public function insertLog($logQuery, $data)
+  {
+    $stmt = $this->conn->prepare($logQuery);
+    if (!$stmt) {
+      return false;
+    }
+    $stmt->bind_param(...$data);
+    $success = $stmt->execute();
+    $stmt->close();
+    return $success;
+  }
+}
+
 if (isset($_POST['ruaj'])) {
-  $emri = mysqli_real_escape_string($conn, $_POST['emri']);
-  $teksti = mysqli_real_escape_string($conn, $_POST['teksti']);
-  $muzika = mysqli_real_escape_string($conn, $_POST['muzika']);
-  $orkestra = mysqli_real_escape_string($conn, $_POST['orkestra']);
-  $co = ($_POST['cover'] === "Cover" || $_POST['cover'] === "Origjinale") ? $_POST['cover'] : "Potpuri";
-  $facebook = ($_POST['facebook'] === "PO") ? "PO" : "Jo";
-  $instagram = ($_POST['Instagram'] === "PO") ? "PO" : "Jo";
+  // Assuming $conn is your database connection
+  $db = new Database($conn);
 
-  $veper = mysqli_real_escape_string($conn, $_POST['veper']);
-  $kengetari2 = mysqli_real_escape_string($conn, $_POST['kengtari']);
-  $klienti = mysqli_real_escape_string($conn, $_POST['klienti']);
-  $platforma = mysqli_real_escape_string($conn, $_POST['platforma']);
-
-  $platformat = implode(', ', $_POST['platformat']);
-
-  $linku = mysqli_real_escape_string($conn, $_POST['linku']);
-  $linkuplat = mysqli_real_escape_string($conn, $_POST['linkuplat']);
-  $data = mysqli_real_escape_string($conn, $_POST['data']);
-  $gjuha = mysqli_real_escape_string($conn, $_POST['gjuha']);
-  $user_informations = $user_info['givenName'] . ' ' . $user_info['familyName'];
-  $nga = $user_informations;
-  $infosh = $_POST['infosh'];
-
+  // Define your insert query and data separately
   $insertQuery = "INSERT INTO ngarkimi (kengetari, emri, teksti, muzika, orkestra, co, facebook, instagram, veper, klienti, platforma, platformat, linku, data, gjuha, infosh, nga, linkuplat) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+  $data = [
+    "ssssssssssssssssss",
+    $_POST['kengtari'],
+    $_POST['emri'],
+    $_POST['teksti'],
+    $_POST['muzika'],
+    $_POST['orkestra'],
+    ($_POST['cover'] === "Cover" || $_POST['cover'] === "Origjinale") ? $_POST['cover'] : "Potpuri",
+    ($_POST['facebook'] === "PO") ? "PO" : "Jo",
+    ($_POST['Instagram'] === "PO") ? "PO" : "Jo",
+    $_POST['veper'],
+    $_POST['klienti'],
+    $_POST['platforma'],
+    implode(', ', $_POST['platformat']),
+    $_POST['linku'],
+    $_POST['data'],
+    $_POST['gjuha'],
+    $_POST['infosh'],
+    $user_info['givenName'] . ' ' . $user_info['familyName'],
+    $_POST['linkuplat']
+  ];
 
-  // Prepare the INSERT statement
-  $stmt = $conn->prepare($insertQuery);
+  // Execute insertion and logging
+  $insertSuccess = $db->insertData($insertQuery, $data);
 
-  if (!$stmt) {
-    echo "Error: " . $conn->error;
-  } else {
-    $stmt->bind_param("ssssssssssssssssss", $kengetari2, $emri, $teksti, $muzika, $orkestra, $co, $facebook, $instagram, $veper, $klienti, $platforma, $platformat, $linku, $data, $gjuha, $infosh, $nga, $linkuplat);
-
-    // Execute the statement and check for errors
-    if (!$stmt->execute()) {
-      // Use SweetAlert2 for error message
+  if ($insertSuccess) {
+    $log_description = $data[17] . " ka ngarkuar " . $data[1] . " në sistem";
+    $date_information = date('Y-m-d H:i:s');
+    $logQuery = "INSERT INTO logs (stafi, ndryshimi, koha) VALUES (?, ?, ?)";
+    $logData = ["sss", $data[17], $log_description, $date_information];
+    $logSuccess = $db->insertLog($logQuery, $logData);
+    if ($logSuccess) {
       echo '<script>
-                Swal.fire({
-                  icon: "error",
-                  title: "Error!",
-                  text: "There was an error while saving your data.",
-                  confirmButtonText: "OK"
-                });
-            </script>';
-    } else {
-      $user_informations = $user_info['givenName'] . ' ' . $user_info['familyName'];
-      $log_description = $user_informations . " ka ngarkuar " . $emri . " në sistem";
-      $date_information = date('Y-m-d H:i:s');
-
-      // Prepare the INSERT statement for logs
-      $logQuery = $conn->prepare("INSERT INTO logs (stafi, ndryshimi, koha) VALUES (?, ?, ?)");
-
-      if (!$logQuery) {
-        // Use SweetAlert2 for error message
-        echo '<script>
-                Swal.fire({
-                  icon: "error",
-                  title: "Error!",
-                  text: "Pati një gabim gjatë ruajtjes së të dhënave të regjistrit.",
-                  confirmButtonText: "OK"
-                });
-            </script>';
-      } else {
-        $logQuery->bind_param("sss", $user_informations, $log_description, $date_information);
-
-        // Execute the log statement and check for errors
-        if (!$logQuery->execute()) {
-          // Use SweetAlert2 for error message
-          echo '<script>
-                Swal.fire({
-                  icon: "error",
-                  title: "Error!",
-                  text: "Pati një gabim gjatë ruajtjes së të dhënave të regjistrit.",
-                  confirmButtonText: "OK"
-                });
-            </script>';
-        } else {
-          // Use SweetAlert2 for success message
-          echo '<script>
                 Swal.fire({
                   icon: "success",
                   title: "Success!",
@@ -89,18 +82,29 @@ if (isset($_POST['ruaj'])) {
                   confirmButtonText: "OK"
                 });
             </script>';
-        }
-
-        // Close the log statement
-        $logQuery->close();
-      }
+    } else {
+      echo '<script>
+                Swal.fire({
+                  icon: "error",
+                  title: "Error!",
+                  text: "Pati një gabim gjatë ruajtjes së të dhënave të regjistrit.",
+                  confirmButtonText: "OK"
+                });
+            </script>';
     }
-
-    // Close the main statement
-    $stmt->close();
+  } else {
+    echo '<script>
+            Swal.fire({
+              icon: "error",
+              title: "Error!",
+              text: "There was an error while saving your data.",
+              confirmButtonText: "OK"
+            });
+        </script>';
   }
 }
 ?>
+
 <!-- Begin Page Content -->
 <div class="main-panel">
   <div class="content-wrapper">
