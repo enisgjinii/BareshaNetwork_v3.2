@@ -20,7 +20,7 @@ if (isset($_POST['id'])) {
 
     if ($stmt->execute()) {
         $response['status'] = 'success';
-        $response['message'] = 'T&euml; dh&euml;nat u fshin&euml; me sukses.';
+        $response['message'] = 'Të dhënat u fshinë me sukses.';
     } else {
         $response['status'] = 'error';
         $response['message'] = 'Error: ' . $stmt->error;
@@ -30,7 +30,7 @@ if (isset($_POST['id'])) {
     $stmt->close();
 } else {
     $response['status'] = 'error';
-    $response['message'] = 'K&euml;rkes&euml; e pavlefshme. Asnj&euml; ID e specifikuar.';
+    $response['message'] = 'Kërkesë e pavlefshme. Asnjë ID e specifikuar.';
 }
 
 // Close the connection

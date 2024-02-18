@@ -1,54 +1,48 @@
 <?php
 include 'partials/header.php';
-
 // Retrieve data from the "ascap" table
 $sql = "SELECT * FROM ascap";
 $result = $conn->query($sql);
 require_once 'vendor/autoload.php';
-
 ?>
-<!-- Your HTML code -->
-
-<!-- Add the Bootstrap modal -->
+<!-- Modal-i për Redaktim -->
 <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="editModalLabel">Edit Record</h5>
+                <h5 class="modal-title" id="editModalLabel">Redakto Regjistrimin</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <!-- Add your update form here -->
                 <form id="updateForm">
                     <input type="hidden" id="editId" name="id">
                     <div class="mb-3">
                         <label for="editEmri" class="form-label">Emri</label>
-                        <input type="text" class="form-control" id="editEmri" name="emri">
+                        <input type="text" class="form-control rounded-5 border border-2" id="editEmri" name="emri">
                     </div>
                     <div class="mb-3">
                         <label for="editMbiemri" class="form-label">Mbiemri</label>
-                        <input type="text" class="form-control" id="editMbiemri" name="mbiemri">
+                        <input type="text" class="form-control rounded-5 border border-2" id="editMbiemri" name="mbiemri">
                     </div>
                     <div class="mb-3">
-                        <label for="editEmriIKenges" class="form-label">Emri i kenges</label>
-                        <input type="text" class="form-control" id="editEmriIKenges" name="emri_i_kenges">
+                        <label for="editEmriIKenges" class="form-label">Emri i Këngës</label>
+                        <input type="text" class="form-control rounded-5 border border-2" id="editEmriIKenges" name="emri_i_kenges">
                     </div>
                     <div class="mb-3">
-                        <label for="editShenim" class="form-label">Shenim</label>
-                        <textarea class="form-control" id="editShenim" name="shenim"></textarea>
+                        <label for="editShenim" class="form-label">Shënimi</label>
+                        <textarea class="form-control rounded-5 border border-2" id="editShenim" name="shenim"></textarea>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" id="updateBtn">Update</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Mbylle</button>
+                <button type="button" class="btn btn-primary" id="updateBtn">Përditëso</button>
             </div>
         </div>
     </div>
 </div>
 
 <!-- Your JavaScript code -->
-
 <div class="main-panel">
     <div class="content-wrapper">
         <div class="container-fluid">
@@ -61,7 +55,6 @@ require_once 'vendor/autoload.php';
                     </li>
             </nav>
             <div class="p-5 rounded-5 shadow-sm mb-4 card">
-
                 <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
                     <li class="nav-item" role="presentation">
                         <button class="nav-link rounded-5 active" style="text-transform: none;" id="pills-shto_investim-tab" data-bs-toggle="pill" data-bs-target="#pills-shto_investim" type="button" role="tab" aria-controls="pills-shto_investim" aria-selected="true">Shto investim</button>
@@ -69,7 +62,6 @@ require_once 'vendor/autoload.php';
                     <li class="nav-item" role="presentation">
                         <button class="nav-link  rounded-5" style="text-transform: none;" id="pills-lista_e_investimeve-tab" data-bs-toggle="pill" data-bs-target="#pills-lista_e_investimeve" type="button" role="tab" aria-controls="pills-lista_e_investimeve" aria-selected="false">Lista e investimeve</button>
                     </li>
-
                 </ul>
                 <div class="tab-content" id="pills-tabContent">
                     <div class="tab-pane fade show active" id="pills-shto_investim" role="tabpanel" aria-labelledby="pills-shto_investim-tab">
@@ -77,21 +69,21 @@ require_once 'vendor/autoload.php';
                             <div class="row my-3">
                                 <div class="col">
                                     <label class="form-label" for="emri">Emri</label>
-                                    <input type="text" class="form-control shadow-sm rounded-5 border" name="emri" id="emri">
+                                    <input type="text" class="form-control rounded-5 border border-2" name="emri" id="emri">
                                 </div>
                                 <div class="col">
                                     <label class="form-label" for="mbiemri">Mbiemri</label>
-                                    <input type="text" class="form-control shadow-sm rounded-5 border" name="mbiemri" id="mbiemri">
+                                    <input type="text" class="form-control rounded-5 border border-2" name="mbiemri" id="mbiemri">
                                 </div>
                             </div>
                             <div class="row my-3">
                                 <div class="col">
                                     <label class="form-label" for="emri_i_kenges">Emri i kenges</label>
-                                    <input type="text" class="form-control shadow-sm rounded-5 border" name="emri_i_kenges" id="emri_i_kenges">
+                                    <input type="text" class="form-control rounded-5 border border-2" name="emri_i_kenges" id="emri_i_kenges">
                                 </div>
                                 <div class="col">
                                     <label class="form-label" for="shenim">Shenim</label>
-                                    <textarea class="form-control shadow-sm rounded-5 border" name="shenim" id="tinymce-editor"></textarea>
+                                    <textarea class="form-control rounded-5 border border-2" name="shenim" id="tinymce-editor"></textarea>
                                 </div>
                             </div>
                             <button type="submit" class="btn btn-primary rounded-5 shadow-sm text-white" style="text-transform: none;">Ruaj t&euml; dh&euml;nat</button>
@@ -109,31 +101,16 @@ require_once 'vendor/autoload.php';
                                         <th>Emri i kenges</th>
                                         <th>Shenim</th>
                                         <th>Action</th> <!-- Add a new column for the delete button -->
-
                                     </tr>
                                 </thead>
                             </table>
                         </div>
                     </div>
                 </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
             </div>
         </div>
     </div>
 </div>
-
 <div class="modal fade" id="viewModal" tabindex="-1" aria-labelledby="viewModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -149,15 +126,9 @@ require_once 'vendor/autoload.php';
         </div>
     </div>
 </div>
-
-
 <?php include 'partials/footer.php' ?>
-
-
-
 <script>
     $(document).ready(function() {
-
         // Initialize DataTable with AJAX
         var dataTables = $('#example').DataTable({
             responsive: false,
@@ -256,46 +227,56 @@ require_once 'vendor/autoload.php';
                 }
             ],
         }); // Handle the delete button click using AJAX
-
-
         $('#example').on('click', '.delete-btn', function() {
             var rowId = $(this).data('id');
-
-            $.ajax({
-                url: 'delete_investimi.php',
-                type: 'POST',
-                data: {
-                    id: rowId
-                }, // Send the ID of the row to delete
-                success: function(data) {
-                    if (data.status === 'success') {
-                        // Refresh the DataTable after successful delete
-                        dataTables.ajax.reload();
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Success!',
-                            text: data.message,
-                            timer: 2000,
-                            showConfirmButton: false,
-                        });
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error!',
-                            text: data.message,
-                        });
-                    }
-                },
-                error: function() {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error!',
-                        text: 'Ndodhi nj&euml; gabim gjat&euml; fshirjes s&euml; t&euml; dh&euml;nave.',
+            // Show a confirmation dialog before proceeding with the deletion
+            Swal.fire({
+                title: 'A je i sigurt?',
+                text: 'Ju nuk do të jeni në gjendje ta ktheni këtë!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Po, fshije!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Proceed with the deletion
+                    $.ajax({
+                        url: 'delete_investimi.php',
+                        type: 'POST',
+                        data: {
+                            id: rowId
+                        },
+                        success: function(data) {
+                            if (data.status === 'success') {
+                                // Refresh the DataTable after successful delete
+                                dataTables.ajax.reload();
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Sukses!',
+                                    text: data.message,
+                                    timer: 2000,
+                                    showConfirmButton: false,
+                                });
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Gabim!',
+                                    text: data.message,
+                                });
+                            }
+                        },
+                        error: function() {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Gabim!',
+                                text: 'Ndodhi një gabim gjatë fshirjes së regjistrimit.',
+                            });
+                        },
                     });
-                },
+                }
             });
         });
-
         $('#example').on('click', '.edit-btn', function() {
             var rowId = $(this).data('id');
             // Fetch data for the specific row using AJAX
@@ -314,29 +295,27 @@ require_once 'vendor/autoload.php';
                     $('#editMbiemri').val(data.mbiemri);
                     $('#editEmriIKenges').val(data.emri_i_kenges);
                     tinymce.get('editShenim').setContent(data.shenim);
-
                     // Show the modal
                     $('#editModal').modal('show');
                 },
                 error: function() {
                     Swal.fire({
                         icon: 'error',
-                        title: 'Error!',
-                        text: 'Ndodhi nj&euml; gabim gjat&euml; marrjes s&euml; t&euml; dh&euml;nave p&euml;r rreshtin.',
+                        title: 'Gabim!',
+                        text: 'Ndodhi një gabim gjatë marrjes së të dhënave për rreshtin.',
                     });
                 },
             });
         });
+
         $('#updateBtn').click(function() {
             // Create a new FormData object and append the form data to it
             var formData = new FormData($('#updateForm')[0]);
-
             // Get the content of the TinyMCE editor as plain text
             var shenimContent = tinymce.get('editShenim').getContent({
                 format: 'text'
             });
             formData.append('shenim', shenimContent); // Append the shenim content to the formData
-
             $.ajax({
                 url: 'update_investimi.php',
                 type: 'POST',
@@ -348,7 +327,7 @@ require_once 'vendor/autoload.php';
                     if (data.status === 'success') {
                         Swal.fire({
                             icon: 'success',
-                            title: 'Success!',
+                            title: 'Sukses!',
                             text: data.message,
                             timer: 2000,
                             showConfirmButton: false,
@@ -361,7 +340,7 @@ require_once 'vendor/autoload.php';
                     } else {
                         Swal.fire({
                             icon: 'error',
-                            title: 'Error!',
+                            title: 'Gabim!',
                             text: data.message,
                         });
                     }
@@ -369,20 +348,16 @@ require_once 'vendor/autoload.php';
                 error: function() {
                     Swal.fire({
                         icon: 'error',
-                        title: 'Error!',
-                        text: 'An error occurred while updating the record.',
+                        title: 'Gabim!',
+                        text: 'Ndodhi një gabim gjatë përditësimit të regjistrimit.',
                     });
                 },
             });
         });
-
-
     });
 </script><!-- Your HTML code -->
-
 <script>
     $(document).ready(function() {
-
         // Initialize TinyMCE for the "Shenim" textarea in the modal
         tinymce.init({
             selector: '#editShenim',
@@ -390,28 +365,22 @@ require_once 'vendor/autoload.php';
             toolbar: 'undo redo | bold italic | alignleft aligncenter alignright | bullist numlist outdent indent | link image',
             height: 300, // Adjust the height of the editor as needed
         });
-
-
         tinymce.init({
             selector: '#tinymce-editor',
             plugins: 'autolink lists link image charmap print preview anchor',
             toolbar: 'undo redo | bold italic | alignleft aligncenter alignright | bullist numlist outdent indent | link image',
             height: 300, // Adjust the height of the editor as needed
         });
-
         $('#example tbody').on('click', '.view-btn', function() {
             var shenimContent = $(this).data('shenim');
-
             // Set the shenim content in the modal
             $('#viewModalBody').html(shenimContent);
-
             // Show the modal
             $('#viewModal').modal('show');
         });
-
         // Handle form submission using AJAX
         $("#myForm").submit(function(event) {
-            event.preventDefault(); // Prevent the form from submitting normally
+            event.preventDefault(); // Parandalon formën të dërgojë normalisht
 
             const formData = new FormData(event.target);
 
@@ -423,35 +392,38 @@ require_once 'vendor/autoload.php';
                 contentType: false,
                 success: function(data) {
                     if (data.status === "success") {
-                        // Show SweetAlert 2 success notification
+                        // Trego njoftimin e suksesit me SweetAlert 2
                         Swal.fire({
                             icon: "success",
-                            title: "Success!",
+                            title: "Sukses!",
                             text: data.message,
                             timer: 2000,
                             showConfirmButton: false,
                         }).then(() => {
-                            // Redirect to investimi.php after successful insertion
-                            window.location.href = "investime.php";
+                            // Rifresko DataTable për të reflektuar ndryshimet pas shtimit të suksesshëm
+                            $('#example').DataTable().ajax.reload(null, false);
+                            // Pastro fushat e formës
+                            $('#myForm')[0].reset();
                         });
                     } else {
-                        // Show SweetAlert 2 error notification
+                        // Trego njoftimin e gabimit me SweetAlert 2
                         Swal.fire({
                             icon: "error",
-                            title: "Error!",
+                            title: "Gabim!",
                             text: data.message,
                         });
                     }
                 },
                 error: function() {
-                    // Show SweetAlert 2 error notification for AJAX request failure
+                    // Trego njoftimin e gabimit për dështimin e kërkesës AJAX
                     Swal.fire({
                         icon: "error",
-                        title: "Error!",
-                        text: "An error occurred while submitting the form.",
+                        title: "Gabim!",
+                        text: "Ndodhi një gabim gjatë dërgimit të formës.",
                     });
                 },
             });
         });
+
     });
 </script>

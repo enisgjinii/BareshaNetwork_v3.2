@@ -44,7 +44,6 @@
                 <div class="collapse" id="klienti">
                     <ul class="nav flex-column sub-menu">
                         <li class="nav-item"><a class="nav-link" href="klient.php">Lista e klient&euml;ve</a></li>
-                        <li class="nav-item"><a class="nav-link" href="klient2.php">Lista e klient&euml;ve tjer</a></li>
                         <li class="nav-item"><a class="nav-link" href="kategorit.php">Lista e kategorive</a></li>
                         <li class="nav-item"><a class="nav-link" href="ads.php">Llogarit&euml; e ADS</a></li>
                         <li class="nav-item"><a class="nav-link" href="emails.php">Lista e email-ave</a></li>

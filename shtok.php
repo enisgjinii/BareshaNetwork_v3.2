@@ -52,8 +52,32 @@ if (isset($_POST['ruaj'])) {
     $kueri = $conn->query("SELECT * FROM klientet ORDER BY id DESC");
     $k = mysqli_fetch_array($kueri);
     $cdata = date("Y-m-d H:i:s");
-    $cname = $_SESSION['emri'];
-    $cnd = $cname . " ka shtuar  klientin " . $emri;
+    // Kontrollo nëse email-i ekziston tashmë në bazën e të dhënave
+    $check_email = $conn->prepare("SELECT `email` FROM `googleauth` WHERE `email`=?");
+    $check_email->bind_param("s", $email);
+    $check_email->execute();
+    $check_email->store_result();
+
+    // Marrja e emrit të përdoruesit nga sesioni
+    $cname = $_SESSION['username'];
+
+    // Nëse emri dhe mbiemri nuk janë disponibël në sesion, mund të përdorni vlerat e ruajtura në cookies
+    // $outha
+    $f_name = $_COOKIE['user_first_name'];
+    $l_name = $_COOKIE['user_last_name'];
+
+
+    // Krijo string-un për të përdorur në deklaratën më poshtë
+    $user_info = $f_name . ' ' . $l_name;
+
+    // Nëse informacioni për emër dhe mbiemër nuk është në dispozicion, mund të përdorni vlerën e ruajtur në sesion
+    if (empty($user_info)) {
+      $user_info = $_SESSION['user_info'];
+    }
+
+    // Përgatit string-un për log-in e veprimit
+    $cnd = $user_info . " ka shtuar klientin " . $emri;
+
     $query = "INSERT INTO logs (stafi, ndryshimi, koha) VALUES ('$cname', '$cnd', '$cdata')";
     if ($conn->query($query)) {
     } else {

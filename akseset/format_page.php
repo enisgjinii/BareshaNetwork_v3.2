@@ -19,9 +19,6 @@ function format_page_name($page)
     if ($page == 'klient.php') {
         return 'Lista e klient&euml;ve';
     }
-    if ($page == 'klient2.php') {
-        return 'Lista e klient&euml;ve tjer&euml;';
-    }
     if ($page == 'kategorit.php') {
         return 'Lista e kategorive';
     }
@@ -168,7 +165,6 @@ $pages = array(
     'stafi.php',
     'roles.php',
     'klient.php',
-    'klient2.php',
     'kategorit.php',
     'ads.php',
     'emails.php',

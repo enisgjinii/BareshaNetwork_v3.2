@@ -87,7 +87,6 @@
         "collapseId" => "klienti",
         "menuItems" => [
           "klient.php" => "Lista e klientëve",
-          "klient2.php" => "Lista e klientëve tjerë",
           "kategorit.php" => "Lista e kategorive",
           "ads.php" => "Llogari të ADS",
           "emails.php" => "Lista e email-ave",

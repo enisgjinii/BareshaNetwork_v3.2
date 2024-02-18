@@ -27,9 +27,6 @@ function format_page_name($page)
         return 'Lista e klient&euml;ve';
     }
 
-    if ($page == 'klient2.php') {
-        return 'Lista e klient&euml;ve tjer&euml;';
-    }
 
 
     if ($page == 'kategorit.php') {
@@ -221,7 +218,6 @@ $pages = array(
     'stafi.php' => format_page_name('stafi.php'),
     'roles.php' => format_page_name('roles.php'),
     'klient.php' => format_page_name('klient.php'),
-    'klient2.php' => format_page_name('klient2.php'),
     'kategorit.php' => format_page_name('kategorit.php'),
     'ads.php' => format_page_name('ads.php'),
     'emails.php' => format_page_name('emails.php'),

@@ -94,9 +94,6 @@
                                             return 'Lista e klient&euml;ve';
                                         }
 
-                                        if ($page == 'klient2.php') {
-                                            return 'Lista e klient&euml;ve tjer&euml;';
-                                        }
 
 
                                         if ($page == 'kategorit.php') {
@@ -292,7 +289,6 @@
                                         'stafi.php',
                                         'roles.php',
                                         'klient.php',
-                                        'klient2.php',
                                         'kategorit.php',
                                         'ads.php',
                                         'emails.php',
