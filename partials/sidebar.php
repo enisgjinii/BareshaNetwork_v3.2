@@ -91,6 +91,7 @@
           "ads.php" => "Llogari të ADS",
           "emails.php" => "Lista e email-ave",
           "klient-avanc.php" => "Lista e avanceve të klienteve",
+          "rating_list.php" => "Lista e vlersimeve",
         ],
       ],
       [

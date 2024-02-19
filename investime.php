@@ -10,7 +10,7 @@ require_once 'vendor/autoload.php';
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="editModalLabel">Redakto Regjistrimin</h5>
+                <h5 class="modal-title" id="editModalLabel">Edito regjistrimin</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -35,8 +35,8 @@ require_once 'vendor/autoload.php';
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Mbylle</button>
-                <button type="button" class="btn btn-primary" id="updateBtn">Përditëso</button>
+                <button type="button" class="input-custom-css px-3 py-2" data-bs-dismiss="modal">Mbylle</button>
+                <button type="button" class="input-custom-css px-3 py-2" id="updateBtn">Përditëso</button>
             </div>
         </div>
     </div>
@@ -294,7 +294,8 @@ require_once 'vendor/autoload.php';
                     $('#editEmri').val(data.emri);
                     $('#editMbiemri').val(data.mbiemri);
                     $('#editEmriIKenges').val(data.emri_i_kenges);
-                    tinymce.get('editShenim').setContent(data.shenim);
+                    $('#editShenim').val(data.shenim);
+                    // tinymce.get('editShenim').setContent(data.shenim);
                     // Show the modal
                     $('#editModal').modal('show');
                 },
@@ -312,10 +313,10 @@ require_once 'vendor/autoload.php';
             // Create a new FormData object and append the form data to it
             var formData = new FormData($('#updateForm')[0]);
             // Get the content of the TinyMCE editor as plain text
-            var shenimContent = tinymce.get('editShenim').getContent({
-                format: 'text'
-            });
-            formData.append('shenim', shenimContent); // Append the shenim content to the formData
+            var shenimContent = $('#editShenim').val();
+            // formData.append('shenim', shenimContent); // Append the shenim content to the formData
+            formData.append('shenim', shenimContent);
+
             $.ajax({
                 url: 'update_investimi.php',
                 type: 'POST',

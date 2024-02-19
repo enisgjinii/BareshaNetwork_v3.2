@@ -6,169 +6,126 @@ function format_page_name($page)
     if ($page == 'index.php') {
         return 'Shtepia';
     }
-
     if ($page == 'roles.php') {
         return 'Rolet';
     }
-
     if ($page == 'stafi.php') {
         return 'Klientet';
     }
-
     if ($page == 'ads.php') {
         return 'Llogarit&euml; e ADS';
     }
-
     if ($page == 'emails.php') {
         return 'Lista e email-eve';
     }
-
     if ($page == 'klient.php') {
         return 'Lista e klient&euml;ve';
     }
-
-
-
     if ($page == 'kategorit.php') {
         return 'Lista e kategorive';
     }
-
     if ($page == 'claim.php') {
         return 'Recent Claim';
     }
-
     if ($page == 'tiketa.php') {
         return 'Lista e tiketave';
     }
-
     if ($page == 'listang.php') {
         return 'Lista e k&euml;ng&euml;ve';
     }
-
     if ($page == 'shtoy.php') {
         return 'Regjistro k&euml;ng&euml;';
     }
-
     if ($page == 'listat.php') {
         return 'Lista e tiketave';
     }
-
     if ($page == 'tiketa.php') {
         return 'Tiket e re';
     }
-
-
     if ($page == 'whitelist.php') {
         return 'Whitelist';
     }
-
     if ($page == 'faturat.php') {
         return 'Pagesat Youtube';
     }
     if ($page == 'invoice.php') {
         return 'Faturat ( New )';
     }
-
     if ($page == 'faturat2.php') {
         return 'Platformat Tjera';
     }
-
     if ($page == 'pagesat.php') {
         return 'Pagesat e kryera';
     }
-
     if ($page == 'rrogat.php') {
         return 'Pagat';
     }
-
     if ($page == 'shpenzimep.php') {
         return 'Shpenzimet personale';
     }
-
     if ($page == 'tatimi.php') {
         return 'Tatimi';
     }
     if ($page == 'yinc.php') {
         return 'Shpenzimet';
     }
-
     if ($page == 'filet.php') {
         return 'Dokumente tjera';
     }
     if ($page == 'github_logs.php') {
         return 'Aktiviteti ne Github';
     }
-
     if ($page == 'klient_CSV.php') {
         return 'Klient CSV';
     }
-
     if ($page == 'logs.php') {
         return 'Logs';
     }
-
     if ($page == 'notes.php') {
         return 'Shenime';
     }
-
     if ($page == 'takimet.php') {
         return 'Takimet';
     }
-
-
     if ($page == 'todo_list.php') {
         return 'To Do';
     }
-
     if ($page == 'kontrata_2.php') {
         return 'Kontrata e re';
     }
-
     if ($page == 'lista_kontratave.php') {
         return 'Lista e kontratave';
     }
-
     if ($page == 'csvFiles.php') {
         return 'Inserto CSV';
     }
-
     if ($page == 'filtroCSV.php') {
         return 'Filtro CSV';
     }
-
     if ($page == 'listaEFaturaveTePlatformave.php') {
         return 'Lista e faturave';
     }
-
-
     if ($page == 'pagesatEKryera.php') {
         return 'Pagesat e perfunduara';
     }
-
     if ($page == 'check_musics.php') {
         return 'Konfirmimi i kengeve';
     }
-
     if ($page == 'dataYT.php') {
         return 'Statistikat nga Youtube';
     }
-
     if ($page == 'ofertat.php') {
         return 'Ofertat';
     }
-
     if ($page == 'kontrata_gjenelare_2.php') {
         return 'Kontrate e re ( Gjenerale )';
     }
-
     if ($page == 'lista_kontratave_gjenerale.php') {
         return 'Lista e kontratave ( Gjenerale )';
     }
-
     if ($page == 'facebook.php') {
         return 'Vegla Facebook';
     }
-
     if ($page == 'lista_faturave_facebook.php') {
         return 'Lista e faturave (Facebook)';
     }
@@ -190,7 +147,6 @@ function format_page_name($page)
     if ($page == 'klient-avanc.php') {
         return 'Lista e avanceve te klienteve';
     }
-
     if ($page == 'list_of_invoices.php') {
         return 'Pagesat YouTube ( New )';
     }
@@ -203,7 +159,6 @@ function format_page_name($page)
     if ($page == 'office_requirements.php') {
         return 'Kerkesat';
     }
-
     if ($page == 'faturat2.php') {
         return 'Platformat Tjera';
     }
@@ -212,6 +167,9 @@ function format_page_name($page)
     }
     if ($page == 'currency.php') {
         return 'Valutimi';
+    }
+    if ($page == 'rating_list.php') {
+        return 'Lista e vlersimeve';
     }
 }
 $pages = array(
@@ -232,7 +190,6 @@ $pages = array(
     'yinc.php' => format_page_name('yinc.php'),
     'shpenzimep.php' => format_page_name('shpenzimep.php'),
     'faturat.php' => format_page_name('faturat.php'),
-
     'invoice.php' => format_page_name('invoice.php'),
     'pagesat.php' => format_page_name('pagesat.php'),
     'faturat2.php' => format_page_name('faturat2.php'),
@@ -267,19 +224,17 @@ $pages = array(
     'klient-avanc.php' => format_page_name('klient-avanc.php'),
     'list_of_invoices.php' => format_page_name('list_of_invoices.php'),
     'office_investments.php' => format_page_name('office_investments.php'),
-    'office_damages.php' => format_page_name('office_damages.php'), 
+    'office_damages.php' => format_page_name('office_damages.php'),
     'office_requirements.php' => format_page_name('office_requirements.php'),
     'quick_platform_invoice.php' => format_page_name('quick_platform_invoice.php'),
-    'currency.php' => format_page_name('currency.php')
-
+    'currency.php' => format_page_name('currency.php'),
+    'rating_list.php' => format_page_name('rating_list.php'),
 );
 // Check if the role ID is present in the URL
 if (isset($_GET['role_id'])) {
     // Retrieve the role ID from the URL parameter
     $roleId = $_GET['role_id'];
-
     // You can use the $roleId to fetch the role data from the database or perform any other necessary actions
-
     // Example: Fetch role details and associated pages from the database based on the role ID
     // Assuming you have a database connection established
     // Replace this code with your own logic to retrieve role details and associated pages
@@ -287,22 +242,16 @@ if (isset($_GET['role_id'])) {
             FROM roles
             LEFT JOIN role_pages ON roles.id = role_pages.role_id
             WHERE roles.id = $roleId";
-
     $result = $conn->query($sql);
-
     if ($result->num_rows > 0) {
         // Role found, process the data
         $row = $result->fetch_assoc();
         $roleName = $row['role_name'];
-
         // Get the selected pages as an associative array
         $selectedPages = [];
         do {
             $selectedPages[] = $row['page_name'];
         } while ($row = $result->fetch_assoc());
-
-
-
         // You can display other form elements or perform any other necessary actions based on the role ID
     } else {
         // Role not found
@@ -312,7 +261,6 @@ if (isset($_GET['role_id'])) {
     // Role ID not provided in the URL
     echo "Invalid role ID.";
 }
-
 ?>
 <div class="main-panel">
     <div class="content-wrapper">
@@ -324,7 +272,6 @@ if (isset($_GET['role_id'])) {
                 <p>Emri i rolit :
                     <?php echo $roleName ?>
                 </p>
-
                 <br>
                 <form method="POST" action="update_page.php" id="pageForm">
                     <table class="table table-bordered">
@@ -359,21 +306,18 @@ if (isset($_GET['role_id'])) {
         </div>
     </div>
 </div>
-
 <script>
     // Function to check the checked status of checkboxes
     function checkCheckedStatus() {
         var checkboxes = document.querySelectorAll('input[type="checkbox"]');
         var submitContainer = document.getElementById('submitContainer');
         var isChecked = false;
-
         for (var i = 0; i < checkboxes.length; i++) {
             if (checkboxes[i].checked) {
                 isChecked = true;
                 break;
             }
         }
-
         // Show/hide the submit button based on the checked status
         if (isChecked) {
             submitContainer.style.display = 'block';
@@ -381,15 +325,12 @@ if (isset($_GET['role_id'])) {
             submitContainer.style.display = 'none';
         }
     }
-
     // Add event listener to checkboxes
     var checkboxes = document.querySelectorAll('input[type="checkbox"]');
     for (var i = 0; i < checkboxes.length; i++) {
         checkboxes[i].addEventListener('change', checkCheckedStatus);
     }
-
     // Call the function initially to check the checked status
     checkCheckedStatus();
 </script>
-
 <?php include 'partials/footer.php' ?>

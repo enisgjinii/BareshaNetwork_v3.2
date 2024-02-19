@@ -284,6 +284,9 @@
                                         if ($page == 'currency.php') {
                                             return 'Valutimi';
                                         }
+                                        if ($page == 'rating_list.php') {
+                                            return 'Lista e vlersimeve';
+                                        }
                                     }
                                     $pages = array(
                                         'stafi.php',
@@ -333,7 +336,9 @@
                                         'office_investments.php',
                                         'office_damages.php',
                                         'office_requirements.php',
-                                        'quick_platform_invoice.php'
+                                        'quick_platform_invoice.php',
+                                        'currency.php',
+                                        'rating_list.php'
                                     );
                                     echo '<table id="tabelaEFaqeve" class="table table-bordered table-hover">';
                                     echo '<thead class="bg-light"><tr><th>Emri i faqes</th><th>Zgjedhe</th></tr></thead>';
