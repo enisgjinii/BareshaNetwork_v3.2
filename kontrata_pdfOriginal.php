@@ -117,7 +117,7 @@
 
 
                 <p style="f" class='fw-bold my-0'> Kjo kontrat&euml; u n&euml;nshkrua me dat&euml;
-                    <?php echo $row['data'] ?> midis
+                    <?php echo date('d/m/Y', strtotime($row['data'])); ?> midis
                     <?php echo $row['emri'] ?>
                     <?php echo $row['mbiemri'] ?>, ("
                     <?php echo $row['emriartistik'] ?>") dhe Baresha Music ("Baresha Music SH.P.K.").

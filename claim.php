@@ -291,7 +291,7 @@ $text = 'Madhësia e dosjes: ' . $fileSize;
         [4, "desc"] // Default ordering by invoice_id in descending order
       ],
       columnDefs: [{
-        "targets": [0, 1, 2, 3, 4], // Indexes of the columns you want to apply the style to
+        "targets": [0, 1, 2, 3, 4, 5], // Indexes of the columns you want to apply the style to
         "render": function(data, type, row) {
           // Apply the style to the specified columns
           return type === 'display' && data !== null ? '<div style="white-space: normal;">' + data + '</div>' : data;

@@ -173,7 +173,7 @@ $result = mysqli_query($conn, $query);
 
                     <p class='fw-bold my-3'>
                         Kjo kontrat&euml; u n&euml;nshkrua me dat&euml;
-                        <?php echo $row['data'] ?> midis
+                        <?php echo date('d/m/Y', strtotime($row['data'])); ?> midis
                         <?php echo $row['emri'] ?>
                         <?php echo $row['mbiemri'] ?>, ("
                         <?php echo $row['emriartistik'] ?>") dhe Baresha Music ("Baresha
@@ -457,9 +457,9 @@ $result = mysqli_query($conn, $query);
                                 ?>
                             </div>
                         </div>
-                            <?php
-                            echo $row['data'];
-                            ?>
+                        <?php
+                        echo $row['data'];
+                        ?>
                         <?php
                         if (!($row['shenim'] == " ")) {
                         ?>

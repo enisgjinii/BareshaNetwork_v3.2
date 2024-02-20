@@ -22,6 +22,8 @@ $columns = array(
 );
 
 // Start building the SQL query
+// Start building the SQL query
+// Start building the SQL query
 $sql = "SELECT i.id, i.invoice_number, i.item, i.customer_id, i.state_of_invoice,
                 i_agg.total_amount,
                 i_agg.total_amount_after_percentage,
@@ -54,8 +56,7 @@ $sql = "SELECT i.id, i.invoice_number, i.item, i.customer_id, i.state_of_invoice
 
 // Append WHERE clause for filtering
 $sql .= " WHERE (i.total_amount_after_percentage - i.paid_amount) > 1
-          AND (k.lloji_klientit = 'Personal' OR k.lloji_klientit IS NULL)";
-
+          AND k.lloji_klientit = 'Biznes'"; // Append the additional condition using AND
 
 
 // Apply filtering (search)

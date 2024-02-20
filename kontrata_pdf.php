@@ -48,7 +48,7 @@
 
                 <p class='fw-bold my-3'>
                     Kjo kontrat&euml; u n&euml;nshkrua me dat&euml;
-                    <?php echo $row['data'] ?> midis
+                    <?php echo date('d/m/Y', strtotime($row['data'])); ?> midis
                     <?php echo $row['emri'] ?>
                     <?php echo $row['mbiemri'] ?>, ("
                     <?php echo $row['emriartistik'] ?>") dhe Baresha Music ("Baresha
@@ -97,30 +97,30 @@
                     vepres/kenges. T&euml; ardhurat neto do t&euml; p&euml;rcaktohen si t&euml; gjitha t&euml; ardhurat t&euml; marrura nga Baresha
                     nga
                     eksploatimi i k&euml;ng&euml;s, t&euml; zbritura nga kostot direkte q&euml; Baresha nd&euml;rhyn n&euml; lidhje me k&euml;t&euml;
-                        eksploatim.
-                    </p>
-                    s
-                    <p>5.1. PREZANTIMET DHE GARANCITË. Artisti prezanton dhe garanton se (i) Artisti &euml;sht&euml; pronari i vet&euml;m dhe
-                        ekskluziv i regjistrimit. t&euml; tingujve t&euml; Vepres/K&euml;ng&euml;s, (i) asnj&euml; pjes&euml; e K&euml;ng&euml;s nuk do t&euml; shkel&euml; t&euml;
-                        drejta t&euml; pal&euml;ve t&euml; treta qe nuk jane pjese e kesaj marrveshje dhe Artisti nuk ka b&euml;r&euml; marr&euml;veshje t&euml;
-                        tjera p&euml;r t&euml; drejta t&euml; K&euml;ng&euml;s q&euml; mund t&euml; pengojn&euml; k&euml;t&euml; Marr&euml;veshje.
-                        Baresha Music Sh.p.k. ka per obligim qe ne afat prej 24 ore nga data e nenshkrimit te kesaj marrveshje
-                        te bej publikimin e kenges ne platformat dixhitale.
-                    </p>
+                    eksploatim.
+                </p>
+                s
+                <p>5.1. PREZANTIMET DHE GARANCITË. Artisti prezanton dhe garanton se (i) Artisti &euml;sht&euml; pronari i vet&euml;m dhe
+                    ekskluziv i regjistrimit. t&euml; tingujve t&euml; Vepres/K&euml;ng&euml;s, (i) asnj&euml; pjes&euml; e K&euml;ng&euml;s nuk do t&euml; shkel&euml; t&euml;
+                    drejta t&euml; pal&euml;ve t&euml; treta qe nuk jane pjese e kesaj marrveshje dhe Artisti nuk ka b&euml;r&euml; marr&euml;veshje t&euml;
+                    tjera p&euml;r t&euml; drejta t&euml; K&euml;ng&euml;s q&euml; mund t&euml; pengojn&euml; k&euml;t&euml; Marr&euml;veshje.
+                    Baresha Music Sh.p.k. ka per obligim qe ne afat prej 24 ore nga data e nenshkrimit te kesaj marrveshje
+                    te bej publikimin e kenges ne platformat dixhitale.
+                </p>
 
-                    <p>
-                        6.1. PËRMBUSHJA E KUSHTEVE. Artisti pranon q&euml; t&euml; respektoj&euml; rregullat dhe kushtet e k&euml;saj Marr&euml;veshjeje
-                        dhe t&euml; ndjek&euml; k&euml;rkesat dhe udh&euml;zimet e Baresha Music lidhur me eksploatimin e K&euml;ng&euml;s. N&euml;se Artisti shkel
-                        ndonj&euml; kusht t&euml; k&euml;saj Marr&euml;veshjeje, Baresha ka t&euml; drejt&euml; t&euml; ndaloj&euml; ose t&euml; nd&euml;rprej&euml; eksploatimin e
-                        K&euml;ng&euml;s dhe t&euml; k&euml;rkoj&euml; d&euml;mshp&euml;rblim.
-                    </p>
+                <p>
+                    6.1. PËRMBUSHJA E KUSHTEVE. Artisti pranon q&euml; t&euml; respektoj&euml; rregullat dhe kushtet e k&euml;saj Marr&euml;veshjeje
+                    dhe t&euml; ndjek&euml; k&euml;rkesat dhe udh&euml;zimet e Baresha Music lidhur me eksploatimin e K&euml;ng&euml;s. N&euml;se Artisti shkel
+                    ndonj&euml; kusht t&euml; k&euml;saj Marr&euml;veshjeje, Baresha ka t&euml; drejt&euml; t&euml; ndaloj&euml; ose t&euml; nd&euml;rprej&euml; eksploatimin e
+                    K&euml;ng&euml;s dhe t&euml; k&euml;rkoj&euml; d&euml;mshp&euml;rblim.
+                </p>
 
-                    <p>
-                        7.1. KOHEZGJATJA DHE NDËRPRERJA.
-                        Kega\Vepra behet prone e perhershme e Baresha Music Sh.p.k. nga momenti i nenshkrimit te kesaj
-                        marrveshje, pervec ne rastet kur mes paleve arrihet nje marrveshje e perbashket me kushte te tjera.
-                        Palet kane t&euml; drejt&euml; t&euml; nd&euml;rprej&euml; k&euml;t&euml; Marr&euml;veshje pa shkaqe t&euml; arsyeshme me njoftim paraprak 7 dite
-                        kalendarike nga data fillestare e nenshkrimit dhe publikimit te kesaj marrveshje. Njoftimi duhet te
+                <p>
+                    7.1. KOHEZGJATJA DHE NDËRPRERJA.
+                    Kega\Vepra behet prone e perhershme e Baresha Music Sh.p.k. nga momenti i nenshkrimit te kesaj
+                    marrveshje, pervec ne rastet kur mes paleve arrihet nje marrveshje e perbashket me kushte te tjera.
+                    Palet kane t&euml; drejt&euml; t&euml; nd&euml;rprej&euml; k&euml;t&euml; Marr&euml;veshje pa shkaqe t&euml; arsyeshme me njoftim paraprak 7 dite
+                    kalendarike nga data fillestare e nenshkrimit dhe publikimit te kesaj marrveshje. Njoftimi duhet te
                     behet me shkrim perms mjeteve te komunikimit (email). N&euml; rast nd&euml;rprerjeje nga ana e Baresha, t&euml; gjitha
                     t&euml; drejtat kthehen te Artisti dhe Baresha nuk &euml;sht&euml; e detyruar t&euml; paguaj&euml; asnj&euml; pages&euml; ose d&euml;mshp&euml;rblim
                     p&euml;r artistin. Palet nuk kane te drejte te kerkoje te drejtat e prones pasi te kaloj periudha prej 7 dite

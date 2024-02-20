@@ -58,8 +58,9 @@ if (isset($_POST['ndrysho'])) {
   }
   // Sanitize and retrieve the 'nrtel' field
   $nrtel = mysqli_real_escape_string($conn, $_POST['nrtel']);
+  $type__of_client = mysqli_real_escape_string($conn, $_POST['type_of_client']);
   // Update the database with the new data
-  if ($conn->query("UPDATE klientet SET emri='$emri', np='$np', monetizuar='$mon', emails='$emails', dk='$dk', dks='$dks', youtube='$yt', info='$info', perqindja='$perq', perqindja2='$perq2', fb='$fb', ig='$ig', adresa='$adresa', kategoria='$kategoria', nrtel='$nrtel', emailp='$emailp', emailadd='$emailadd', emriart='$emriart', nrllog='$nrllog',  bank_name='$bank_info', ads='$adsa', perdoruesi='$perdoruesi', perqindja_check='$perqindja_check', perqindja_platformave_check='$perqindja_e_platformave_check', fjalkalimi='$fjalekalimi' WHERE id='$editid'")) {
+  if ($conn->query("UPDATE klientet SET emri='$emri', np='$np', monetizuar='$mon', emails='$emails', dk='$dk', dks='$dks', youtube='$yt', info='$info', perqindja='$perq', perqindja2='$perq2', fb='$fb', ig='$ig', adresa='$adresa', kategoria='$kategoria', nrtel='$nrtel', emailp='$emailp', emailadd='$emailadd', emriart='$emriart', nrllog='$nrllog',  bank_name='$bank_info', ads='$adsa', perdoruesi='$perdoruesi', perqindja_check='$perqindja_check', perqindja_platformave_check='$perqindja_e_platformave_check', fjalkalimi='$fjalekalimi', lloji_klientit='$type__of_client' WHERE id='$editid'")) {
     echo '<script>
             Swal.fire({
               icon: "success",
@@ -164,6 +165,8 @@ $editcl = mysqli_fetch_array($editc);
                       <label class="form-label" for="yt">Numri i telefonit</label>
                       <input type="text" name="nrtel" class="form-control rounded-5 border border-2" value="<?php echo $editcl['nrtel']; ?>" placeholder="Shëno numrin e telefonit të klientit">
                     </div>
+
+
                     <br>
                     <div class="col">
                       <?php
@@ -195,6 +198,12 @@ $editcl = mysqli_fetch_array($editc);
                         <option value="Money Gram"> Money Gram</option>
                         <option value="Western Union">Western Union</option>
                       </select>
+                      <script>
+                        new Selectr('#bank_info',{
+                          searchable: true,
+                          width: 300
+                        });
+                      </script>
                     </div>
                     <br>
                     <div class="col">
@@ -202,6 +211,26 @@ $editcl = mysqli_fetch_array($editc);
                       <input type="text" name="nrllog" class="form-control rounded-5 border border-2" placeholder="Shëno numrin e xhirollogarisë të klientit" value="<?php echo $editcl['nrllog']; ?>">
                     </div>
                     <br>
+                    <div class="col">
+                      <label class="form-label" for="type_of_client">Lloji i klientit</label>
+                      <br>
+                      <span style="font-size: 12px;" class="text-muted mb-3">Statusi aktual i llojit te klientit : <?php echo $editcl['lloji_klientit']; ?></span>
+                      <hr>
+                      <?php // Retrieve the data for editing
+                      $type_of_client = $editcl['lloji_klientit'];
+                      ?>
+                      <select id="type_of_client" name="type_of_client" class="form-select rounded-5 border border-2">
+                        <option value="Personal" <?php if ($type_of_client == 'Personal') echo ' selected'; ?>>Personal</option>
+                        <option value="Biznes" <?php if ($type_of_client == 'Biznes') echo ' selected'; ?>>Biznes</option>
+                      </select>
+                      <script>
+                        new Selectr('#type_of_client', {
+                          searchable: true,
+                          width: 300
+                        })
+                      </script>
+                    </div>
+
                   </div>
                 </div>
               </div>

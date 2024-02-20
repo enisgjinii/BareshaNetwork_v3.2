@@ -45,9 +45,10 @@ if (isset($_POST['ruaj'])) {
   } else {
   }
   $emails = addslashes($emails);
+  $type__of_client = $_POST['type_of_client'];
   if ($conn->query(
     "INSERT INTO klientet 
-    (emri, np, monetizuar, dk, dks, youtube, info, perqindja, perqindja2, kontrata, ads, fb, ig, adresa, kategoria, nrtel, emailadd, emailp, emriart, nrllog, bank_name ,fjalkalimi, perdoruesi, emails, blocked, perqindja_check, perqindja_platformave_check) VALUES ('$emri', '$np','$mon', '$dk', '$dks', '$yt', '$info', '$perq', '$perq2', '$targetfolder', '$ads', '$fb', '$ig', '$adresa', '$kategoria', '$nrtel', '$emailadd', '$emailp', '$emriart', '$nrllog', '$bank_info', '$password', '$perdoruesi', '$emails', '0', '$perqindja_check', '$perqindja_e_platformave_check')"
+    (emri, np, monetizuar, dk, dks, youtube, info, perqindja, perqindja2, kontrata, ads, fb, ig, adresa, kategoria, nrtel, emailadd, emailp, emriart, nrllog, bank_name ,fjalkalimi, perdoruesi, emails, blocked, perqindja_check, perqindja_platformave_check,lloji_klientit) VALUES ('$emri', '$np','$mon', '$dk', '$dks', '$yt', '$info', '$perq', '$perq2', '$targetfolder', '$ads', '$fb', '$ig', '$adresa', '$kategoria', '$nrtel', '$emailadd', '$emailp', '$emriart', '$nrllog', '$bank_info', '$password', '$perdoruesi', '$emails', '0', '$perqindja_check', '$perqindja_e_platformave_check','$type__of_client')"
   )) {
     $kueri = $conn->query("SELECT * FROM klientet ORDER BY id DESC");
     $k = mysqli_fetch_array($kueri);
@@ -181,6 +182,21 @@ if (isset($_POST['ruaj'])) {
                     <div class="col">
                       <label class="form-label" for="yt">Nr. Xhirollogaris</label>
                       <input type="text" name="nrllog" id="nrllog" class="form-control border border-2 rounded-5" placeholder="Shëno numrin e xhirollogaris" autocomplete="off">
+                    </div>
+                    <br>
+                    <div class="col">
+                      <label class="form-label" for="type_of_client">Lloji i klientit</label>
+                      <select name="type_of_client" id="type_of_client" class="form-select rounded-5 border border-2 py-2">
+                        <option value="Personal">Personal</option>
+                        <option value="Biznes">Biznes</option>
+                      </select>
+                      <script>
+                        new Selectr('#type_of_client', {
+                          searchable: true,
+                          width: 300
+                        })
+                      </script>
+
                     </div>
                     <br>
                   </div>

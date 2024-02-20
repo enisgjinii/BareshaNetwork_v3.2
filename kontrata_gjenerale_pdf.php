@@ -94,7 +94,7 @@
                         <p class="fw-bold">No. Nr. : <?php echo $row['id_kontrates'] ?> </p>
                     </div>
                     <div class="float-start">
-                        <p class="fw-bold">Date – Dat&euml;: <?php echo $row['data_e_krijimit'] ?></p>
+                        <p class="fw-bold">Date – Dat&euml;: <?php echo date('d/m/Y', strtotime($row['data_e_krijimit'])); ?></p>
                     </div>
                 </div>
 
@@ -469,7 +469,7 @@
                     <p class="fw-bold">Eng. :</p>
                     <p class="fw-bold">Shqip. :</p>
 
-                    <p>This Contract is Signed on – Kjo kontrat&euml; n&euml;shkruhet m&euml; - : <?php echo date('m/d/Y'); ?></p>
+                    <p>This Contract is Signed on – Kjo kontrat&euml; n&euml;shkruhet m&euml; - : <?php echo date('d/m/Y'); ?></p>
 
 
                     <p> Baresha Music SH.P.K – P&euml;r Baresha Music SH.PK Artist - Artisti </p>

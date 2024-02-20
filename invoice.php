@@ -209,7 +209,7 @@ function getChannelDetails($channelId, $apiKey)
     <div class="content-wrapper">
       <div class="container-fluid">
         <div class="container">
-          <nav class="bg-white px-2 rounded-5" style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='currentColor'/%3E%3C/svg%3E&#34;);width:fit-content;border-style:1px solid black;" aria-label="breadcrumb">
+          <nav class="bg-white px-2 rounded-5" style="width:fit-content;border-style:1px solid black;" aria-label="breadcrumb">
             <ol class="breadcrumb">
               <li class="breadcrumb-item "><a class="text-reset" style="text-decoration: none;">Financat</a>
               </li>
@@ -231,7 +231,12 @@ function getChannelDetails($channelId, $apiKey)
               </a>
               <ul class="nav nav-pills bg-white my-3 mx-0 rounded-5" style="width: fit-content;border:1px solid lightgrey;" id="pills-tab" role="tablist">
                 <li class="nav-item" role="presentation">
-                  <button class="nav-link rounded-5  active" style="text-transform: none" id="pills-lista_e_faturave-tab" data-bs-toggle="pill" data-bs-target="#pills-lista_e_faturave" type="button" role="tab" aria-controls="pills-lista_e_faturave" aria-selected="true">Lista e faturave</button>
+                  <button class="nav-link rounded-5  active" style="text-transform: none" id="pills-lista_e_faturave-tab" data-bs-toggle="pill" data-bs-target="#pills-lista_e_faturave" type="button" role="tab" aria-controls="pills-lista_e_faturave" aria-selected="true">Lista e faturave ( Personale ) </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                  <button class="nav-link rounded-5 active" style="text-transform: none" id="pills-lista_e_faturave_biznes-tab" data-bs-toggle="pill" data-bs-target="#pills-lista_e_faturave_biznes" type="button" role="tab" aria-controls="pills-lista_e_faturave_biznes" aria-selected="true">
+                    Lista e faturave ( Biznes )
+                  </button>
                 </li>
                 <li class="nav-item" role="presentation">
                   <button class="nav-link rounded-5" style="text-transform: none" id="pills-lista_e_kanaleve-tab" data-bs-toggle="pill" data-bs-target="#pills-lista_e_kanaleve" type="button" role="tab" aria-controls="pills-lista_e_kanaleve" aria-selected="false">Lista e kanaleve</button>
@@ -322,7 +327,7 @@ function getChannelDetails($channelId, $apiKey)
                 <div class="tab-pane fade show active" id="pills-lista_e_faturave" role="tabpanel" aria-labelledby="pills-lista_e_faturave-tab">
                   <!-- Modal Structure -->
                   <div class="table-responsive">
-                    <table id="invoiceList" class="table table-bordered" data-source="get_invoices.php">
+                    <table id="invoiceList" class="table table-bordered w-100" data-source="get_invoices.php">
                       <thead class="table-light">
                         <tr>
                           <th></th>
@@ -339,6 +344,24 @@ function getChannelDetails($channelId, $apiKey)
                     </table>
                   </div>
                 </div>
+                <div class="tab-pane fade" id="pills-lista_e_faturave_biznes" role="tabpanel" aria-labelledby="pills-lista_e_faturave_biznes-tab">
+                  <table id="invoiceListBiznes" class="table table-bordered w-100" data-source="get_invoices_biznes.php">
+                    <thead class="table-light">
+                      <tr>
+                        <th></th>
+                        <th style="font-size: 12px">ID</th>
+                        <!-- <th style="font-size: 12px">Numri i faturës</th> -->
+                        <th style="font-size: 12px">Emri i Klientit</th>
+                        <th style="font-size: 12px">Pershkrimi</th>
+                        <th style="font-size: 12px">Detajet</th>
+                        <th style="font-size: 12px">Shuma e paguar</th>
+                        <th style="font-size: 12px">Obligim</th>
+                        <th style="font-size: 12px">Veprimi</th>
+                      </tr>
+                    </thead>
+                  </table>
+                </div>
+
                 <div class="tab-pane fade" id="pills-lista_e_kanaleve" role="tabpanel" aria-labelledby="pills-lista_e_kanaleve-tab">
                   <?php if (!empty($refreshTokens)) { ?>
                     <div class="row">
@@ -681,6 +704,225 @@ function getChannelDetails($channelId, $apiKey)
           type: 'POST',
           "dataFilter": function(data) {
             console.log('DataTables Data:', data);
+            return data;
+          }
+        },
+        initComplete: function() {
+          var btns = $(".dt-buttons");
+          btns.addClass("").removeClass("dt-buttons btn-group");
+          var lengthSelect = $("div.dataTables_length select");
+          lengthSelect.addClass("form-select");
+          lengthSelect.css({
+            width: "auto",
+            margin: "0 8px",
+            padding: "0.375rem 1.75rem 0.375rem 0.75rem",
+            lineHeight: "1.5",
+            border: "1px solid #ced4da",
+            borderRadius: "0.25rem",
+          });
+        },
+        language: {
+          url: "https://cdn.datatables.net/plug-ins/1.13.1/i18n/sq.json",
+        },
+        buttons: [{
+            extend: "pdf",
+            text: '<i class="fi fi-rr-file-pdf fa-lg"></i>&nbsp;&nbsp; PDF',
+            titleAttr: "Eksporto tabelen ne formatin PDF",
+            className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
+          },
+          {
+            extend: "excelHtml5",
+            text: '<i class="fi fi-rr-file-excel fa-lg"></i>&nbsp;&nbsp; Excel',
+            titleAttr: "Eksporto tabelen ne formatin Excel",
+            className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
+            exportOptions: {
+              modifier: {
+                search: "applied",
+                order: "applied",
+                page: "all",
+              },
+            },
+          },
+          {
+            extend: "print",
+            text: '<i class="fi fi-rr-print fa-lg"></i>&nbsp;&nbsp; Printo',
+            titleAttr: "Printo tabel&euml;n",
+            className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
+          }, {
+            text: '<i class="fi fi-rr-trash fa-lg"></i>&nbsp;&nbsp; Fshij',
+            className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
+            action: function() {
+              const selectedIds = [];
+              // Iterate over the checkboxes and get the selected IDs
+              $('.row-checkbox:checked').each(function() {
+                selectedIds.push($(this).data('id'));
+              });
+              if (selectedIds.length > 0) {
+                Swal.fire({
+                  icon: 'warning',
+                  title: 'Konfirmo Fshirjen',
+                  text: 'A jeni i sigurt që dëshironi të fshini elementet e zgjedhura?',
+                  showCancelButton: true,
+                  confirmButtonText: 'Po, Fshij',
+                  cancelButtonText: 'Anulo',
+                }).then((result) => {
+                  if (result.isConfirmed) {
+                    $.ajax({
+                      url: 'delete_invoice.php',
+                      type: 'POST',
+                      data: {
+                        ids: selectedIds
+                      },
+                      success: function(response) {
+                        Swal.fire({
+                          icon: 'success',
+                          title: 'Fshirja u krye me sukses!',
+                          text: response,
+                        });
+                        const currentPage = table.page.info().page;
+                      },
+                      error: function(error) {
+                        console.error('Error deleting items:', error);
+                        Swal.fire({
+                          icon: 'error',
+                          title: 'Gabim gjatë fshirjes',
+                          text: 'Dicka shkoi keq gjatë fshirjes. Ju lutem provoni përsëri.',
+                        });
+                      }
+                    });
+                  }
+                });
+              } else {
+                Swal.fire({
+                  icon: 'info',
+                  title: 'Nuk ke zgjedhur elemente',
+                  text: 'Ju lutem zgjedhni elemente për t\'i fshirë.',
+                });
+              }
+            },
+          },
+        ],
+        stripeClasses: ["stripe-color"],
+        columnDefs: [{
+          "targets": [0, 1, 2, 3, 4, 5, 6, 7],
+          "render": function(data, type, row) {
+            return type === 'display' && data !== null ? '<div style="white-space: normal;">' + data + '</div>' : data;
+          }
+        }],
+        columns: [{
+            data: 'id',
+            render: function(data, type, row) {
+              return '<input type="checkbox" class="row-checkbox" data-id="' + data + '">';
+            }
+          },
+          {
+            data: 'id',
+          },
+          {
+            data: 'customer_name',
+            render: function(data, type, row) {
+              const loanAmount = row.customer_loan_amount;
+              const loanPaid = row.customer_loan_paid;
+              const difference = loanAmount - loanPaid;
+              // Check if the difference is greater than 0 before displaying the dot and tooltip
+              if (difference > 0) {
+                // Create a dot with a tooltip
+                const dotHTML = '<div class="custom-tooltip" >' +
+                  '<div class="custom-dot"></div>' +
+                  '<span class="custom-tooltiptext">' + difference + ' €</span>' +
+                  '</div>';
+                // Return the customer name and dot with tooltip
+                return '<p style="white-space: normal;">' + data + '</p>' + dotHTML;
+              } else {
+                // If the difference is not greater than 0, only return the customer name
+                return '<p style="white-space: normal;">' + data + '</p>';
+              }
+            },
+          },
+          {
+            data: 'item',
+            render: function(data, type, row, meta) {
+              // Combine item and state_of_invoice information
+              var stateOfInvoice = row.state_of_invoice;
+              var badgeClass = '';
+              // Check the value and apply Bootstrap badge accordingly
+              if (stateOfInvoice === 'Parregullt') {
+                badgeClass = 'bg-danger';
+              } else if (stateOfInvoice === 'Rregullt') {
+                badgeClass = 'bg-success';
+              }
+              // Combine item with state_of_invoice information
+              var combinedData = '<div class="item-column">';
+              combinedData += data; // Append the original item data
+              combinedData += '</div><br>';
+              combinedData += '<div class="badge-column">';
+              combinedData += '<span class="badge ' + badgeClass + ' mx-1 rounded-5">' + stateOfInvoice + '</span>';
+              combinedData += '</div>';
+              return combinedData;
+            }
+          },
+          {
+            "data": null,
+            "render": function(data, type, row) {
+              // Concatenate 'total_amount' and 'total_amount_after_percentage' with HTML table formatting
+              return '<table style="width:100%; font-size:12px;">' +
+                '<tr>' +
+                '<td style="text-align:left;">Shuma e përgjitshme:</td>' +
+                '<td style="text-align:right;">' + row.total_amount + '</td>' +
+                '</tr>' +
+                '<tr>' +
+                '<td style="text-align:left;">Shuma e për. % :</td>' +
+                '<td style="text-align:right;">' + row.total_amount_after_percentage + '</td>' +
+                '</tr>' +
+                '</table>';
+            }
+          },
+          {
+            data: 'paid_amount'
+          },
+          {
+            data: 'remaining_amount',
+            render: function(data, type, row) {
+              const remainingAmount = row.total_amount_after_percentage - row.paid_amount;
+              return remainingAmount.toFixed(2);
+            }
+          },
+          {
+            data: 'actions',
+            render: function(data, type, row) {
+              return '<div> ' +
+                '<a href="#" style="text-decoration:none;" class="input-custom-css px-3 py-2 mx-1 open-payment-modal" ' +
+                'data-id="' + row.id + '" ' +
+                'data-invoice-number="' + row.invoice_number + '" ' +
+                'data-customer-id="' + row.customer_id + '" ' + // Use data-customer-id
+                'data-item="' + row.item + '" ' +
+                'data-total-amount="' + row.total_amount_after_percentage + '" ' +
+                'data-paid-amount="' + row.paid_amount + '" ' +
+                'data-remaining-amount="' + (row.total_amount_after_percentage - row.paid_amount) + '"><i class="fi fi-rr-euro"></i> Paguaj</a><br><br><br>  ' +
+                '<a target="_blank" style="text-decoration:none;" href="complete_invoice.php?id=' + row.id + '" class="input-custom-css px-3 py-2 mx-1"><i class="fi fi-rr-edit"></i> Edito</a></div><br><br>' +
+                '<a target="_blank" style="text-decoration:none;" href="print_invoice.php?id=' + row.invoice_number + '" class="input-custom-css px-3 py-2 mx-1"><i class="fi fi-rr-print"></i> Printo v1.0</a></div><br><br><br>' +
+                '<a target="_blank" style="text-decoration:none;" href="print_invoice_2.php?id=' + row.invoice_number + '" class="input-custom-css px-3 py-2 mx-1"><i class="fi fi-rr-print"></i> Printo v1.1</a></div>';
+            }
+          }
+        ],
+      });
+
+      var table = $('#invoiceListBiznes').DataTable({
+        processing: true,
+        serverSide: true,
+        "searching": {
+          "regex": true
+        },
+        "paging": true,
+        "pageLength": 10,
+        dom: "<'row'<'col-md-3'l><'col-md-6'B><'col-md-3'f>>" +
+          "<'row'<'col-md-12'tr>>" +
+          "<'row'<'col-md-6'><'col-md-6'p>>",
+        ajax: {
+          url: 'get_invoices_biznes.php', // Change to the correct server-side script URL
+          type: 'POST',
+          "dataFilter": function(data) {
+            // console.log('DataTables Data:', data);
             return data;
           }
         },

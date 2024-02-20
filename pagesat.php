@@ -1,4 +1,44 @@
-<?php include 'partials/header.php'; ?>
+<?php
+include 'partials/header.php';
+
+// Check if the current page is pagesat.php
+$current_page = basename($_SERVER['PHP_SELF']);
+$is_pagesat_page = ($current_page === 'pagesat.php');
+?>
+
+<!-- Your HTML code here -->
+
+<?php if ($is_pagesat_page) : ?>
+    <!-- Bootstrap modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Zgjedh versionin e faqes</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Pagesat janë krijuar në dy versione. Ju lutem zgjidhni njërin prej tyre.</p>
+                    <!-- <br> -->
+                    <button style="text-decoration: none;" class="input-custom-css px-3 py-2" data-bs-dismiss="modal">Pagesa ( Versioni vjeter )</button>
+                    <a href="invoice.php" style="text-decoration: none;" class="input-custom-css px-3 py-2">Pagesa ( Versioni i ri )</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End Bootstrap modal -->
+
+    <!-- JavaScript to trigger the modal -->
+    <script>
+        // This script will execute only if the current page is pagesat.php
+        document.addEventListener('DOMContentLoaded', function() {
+            var myModal = new bootstrap.Modal(document.getElementById('exampleModal'));
+            myModal.show();
+        });
+    </script>
+<?php endif; ?>
+
+
 
 <style>
     .wrap-text {
@@ -9,7 +49,7 @@
     <div class="content-wrapper">
         <div class="container-fluid">
             <div class="container">
-                <nav class="bg-white px-2 rounded-5" style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='currentColor'/%3E%3C/svg%3E&#34;);" aria-label="breadcrumb">
+                <nav class="bg-white px-2 rounded-5" aria-label="breadcrumb">
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item "><a class="text-reset" style="text-decoration: none;">Financat</a>
                         </li>
