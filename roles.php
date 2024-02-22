@@ -290,6 +290,9 @@
                                         if ($page == 'invoice_list_2.php') {
                                             return 'Faturë e shpejtë';
                                         }
+                                        if ($page == 'authenticated_channels.php') {
+                                            return 'Kanalet e autentifikuara';
+                                        }
                                     }
                                     $pages = array(
                                         'stafi.php',
@@ -343,6 +346,7 @@
                                         'currency.php',
                                         'rating_list.php',
                                         'invoice_list_2.php',
+                                        'authenticated_channels.php'
                                     );
                                     echo '<table id="tabelaEFaqeve" class="table table-bordered table-hover">';
                                     echo '<thead class="bg-light"><tr><th>Emri i faqes</th><th>Zgjedhe</th></tr></thead>';

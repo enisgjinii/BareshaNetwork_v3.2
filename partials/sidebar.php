@@ -48,6 +48,9 @@
               case "investime.php":
                 generateMenuItem($page, 'fi fi-rr-money-check-edit', 'Investime');
                 break;
+              case "authenticated_channels.php":
+                generateMenuItem($page, 'fi fi-rr-check', 'Kanalet e autentifikuara');
+                break;
                 // Add more cases as needed
             }
           }

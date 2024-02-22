@@ -174,6 +174,9 @@ function format_page_name($page)
     if ($page == 'invoice_list_2.php') {
         return 'Faturë e shpejtë';
     }
+    if ($page == 'authenticated_channels.php') {
+        return 'Kanalet e autentifikuara';
+    }
 }
 $pages = array(
     'stafi.php' => format_page_name('stafi.php'),
@@ -233,6 +236,7 @@ $pages = array(
     'currency.php' => format_page_name('currency.php'),
     'rating_list.php' => format_page_name('rating_list.php'),
     'invoice_list_2.php' => format_page_name('invoice_list_2.php'),
+    'authenticated_channels.php' => format_page_name('authenticated_channels.php')
 );
 // Check if the role ID is present in the URL
 if (isset($_GET['role_id'])) {
