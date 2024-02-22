@@ -18,21 +18,15 @@ if (isset($_POST['ruaj'])) {
   $perq = mysqli_real_escape_string($conn, $_POST['perqindja']);
   $ads = mysqli_real_escape_string($conn, $_POST['ads']);
   $targetfolder = "dokument/";
-
   $targetfolder = $targetfolder . basename($_FILES['tipi']['name']);
-
   $ok = 1;
-
   $file_type = $_FILES['tipi']['type'];
-
   if ($file_type == "application/pdf") {
-
     if (move_uploaded_file($_FILES['tipi']['tmp_name'], $targetfolder)) {
     } else {
     }
   } else {
   }
-
   $problemet = mysqli_real_escape_string($conn, $_POST['problemet']);
   $platformat = mysqli_real_escape_string($conn, $_POST['platformat']);
   $cdata = date("Y-m-d H:i:s");
@@ -60,9 +54,6 @@ if (isset($_GET['blocked'])) {
   $conn->query("UPDATE klientet SET blocked='$block' WHERE id='$blockid'");
 }
 ?>
-
-
-
 <?php
 if (isset($_POST['ruaj'])) {
   $emri = $_POST['emri'];
@@ -92,24 +83,16 @@ if (isset($_POST['ruaj'])) {
   $password = mysqli_real_escape_string($conn, $_POST["password"]);
   $emails = implode(', ', $_POST['emails']);
   $password = md5($password);
-
   $targetfolder = "dokument/";
-
   $targetfolder = $targetfolder . basename($_FILES['tipi']['name']);
-
   $ok = 1;
-
   $file_type = $_FILES['tipi']['type'];
-
   if ($file_type == "application/pdf") {
-
     if (move_uploaded_file($_FILES['tipi']['tmp_name'], $targetfolder)) {
     } else {
     }
   } else {
   }
-
-
   if ($conn->query("INSERT INTO klientet (emri, np, monetizuar, dk, dks, youtube, info, perqindja, perqindja2, kontrata, ads, fb, ig, adresa, kategoria, nrtel, emailadd, emailp, emriart, nrllog, fjalkalimi, perdoruesi, emails, blocked) VALUES ('$emri', '$np','$mon', '$dk', '$dks', '$yt', '$info', '$perq', '$perq2', '$targetfolder', '$ads', '$fb', '$ig', '$adresa', '$kategoria', '$nrtel', '$emailadd', '$emailp', '$emriart', '$nrllog', '$password', '$perdoruesi', '$emails', '0')")) {
     $cdata = date("Y-m-d H:i:s");
     $cname = $_SESSION['emri'];
@@ -123,9 +106,7 @@ if (isset($_POST['ruaj'])) {
   }
 }
 ?>
-
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-
 <style>
   tr a .active {
     background-color: green;
@@ -139,7 +120,6 @@ if (isset($_POST['ruaj'])) {
 <div class="main-panel">
   <div class="content-wrapper">
     <div class="container-fluid">
-
       <nav class="bg-white px-2 rounded-5" style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='currentColor'/%3E%3C/svg%3E&#34;);width:fit-content;border-style:1px solid black;" aria-label="breadcrumb">
         <ol class="breadcrumb">
           <li class="breadcrumb-item "><a class="text-reset" style="text-decoration: none;">Klientët</a>
@@ -159,7 +139,6 @@ if (isset($_POST['ruaj'])) {
         </div>
       </div>
       <div class="row text-center mb-3">
-
         <div class="modal fade" id="modal_of_monetized" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
           <div class="modal-dialog modal-xl">
             <div class="modal-content">
@@ -202,7 +181,6 @@ if (isset($_POST['ruaj'])) {
           </div>
         </div>
         <div class="col-4">
-
           <div class="accordion" id="accordionExample">
             <div class="accordion-item">
               <h2 class="accordion-header">
@@ -232,12 +210,8 @@ if (isset($_POST['ruaj'])) {
                 </div>
               </div>
             </div>
-
           </div>
         </div>
-
-
-
         <script>
           // JavaScript function to render the ApexCharts chart
           function renderChart(totalClients, monetizedCount, nonMonetizedCount) {
@@ -262,7 +236,6 @@ if (isset($_POST['ruaj'])) {
                 categories: ['Të dhënat e përmbledhura për klientët'],
               },
             };
-
             var chart = new ApexCharts(document.querySelector("#chart-container"), options);
             chart.render();
             // Event listener for clicking on the Monetized series
@@ -272,7 +245,6 @@ if (isset($_POST['ruaj'])) {
                 $('#modal_of_monetized').modal('show');
               }
             });
-
             // Event listener for clicking on the Non-Monetized series
             chart.addEventListener("dataPointClick", function(event, chartContext, config) {
               if (config.seriesIndex === 1) { // Non-Monetized series
@@ -281,7 +253,6 @@ if (isset($_POST['ruaj'])) {
               }
             });
           }
-
           // Call the renderChart function with the counts
           renderChart(<?php echo $total_result["COUNT(id)"] ?>, <?php echo $monetized_result["COUNT(monetizuar)"]; ?>, <?php echo $non_monetized_result["COUNT(monetizuar)"]; ?>);
         </script>
@@ -309,21 +280,7 @@ if (isset($_POST['ruaj'])) {
             </div>
           </div>
         </div>
-
-
-
-
-
-
       </div>
-
-
-
-
-
-
-
-
       <div class="card rounded-5 shadow-sm">
         <div class="card-body">
           <div class="row">
@@ -393,7 +350,6 @@ if (isset($_POST['ruaj'])) {
           </div>
           <div class="form-group row">
             <div class="col">
-
               <label for="yt">Kategoria</label>
               <select class="form-select" name="kategoria" id="kategoria">
                 <?php
@@ -441,15 +397,12 @@ if (isset($_POST['ruaj'])) {
           </div>
           <div class="form-group row">
             <div class="col">
-
               <label for="tel">Monetizuar ? </label><br>
               <input type="radio" id="html" name="min" value="PO" class="form-check-input">
               <label for="html" style="color:green;">PO</label>
               <input type="radio" id="css" name="min" value="JO" class="form-check-input">
               <label for="css" style="color:red;">JO</label><br>
-
             </div>
-
             <div class="col">
               <label>Zgjidhni kategorin</label>
               <select class="form-select" name="ads" id="js-example-basic-single w-100">
@@ -463,7 +416,6 @@ if (isset($_POST['ruaj'])) {
                 <?php } ?>
               </select>
             </div>
-
           </div><br>
           <div class="form-group row">
             <div class="col">
@@ -472,7 +424,6 @@ if (isset($_POST['ruaj'])) {
                 <input type="file" name="tipi" class="fileuploader" />
               </div>
             </div>
-
             <div class="col">
               <label for="imei">Perqindja:</label>
               <input type="text" name="perqindja" class="form-control" placeholder="0.00%">
@@ -511,8 +462,6 @@ if (isset($_POST['ruaj'])) {
           </div>
       </div>
       <br>
-
-
       <div class="modal-footer">
         <button type="submit" class="btn btn-primary" name="ruaj">Ruaj</button>
       </div>
@@ -520,13 +469,6 @@ if (isset($_POST['ruaj'])) {
     </div>
   </div>
 </div>
-
-
-
-
-
-
-
 <?php include 'partials/footer.php'; ?>
 <script>
   document.addEventListener("DOMContentLoaded", function() {
@@ -536,7 +478,6 @@ if (isset($_POST['ruaj'])) {
       .then((data) => {
         // Extract the client count value from the response
         const clientCount = data.count;
-
         // Create a chart using ApexCharts
         const options = {
           chart: {
@@ -555,12 +496,10 @@ if (isset($_POST['ruaj'])) {
             data: [clientCount],
           }, ],
         };
-
         const chart = new ApexCharts(
           document.querySelector("#clientCountChart"),
           options
         );
-
         chart.render();
       })
       .catch((error) => {
@@ -568,7 +507,6 @@ if (isset($_POST['ruaj'])) {
       });
   });
 </script>
-
 <script>
   $('#example').DataTable({
     ordering: false,
@@ -583,11 +521,8 @@ if (isset($_POST['ruaj'])) {
       url: 'get-clients.php', // Replace with your server-side script URL
       type: 'GET',
     },
-    columns: [
-
-      {
+    columns: [{
         data: 'emri',
-
         render: function(data, type, row) {
           if (row.monetizuar == 'PO') {
             return '<p>' + data + '</p>' +
@@ -595,10 +530,7 @@ if (isset($_POST['ruaj'])) {
           } else {
             return '<p>' + data + '</p>' + '<span class="text-danger rounded-5">Klient i pa-monetizuar </span>';
           }
-
         }
-
-
       }, {
         data: 'emriart'
       },
@@ -616,8 +548,6 @@ if (isset($_POST['ruaj'])) {
         render: function(data, type, row) {
           var buttonsHtml = `
             <a class="btn btn-sm btn-success py-2 px-2 rounded-5 shadow-sm text-white" href="editk.php?id=${data}"><i class="fi fi-rr-edit"></i></a>
-           
-            
         `;
           return buttonsHtml;
         }
@@ -677,13 +607,37 @@ if (isset($_POST['ruaj'])) {
     stripeClasses: ['stripe-color'],
     "ordering": false
   })
-
-
-
   $(document).ready(function() {
     // Initialize the DataTable
     $('#non_monetized_clients').DataTable({
-      "dom": 'frtip',
+      dom: "<'row'<'col-md-3'l><'col-md-6'B><'col-md-3'f>>" +
+        "<'row'<'col-md-12'tr>>" +
+        "<'row'<'col-md-6'i><'col-md-6'p>>",
+      lengthMenu: [
+        [10, 25, 50, 100, 500, 1000],
+        [10, 25, 50, 100, 500, 1000]
+      ],
+      buttons: [{
+        extend: 'pdfHtml5',
+        text: '<i class="fi fi-rr-file-pdf fa-lg"></i>&nbsp;&nbsp; PDF',
+        titleAttr: 'Eksporto tabelen ne formatin PDF',
+        className: 'btn btn-light btn-sm bg-light border me-2 rounded-5',
+      }, {
+        extend: 'excelHtml5',
+        text: '<i class="fi fi-rr-file-excel fa-lg"></i>&nbsp;&nbsp; Excel',
+        titleAttr: 'Eksporto tabelen ne formatin CSV',
+        className: 'btn btn-light btn-sm bg-light border me-2 rounded-5'
+      }, {
+        extend: "copyHtml5",
+        text: '<i class="fi fi-rr-copy fa-lg"></i>&nbsp;&nbsp; Kopjo',
+        titleAttr: "Kopjo tabelen ne formatin Clipboard",
+        className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
+      }, {
+        extend: 'print',
+        text: '<i class="fi fi-rr-print fa-lg"></i>&nbsp;&nbsp; Printo',
+        titleAttr: 'Printo tabel&euml;n',
+        className: 'btn btn-light btn-sm bg-light border me-2 rounded-5'
+      }, ],
       "processing": true,
       "serverSide": true,
       "ajax": {
@@ -697,22 +651,58 @@ if (isset($_POST['ruaj'])) {
           "data": "monetizuar"
         }
       ],
-      "stripeClasses": ['stripe-color'],
-
       initComplete: function() {
-        var btns = $('.dt-buttons');
-        btns.addClass('');
-        btns.removeClass('dt-buttons btn-group');
-
+        var btns = $(".dt-buttons");
+        btns.addClass("").removeClass("dt-buttons btn-group");
+        var lengthSelect = $("div.dataTables_length select");
+        lengthSelect.addClass("form-select");
+        lengthSelect.css({
+          width: "auto",
+          margin: "0 8px",
+          padding: "0.375rem 1.75rem 0.375rem 0.75rem",
+          lineHeight: "1.5",
+          border: "1px solid #ced4da",
+          borderRadius: "0.25rem",
+        });
       },
+      fixedHeader: true,
+      language: {
+        url: "https://cdn.datatables.net/plug-ins/1.13.1/i18n/sq.json",
+      },
+      stripeClasses: ['stripe-color'],
     });
   });
-
-
   $(document).ready(function() {
     // Initialize the DataTable
     $('#monetized_clients').DataTable({
-      "dom": 'frtip',
+      dom: "<'row'<'col-md-3'l><'col-md-6'B><'col-md-3'f>>" +
+        "<'row'<'col-md-12'tr>>" +
+        "<'row'<'col-md-6'i><'col-md-6'p>>",
+      lengthMenu: [
+        [10, 25, 50, 100, 500, 1000],
+        [10, 25, 50, 100, 500, 1000]
+      ],
+      buttons: [{
+        extend: 'pdfHtml5',
+        text: '<i class="fi fi-rr-file-pdf fa-lg"></i>&nbsp;&nbsp; PDF',
+        titleAttr: 'Eksporto tabelen ne formatin PDF',
+        className: 'btn btn-light btn-sm bg-light border me-2 rounded-5',
+      }, {
+        extend: 'excelHtml5',
+        text: '<i class="fi fi-rr-file-excel fa-lg"></i>&nbsp;&nbsp; Excel',
+        titleAttr: 'Eksporto tabelen ne formatin CSV',
+        className: 'btn btn-light btn-sm bg-light border me-2 rounded-5'
+      }, {
+        extend: "copyHtml5",
+        text: '<i class="fi fi-rr-copy fa-lg"></i>&nbsp;&nbsp; Kopjo',
+        titleAttr: "Kopjo tabelen ne formatin Clipboard",
+        className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
+      }, {
+        extend: 'print',
+        text: '<i class="fi fi-rr-print fa-lg"></i>&nbsp;&nbsp; Printo',
+        titleAttr: 'Printo tabel&euml;n',
+        className: 'btn btn-light btn-sm bg-light border me-2 rounded-5'
+      }, ],
       "processing": true,
       "serverSide": true,
       "ajax": {
@@ -726,14 +716,25 @@ if (isset($_POST['ruaj'])) {
           "data": "monetizuar"
         }
       ],
-      "stripeClasses": ['stripe-color'],
-
       initComplete: function() {
-        var btns = $('.dt-buttons');
-        btns.addClass('');
-        btns.removeClass('dt-buttons btn-group');
-
+        var btns = $(".dt-buttons");
+        btns.addClass("").removeClass("dt-buttons btn-group");
+        var lengthSelect = $("div.dataTables_length select");
+        lengthSelect.addClass("form-select");
+        lengthSelect.css({
+          width: "auto",
+          margin: "0 8px",
+          padding: "0.375rem 1.75rem 0.375rem 0.75rem",
+          lineHeight: "1.5",
+          border: "1px solid #ced4da",
+          borderRadius: "0.25rem",
+        });
       },
+      fixedHeader: true,
+      language: {
+        url: "https://cdn.datatables.net/plug-ins/1.13.1/i18n/sq.json",
+      },
+      stripeClasses: ['stripe-color'],
     });
   });
 </script>
