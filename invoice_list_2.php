@@ -118,9 +118,12 @@ if (!empty($_POST['companyName']) && $_POST['companyName']) {
                   <h3>Nga,</h3>
                   Baresha Music
                   <br>
-                  Shirokë,Suharekë,Kosov - 23000<br>
-                  00383 (0) 49 605 655<br>
-                  info@bareshamusic.com<br>
+                  Shirokë <br>
+                  Suharekë,KS<br>
+                  Kosov - 23000 <br>
+                  Telefoni : 00383 (0) 49 605 655<br>
+                  Email: info@bareshamusic.com<br>
+                  Tax ID : 811499228
                 </div>
                 <div class="col-xs-12 col-sm-4 col-md-6 col-lg-6 pull-right">
                   <h3>Për,</h3>
@@ -129,6 +132,18 @@ if (!empty($_POST['companyName']) && $_POST['companyName']) {
                   </div>
                   <div class="form-group">
                     <textarea class="form-control rounded-5 border border-1" rows="3" name="address" id="address" placeholder="Adresa"></textarea>
+                  </div>
+                  <div class="form-group">
+                    <!-- Telephone number -->
+                    <input type="text" class="form-control rounded-5 border border-1" name="mobile" id="mobile" placeholder="Telefoni" autocomplete="off">
+                  </div>
+                  <!-- Email -->
+                  <div class="form-group">
+                    <input type="text" class="form-control rounded-5 border border-1" name="email" id="email" placeholder="Email" autocomplete="off">
+                  </div>
+                  <!-- Tax ID -->
+                  <div class="form-group">
+                    <input type="text" class="form-control rounded-5 border border-1" name="taxId" id="taxId" placeholder="Tax ID" autocomplete="off">
                   </div>
                 </div>
               </div>

@@ -15,6 +15,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $postData = array(
         'companyName' => $_POST['companyName'],
         'address' => $_POST['address'],
+        'mobile' => $_POST['mobile'],
+        'email' => $_POST['email'],
+        'taxId' => $_POST['taxId'],
+        'invoiceDate' => $_POST['invoiceDate'],
         'subTotal' => $_POST['subTotal'],
         'taxAmount' => $_POST['taxAmount'],
         'taxRate' => $_POST['taxRate'],

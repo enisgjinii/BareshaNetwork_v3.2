@@ -61,6 +61,9 @@ class Invoice
 		$userId = isset($_COOKIE['user_id']) ? $_COOKIE['user_id'] : ''; // Get userId from cookie
 		$companyName = $postData['companyName'];
 		$address = $postData['address'];
+		$mobile = $postData['mobile'];
+		$email = $postData['email'];
+		$taxId = $postData['taxId'];
 		$subTotal = $postData['subTotal'];
 		$taxAmount = $postData['taxAmount'];
 		$taxRate = $postData['taxRate'];
@@ -78,8 +81,9 @@ class Invoice
 		$invoiceNumber = "BN-" . rand(1000, 9999) . "-" . date("Ymd");
 
 		// Insert invoice order data
-		$sqlInsertOrder = "INSERT INTO {$this->invoiceOrderTable} (user_id, invoice_number, order_receiver_name, order_receiver_address, order_total_before_tax, order_total_tax, order_tax_per, order_total_after_tax, order_amount_paid, order_total_amount_due, note) 
-                      VALUES ('$userId', '$invoiceNumber', '$companyName', '$address', '$subTotal', '$taxAmount', '$taxRate', '$totalAfterTax', '$amountPaid', '$amountDue', '$notes')";
+		$sqlInsertOrder = "INSERT INTO {$this->invoiceOrderTable} (user_id, invoice_number, order_receiver_name, order_receiver_address, 
+		mobile, email, tax_id, order_total_before_tax, order_total_tax, order_tax_per, order_total_after_tax, order_amount_paid, order_total_amount_due, note) 
+                      VALUES ('$userId', '$invoiceNumber', '$companyName', '$address', '$mobile', '$email', '$taxId', '$subTotal', '$taxAmount', '$taxRate', '$totalAfterTax', '$amountPaid', '$amountDue', '$notes')";
 		$insertOrderResult = mysqli_query($this->dbConnect, $sqlInsertOrder);
 		$lastInsertId = mysqli_insert_id($this->dbConnect);
 
@@ -103,6 +107,9 @@ class Invoice
 		$invoiceId = $postData['invoiceId'];
 		$companyName = $postData['companyName'];
 		$address = $postData['address'];
+		$mobile = $postData['mobile'];
+		$email = $postData['email'];
+		$taxId = $postData['taxId'];
 		$subTotal = $postData['subTotal'];
 		$taxAmount = $postData['taxAmount'];
 		$taxRate = $postData['taxRate'];
@@ -119,6 +126,9 @@ class Invoice
 		// Update invoice order data
 		$sqlUpdateOrder = "UPDATE {$this->invoiceOrderTable} 
                       SET order_receiver_name = '$companyName', 
+						  mobile = '$mobile',
+						  email = '$email',
+						  tax_id = '$taxId',
                           order_receiver_address = '$address', 
                           order_total_before_tax = '$subTotal', 
                           order_total_tax = '$taxAmount', 
@@ -172,11 +182,15 @@ class Invoice
 	}
 	public function deleteInvoice($invoiceId)
 	{
-		$sqlQuery = "
-			DELETE FROM " . $this->invoiceOrderTable . " 
-			WHERE order_id = '" . $invoiceId . "'";
-		mysqli_query($this->dbConnect, $sqlQuery);
+		// Delete related records from invoice_order_item table
 		$this->deleteInvoiceItems($invoiceId);
+
+		// Delete record from invoice_order table
+		$sqlQuery = "
+        DELETE FROM " . $this->invoiceOrderTable . " 
+        WHERE order_id = '" . $invoiceId . "'";
+		mysqli_query($this->dbConnect, $sqlQuery);
+
 		return 1;
 	}
 }

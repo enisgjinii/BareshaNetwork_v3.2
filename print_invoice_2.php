@@ -98,6 +98,7 @@ $invoiceDate = str_replace($shortMonth, $albanianMonth, $orderDate);
 						<h2 class="mb-0">Fatura - <?php echo $invoiceValues['invoice_number']; ?></h2>
 						<p>Shërbimi i ofruar nga: Baresha Music</p> <!-- Add your company name here -->
 						<p>Numri i telefonit: +383 (0) 49 605 655</p>
+						<p>Tax ID : 811499228</p>
 					</div>
 					<hr>
 					<div class="card-body">
@@ -112,6 +113,9 @@ $invoiceDate = str_replace($shortMonth, $albanianMonth, $orderDate);
 								<p class="mb-1">Numri i faturës: <?php echo $invoiceValues['invoice_number']; ?></p>
 								<p class="mb-1">ID e faturës: <?php echo $invoiceValues['order_id']; ?></p>
 								<p class="mb-1">Data e faturës: <?php echo $invoiceDate; ?></p>
+								<p class="mb-1"> Numri i telefonit: <?php echo $invoiceValues['mobile']; ?></p>
+								<p class="mb-1"> Email: <?php echo $invoiceValues['email']; ?></p>
+								<p class="mb-1">Tax ID: <?php echo $invoiceValues['tax_id']; ?></p>
 							</div>
 						</div>
 						<div class="invoice-details">

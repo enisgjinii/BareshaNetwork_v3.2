@@ -13,7 +13,6 @@ if (!empty($_GET['update_id']) && $_GET['update_id']) {
 	$invoiceItems = $invoice->getInvoiceItems($_GET['update_id']);
 }
 ?>
-<title>phpzag.com : Demo Build Invoice System with PHP & MySQL</title>
 <script src="invoice.js"></script>
 <link href="css/style.css" rel="stylesheet">
 <?php include('inc/container.php'); ?>
@@ -32,9 +31,12 @@ if (!empty($_GET['update_id']) && $_GET['update_id']) {
 					<h3>Nga,</h3>
 					Baresha Music
 					<br>
-					Shirokë,Suharekë,Kosov - 23000<br>
-					00383 (0) 49 605 655<br>
-					info@bareshamusic.com<br>
+					Shirokë <br>
+					Suharekë,KS<br>
+					Kosov - 23000 <br>
+					Telefoni : 00383 (0) 49 605 655<br>
+					Email: info@bareshamusic.com<br>
+					Tax ID : 811499228
 				</div>
 				<div class="col-xs-12 col-sm-4 col-md-4 col-lg-4 pull-right">
 					<h3>Për,</h3>
@@ -43,6 +45,18 @@ if (!empty($_GET['update_id']) && $_GET['update_id']) {
 					</div>
 					<div class="form-group">
 						<textarea class="form-control rounded-5 border border-1" rows="3" name="address" id="address" placeholder="Your Address"><?php echo $invoiceValues['order_receiver_address']; ?></textarea>
+					</div>
+					<div class="form-group">
+						<!-- Telephone number -->
+						<input value="<?php echo $invoiceValues['mobile']; ?>" type="text" class="form-control rounded-5 border border-1" name="mobile" id="mobile" placeholder="Mobile" autocomplete="off">
+					</div>
+					<!-- Email -->
+					<div class="form-group">
+						<input value="<?php echo $invoiceValues['email']; ?>" type="text" class="form-control rounded-5 border border-1" name="email" id="email" placeholder="Email" autocomplete="off">
+					</div>
+					<!-- Tax ID -->
+					<div class="form-group">
+						<input value="<?php echo $invoiceValues['tax_id']; ?>" type="text" class="form-control rounded-5 border border-1" name="taxId" id="taxId" placeholder="Tax ID" autocomplete="off">
 					</div>
 
 				</div>
