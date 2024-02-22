@@ -162,6 +162,7 @@ if (isset($_POST['ruaj'])) {
                     <div class="col">
                       <label class="form-label" for="yt">Zgjedh bankën</label>
                       <select id="bank_info" name="bank_info" class="form-select rounded-5 border border-2 py-2">
+                        <option value="custom">Shto emrin e personalizuar të bankës</option> <!-- Add this option -->
                         <option value="Banka Ekonomike">Banka Ekonomike (Kosovo)</option>
                         <option value="Banka KombetareTregtare">Banka Kombëtare Tregtare (Albania)</option>
                         <option value="Banka Per Biznes">Banka për Biznes (Kosovo)</option>
@@ -176,7 +177,43 @@ if (isset($_POST['ruaj'])) {
                         <option value="Ria">Ria</option>
                         <option value="Money Gram"> Money Gram</option>
                         <option value="Western Union">Western Union</option>
+
                       </select>
+                      <script>
+                        new Selectr('#bank_info', {
+                          searchable: true,
+                          width: 300
+                        });
+                        document.getElementById('bank_info').addEventListener('change', function() {
+                          var selectedOption = this.value;
+                          if (selectedOption === 'custom') {
+                            Swal.fire({
+                              title: 'Shëno emrin e personalizuar të bankës:',
+                              input: 'text',
+                              showCancelButton: true,
+                              confirmButtonText: 'Shto',
+                              cancelButtonText: 'Anulo',
+                              inputValidator: (value) => {
+                                if (!value) {
+                                  return 'Ju duhet të shënoni diçka!';
+                                }
+                              }
+                            }).then((result) => {
+                              if (result.isConfirmed) {
+                                var customBankName = result.value;
+                                // Add the custom bank name as an option
+                                var selectElement = document.getElementById('bank_info');
+                                var customOption = document.createElement('option');
+                                customOption.value = customBankName;
+                                customOption.textContent = customBankName;
+                                selectElement.appendChild(customOption);
+                                // Select the newly added custom bank name
+                                selectElement.value = customBankName;
+                              }
+                            });
+                          }
+                        });
+                      </script>
                     </div>
                     <br>
                     <div class="col">

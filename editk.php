@@ -165,8 +165,6 @@ $editcl = mysqli_fetch_array($editc);
                       <label class="form-label" for="yt">Numri i telefonit</label>
                       <input type="text" name="nrtel" class="form-control rounded-5 border border-2" value="<?php echo $editcl['nrtel']; ?>" placeholder="Shëno numrin e telefonit të klientit">
                     </div>
-
-
                     <br>
                     <div class="col">
                       <?php
@@ -183,6 +181,7 @@ $editcl = mysqli_fetch_array($editc);
                       ?>
                       <label class="form-label" for="yt">Emri i bankës</label>
                       <select id="bank_info" name="bank_info" class="form-select rounded-5 border border-2 py-2">
+                        <option value="custom">Shto emrin e personalizuar të bankës</option> <!-- Add this option -->
                         <option value="<?php echo $defaultBank; ?>" selected><?php echo $defaultBank; ?></option>
                         <option value="Banka KombetareTregtare">Banka Kombëtare Tregtare (Albania)</option>
                         <option value="Banka Per Biznes">Banka për Biznes (Kosovo)</option>
@@ -199,9 +198,38 @@ $editcl = mysqli_fetch_array($editc);
                         <option value="Western Union">Western Union</option>
                       </select>
                       <script>
-                        new Selectr('#bank_info',{
+                        new Selectr('#bank_info', {
                           searchable: true,
                           width: 300
+                        });
+                        document.getElementById('bank_info').addEventListener('change', function() {
+                          var selectedOption = this.value;
+                          if (selectedOption === 'custom') {
+                            Swal.fire({
+                              title: 'Shëno emrin e personalizuar të bankës:',
+                              input: 'text',
+                              showCancelButton: true,
+                              confirmButtonText: 'Shto',
+                              cancelButtonText: 'Anulo',
+                              inputValidator: (value) => {
+                                if (!value) {
+                                  return 'Ju duhet të shënoni diçka!';
+                                }
+                              }
+                            }).then((result) => {
+                              if (result.isConfirmed) {
+                                var customBankName = result.value;
+                                // Add the custom bank name as an option
+                                var selectElement = document.getElementById('bank_info');
+                                var customOption = document.createElement('option');
+                                customOption.value = customBankName;
+                                customOption.textContent = customBankName;
+                                selectElement.appendChild(customOption);
+                                // Select the newly added custom bank name
+                                selectElement.value = customBankName;
+                              }
+                            });
+                          }
                         });
                       </script>
                     </div>
@@ -230,7 +258,6 @@ $editcl = mysqli_fetch_array($editc);
                         })
                       </script>
                     </div>
-
                   </div>
                 </div>
               </div>
@@ -265,7 +292,6 @@ $editcl = mysqli_fetch_array($editc);
                       <label class="form-label" for="dks">Data e e skadimit të kontrates</label>
                       <input type="date" name="dks" id="dks" class="form-control rounded-5 border border-2" placeholder="Shkruaj Daten e skaditimit" value="<?php echo $editcl['dks']; ?>">
                     </div>
-
                     <br>
                     <div class="col">
                       <label class="form-label" for="yt">Zgjedh kategorinë</label>
@@ -387,7 +413,6 @@ $editcl = mysqli_fetch_array($editc);
                       </div>
                       <br>
                       <?php
-
                       if ($editcl['perqindja_check'] === "1") {
                         echo '<div id="perqindja_platformave_message" style="color: green;">Statusi i kesaj perqindje ne sistemin e klientit eshte e vrojtueshme.</div>';
                       } else {
@@ -414,14 +439,12 @@ $editcl = mysqli_fetch_array($editc);
                         <input type="text" class="form-control rounded-5 border border-2" id="perqindja_platformave_output" name="perqindja_e_klientit" disabled value="<?php echo $perqindja2_value; ?>">
                       </div>
                       <?php
-
                       if ($editcl['perqindja_platformave_check'] === "1") {
                         echo '<div id="perqindja_platformave_message" style="color: green;">Statusi i kesaj perqindje ne sistemin e klientit eshte e vrojtueshme.</div>';
                       } else {
                         echo '<div id="perqindja_platformave_message" style="color: red;">JO.</div>';
                       }
                       ?>
-
                     </div>
                     <br>
                     <div class="col">
@@ -467,7 +490,6 @@ $editcl = mysqli_fetch_array($editc);
                           $emails_with_access = explode(',', $maillist['emails']);
                           $emails_with_access = array_map('trim', $emails_with_access); // Remove leading/trailing whitespace
                         }
-
                         $getemails_ads = $conn->query("SELECT DISTINCT email FROM ads");
                         while ($row = $getemails_ads->fetch_assoc()) {
                           $email_ads = $row['email']; // Retrieve the email from the fetched row
@@ -486,7 +508,6 @@ $editcl = mysqli_fetch_array($editc);
                         ?>
                       </select>
                     </div>
-
                     <script>
                       new Selectr('#exampleFormControlSelect3', {
                         multiple: true,
@@ -494,7 +515,6 @@ $editcl = mysqli_fetch_array($editc);
                         width: 300
                       })
                     </script>
-
                     <br>
                     <div class="col">
                       <label class="form-label">P&euml;rdoruesi <small>(Sistemit)</small>:</label>
@@ -544,7 +564,6 @@ $editcl = mysqli_fetch_array($editc);
                         Përditso të gjitha informacionet
                       </button>
                       <br>
-
                     </div>
                     <div class="col d-flex justify-content-center align-items-center">
                       <a href="kanal.php?kid=<?php echo $editcl['id']; ?>" class="btn btn-danger rounded-5 text-white shadow mb-3" style="text-transform:none;" name="ndrysho">
@@ -553,7 +572,6 @@ $editcl = mysqli_fetch_array($editc);
                         Shiko kanalin
                       </a>
                       <br>
-
                     </div>
                   </div>
                 </div>
