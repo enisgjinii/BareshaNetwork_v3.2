@@ -436,6 +436,7 @@ function getChannelDetails($channelId, $apiKey)
                           <table class="table table-bordered" id="dataTable">
                             <thead class="bg-light">
                               <tr>
+                                <th style="font-size: 12px">#</th>
                                 <th style="font-size: 12px">Numri i fatures</th>
                                 <th style="font-size: 12px">ID e klientit</th>
                                 <th style="font-size: 12px">Data</th>
@@ -450,6 +451,8 @@ function getChannelDetails($channelId, $apiKey)
                             </thead>
                             <tbody>
                               <?php
+                              // Counter variable
+                              $counter = 1;
                               // Prepare a query to fetch data
                               $query = "SELECT id, emri, perqindja FROM klientet WHERE youtube = ?";
                               $stmt = mysqli_prepare($conn, $query);
@@ -467,6 +470,7 @@ function getChannelDetails($channelId, $apiKey)
                                 }
                               ?>
                                 <tr>
+                                  <td><?php echo $counter++; ?></td>
                                   <td>
                                     <?php echo $invoiceNumber . $id ?>
                                   </td>
@@ -1690,13 +1694,13 @@ function getChannelDetails($channelId, $apiKey)
             const columns = row.getElementsByTagName("td");
             if (columns.length >= 6) { // Check if there are at least 6 columns
               // Extract data from the first 6 columns
-              const column1Value = columns[0].textContent.trim();
-              const column2Value = columns[1].textContent.trim();
-              const column3Value = columns[2].textContent.trim();
-              const column4Value = columns[3].textContent.trim();
-              const column5Value = columns[4].textContent.trim();
+              const column1Value = columns[1].textContent.trim();
+              const column2Value = columns[2].textContent.trim();
+              const column3Value = columns[3].textContent.trim();
+              const column4Value = columns[4].textContent.trim();
+              const column5Value = columns[5].textContent.trim();
               const column5ValueWithoutCommas = column5Value.replace(/,/g, '');
-              const column6Value = columns[5].textContent.trim();
+              const column6Value = columns[6].textContent.trim();
               // Generate the SQL INSERT statement
               const sqlInsert = `INSERT INTO invoices (invoice_number, customer_id, item, total_amount, total_amount_after_percentage, created_date) VALUES ('${column1Value}', '${column2Value}', '${column3Value}', '${column4Value}', '${column5ValueWithoutCommas}', '${column6Value}');`;
               sqlCommands += sqlInsert + "\n";
