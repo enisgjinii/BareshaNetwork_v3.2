@@ -575,6 +575,10 @@ if (isset($_POST['ruaj'])) {
     searching: true,
     processing: true,
     serverSide: true,
+    lengthMenu: [
+      [10, 25, 50, 100, 500, 1000],
+      [10, 25, 50, 100, 500, 1000],
+    ],
     ajax: {
       url: 'get-clients.php', // Replace with your server-side script URL
       type: 'GET',
@@ -630,12 +634,12 @@ if (isset($_POST['ruaj'])) {
     }],
     dom: "<'row'<'col-md-3'l><'col-md-6'B><'col-md-3'f>>" +
       "<'row'<'col-md-12'tr>>" +
-      "<'row'<'col-md-6'><'col-md-6'p>>",
+      "<'row'<'col-md-6'i><'col-md-6'p>>",
     buttons: [{
       extend: 'pdfHtml5',
       text: '<i class="fi fi-rr-file-pdf fa-lg"></i>&nbsp;&nbsp; PDF',
       titleAttr: 'Eksporto tabelen ne formatin PDF',
-      className: 'btn btn-light btn-sm bg-light border me-2 rounded-5'
+      className: 'btn btn-light btn-sm bg-light border me-2 rounded-5',
     }, {
       extend: 'excelHtml5',
       text: '<i class="fi fi-rr-file-excel fa-lg"></i>&nbsp;&nbsp; Excel',
