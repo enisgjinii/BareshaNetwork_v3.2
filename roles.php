@@ -287,6 +287,9 @@
                                         if ($page == 'rating_list.php') {
                                             return 'Lista e vlersimeve';
                                         }
+                                        if ($page == 'invoice_list_2.php') {
+                                            return 'Faturë e shpejtë';
+                                        }
                                     }
                                     $pages = array(
                                         'stafi.php',
@@ -338,7 +341,8 @@
                                         'office_requirements.php',
                                         'quick_platform_invoice.php',
                                         'currency.php',
-                                        'rating_list.php'
+                                        'rating_list.php',
+                                        'invoice_list_2.php',
                                     );
                                     echo '<table id="tabelaEFaqeve" class="table table-bordered table-hover">';
                                     echo '<thead class="bg-light"><tr><th>Emri i faqes</th><th>Zgjedhe</th></tr></thead>';

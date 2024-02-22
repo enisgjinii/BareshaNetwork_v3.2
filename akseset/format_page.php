@@ -160,6 +160,9 @@ function format_page_name($page)
     if ($page == 'office_requirements.php') {
         return 'Kerkesat';
     }
+    if ($page == 'invoice_list_2.php') {
+        return 'Faturë e shpejtë';
+    }
 }
 $pages = array(
     'stafi.php',
@@ -208,5 +211,6 @@ $pages = array(
     'klient-avanc.php',
     'office_investments.php',
     'office_damages.php',
-    'office_requirements.php'
+    'office_requirements.php',
+    'invoice_list_2.php',
 );

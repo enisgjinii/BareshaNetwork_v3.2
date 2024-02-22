@@ -225,6 +225,17 @@
     }
 
     foreach ($menu_pages as $page) {
+      if ($page == "invoice_list_2.php") {
+        echo '<li class="nav-item">
+                <a class="nav-link" href="' . $page . '">
+                  <i class="fi fi-rr-document menu-icon pe-3"></i>
+                  <span class="menu-title">Faturë e shpejtë</span>
+                </a>
+              </li>';
+      }
+    }
+
+    foreach ($menu_pages as $page) {
       if ($page == "check_musics.php") {
         echo '<li class="nav-item">
                 <a class="nav-link" href="' . $page . '">
