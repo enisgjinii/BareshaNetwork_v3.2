@@ -22,7 +22,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt->execute();
     $stmt->close();
     $conn->close();
-    header("Location: check_musics.php"); // Redirect back to the original page
     exit();
 }
 ?>

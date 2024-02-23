@@ -236,18 +236,6 @@
                 </a>
               </li>';
       }
-    }
-
-    foreach ($menu_pages as $page) {
-      if ($page == "check_musics.php") {
-        echo '<li class="nav-item">
-                <a class="nav-link" href="' . $page . '">
-                  <i class="fi fi-rr-list-check menu-icon pe-3"></i>
-                  <span class="menu-title">Konfirmimi i kengeve</span>
-                </a>
-              </li>';
-      }
-    }
-    ?>
+    }    ?>
   </ul>
 </nav>

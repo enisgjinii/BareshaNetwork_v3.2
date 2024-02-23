@@ -1,7 +1,4 @@
 <?php include 'partials/header.php'; ?>
-
-
-
 <div class="main-panel">
     <div class="content-wrapper">
         <div class="container-fluid">
@@ -16,7 +13,6 @@
                             </a>
                         </li>
                 </nav>
-
                 <ul class="nav nav-pills mb-3 bg-white rounded-5 mx-1" id="pills-tab" role="tablist">
                     <li class="nav-item" role="presentation">
                         <button class="nav-link rounded-5 active" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#pills-home" type="button" role="tab" aria-controls="pills-home" aria-selected="true" style="text-transform:none;"><i class="fi fi-rr-smile-plus me-2 fa fa-lg"></i> Krijo rol t&euml; ri</button>
@@ -37,9 +33,7 @@
                 <div class="tab-content" id="pills-tabContent">
                     <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
                         <form method="post" action="create_role.php" class="my-3">
-
                             <div class="card  rounded-5 p-5">
-
                                 <div class="table-responsive">
                                     <label>Shkruani emrin e rolit</label>
                                     <div class="row my-3">
@@ -59,7 +53,6 @@
                                                 <span style="display:inline-block;vertical-align:middle;">Hiq
                                                     selektimin</span>
                                             </button>
-
                                             <button type="submit" class="btn btn-warning text-white rounded-5 float-right" style="text-transform:none;">
                                                 <i class="fi fi-rr-id-badge me-2" style="display:inline-block;vertical-align:middle;"></i>
                                                 <span style="display:inline-block;vertical-align:middle;">Krijo rolin</span>
@@ -73,193 +66,141 @@
                                         if ($page == 'index.php') {
                                             return 'Shtepia';
                                         }
-
                                         if ($page == 'roles.php') {
                                             return 'Rolet';
                                         }
-
                                         if ($page == 'stafi.php') {
                                             return 'Klientet';
                                         }
-
                                         if ($page == 'ads.php') {
                                             return 'Llogarit&euml; e ADS';
                                         }
-
                                         if ($page == 'emails.php') {
                                             return 'Lista e email-eve';
                                         }
-
                                         if ($page == 'klient.php') {
                                             return 'Lista e klient&euml;ve';
                                         }
-
-
-
                                         if ($page == 'kategorit.php') {
                                             return 'Lista e kategorive';
                                         }
-
                                         if ($page == 'claim.php') {
                                             return 'Recent Claim';
                                         }
-
                                         if ($page == 'tiketa.php') {
                                             return 'Lista e tiketave';
                                         }
-
                                         if ($page == 'listang.php') {
                                             return 'Lista e k&euml;ng&euml;ve';
                                         }
-
                                         if ($page == 'shtoy.php') {
                                             return 'Regjistro k&euml;ng&euml;';
                                         }
-
                                         if ($page == 'listat.php') {
                                             return 'Lista e tiketave';
                                         }
-
                                         if ($page == 'tiketa.php') {
                                             return 'Tiket e re';
                                         }
-
-
                                         if ($page == 'whitelist.php') {
                                             return 'Whitelist';
                                         }
-
                                         if ($page == 'faturat.php') {
                                             return 'Pagesat Youtube';
                                         }
-
                                         if ($page == 'invoice.php') {
                                             return 'Pagesat Youtube_channel ( New )';
                                         }
                                         if ($page == 'pagesat_youtube.php') {
                                             return 'Pagesat YouTube ( Faza Test )';
                                         }
-
-
                                         if ($page == 'faturat2.php') {
                                             return 'Platformat Tjera';
                                         }
-
                                         if ($page == 'pagesat.php') {
                                             return 'Pagesat e kryera';
                                         }
-
                                         if ($page == 'rrogat.php') {
                                             return 'Pagat';
                                         }
-
                                         if ($page == 'shpenzimep.php') {
                                             return 'Shpenzimet personale';
                                         }
-
                                         if ($page == 'tatimi.php') {
                                             return 'Tatimi';
                                         }
                                         if ($page == 'yinc.php') {
                                             return 'Shpenzimet';
                                         }
-
                                         if ($page == 'filet.php') {
                                             return 'Dokumente tjera';
                                         }
                                         if ($page == 'github_logs.php') {
                                             return 'Aktiviteti ne Github';
                                         }
-
                                         if ($page == 'klient_CSV.php') {
                                             return 'Klient CSV';
                                         }
-
                                         if ($page == 'logs.php') {
                                             return 'Logs';
                                         }
-
                                         if ($page == 'notes.php') {
                                             return 'Shenime';
                                         }
-
                                         if ($page == 'takimet.php') {
                                             return 'Takimet';
                                         }
-
-
                                         if ($page == 'todo_list.php') {
                                             return 'To Do';
                                         }
-
                                         if ($page == 'kontrata_2.php') {
                                             return 'Kontrata e re';
                                         }
-
                                         if ($page == 'lista_kontratave.php') {
                                             return 'Lista e kontratave';
                                         }
-
                                         if ($page == 'csvFiles.php') {
                                             return 'Inserto CSV';
                                         }
-
                                         if ($page == 'filtroCSV.php') {
                                             return 'Filtro CSV';
                                         }
-
                                         if ($page == 'listaEFaturaveTePlatformave.php') {
                                             return 'Lista e faturave';
                                         }
-
-
                                         if ($page == 'pagesatEKryera.php') {
                                             return 'Pagesat e perfunduara';
                                         }
-
-                                        if ($page == 'check_musics.php') {
-                                            return 'Konfirmimi i kengeve';
-                                        }
-
                                         if ($page == 'dataYT.php') {
                                             return 'Statistikat nga Youtube';
                                         }
                                         if ($page == 'channel_selection.php') {
                                             return 'Kanalet';
                                         }
-
                                         if ($page == 'ofertat.php') {
                                             return 'Ofertat';
                                         }
-
                                         if ($page == 'youtube_studio.php') {
                                             return 'Baresha analytics';
                                         }
-
                                         if ($page == 'kontrata_gjenelare_2.php') {
                                             return 'Kontrate e re ( Gjenerale )';
                                         }
-
                                         if ($page == 'lista_kontratave_gjenerale.php') {
                                             return 'Lista e kontratave ( Gjenerale )';
                                         }
-
                                         if ($page == 'facebook.php') {
                                             return 'Vegla Facebook';
                                         }
-
                                         if ($page == 'lista_faturave_facebook.php') {
                                             return 'Lista e faturave (Facebook)';
                                         }
-
                                         if ($page == 'autor.php') {
                                             return 'Autor';
                                         }
-
                                         if ($page == 'lista_kopjeve_rezerve.php') {
                                             return 'Lista e kopjeve rezerve';
                                         }
-
                                         if ($page == 'faturaFacebook.php') {
                                             return 'Krijo fatur&euml; (Facebook)';
                                         }
@@ -327,7 +268,6 @@
                                         'filtroCSV.php',
                                         'listaEFaturaveTePlatformave.php',
                                         'pagesatEKryera.php',
-                                        'check_musics.php',
                                         'dataYT.php',
                                         'ofertat.php',
                                         'youtube_studio.php',
@@ -357,9 +297,7 @@
                                     echo '</tbody>';
                                     echo '</table>';
                                     ?>
-
                                 </div>
-
                                 <script>
                                     function checkAll() {
                                         var checkboxes = document.getElementsByName('pages[]');
@@ -376,9 +314,7 @@
                                         }
                                     }
                                 </script>
-
                             </div>
-
                         </form>
                     </div>
                     <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
@@ -394,13 +330,10 @@
                                     </thead>
                                     <tbody>
                                         <?php
-
-
                                         $sql = 'SELECT roles.id AS role_id, roles.name AS role_name, GROUP_CONCAT(role_pages.page) AS pages
     FROM roles
     LEFT JOIN role_pages ON roles.id = role_pages.role_id
     GROUP BY roles.id';
-
                                         if ($result = $conn->query($sql)) {
                                             while ($row = $result->fetch_assoc()) {
                                                 echo '<tr>';
@@ -408,7 +341,6 @@
                     <a class="btn btn-warning text-white  rounded-5 edit-link" href="edit_page.php?role_id=' . $row['role_id'] . '"><i class="fi fi-rr-edit"></i></a>
                     <button class="btn btn-danger text-white  rounded-5 delete-row" data-role-id="' . $row['role_id'] . '"><i class="fi fi-rr-trash"></i></button>
                 </td>';
-
                                                 echo '<td>' . $row['role_name'] . '</td>';
                                                 echo '<td>';
                                                 $pages = explode(',', $row['pages']);
@@ -435,17 +367,10 @@
                                         }
                                         ?>
                                     </tbody>
-
                                 </table>
-
-
                             </div>
-
                             <!-- <button id="show5" class="btn btn-primary">Show only 5</button> -->
-
-
                         </div>
-
                     </div>
                     <div class="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="pills-contact-tab">
                         <div class="card  rounded-5 p-5 my-3">
@@ -458,7 +383,6 @@
                                             <th>Faqet</th>
                                         </tr>
                                     </thead>
-
                                     <tbody>
                                         <?php
                                         $sql = 'SELECT googleauth.firstName AS user_name, roles.name AS role_name, roles.id AS role_id, GROUP_CONCAT(DISTINCT role_pages.page) AS pages
@@ -487,12 +411,9 @@
                                     </tbody>
                                 </table>
                                 <br>
-
                             </div>
-
                         </div>
                     </div>
-
                     <div class="tab-pane fade" id="pills-giveRole" role="tabpanel" aria-labelledby="pills-giveRole-tab">
                         <div class="card  rounded-5 p-5 my-3">
                             <div class="table-responsive">
@@ -505,7 +426,6 @@
                                                 // Query to select all users
                                                 $sql = "SELECT id, firstName, last_name,email FROM googleauth";
                                                 $result = $conn->query($sql);
-
                                                 // Loop through results and create option for each user
                                                 while ($row = $result->fetch_assoc()) {
                                                     echo '<option value="' . $row['id'] . '">' . $row['firstName']  . ' ' . $row['last_name'] . ' - ' . $row['email'] . '</option>';
@@ -520,7 +440,6 @@
                                                 // Query to select all roles
                                                 $sql = "SELECT id, name FROM roles";
                                                 $result = $conn->query($sql);
-
                                                 // Loop through results and create option for each role
                                                 while ($row = $result->fetch_assoc()) {
                                                     echo '<option value="' . $row['id'] . '">' . $row['name'] . '</option>';
@@ -539,7 +458,6 @@
         </div>
     </div>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
     <?php include 'partials/footer.php'; ?>
     <script>
         $(document).ready(function() {
@@ -560,8 +478,6 @@
                 $(this).hide();
             });
         });
-
-
         $(document).ready(function() {
             $('.edit-row').click(function() {
                 var roleId = $(this).data('role-id');
@@ -624,14 +540,12 @@
             });
         });
     </script>
-
     <script>
         $(document).ready(function() {
             // Triggered when the role select changes
             $('#role-select').change(function() {
                 // Get the selected role id
                 var roleId = $(this).val();
-
                 // Send an AJAX request to get the pages for the selected role
                 $.ajax({
                     url: 'get_pages.php',
@@ -643,7 +557,6 @@
                     success: function(response) {
                         // Clear the options of the page select
                         $('#page-select').html('');
-
                         // Add the options for the pages
                         $.each(response, function(index, page) {
                             $('#page-select').append('<option value="' + page.id + '">' + page.name + '</option>');
@@ -653,7 +566,6 @@
             });
         });
     </script>
-
     <script>
         $(document).ready(function() {
             $('#tabelaEFaqeve').DataTable({
@@ -664,7 +576,6 @@
                     [0, "asc"]
                 ],
                 stripeClasses: ['stripe-color'],
-
                 "columnDefs": [{
                     "targets": [1],
                     "orderable": false
@@ -672,13 +583,11 @@
             });
         });
         $(document).ready(function() {
-
             var dataTables = $('#example').DataTable({
                 responsive: false,
                 search: {
                     return: true,
                 },
-
                 lengthMenu: [
                     [10, 25, 50, -1],
                     [10, 25, 50, "T&euml; gjitha"]
@@ -728,13 +637,11 @@
                     titleAttr: 'Printo tabel&euml;n',
                     className: 'btn btn-light border shadow-2 me-2'
                 }, ],
-
                 fixedHeader: true,
                 language: {
                     url: "https://cdn.datatables.net/plug-ins/1.13.1/i18n/sq.json",
                 },
                 stripeClasses: ['stripe-color'],
-
             });
         });
     </script>

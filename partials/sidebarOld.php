@@ -8,7 +8,6 @@
         </li>
         <?php if ($_SESSION['acc'] == '1') {
         ?>
-
             <li class="nav-item">
                 <a class="nav-link" data-bs-toggle="collapse" href="#menaxhimi" aria-expanded="false" aria-controls="menaxhimi">
                     <i class="fi fi-rr-users-gear menu-icon pe-3"></i>
@@ -32,9 +31,6 @@
                     </ul>
                 </div>
             </li>
-
-
-
             <li class="nav-item">
                 <a class="nav-link" data-bs-toggle="collapse" href="#klienti" aria-expanded="false" aria-controls="klienti">
                     <i class="fi fi-rr-handshake menu-icon pe-3"></i>
@@ -51,7 +47,6 @@
                 </div>
             </li> <?php } ?>
         <?php if ($_SESSION['acc'] == '4' || $_SESSION['acc'] == '1') {
-
         ?>
             <li class="nav-item">
                 <a class="nav-link" data-bs-toggle="collapse" href="#video" aria-expanded="false" aria-controls="video">
@@ -68,9 +63,7 @@
             </li>
         <?php }
         ?>
-
         <?php if ($_SESSION['acc'] == '1') {
-
         ?>
             <li class="nav-item">
                 <a class="nav-link" data-bs-toggle="collapse" href="#tiketat" aria-expanded="false" aria-controls="tiketat">
@@ -122,9 +115,7 @@
                 </div>
             </li>
         <?php } ?>
-
         <?php if ($_SESSION['acc'] == '1') {
-
         ?>
             <li class="nav-item">
                 <a class="nav-link" data-bs-toggle="collapse" href="#quicklyTool" aria-expanded="false" aria-controls="admin">
@@ -180,10 +171,6 @@
                     </ul>
                 </div>
             </li>
-
-
-
-
             <li class="nav-item">
                 <a class="nav-link" data-bs-toggle="collapse" href="#kontratat" aria-expanded="false" aria-controls="kontratat">
                     <i class="fi fi-rr-document-signed menu-icon pe-3"></i>
@@ -203,11 +190,7 @@
                     <span class="menu-title">Statistikat nga YouTube</span>
                 </a>
             </li>
-
-
-
         <?php } ?>
-
         <li class="nav-item">
             <a class="nav-link" data-bs-toggle="collapse" href="#platformat" aria-expanded="false" aria-controls="financat">
                 <i class="fi fi-rr-share menu-icon pe-3"></i>
@@ -226,22 +209,10 @@
                         <a class="nav-link" href="listaEFaturaveTePlatformave.php"><i class="fi fi-rr-list-timeline menu-icon"></i>Lista e faturave</a>
                     </li>
                     <li class="nav-item">
-
                         <a class="nav-link" href="pagesatEKryera.php"><i class="fi fi-rr-memo-circle-check menu-icon"></i>Pagesat e perfunduara</a>
                     </li>
                 </ul>
             </div>
-        </li>
-
-
-
-
-
-        <li class="nav-item">
-            <a class="nav-link" href="check_musics.php">
-                <i class="fi fi-rr-list-check menu-icon pe-3"></i>
-                <span class="menu-title">Konfirmimi i kengeve</span>
-            </a>
         </li>
     </ul>
 </nav>

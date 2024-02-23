@@ -109,9 +109,6 @@ function format_page_name($page)
     if ($page == 'pagesatEKryera.php') {
         return 'Pagesat e perfunduara';
     }
-    if ($page == 'check_musics.php') {
-        return 'Konfirmimi i kengeve';
-    }
     if ($page == 'dataYT.php') {
         return 'Statistikat nga Youtube';
     }
@@ -197,7 +194,6 @@ $pages = array(
     'filtroCSV.php',
     'listaEFaturaveTePlatformave.php',
     'pagesatEKryera.php',
-    'check_musics.php',
     'dataYT.php',
     'ofertat.php',
     'youtube_studio.php',
