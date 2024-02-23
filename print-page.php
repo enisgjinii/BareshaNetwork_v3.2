@@ -14,7 +14,6 @@
             $("#print-button").click(function() {
                 $.ajax({
                     type: "GET",
-                    url: "faturat2.php",
                     dataType: "json",
                     success: function(data) {
                         // Build and style the table with the retrieved data

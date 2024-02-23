@@ -1,5 +1,5 @@
 <?php
-include 'header.php';
+include 'partials/header.php';
 $json = file_get_contents('http://www.floatrates.com/daily/usd.json');
 $obj = json_decode($json);
 if (empty($_GET['fatura'])) {
@@ -181,7 +181,6 @@ if (isset($_POST['update'])) {
       </tbody>
     </table>
     <br>
-    <a href="faturat2.php" class="btn btn-success float-right" target="_blank">D&euml;rgo</a>
     <a href="#" class="btn btn-secondary">Anulo</a>
 
 

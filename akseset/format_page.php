@@ -52,9 +52,6 @@ function format_page_name($page)
     if ($page == 'pagesat_youtube.php') {
         return 'Pagesat YouTube ( Faza Test )';
     }
-    if ($page == 'faturat2.php') {
-        return 'Platformat Tjera';
-    }
     if ($page == 'pagesat.php') {
         return 'Pagesat e kryera';
     }
@@ -180,7 +177,6 @@ $pages = array(
     'shpenzimep.php',
     'faturat.php',
     'pagesat.php',
-    'faturat2.php',
     'filet.php',
     'notes.php',
     'github_logs.php',

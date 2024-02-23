@@ -51,9 +51,6 @@ function format_page_name($page)
     if ($page == 'invoice.php') {
         return 'Faturat ( New )';
     }
-    if ($page == 'faturat2.php') {
-        return 'Platformat Tjera';
-    }
     if ($page == 'pagesat.php') {
         return 'Pagesat e kryera';
     }
@@ -156,9 +153,6 @@ function format_page_name($page)
     if ($page == 'office_requirements.php') {
         return 'Kerkesat';
     }
-    if ($page == 'faturat2.php') {
-        return 'Platformat Tjera';
-    }
     if ($page == 'quick_platform_invoice.php') {
         return 'Fature e shpejte e platformave';
     }
@@ -195,7 +189,6 @@ $pages = array(
     'faturat.php' => format_page_name('faturat.php'),
     'invoice.php' => format_page_name('invoice.php'),
     'pagesat.php' => format_page_name('pagesat.php'),
-    'faturat2.php' => format_page_name('faturat2.php'),
     'filet.php' => format_page_name('filet.php'),
     'notes.php' => format_page_name('notes.php'),
     'github_logs.php' => format_page_name('github_logs.php'),

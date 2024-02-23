@@ -109,8 +109,6 @@
                         <li class="nav-item"><a class="nav-link" href="shpenzimep.php">Shpenzimet Personale</a></li>
                         <li class="nav-item"><a class="nav-link" href="faturat.php">Pagesat YouTube</a></li>
                         <li class="nav-item"><a class="nav-link" href="pagesat.php">Pagesat e kryera</a></li>
-                        <li class="nav-item"><a class="nav-link" href="faturat2.php">Platformat Tjera</a></li>
-                        <!-- <li class="nav-item"><a class="nav-link" href="csvFiles.php">Faturat Platforma</a></li> -->
                     </ul>
                 </div>
             </li>

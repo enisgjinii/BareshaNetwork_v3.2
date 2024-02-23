@@ -9,7 +9,6 @@
                         <h6 class="mb-0">
                             <a href="" class="text-reset">Financat</a>
                             <span>/</span>
-                            <a href="faturat2.php" class="text-reset" data-bs-placement="top" data-bs-toggle="tooltip" title="<?php echo __FILE__; ?>"><u>Platformat tjera</u></a>
                         </h6>
                     </nav>
                 </div>

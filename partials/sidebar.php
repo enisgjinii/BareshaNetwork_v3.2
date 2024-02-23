@@ -123,7 +123,6 @@
           "invoice.php" => "Pagesat YouTube <span class='badge bg-success rounded'>New</span>",
           "faturat.php" => "Pagesat YouTube",
           "pagesat.php" => "Pagesat e kryera",
-          "faturat2.php" => "Platformat Tjera",
           "rrogat.php" => "Pagat",
           "tatimi.php" => "Tatimi",
           "yinc.php" => "Shpenzimet",
