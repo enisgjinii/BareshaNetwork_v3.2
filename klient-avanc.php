@@ -37,10 +37,9 @@
                                     <?php
                                     $kueri = $conn->query("SELECT * FROM parapagimtable ORDER BY id DESC");
 
-
                                     while ($k = mysqli_fetch_assoc($kueri)) {
                                         $emri_id = $k['emri_id'];
-                                        $klientQuery = $conn->query("SELECT * FROM klientet WHERE id = ' . $emri_id . '");
+                                        $klientQuery = $conn->query("SELECT * FROM klientet WHERE id = '$emri_id'");
 
                                         if (!$klientQuery) {
                                             // Display the SQL error message
@@ -48,6 +47,17 @@
                                         }
 
                                         $klientData = mysqli_fetch_array($klientQuery);
+
+                                        $get_loan = $conn->query("SELECT SUM(pagoi) AS total_payment, SUM(shuma) AS total_loan FROM yinc WHERE kanali = '" . $klientData['id'] . "'");
+                                        $loan_info = mysqli_fetch_assoc($get_loan);
+
+                                        // Sum up the payments made and the loan amount for this entry
+                                        $loan_payment_total = $loan_info['total_payment'];
+                                        $loan_total = $loan_info['total_loan'];
+
+                                        // Calculate the remaining loan amount
+                                        $loan = $loan_total - $loan_payment_total;
+
                                     ?>
                                         <tr>
                                             <td><?php echo $k['id']; ?></td>
@@ -55,7 +65,7 @@
                                             <td><?php echo $k['data']; ?></td>
                                             <td><?php echo $klientData['emri']; ?></td>
                                             <td><?php echo $k['shuma']; ?></td>
-                                            <td><?php echo $k['borgji']; ?></td>
+                                            <td><?php echo $loan; ?></td> <!-- Display the total loan amount -->
                                             <td><?php echo $k['urgjenca']; ?></td>
                                             <td>
                                                 <select name="statusi" id="statusi" class="form-select shadow-sm rounded-5">
@@ -65,8 +75,8 @@
                                             </td>
                                         </tr>
                                     <?php } ?>
-
                                 </tbody>
+
 
                             </table>
                         </div>

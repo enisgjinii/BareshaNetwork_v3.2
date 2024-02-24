@@ -3,7 +3,17 @@
     <?php
     // Include the database connection file
     include 'conn-d.php';
+    // Your SQL query
+    $sql = "SELECT COUNT(*) as count FROM parapagimtable WHERE EShikuar = 'No'";
 
+    // Executing the query
+    $result = mysqli_query($conn, $sql);
+
+    // Fetching the result
+    $row = mysqli_fetch_assoc($result);
+
+    // Getting the count
+    $count = $row['count'];
     // Enable error reporting (for debugging purposes)
     error_reporting(1);
 
@@ -64,6 +74,7 @@
 
 
     <?php
+
     $menuSections = [
       [
         "title" => "Menaxhimi",
@@ -93,7 +104,8 @@
           "kategorit.php" => "Lista e kategorive",
           "ads.php" => "Llogari të ADS",
           "emails.php" => "Lista e email-ave",
-          "klient-avanc.php" => "Lista e avanceve të klienteve",
+          "klient-avanc.php" => ($count > 0) ? "Lista e avanceve <span class='badge bg-success rounded'><i class='fi fi-rr-eye me-2'></i>   $count</span>" : "Lista e avanceve",
+
           "rating_list.php" => "Lista e vlersimeve",
         ],
       ],
