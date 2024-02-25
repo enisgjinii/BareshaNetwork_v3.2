@@ -30,6 +30,7 @@ include('partials/header.php');
                                                 <th>#</th>
                                                 <th>Emri dhe mbiemri</th>
                                                 <th>Data e krijimit</th>
+                                                <th>Data e skadimit</th>
                                                 <th>Përqindja</th>
                                                 <th></th>
                                                 <th></th>
@@ -124,6 +125,19 @@ include('partials/header.php');
                                                         <?php echo $k['data_e_krijimit']; ?>
                                                     </td>
                                                     <td>
+                                                        <?php
+                                                        // Assuming $k is your array containing data_e_krijimit and kohezgjatja
+                                                        $data_e_krijimit = $k['data_e_krijimit'];
+                                                        $kohezgjatja = $k['kohezgjatja'];
+
+                                                        // Calculate expiration date
+                                                        $expiration_date = date('Y-m-d', strtotime($data_e_krijimit . ' + ' . $kohezgjatja . ' months'));
+
+                                                        echo $expiration_date;
+                                                        ?>
+                                                    </td>
+
+                                                    <td>
                                                         <?php echo $k['tvsh']; ?>
                                                     </td>
                                                     <td>
@@ -161,6 +175,7 @@ include('partials/header.php');
                                                 <th>#</th>
                                                 <th>Emri dhe mbiemri</th>
                                                 <th>Data e krijimit</th>
+                                                <th>Data e skadimit</th>
                                                 <th>Përqindja</th>
                                                 <th></th>
                                                 <th></th>

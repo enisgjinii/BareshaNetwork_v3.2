@@ -48,6 +48,7 @@
 <script src="https://cdn.datatables.net/searchpanes/2.1.0/js/dataTables.searchPanes.min.js" defer></script>
 <script src="https://cdn.datatables.net/searchpanes/2.1.0/js/searchPanes.bootstrap5.min.js" defer></script>
 <script src="https://cdn.datatables.net/select/1.5.0/js/dataTables.select.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment-with-locales.min.js"></script>
 
 <!-- Dark Mode Toggle Script -->
 <script>

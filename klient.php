@@ -291,8 +291,9 @@ if (isset($_POST['ruaj'])) {
                     <th>Emri & Mbiemri</th>
                     <th>Emri artistik</th>
                     <th>Adresa e email-it</th>
-                    <th>Data e kontrates</th>
-                    <th>Data e skadimit</th>
+                    <th>Datat e kontrates ( Fillim - Skadim )</th>
+                    <th>Data e kontrates ( Versioni i ri )</th>
+                    <th>Data e skadimit ( Versioni i ri )</th>
                     <th>Veprim</th>
                   </tr>
                 </thead>
@@ -538,10 +539,94 @@ if (isset($_POST['ruaj'])) {
         data: 'emailadd'
       },
       {
-        data: 'dk'
+        data: null,
+        render: function(data, type, row) {
+          return row.dk + ' - ' + row.dks;
+        }
       },
       {
-        data: 'dks',
+        data: 'data_e_krijimit',
+        render: function(data, type, row) {
+          // Set Albanian locale for moment.js
+          moment.locale('sq');
+          if (!data) {
+            return '<span class="text-danger">Nuk u gjet asnjë datë.</span>';
+          } else {
+            var contractStartDate = moment(data); // Assuming data_e_krijimit is the contract start date
+            if (!contractStartDate.isValid()) {
+              return '<span class="text-danger">Data e fillimit të kontratës e pavlefshme</span>';
+            }
+            // Format the contract creation date in Albanian
+            var creationDateFormatted = contractStartDate.format('dddd, D MMMM YYYY');
+            return '<span>' + creationDateFormatted + '</span>';
+          }
+        }
+      },
+      {
+        data: 'kohezgjatja',
+        render: function(data, type, row) {
+          // Check if the contract duration is null or empty
+          if (data == null || data === '') {
+            return '<span class="text-danger">Nuk u gjet asnjë datë.</span>'; // Handle null or empty values
+          } else {
+            var months = parseInt(data);
+            if (isNaN(months) || months <= 0) {
+              return '<span class="text-danger">Data e skadimit jo-valide</span>'; // Handle invalid values
+            }
+            var years = Math.floor(months / 12);
+            var remainingMonths = months % 12;
+            var durationHTML = '';
+            if (years === 0) {
+              // If less than a year, display only months
+              durationHTML = '<p>' + data + ' Muaj</p>';
+            } else if (remainingMonths === 0) {
+              // If exact years, display only years
+              durationHTML = '<p>' + years + ' Vjet</p>';
+            } else {
+              // Display both years and remaining months
+              durationHTML = '<p>' + years + ' Vjet ' + remainingMonths + ' Muaj</p>';
+            }
+            // Set contract start date and calculate expiration date
+            var contractDate = moment(row.data_e_krijimit); // Assuming data_e_krijimit is the contract start date
+            if (!contractDate.isValid()) {
+              return '<span class="text-danger">Data e fillimit të kontratës e pavlefshme</span>'; // Handle invalid date
+            }
+            var expirationDate = contractDate.clone().add(months, 'months');
+            expirationDate.locale('sq');
+            var expirationDateFormatted = expirationDate.format('dddd, LL');
+            // Set current date and calculate days until expiration
+            var today = moment();
+            var daysUntilExpiration = expirationDate.diff(today, 'days');
+            // Define thresholds for near and far expiration
+            var nearExpirationThreshold = 30; // 30 days
+            var farExpirationThreshold = 90; // 90 days
+            // Determine contract status based on expiration date
+            var contractStatus, statusClass, statusMessage;
+            if (daysUntilExpiration < 0) {
+              contractStatus = 'Skaduar';
+              statusClass = 'text-warning';
+              statusMessage = 'Kontrata është skaduar';
+            } else if (daysUntilExpiration <= nearExpirationThreshold) {
+              contractStatus = 'Afër skadimit';
+              statusClass = 'text-danger';
+              statusMessage = 'Skadon shumë shpejt';
+            } else if (daysUntilExpiration <= farExpirationThreshold) {
+              contractStatus = 'Pranë skadimit';
+              statusClass = 'text-warning';
+              statusMessage = 'Skadon në një të ardhme të afërt';
+            } else {
+              contractStatus = 'Aktive';
+              statusClass = 'text-success';
+              statusMessage = 'Aktive';
+            }
+            // Return formatted output with contract status
+            if (contractStatus === 'Skaduar') {
+              return durationHTML + '<span class="' + statusClass + '">' + statusMessage + '</span>';
+            } else {
+              return durationHTML + '<span class="' + statusClass + '">' + expirationDateFormatted + ' (' + statusMessage + ')</span>';
+            }
+          }
+        }
       },
       { // Custom column for buttons
         data: 'id', // Assuming 'id' is the property containing the ID
@@ -556,7 +641,7 @@ if (isset($_POST['ruaj'])) {
       // <a class="btn btn-sm btn-danger py-2 px-2 rounded-5 shadow-sm text-white" href="klient.php?blocked=${data}&block=${row.blockii}"><i class="fi fi-rr-ban"></i></a>
     ],
     columnDefs: [{
-      "targets": [0, 1, 2, 3, 4, 5], // Indexes of the columns you want to apply the style to
+      "targets": [0, 1, 2, 3, 4, 5, 6], // Indexes of the columns you want to apply the style to
       "render": function(data, type, row) {
         // Apply the style to the specified columns
         return type === 'display' && data !== null ? '<div style="white-space: normal;">' + data + '</div>' : data;

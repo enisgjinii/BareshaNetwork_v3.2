@@ -99,8 +99,13 @@ if (isset($_POST['ndrysho'])) {
   }
 }
 // Retrieve the data for editing
-$editc = $conn->query("SELECT * FROM klientet WHERE id='$editid'");
-$editcl = mysqli_fetch_array($editc);
+$editcl = mysqli_fetch_array($conn->query("SELECT * FROM klientet WHERE id='$editid'"));
+
+// Retrieve the contract start date
+$contractStartDate = mysqli_fetch_array($conn->query("SELECT * FROM kontrata_gjenerale WHERE youtube_id='$editcl[youtube]'"));
+
+
+
 ?>
 <div class="main-panel">
   <div class="content-wrapper">
@@ -284,14 +289,24 @@ $editcl = mysqli_fetch_array($editc);
                     </div>
                     <br>
                     <div class="col">
-                      <label class="form-label" for="dk">Data e fillimit të kontrates</label>
-                      <input type="date" name="dk" id="dk" class="form-control rounded-5 border border-2" placeholder="Shkruaj Daten e kontrates" value="<?php echo $editcl['dk']; ?>">
+                      <label class="form-label" for="dk">Data e fillimit të kontratës</label>
+                      <input type="date" name="dk" id="dk" class="form-control rounded-5 border border-2" placeholder="Shkruaj Daten e kontrates" value="<?php 
+                      echo $contractStartDate['data_e_krijimit']; ?>">
                     </div>
                     <br>
                     <div class="col">
-                      <label class="form-label" for="dks">Data e e skadimit të kontrates</label>
-                      <input type="date" name="dks" id="dks" class="form-control rounded-5 border border-2" placeholder="Shkruaj Daten e skaditimit" value="<?php echo $editcl['dks']; ?>">
+                      <label class="form-label" for="dks">Data e skadimit të kontratës</label>
+                      <?php
+                      // Perform calculations for expiration date
+                      $startDate = new DateTime($contractStartDate['data_e_krijimit']);
+                      $durationMonths = $contractStartDate['kohezgjatja'];
+                      $expirationDate = clone $startDate;
+                      $expirationDate->modify("+ $durationMonths months");
+                      ?>
+                      <input type="date" name="dks" id="dks" class="form-control rounded-5 border border-2" placeholder="Shkruaj Daten e skaditimit" value="<?php echo $expirationDate->format('Y-m-d'); ?>">
                     </div>
+
+
                     <br>
                     <div class="col">
                       <label class="form-label" for="yt">Zgjedh kategorinë</label>
