@@ -8,7 +8,7 @@ $invoiceQuery = $conn->query("SELECT * FROM faturaFacebook WHERE fatura='$id'");
 $invoiceData = mysqli_fetch_array($invoiceQuery);
 
 // Retrieve client data from klientet table
-$clientQuery = $conn->query("SELECT * FROM klientet WHERE id = (SELECT emri FROM faturaFacebook WHERE fatura='$id')");
+$clientQuery = $conn->query("SELECT * FROM facebook WHERE id = (SELECT emri FROM faturaFacebook WHERE fatura='$id')");
 $clientData = mysqli_fetch_array($clientQuery);
 // Retrieve total sales
 $totalSalesQuery = $conn->query("SELECT SUM(totali) as total, SUM(mbetja) as mbetja
@@ -34,6 +34,7 @@ $totalSales = mysqli_fetch_array($totalSalesQuery);
     <!-- UIcons -->
     <link rel="stylesheet" href="assets/uicons-regular-rounded/css/uicons-regular-rounded.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="icon" type="image/x-icon" href="images/favicon.png">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -241,21 +242,21 @@ $totalSales = mysqli_fetch_array($totalSalesQuery);
         <div class="row">
             <div class="col">
                 <div>
-                    <?php if (!empty($invoiceData['klient_emri'])) : ?>
+                    <?php if (!empty($clientData['emri_mbiemri'])) : ?>
                         <p class="text-muted m-0 p-0" style="font-size: 12px;">Faturuar p&euml;r :</p>
-                        <h6 class="text-dark"><?php echo $invoiceData['klient_emri']; ?></h6>
+                        <h6 class="text-dark"><?php echo $clientData['emri_mbiemri']; ?></h6>
                     <?php endif; ?>
-                    <?php if (!empty($invoiceData['adresa'])) : ?>
+                    <?php if (!empty($clientData['adresa'])) : ?>
                         <p class="text-muted m-0 p-0" style="font-size: 12px;">Adresa :</p>
-                        <h6 class="text-dark"><?php echo $invoiceData['adresa']; ?></h6>
+                        <h6 class="text-dark"><?php echo $clientData['adresa']; ?></h6>
                     <?php endif; ?>
-                    <?php if (!empty($invoiceData['emailadd'])) : ?>
+                    <?php if (!empty($clientData['emailadd'])) : ?>
                         <p class="text-muted m-0 p-0" style="font-size: 12px;">Email-i :</p>
-                        <h6 class="text-dark"><?php echo $invoiceData['emailadd']; ?></h6>
+                        <h6 class="text-dark"><?php echo $clientData['emailadd']; ?></h6>
                     <?php endif; ?>
-                    <?php if (!empty($invoiceData['nrtel'])) : ?>
+                    <?php if (!empty($clientData['numriTelefonit'])) : ?>
                         <p class="text-muted m-0 p-0" style="font-size: 12px;">Numri i telefonit :</p>
-                        <h6 class="text-dark"><?php echo $invoiceData['nrtel']; ?></h6>
+                        <h6 class="text-dark"><?php echo $clientData['numriTelefonit']; ?></h6>
                     <?php endif; ?>
                 </div>
             </div>
