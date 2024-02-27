@@ -300,7 +300,10 @@ function getChannelDetails($channelId, $apiKey)
                 <button class="nav-link rounded-5" style="text-transform: none" id="pills-lista_e_kanaleve-tab" data-bs-toggle="pill" data-bs-target="#pills-lista_e_kanaleve" type="button" role="tab" aria-controls="pills-lista_e_kanaleve" aria-selected="false">Lista e kanaleve</button>
               </li>
               <li class="nav-item" role="presentation">
-                <button class="nav-link rounded-5" style="text-transform: none" id="pills-lista_e_faturave_te_kryera-tab" data-bs-toggle="pill" data-bs-target="#pills-lista_e_faturave_te_kryera" type="button" role="tab" aria-controls="pills-lista_e_faturave_te_kryera" aria-selected="false">Pagesat e kryera</button>
+                <button class="nav-link rounded-5" style="text-transform: none" id="pills-lista_e_faturave_te_kryera-tab" data-bs-toggle="pill" data-bs-target="#pills-lista_e_faturave_te_kryera" type="button" role="tab" aria-controls="pills-lista_e_faturave_te_kryera" aria-selected="false">Pagesat e kryera ( Personal )</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link rounded-5" style="text-transform: none" id="pills-lista_e_faturave_te_kryera_biznes-tab" data-bs-toggle="pill" data-bs-target="#pills-lista_e_faturave_te_kryera_biznes" type="button" role="tab" aria-controls="pills-lista_e_faturave_te_kryera_biznes" aria-selected="false">Pagesa e kryera (Biznese)</button>
               </li>
             </ul>
           </div>
@@ -716,6 +719,50 @@ function getChannelDetails($channelId, $apiKey)
                   </table>
                 </div>
               </div>
+              <div class="tab-pane fade" id="pills-lista_e_faturave_te_kryera_biznes" role="tabpanel" aria-labelledby="pills-lista_e_faturave_te_kryera_biznes-tab">
+                <div class="row">
+                  <div class="col">
+                    <label for="max" class="form-label" style="font-size: 14px;">Prej:</label>
+                    <p class="text-muted" style="font-size: 10px;">Zgjidhni një diapazon fillues të
+                      dates për të filtruar rezultatet</p>
+                    <div class="input-group rounded-5">
+                      <span class="input-group-text border-0" style="background-color: white;cursor: pointer;"><i class="fi fi-rr-calendar"></i></span><input type="date" id="startDateBiznes" name="startDateBiznes" class="form-control rounded-5" placeholder="Zgjidhni datën e fillimit" style="cursor: pointer;" readonly>
+                    </div>
+                  </div>
+                  <div class="col">
+                    <label for="max" class="form-label" style="font-size: 14px;">Deri:</label>
+                    <p class="text-muted" style="font-size: 10px;">Zgjidhni një diapazon mbarues të
+                      dates për të filtruar rezultatet.</p>
+                    <div class="input-group rounded-5">
+                      <span class="input-group-text border-0" style="background-color: white;cursor: pointer;"><i class="fi fi-rr-calendar"></i></span><input type="text" id="endDateBiznes" name="endDateBiznes" class="form-control rounded-5" placeholder="Zgjidhni datën e mbarimit" style="cursor: pointer;" readonly>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-2 my-4">
+                  <button id="clearFiltersBtnBiznes" class="input-custom-css px-3 py-2">
+                    <i class="fi fi-rr-clear-alt"></i>
+                    Pastro filtrat
+                  </button>
+                </div>
+                <hr>
+                <div class="table-responsive">
+                  <table id="paymentsTableBiznes" class="table table-bordered table-hover w-100">
+                    <thead class="table-light">
+                      <tr>
+                        <th style="white-space: normal;font-size: 12px;">Emri i klientit</th>
+                        <th style="white-space: normal;font-size: 12px;">ID e faturës</th>
+                        <th style="white-space: normal;font-size: 12px;">Vlera</th>
+                        <th style="white-space: normal;font-size: 12px;">Data</th>
+                        <th style="white-space: normal;font-size: 12px;">Banka</th>
+                        <th style="white-space: normal;font-size: 12px;">Lloji</th>
+                        <th style="white-space: normal;font-size: 12px;">Përshkrimi</th>
+                        <th style="white-space: normal;font-size: 12px;">Shuma e përgjithshme pas %</th>
+                        <th style="white-space: normal;font-size: 12px;">Veprim</th>
+                      </tr>
+                    </thead>
+                  </table>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -962,22 +1009,25 @@ function getChannelDetails($channelId, $apiKey)
         {
           data: 'actions',
           render: function(data, type, row) {
-            return '<div> ' +
-              '<a href="#" style="text-decoration:none;" class="input-custom-css px-3 py-2 mx-1 open-payment-modal" ' +
+            return '<div>' +
+              '<a href="#" style="text-decoration:none;" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark open-payment-modal" ' +
               'data-id="' + row.id + '" ' +
               'data-invoice-number="' + row.invoice_number + '" ' +
               'data-customer-id="' + row.customer_id + '" ' +
               'data-item="' + row.item + '" ' +
               'data-total-amount="' + row.total_amount_after_percentage + '" ' +
               'data-paid-amount="' + row.paid_amount + '" ' +
-              'data-remaining-amount="' + (row.total_amount_after_percentage - row.paid_amount) + '"><i class="fi fi-rr-euro"></i> Paguaj</a>  ' +
-              '<a target="_blank" style="text-decoration:none;" href="complete_invoice.php?id=' + row.id + '" class="input-custom-css px-3 py-2 mx-1"><i class="fi fi-rr-edit"></i> Edito</a></div>' +
-              '<a target="_blank" style="text-decoration:none;" href="print_invoice.php?id=' + row.invoice_number + '" class="input-custom-css px-3 py-2 mx-1"><i class="fi fi-rr-print"></i> Printo v1.0</a></div>'
+              'data-remaining-amount="' + (row.total_amount_after_percentage - row.paid_amount) + '">' +
+              '<i class="fi fi-rr-euro"></i> Paguaj</a>  ' +
+              '<a target="_blank" style="text-decoration:none;" href="complete_invoice.php?id=' + row.id + '" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark">' +
+              '<i class="fi fi-rr-edit"></i> Edito</a>' +
+              '<a target="_blank" style="text-decoration:none;" href="print_invoice.php?id=' + row.invoice_number + '" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark">' +
+              '<i class="fi fi-rr-print"></i> Printo v1.0</a></div>';
           }
         }
       ],
     });
-    var table = $('#invoiceListBiznes').DataTable({
+    var tableSecond = $('#invoiceListBiznes').DataTable({
       processing: true,
       serverSide: true,
       "searching": {
@@ -1173,17 +1223,20 @@ function getChannelDetails($channelId, $apiKey)
         {
           data: 'actions',
           render: function(data, type, row) {
-            return '<div> ' +
-              '<a href="#" style="text-decoration:none;" class="input-custom-css px-3 py-2 mx-1 open-payment-modal" ' +
+            return '<div>' +
+              '<a href="#" style="text-decoration:none;" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark open-payment-modal" ' +
               'data-id="' + row.id + '" ' +
               'data-invoice-number="' + row.invoice_number + '" ' +
               'data-customer-id="' + row.customer_id + '" ' +
               'data-item="' + row.item + '" ' +
               'data-total-amount="' + row.total_amount_after_percentage + '" ' +
               'data-paid-amount="' + row.paid_amount + '" ' +
-              'data-remaining-amount="' + (row.total_amount_after_percentage - row.paid_amount) + '"><i class="fi fi-rr-euro"></i> Paguaj</a>  ' +
-              '<a target="_blank" style="text-decoration:none;" href="complete_invoice.php?id=' + row.id + '" class="input-custom-css px-3 py-2 mx-1"><i class="fi fi-rr-edit"></i> Edito</a></div>' +
-              '<a target="_blank" style="text-decoration:none;" href="print_invoice.php?id=' + row.invoice_number + '" class="input-custom-css px-3 py-2 mx-1"><i class="fi fi-rr-print"></i> Printo v1.0</a></div>'
+              'data-remaining-amount="' + (row.total_amount_after_percentage - row.paid_amount) + '">' +
+              '<i class="fi fi-rr-euro"></i> Paguaj</a>  ' +
+              '<a target="_blank" style="text-decoration:none;" href="complete_invoice.php?id=' + row.id + '" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark">' +
+              '<i class="fi fi-rr-edit"></i> Edito</a>' +
+              '<a target="_blank" style="text-decoration:none;" href="print_invoice.php?id=' + row.invoice_number + '" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark">' +
+              '<i class="fi fi-rr-print"></i> Printo v1.0</a></div>';
           }
         }
       ],
@@ -1259,9 +1312,13 @@ function getChannelDetails($channelId, $apiKey)
                 '</div>',
               width: '500px'
             });
-            currentPage = table.page.info().page;
+            var currentPage = table.page.info().page;
+            var currentPageOfSecondTable = tableSecond.page.info().page;
             table.ajax.reload(function() {
               table.page(currentPage).draw(false);
+            });
+            tableSecond.ajax.reload(function() {
+              tableSecond.page(currentPageOfSecondTable).draw(false);
             });
             completePayments.ajax.reload();
           } else {
@@ -1420,367 +1477,14 @@ function getChannelDetails($channelId, $apiKey)
     });
   });
 </script>
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    flatpickr('.datepicker', {
-      dateFormat: 'Y-m-d',
-      allowInput: true,
-      "locale": "sq"
-    });
-  });
-  document.getElementById('customer_id').addEventListener('change', function() {
-    var selectedOption = this.options[this.selectedIndex];
-    var percentage = selectedOption.getAttribute('data-percentage');
-    document.getElementById('percentage').value = percentage;
-    var totalAmount = parseFloat(document.getElementById('total_amount').value);
-    var totalAmountAfterPercentage = totalAmount - (totalAmount * (percentage / 100));
-    document.getElementById('total_amount_after_percentage').value = totalAmountAfterPercentage.toFixed(2);
-  });
-  document.getElementById('total_amount').addEventListener('input', function() {
-    var totalAmount = parseFloat(this.value);
-    var percentage = parseFloat(document.getElementById('percentage').value);
-    var totalAmountAfterPercentage = totalAmount - (totalAmount * (percentage / 100));
-    document.getElementById('total_amount_after_percentage').value = totalAmountAfterPercentage.toFixed(2);
-  });
-</script>
-<script>
-  $(document).ready(function() {
-    $('.krijo-fature-btn').on('click', function() {
-      var channelId = $(this).data('channel-id');
-      var youtubeAnalyticsValue = $(this).data('revenue');
-      $('#channel_display').text(channelId);
-      $('#customer_id option').each(function() {
-        var option = $(this);
-        var optionChannelId = option.data('youtube');
-        if (optionChannelId === channelId) {
-          option.show();
-        } else {
-          option.hide();
-        }
-      });
-      $('#total_amount').val(youtubeAnalyticsValue);
-      var visibleOptions = $('#customer_id option:visible');
-      if (visibleOptions.length > 0) {
-        visibleOptions.first().prop('selected', true);
-      }
-    });
-  });
-</script>.
-<script>
-  const tabs = document.querySelectorAll('.nav-link[data-bs-toggle="pill"]');
-  const tabContent = document.querySelectorAll('.tab-pane');
-  const activeTab = localStorage.getItem('activeTab');
-  if (activeTab) {
-    tabs.forEach(tab => {
-      if (tab.getAttribute('id') === activeTab) {
-        tab.classList.add('active');
-        tab.setAttribute('aria-selected', 'true');
-      } else {
-        tab.classList.remove('active');
-        tab.setAttribute('aria-selected', 'false');
-      }
-    });
-    tabContent.forEach(content => {
-      if (content.getAttribute('id') === activeTab.replace('-tab', '')) {
-        content.classList.add('show', 'active');
-      } else {
-        content.classList.remove('show', 'active');
-      }
-    });
-  }
-  tabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-      const tabId = tab.getAttribute('id');
-      localStorage.setItem('activeTab', tabId);
-    });
-  });
-</script>
-<script>
-  $(document).ready(function() {
-    var myModal = new bootstrap.Modal(document.getElementById('newInvoice'));
-    myModal.addEventListener('show.bs.modal', function(event) {
-      var button = event.relatedTarget;
-      var channelId = button.getAttribute('data-channel-id');
-      var youtubeAnalyticsValue = "Replace with actual value";
-      $('#channel_display').text(channelId);
-      $('#customer_id option:eq(2)').prop('selected', true);
-      $('#customer_id option').each(function() {
-        var option = $(this);
-        var optionChannelId = option.data('youtube');
-        if (optionChannelId === channelId) {
-          option.prop('selected', true);
-        }
-      });
-      $('#total_amount').val(youtubeAnalyticsValue);
-    });
-    document.querySelector('.krijo-fature-btn').addEventListener('click', function() {
-      myModal.show();
-    });
-  });
-</script>
-<script>
-  $(document).ready(function() {
-    flatpickr('#startDate', {
-      dateFormat: 'Y-m-d',
-      allowInput: true,
-      "locale": "sq"
-    }).set('maxDate', new Date() - 3 * 24 * 60 * 60 * 1000);
-    flatpickr('#endDate', {
-      dateFormat: 'Y-m-d',
-      allowInput: true,
-      "locale": "sq"
-    }).set('maxDate', new Date());
-    var columns = [{
-        "data": "customer_name"
-      },
-      {
-        "data": "invoice_id"
-      },
-      {
-        "data": "total_payment_amount"
-      },
-      {
-        "data": "payment_date"
-      },
-      {
-        "data": "bank_info"
-      },
-      {
-        "data": "type_of_pay"
-      },
-      {
-        "data": "description"
-      },
-      {
-        "data": "total_invoice_amount"
-      },
-      {
-        "data": "action"
-      }
-    ];
-    var paymentsTable = $('#paymentsTable').DataTable({
-      "processing": true,
-      "serverSide": true,
-      responsive: true,
-      order: [
-        [3, "desc"]
-      ],
-      "dom": "<'row'<'col-md-3'l><'col-md-6'B><'col-md-3'f>>" + "<'row'<'col-md-12'tr>>" + "<'row'<'col-md-6'><'col-md-6'p>>",
-      buttons: [{
-          extend: "pdfHtml5",
-          text: '<i class="fi fi-rr-file-pdf fa-lg"></i>&nbsp;&nbsp; PDF',
-          titleAttr: "Eksporto tabelen ne formatin PDF",
-          className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
-          filename: "faturat_e_kryera_" + getCurrentDate() + ""
-        },
-        {
-          extend: "copyHtml5",
-          text: '<i class="fi fi-rr-copy fa-lg"></i>&nbsp;&nbsp; Kopjo',
-          titleAttr: "Kopjo tabelen ne formatin Clipboard",
-          className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
-          filename: "faturat_e_kryera_" + getCurrentDate() + ""
-        },
-        {
-          extend: "excelHtml5",
-          text: '<i class="fi fi-rr-file-excel fa-lg"></i>&nbsp;&nbsp; Excel',
-          titleAttr: "Eksporto tabelen ne formatin Excel",
-          className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
-          exportOptions: {
-            modifier: {
-              search: "applied",
-              order: "applied",
-              page: "all",
-            },
-          },
-          filename: "faturat_e_kryera_" + getCurrentDate() + ""
-        },
-        {
-          extend: "print",
-          text: '<i class="fi fi-rr-print fa-lg"></i>&nbsp;&nbsp; Printo',
-          titleAttr: "Printo tabel&euml;n",
-          className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
-          filename: "faturat_e_kryera_" + getCurrentDate() + ""
-        },
-      ],
-      "lengthMenu": [
-        [10, 25, 50, -1],
-        [10, 25, 50, "All"]
-      ],
-      "search": true,
-      "ajax": {
-        "url": "complete_invoices.php",
-        "type": "POST",
-        "data": function(d) {
-          d.startDate = $('#startDate').val();
-          d.endDate = $('#endDate').val();
-        }
-      },
-      "columns": columns,
-      "columnDefs": [{
-        "targets": [0, 1, 2, 3, 4, 5, 6, 7, 8],
-        "render": function(data, type, row) {
-          return type === 'display' && data !== null ? '<div style="white-space: normal;">' + data + '</div>' : data;
-        }
-      }],
-      "stripeClasses": ["stripe-color"],
-    });
-
-    function filterByDateRange() {
-      paymentsTable.ajax.reload();
-    }
-    $('#clearFiltersBtn').click(function() {
-      $('#startDate').val('');
-      $('#endDate').val('');
-      paymentsTable.search('').draw();
-    });
-    $('#startDate, #endDate').change(filterByDateRange);
-    $('#paymentsTable').on('click', '.delete-btn', function() {
-      var invoiceId = $(this).data('invoice-id');
-      Swal.fire({
-        title: 'Jeni të sigurt?',
-        text: 'Nuk do të jeni në gjendje të rikuperoni këtë regjistrim!',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Po, fshij!',
-        cancelButtonText: 'Anulo',
-        reverseButtons: true
-      }).then((result) => {
-        if (result.isConfirmed) {
-          $.ajax({
-            url: 'delete_invoice_completed.php',
-            method: 'POST',
-            data: {
-              invoice_id: invoiceId
-            },
-            success: function(response) {
-              if (response.success) {
-                Swal.fire(
-                  'Fshirë!',
-                  'Regjistrimi është fshirë.',
-                  'success'
-                );
-                paymentsTable.ajax.reload();
-              } else {
-                var errorMessage = response.error || 'Gabim i panjohur';
-                Swal.fire(
-                  'Gabim!',
-                  'Gabim në fshirjen e regjistrimit: ' + errorMessage,
-                  'error'
-                );
-              }
-            },
-            error: function(xhr, status, error) {
-              Swal.fire(
-                'Gabim!',
-                'Gabim në fshirjen e regjistrimit: ' + error,
-                'error'
-              );
-            }
-          });
-        }
-      });
-    });
-  });
-  try {
-    const table = document.getElementById("dataTable");
-    const tbody = table.getElementsByTagName("tbody")[0];
-    const rows = tbody.getElementsByTagName("tr");
-    let sqlCommands = "";
-
-    function updateSqlCommands() {
-      sqlCommands = "";
-      for (let i = 0; i < rows.length; i++) {
-        const row = rows[i];
-        const checkbox = row.querySelector("input[type='checkbox']");
-        if (!checkbox.checked) {
-          const columns = row.getElementsByTagName("td");
-          if (columns.length >= 6) {
-            const column1Value = columns[1].textContent.trim();
-            const column2Value = columns[2].textContent.trim();
-            const column3Value = columns[3].textContent.trim();
-            const column4Value = columns[4].textContent.trim();
-            const column5Value = columns[5].textContent.trim();
-            const column5ValueWithoutCommas = column5Value.replace(/,/g, '');
-            const column6Value = columns[6].textContent.trim();
-            const sqlInsert = `INSERT INTO invoices (invoice_number, customer_id, item, total_amount, total_amount_after_percentage, created_date) VALUES ('${column1Value}', '${column2Value}', '${column3Value}', '${column4Value}', '${column5ValueWithoutCommas}', '${column6Value}');`;
-            sqlCommands += sqlInsert + "\n";
-          }
-        }
-      }
-      const sqlCommandsElement = document.getElementById("sqlCommands");
-      sqlCommandsElement.textContent = sqlCommands;
-    }
-    const checkboxes = table.querySelectorAll("input[type='checkbox']");
-    checkboxes.forEach((checkbox) => {
-      checkbox.addEventListener("change", updateSqlCommands);
-    });
-    updateSqlCommands();
-  } catch (error) {
-    const sqlCommandsElement = document.getElementById("sqlCommands");
-    sqlCommandsElement.textContent = "An error occurred while processing the SQL commands: " + error.message;
-  }
-  document.getElementById('submitSql').addEventListener('click', function() {
-    const sqlCommands = document.getElementById('sqlCommands').textContent;
-    const xhr = new XMLHttpRequest();
-    xhr.open('POST', 'send_sql_commands.php', true);
-    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-    xhr.send('sqlCommands=' + encodeURIComponent(sqlCommands));
-    xhr.onreadystatechange = function() {
-      if (this.readyState == 4) {
-        if (this.status == 200) {
-          Swal.fire({
-            icon: 'success',
-            title: 'Success',
-            text: 'Data sent successfully!',
-            confirmButtonText: 'OK',
-          });
-          $('#invoiceList').DataTable().ajax.reload();
-        } else {
-          Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'An error occurred while sending data.',
-            confirmButtonText: 'OK',
-          });
-          console.error('Error Status:', xhr.status);
-          console.error('Error Response:', xhr.responseText);
-        }
-      }
-    };
-  });
-</script>
-<script>
-  $(document).ready(function() {
-    $('.delete-button').click(function(e) {
-      e.preventDefault();
-      const channelID = $(this).data('channelid');
-      Swal.fire({
-        title: 'Konfirmo Fshirjen',
-        text: 'A jeni të sigurt se dëshironi të fshini këtë kanal?',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Po, fshijeni!',
-        cancelButtonText: 'Anulo'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          $.ajax({
-            url: `delete_channel.php?channel_id=${channelID}`,
-            type: 'POST',
-            success: function(response) {
-              Swal.fire('Sukses', 'Kanali është fshirë me sukses!', 'success');
-              setTimeout(function() {
-                location.reload();
-              }, 4000);
-            },
-            error: function() {
-              Swal.fire('Gabim', 'Ndodhi një gabim gjatë fshirjes së kanalit.', 'error');
-            }
-          });
-        }
-      });
-    });
-  });
-</script>
+<script src="percentage_calculations.js"></script>
+<script src="create_manual_invoice.js"></script>
+<script src="completed_invoice_personal.js"> </script>
+<script src="completed_invoice_biznes.js"> </script>
+<script src="channels.js"></script>
+<script src="invoice_trash.js"></script>
+<script src="delete_buton_invoice.js"></script>
+<script src="states.js"></script>
 <?php include 'partials/footer.php' ?>
 </body>
 

@@ -31,7 +31,7 @@ $sql = "SELECT
         FROM payments
         INNER JOIN invoices ON payments.invoice_id = invoices.id
         INNER JOIN klientet ON invoices.customer_id = klientet.id
-        WHERE klientet.lloji_klientit = 'Personal' OR klientet.lloji_klientit IS NULL"; // Adding condition here
+        WHERE klientet.lloji_klientit = 'Biznes'"; // Adding condition here
 
 // Apply search
 $searchValue = $_POST['search']['value'];
@@ -49,8 +49,8 @@ if (!empty($searchValue)) {
 }
 
 // Apply date range filter
-$startDate = $_POST['startDate'];
-$endDate = $_POST['endDate'];
+$startDate = $_POST['startDateBiznes'];
+$endDate = $_POST['endDateBiznes'];
 if (!empty($startDate) && !empty($endDate)) {
     $sql .= " AND payments.payment_date BETWEEN '$startDate' AND '$endDate'";
 }
