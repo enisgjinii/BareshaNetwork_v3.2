@@ -216,7 +216,7 @@
                                         if ($page == 'office_requirements.php') {
                                             return 'Kerkesat';
                                         }
-                                        if ($page == 'quick_platform_invoice.php') {
+                                        if ($page == 'platform_invoices.php') {
                                             return 'Raportet e platformave';
                                         }
                                         if ($page == 'currency.php') {
@@ -278,7 +278,7 @@
                                         'office_investments.php',
                                         'office_damages.php',
                                         'office_requirements.php',
-                                        'quick_platform_invoice.php',
+                                        'platform_invoices.php',
                                         'currency.php',
                                         'rating_list.php',
                                         'invoice_list_2.php',
@@ -455,6 +455,14 @@
     </div>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <?php include 'partials/footer.php'; ?>
+    <script>
+        new Selectr('#user_id', {
+            searchable: true
+        });
+        new Selectr('#role_id', {
+            searchable: true
+        })
+    </script>
     <script>
         $(document).ready(function() {
             // Show/hide access pages

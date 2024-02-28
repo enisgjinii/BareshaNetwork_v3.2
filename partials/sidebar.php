@@ -185,7 +185,7 @@
           "filtroCSV.php" => "Filtro CSV",
           "listaEFaturaveTePlatformave.php" => "Lista e faturave",
           "pagesatEKryera.php" => "Pagesat e perfunduara",
-          "quick_platform_invoice.php" => "Raporte te platformave",
+          "platform_invoices.php" => "Raporte te platformave",
           "currency.php" => "Valutimi",
         ],
       ],

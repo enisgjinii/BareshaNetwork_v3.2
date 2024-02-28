@@ -13,6 +13,11 @@ if (isset($_COOKIE['refreshToken'])) {
     $client->refreshToken($_COOKIE['refreshToken']);
     // Get the new access token
     $accessToken = $client->getAccessToken();
+    // Check if the refreshed token is null
+    if ($accessToken == null) {
+      // If the refreshed token is null, redirect to login page
+      handleAuthenticationError();
+    }
     // Log messages to the console using JavaScript
     echo '<script>';
     echo 'console.log("Refreshed Token: ' . json_encode($accessToken) . '");';
@@ -20,6 +25,9 @@ if (isset($_COOKIE['refreshToken'])) {
     // Store the new access token in the session
     $_SESSION['token'] = $accessToken;
   } catch (Exception $e) {
+    // If an exception occurs while refreshing the token,
+    // it likely means the user removed the app's access.
+    // You can handle this situation by redirecting the user to the login page.
     handleAuthenticationError();
   }
 }
@@ -38,6 +46,9 @@ try {
   $user_info = $google_oauth->userinfo->get();
   // Proceed with the rest of your code
 } catch (Google_Service_Exception $e) {
+  // If an exception occurs while making the API request,
+  // it could be due to invalid or expired access token.
+  // You can handle this situation by redirecting the user to the login page.
   handleAuthenticationError();
 }
 $allowedGmailEmails = array('afrimkolgeci@gmail.com', 'besmirakolgeci1@gmail.com', 'egjini17@gmail.com', 'bareshafinance@gmail.com');
@@ -63,6 +74,7 @@ function handleAuthenticationError()
   echo '<script>';
   echo 'console.log("Authentication Error");';
   echo '</script>';
+  // Redirect the user to the login page
   header('Location: kycu_1.php');
   exit;
 }

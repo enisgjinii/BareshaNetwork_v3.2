@@ -45,7 +45,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $stmt->execute();
     $stmt->close();
 
-    header("Location: quick_platform_invoice.php");
+    header("Location: platform_invoices.php");
     exit();
 }
 

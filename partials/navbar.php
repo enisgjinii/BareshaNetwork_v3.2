@@ -29,11 +29,28 @@
           <img src="<?php echo $user_info['picture']; ?>" alt="profile" width="25px" style="border-radius:50%;margin-right:15px" />
           <?php echo $user_info['givenName'] . ' ' . $user_info['familyName']; ?>
         </button>
-
         <ul class="dropdown-menu p-2">
           <li class="rounded-5 mt-1 text-center py-1" style="border:1px solid lightgrey;font-size:11px;"> <?php echo $user_info['email'] ?>
-
           </li>
+          <li class="rounded-5 mt-1 text-center py-1" style="border:1px solid lightgrey;font-size:11px;">
+            <!-- Display gender -->
+            <?php
+            // Retrieve gender from cookie
+            $gender = isset($_COOKIE['user_gender']) ? $_COOKIE['user_gender'] : '';
+            // Translate and display gender
+            if (!empty($gender)) {
+              switch ($gender) {
+                case 'male':
+                  echo "Gjinia : Mashkull";
+                  break;
+                case 'female':
+                  echo "Gjinia : Femer";
+                  break;
+                default:
+                  echo "Gjinia : $gender"; // For other or unspecified values
+              }
+            }
+            ?>
           <li>
             <a class="dropdown-item rounded-5 mt-1" style="border:1px solid lightgrey;" href="logout.php">
               <i class="fi fi-rr-exit me-2"></i>
@@ -42,9 +59,6 @@
           </li>
         </ul>
       </li>
-
-
-
     </ul>
     <button class="navbar-toggler navbar-toggler-right d-lg-none align-self-center" type="button" data-mdb-toggle="offcanvas">
       <span class="mdi mdi-menu"></span>

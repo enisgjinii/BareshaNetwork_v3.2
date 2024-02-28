@@ -1,5 +1,4 @@
 <head>
-
     <meta name="google-site-verification" content="65Q9V_d_6p9mOYD05AFLNYLveEnM01AOs5cW2-qKrB0" />
 </head>
 <?php
@@ -8,77 +7,70 @@ $login_url = $client->createAuthUrl();
 date_default_timezone_set('Europe/Tirane');
 
 if (isset($_GET['code'])) {
-    // Fetch the access token with the authorization code
     $token = $client->fetchAccessTokenWithAuthCode($_GET['code']);
-
     if (isset($token['error'])) {
         header('Location: kycu_1.php');
         exit;
     }
 
-    // Set the access token and refresh token in cookies
     $accessToken = $token['access_token'];
     $refreshToken = isset($token['refresh_token']) ? $token['refresh_token'] : null;
+    setcookie('accessToken', $accessToken, time() + 3600, '/', '', true, true);
+    setcookie('refreshToken', $refreshToken, time() + 86400 * 30, '/', '', true, true);
 
-    // Set cookies for access token and refresh token with an expiration time set to a past timestamp (e.g., 1 minute ago)
-    setcookie('accessToken', $accessToken, time() - 60, '/', '', true, true); // Access token expired 1 minute ago
-    setcookie('refreshToken', $refreshToken, time() + 86400, '/', '', true, true); // Refresh token expires in 24 hours
-
-    // Fetch user data from Google
     $client->setAccessToken($token);
-    $google_oauth = new Google\Service\Oauth2($client);
-    $user_info = $google_oauth->userinfo->get();
+    $people_service = new Google\Service\PeopleService($client);
+    $user_info = $people_service->people->get('people/me', ['personFields' => 'names,emailAddresses,genders,photos']);
 
-    $email = trim($user_info['email']);
-    $google_id = trim($user_info['id']);
-    $f_name = trim($user_info['given_name']);
-    $l_name = trim($user_info['family_name']);
-    $gender = trim($user_info['gender']);
-    $local = trim($user_info['local']);
-    $picture = trim($user_info['picture']);
+    $email = $user_info->getEmailAddresses()[0]->getValue();
+    $google_id = $user_info->getNames()[0]->getMetadata()->getSource()->getId();
+    $f_name = $user_info->getNames()[0]->getGivenName();
+    $l_name = $user_info->getNames()[0]->getFamilyName();
+    $gender = !empty($user_info->getGenders()) ? $user_info->getGenders()[0]->getValue() : "";
+    $picture = $user_info->getPhotos()[0]->getUrl();
 
     include('conn-d.php');
-
-    // Check whether the email already exists in the database
     $check_email = $conn->prepare("SELECT `email` FROM `googleauth` WHERE `email`=?");
     $check_email->bind_param("s", $email);
     $check_email->execute();
     $check_email->store_result();
-    setcookie('user_id', $google_id, time() + 3600, '/', '', true, true);
-    setcookie('user_email', $email, time() + 3600, '/', '', true, true);
-    setcookie('user_first_name', $f_name, time() + 3600, '/', '', true, true);
-    setcookie('user_last_name', $l_name, time() + 3600, '/', '', true, true);
+
+    // Logging logic starts here
+    $logDir = __DIR__ . '/logs';
+    if (!is_dir($logDir)) {
+        mkdir($logDir, 0777, true);
+    }
+
+    $userLog = [
+        'timestamp' => date('Y-m-d H:i:s'),
+        'email' => $email,
+        'google_id' => $google_id,
+        'first_name' => $f_name,
+        'last_name' => $l_name,
+        'gender' => $gender,
+        // Additional fields can be added here
+    ];
+    $jsonLog = json_encode($userLog);
+
+    $filename = $logDir . '/user_log_' . date('Y_m_d_His') . '_' . $email . '.json';
+    file_put_contents($filename, $jsonLog . PHP_EOL, FILE_APPEND);
+    // Logging logic ends here
 
     if ($check_email->num_rows === 0) {
-        // Insert the new user into the database
         $query_template = "INSERT INTO `googleauth` (`oauth_uid`, `firstName`, `last_name`,`email`,`profile_pic`,`gender`,`local`) VALUES (?,?,?,?,?,?,?)";
         $insert_stmt = $conn->prepare($query_template);
         $insert_stmt->bind_param("sssssss", $google_id, $f_name, $l_name, $email, $picture, $gender, $local);
-
-        if ($insert_stmt->execute()) {
-            // Store user data in session variables
-            $_SESSION['user_id'] = $google_id;
-            $_SESSION['user_email'] = $email;
-            $_SESSION['user_first_name'] = $f_name;
-            $_SESSION['user_last_name'] = $l_name;
-            header('Location: index.php');
-            exit;
-        } else {
-            echo "Failed to insert user: " . $conn->error;
-            exit;
-        }
+        $insert_stmt->execute();
     }
 
     header('Location: index.php');
     exit;
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="stylesheet" href="vendors/mdi/css/materialdesignicons.min.css">
@@ -91,9 +83,7 @@ if (isset($_GET['code'])) {
     <title>Baresha Panel - Google Login</title>
     <script src="https://kit.fontawesome.com/a1927a49ea.js" crossorigin="anonymous"></script>
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-
     <!-- <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' http://paneli.bareshaoffice.com;"> -->
-
 </head>
 
 <body>
@@ -108,26 +98,20 @@ if (isset($_GET['code'])) {
                             </div>
                             <p class="font-weight-light">P&euml;rsh&euml;ndetje!</p>
                             <p class="text-muted">Identifikohu me llogarinë tënde të Google.</p>
-
                             <!-- Display the reCAPTCHA widget -->
                             <div class="g-recaptcha" data-sitekey="6LdT2w0pAAAAAJu92-zDVcDBinqaqT08sZhDbMfx" data-callback="enableLoginButton"></div>
-
                             <!-- Replace the button with an anchor tag -->
                             <a id="loginButton" href="<?= $login_url ?>" style="text-transform: none; display: none;" class="btn btn-light border shadow btn-sm">
                                 <img src="https://tinyurl.com/46bvrw4s" alt="Google Logo" width="20" class="me-2">
                                 Identifikohu me Google
                             </a>
-
-
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
     <!-- Your existing script tags go here -->
-
     <script>
         // Enable the login button after reCAPTCHA is successfully completed
         function enableLoginButton() {
@@ -135,7 +119,6 @@ if (isset($_GET['code'])) {
             document.getElementById('loginButton').style.display = 'inline-block';
         }
     </script>
-
     <script src="vendors/base/vendor.bundle.base.js" defer></script>
     <script src="js/off-canvas.js"></script>
     <script src="js/hoverable-collapse.js"></script>

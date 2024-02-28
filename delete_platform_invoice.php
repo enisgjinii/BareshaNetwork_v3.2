@@ -9,7 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     mysqli_query($conn, $delete_sql);
 
     // Redirect back to the original page after deletion
-    header("Location: quick_platform_invoice.php");
+    header("Location: platform_invoices.php");
     exit();
 }
 ?>

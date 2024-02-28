@@ -153,7 +153,7 @@ function format_page_name($page)
     if ($page == 'office_requirements.php') {
         return 'Kerkesat';
     }
-    if ($page == 'quick_platform_invoice.php') {
+    if ($page == 'platform_invoices.php') {
         return 'Fature e shpejte e platformave';
     }
     if ($page == 'currency.php') {
@@ -221,7 +221,7 @@ $pages = array(
     'office_investments.php' => format_page_name('office_investments.php'),
     'office_damages.php' => format_page_name('office_damages.php'),
     'office_requirements.php' => format_page_name('office_requirements.php'),
-    'quick_platform_invoice.php' => format_page_name('quick_platform_invoice.php'),
+    'platform_invoices.php' => format_page_name('platform_invoices.php'),
     'currency.php' => format_page_name('currency.php'),
     'rating_list.php' => format_page_name('rating_list.php'),
     'invoice_list_2.php' => format_page_name('invoice_list_2.php'),
