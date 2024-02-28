@@ -29,6 +29,9 @@ if (isset($_GET['code'])) {
     $gender = !empty($user_info->getGenders()) ? $user_info->getGenders()[0]->getValue() : "";
     $picture = $user_info->getPhotos()[0]->getUrl();
 
+    // Put gender in cookie
+    setcookie('user_gender', $gender, time() + 86400 * 30, '/', '', true, true);
+
     include('conn-d.php');
     $check_email = $conn->prepare("SELECT `email` FROM `googleauth` WHERE `email`=?");
     $check_email->bind_param("s", $email);
