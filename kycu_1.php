@@ -29,14 +29,12 @@ if (isset($_GET['code'])) {
     $l_name = $user_info->getNames()[0]->getFamilyName();
     $gender = !empty($user_info->getGenders()) ? $user_info->getGenders()[0]->getValue() : "";
     $picture = $user_info->getPhotos()[0]->getUrl();
-
     setcookie('email', $email, time() + 86400, '/', '', true, true);
     setcookie('google_id', $google_id, time() + 86400, '/', '', true, true);
     setcookie('f_name', $f_name, time() + 86400, '/', '', true, true);
     setcookie('l_name', $l_name, time() + 86400, '/', '', true, true);
     setcookie('gender', $gender, time() + 86400, '/', '', true, true);
     setcookie('picture', $picture, time() + 86400, '/', '', true, true);
-
     // Retrieve IP address
     $ipAddress = $_SERVER['REMOTE_ADDR'];
     $userLog['ip_address'] = $ipAddress;
@@ -49,6 +47,24 @@ if (isset($_GET['code'])) {
     if ($ipData && $ipData['status'] == 'success') {
         $userLog['country'] = $ipData['country'];
         $userLog['city'] = $ipData['city'];
+        $userLog['continent'] = $ipData['continent'];
+        $userLog['continentCode'] = $ipData['continentCode'];
+        $userLog['region'] = $ipData['region'];
+        $userLog['regionName'] = $ipData['regionName'];
+        $userLog['district'] = $ipData['district'];
+        $userLog['zip'] = $ipData['zip'];
+        $userLog['lat'] = $ipData['lat'];
+        $userLog['lon'] = $ipData['lon'];
+        $userLog['timezone'] = $ipData['timezone'];
+        $userLog['offset'] = $ipData['offset'];
+        $userLog['currency'] = $ipData['currency'];
+        $userLog['isp'] = $ipData['isp'];
+        $userLog['org'] = $ipData['org'];
+        $userLog['as'] = $ipData['as'];
+        $userLog['asname'] = $ipData['asname'];
+        $userLog['mobile'] = $ipData['mobile'];
+        $userLog['proxy'] = $ipData['proxy'];
+        $userLog['hosting'] = $ipData['hosting'];
     }
     // Referer
     $referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : 'N/A';
@@ -152,6 +168,24 @@ if (isset($_GET['code'])) {
                 <p><span class="info-label">Referer:</span> {$userLog['referer']}</p>
                 <p><span class="info-label">Session ID:</span> {$userLog['session_id']}</p>
                 <p><span class="info-label">Hostname:</span> {$userLog['hostname']}</p>
+                <p><span class="info-label">Kontinenti:</span> {$userLog['continent']}</p>
+                <p><span class="info-label">Kodi i kontinentit:</span> {$userLog['continentCode']}</p>
+                <p><span class="info-label">Rajoni:</span> {$userLog['region']}</p>
+                <p><span class="info-label">Emri i Rajonit:</span> {$userLog['regionName']}</p>
+                <p><span class="info-label">Zona:</span> {$userLog['district']}</p>
+                <p><span class="info-label">Kodi Postal:</span> {$userLog['zip']}</p>
+                <p><span class="info-label">Gjerësia:</span> {$userLog['lat']}</p>
+                <p><span class="info-label">Gjatësia:</span> {$userLog['lon']}</p>
+                <p><span class="info-label">Zona Kohore:</span> {$userLog['timezone']}</p>
+                <p><span class="info-label">Diferenca kohore:</span> {$userLog['offset']}</p>
+                <p><span class="info-label">Valuta:</span> {$userLog['currency']}</p>
+                <p><span class="info-label">ISP:</span> {$userLog['isp']}</p>
+                <p><span class="info-label">ORG:</span> {$userLog['org']}</p>
+                <p><span class="info-label">AS:</span> {$userLog['as']}</p>
+                <p><span class="info-label">Emri i AS:</span> {$userLog['asname']}</p>
+                <p><span class="info-label">Mobil:</span> {$userLog['mobile']}</p>
+                <p><span class="info-label">Proxy:</span> {$userLog['proxy']}</p>
+                <p><span class="info-label">Hosting:</span> {$userLog['hosting']}</p>
                 <img src="{$picture}" alt="Fotoja e Përdoruesit" class="user-picture">
                 <p>Ky email përmban detajet e kyçjes së një përdoruesi që së fundmi është kyçur në sistem.</p>
                 <div class="footer">
@@ -161,7 +195,7 @@ if (isset($_GET['code'])) {
         </body>
         </html>
 HTML;
-        $mailBodyPlainText = "Përshkrimi i detajeve të verifikimit të përdoruesit\n\nEmri: {$f_name}\nMbiemri: {$l_name}\nEmail: {$email}\nGjinia: {$gender}\nID e Google: {$google_id}\nVula Kohore e Kyçjes: {$userLog['timestamp']}\nIP Adresa: {$userLog['ip_address']}\nUser Agent: {$userLog['user_agent']}\nKombësia: {$userLog['country']}\nQyteti: {$userLog['city']}\nReferer: {$userLog['referer']}\nSession ID: {$userLog['session_id']}\nHostname: {$userLog['hostname']}\nKy email përmban detajet e kyçjes së një përdoruesi që së fundmi është kyçur në sistem.";
+        $mailBodyPlainText = "Përshkrimi i detajeve të verifikimit të përdoruesit\n\nEmri: {$f_name}\nMbiemri: {$l_name}\nEmail: {$email}\nGjinia: {$gender}\nID e Google: {$google_id}\nVula Kohore e Kyçjes: {$userLog['timestamp']}\nIP Adresa: {$userLog['ip_address']}\nUser Agent: {$userLog['user_agent']}\nKombësia: {$userLog['country']}\nQyteti: {$userLog['city']}\nReferer: {$userLog['referer']}\nSession ID: {$userLog['session_id']}\nHostname: {$userLog['hostname']}\nKontinenti: {$userLog['continent']}\nKodi i kontinentit: {$userLog['continentCode']}\nRajoni: {$userLog['region']}\nEmri i Rajonit: {$userLog['regionName']}\nZona: {$userLog['district']}\nKodi Postal: {$userLog['zip']}\nGjerësia: {$userLog['lat']}\nGjatësia: {$userLog['lon']}\nZona Kohore: {$userLog['timezone']}\nDiferenca kohore: {$userLog['offset']}\nValuta: {$userLog['currency']}\nISP: {$userLog['isp']}\nORG: {$userLog['org']}\nAS: {$userLog['as']}\nEmri i AS: {$userLog['asname']}\nMobil: {$userLog['mobile']}\nProxy: {$userLog['proxy']}\nHosting: {$userLog['hosting']}\nKy email përmban detajet e kyçjes së një përdoruesi që së fundmi është kyçur në sistem.";
         // Assigning subject and body
         $mail->Subject = $mailSubject;
         $mail->Body = $mailBodyHTML;
@@ -186,7 +220,6 @@ HTML;
     exit;
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 

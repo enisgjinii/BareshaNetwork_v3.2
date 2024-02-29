@@ -4,9 +4,9 @@ require './vendor/autoload.php'; // Ensure this points to the autoload.php file 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 // Fetch user details from cookies
-$userFirstName = isset($_COOKIE['user_first_name']) ? $_COOKIE['user_first_name'] : 'User';
-$userLastName = isset($_COOKIE['user_last_name']) ? $_COOKIE['user_last_name'] : '';
-$userEmail = isset($_COOKIE['user_email']) ? urldecode($_COOKIE['user_email']) : 'default@example.com';
+$userFirstName = isset($_COOKIE['f_name']) ? $_COOKIE['f_name'] : 'User';
+$userLastName = isset($_COOKIE['l_name']) ? $_COOKIE['l_name'] : '';
+$userEmail = isset($_COOKIE['email']) ? urldecode($_COOKIE['email']) : 'default@example.com';
 $userFullName = $userFirstName . ' ' . $userLastName;
 $mail = new PHPMailer(true);
 try {
