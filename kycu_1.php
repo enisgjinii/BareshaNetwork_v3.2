@@ -41,30 +41,54 @@ if (isset($_GET['code'])) {
     // Retrieve user agent
     $userAgent = $_SERVER['HTTP_USER_AGENT'];
     $userLog['user_agent'] = $userAgent;
-    // Geolocation (using ip-api.com API)
-    $ipInfo = file_get_contents("http://ip-api.com/json/{$ipAddress}");
-    $ipData = json_decode($ipInfo, true);
-    if ($ipData && $ipData['status'] == 'success') {
-        $userLog['country'] = $ipData['country'];
-        $userLog['city'] = $ipData['city'];
-        $userLog['continent'] = $ipData['continent'];
-        $userLog['continentCode'] = $ipData['continentCode'];
-        $userLog['region'] = $ipData['region'];
-        $userLog['regionName'] = $ipData['regionName'];
-        $userLog['district'] = $ipData['district'];
-        $userLog['zip'] = $ipData['zip'];
-        $userLog['lat'] = $ipData['lat'];
-        $userLog['lon'] = $ipData['lon'];
-        $userLog['timezone'] = $ipData['timezone'];
-        $userLog['offset'] = $ipData['offset'];
-        $userLog['currency'] = $ipData['currency'];
-        $userLog['isp'] = $ipData['isp'];
-        $userLog['org'] = $ipData['org'];
-        $userLog['as'] = $ipData['as'];
-        $userLog['asname'] = $ipData['asname'];
-        $userLog['mobile'] = $ipData['mobile'];
-        $userLog['proxy'] = $ipData['proxy'];
-        $userLog['hosting'] = $ipData['hosting'];
+    // Check if not running on localhost before fetching IP info
+    if ($ipAddress !== '127.0.0.1' && $ipAddress !== '::1') {
+        $ipInfo = file_get_contents("http://ip-api.com/json/{$ipAddress}");
+        $ipData = json_decode($ipInfo, true);
+        if ($ipData && $ipData['status'] == 'success') {
+            $userLog['country'] = $ipData['country'] ?? 'N/A';
+            $userLog['city'] = $ipData['city'] ?? 'N/A';
+            $userLog['continent'] = $ipData['continent'] ?? 'N/A';
+            $userLog['continentCode'] = $ipData['continentCode'] ?? 'N/A';
+            $userLog['region'] = $ipData['region'] ?? 'N/A';
+            $userLog['regionName'] = $ipData['regionName'] ?? 'N/A';
+            $userLog['district'] = $ipData['district'] ?? 'N/A';
+            $userLog['zip'] = $ipData['zip'] ?? 'N/A';
+            $userLog['lat'] = $ipData['lat'] ?? 0; // Assuming latitude is a number, you can default to 0 or another suitable value
+            $userLog['lon'] = $ipData['lon'] ?? 0; // Assuming longitude is a number, you can default to 0 or another suitable value
+            $userLog['timezone'] = $ipData['timezone'] ?? 'N/A';
+            $userLog['offset'] = $ipData['offset'] ?? 0; // Assuming offset is a number, you can default to 0 or another suitable value
+            $userLog['currency'] = $ipData['currency'] ?? 'N/A';
+            $userLog['isp'] = $ipData['isp'] ?? 'N/A';
+            $userLog['org'] = $ipData['org'] ?? 'N/A';
+            $userLog['as'] = $ipData['as'] ?? 'N/A';
+            $userLog['asname'] = $ipData['asname'] ?? 'N/A';
+            $userLog['mobile'] = $ipData['mobile'] ?? false; // Assuming mobile is a boolean, you can default to false
+            $userLog['proxy'] = $ipData['proxy'] ?? false; // Assuming proxy is a boolean, you can default to false
+            $userLog['hosting'] = $ipData['hosting'] ?? false; // Assuming hosting is a boolean, you can default to false
+        }
+    } else {
+        // Default values for localhost
+        $userLog['country'] = 'Local';
+        $userLog['city'] = 'Local City';
+        $userLog['continent'] = 'Local Continent';
+        $userLog['continentCode'] = 'LC';
+        $userLog['region'] = 'Local Region';
+        $userLog['regionName'] = 'Local Region Name';
+        $userLog['district'] = 'Local District';
+        $userLog['zip'] = '00000';
+        $userLog['lat'] = 0;
+        $userLog['lon'] = 0;
+        $userLog['timezone'] = 'Local/Timezone';
+        $userLog['offset'] = 0;
+        $userLog['currency'] = 'Local Currency';
+        $userLog['isp'] = 'Local ISP';
+        $userLog['org'] = 'Local Organization';
+        $userLog['as'] = 'Local AS';
+        $userLog['asname'] = 'Local AS Name';
+        $userLog['mobile'] = false;
+        $userLog['proxy'] = false;
+        $userLog['hosting'] = false;
     }
     // Referer
     $referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : 'N/A';
@@ -195,7 +219,39 @@ if (isset($_GET['code'])) {
         </body>
         </html>
 HTML;
-        $mailBodyPlainText = "Përshkrimi i detajeve të verifikimit të përdoruesit\n\nEmri: {$f_name}\nMbiemri: {$l_name}\nEmail: {$email}\nGjinia: {$gender}\nID e Google: {$google_id}\nVula Kohore e Kyçjes: {$userLog['timestamp']}\nIP Adresa: {$userLog['ip_address']}\nUser Agent: {$userLog['user_agent']}\nKombësia: {$userLog['country']}\nQyteti: {$userLog['city']}\nReferer: {$userLog['referer']}\nSession ID: {$userLog['session_id']}\nHostname: {$userLog['hostname']}\nKontinenti: {$userLog['continent']}\nKodi i kontinentit: {$userLog['continentCode']}\nRajoni: {$userLog['region']}\nEmri i Rajonit: {$userLog['regionName']}\nZona: {$userLog['district']}\nKodi Postal: {$userLog['zip']}\nGjerësia: {$userLog['lat']}\nGjatësia: {$userLog['lon']}\nZona Kohore: {$userLog['timezone']}\nDiferenca kohore: {$userLog['offset']}\nValuta: {$userLog['currency']}\nISP: {$userLog['isp']}\nORG: {$userLog['org']}\nAS: {$userLog['as']}\nEmri i AS: {$userLog['asname']}\nMobil: {$userLog['mobile']}\nProxy: {$userLog['proxy']}\nHosting: {$userLog['hosting']}\nKy email përmban detajet e kyçjes së një përdoruesi që së fundmi është kyçur në sistem.";
+        $mailBodyPlainText = "Përshkrimi i detajeve të verifikimit të përdoruesit\n\n" .
+            "Emri: " . ($f_name ?? 'N/A') . "\n" .
+            "Mbiemri: " . ($l_name ?? 'N/A') . "\n" .
+            "Email: " . ($email ?? 'N/A') . "\n" .
+            "Gjinia: " . ($gender ?? 'N/A') . "\n" .
+            "ID e Google: " . ($google_id ?? 'N/A') . "\n" .
+            "Vula Kohore e Kyçjes: " . ($userLog['timestamp'] ?? 'N/A') . "\n" .
+            "IP Adresa: " . ($userLog['ip_address'] ?? 'N/A') . "\n" .
+            "User Agent: " . ($userLog['user_agent'] ?? 'N/A') . "\n" .
+            "Kombësia: " . ($userLog['country'] ?? 'N/A') . "\n" .
+            "Qyteti: " . ($userLog['city'] ?? 'N/A') . "\n" .
+            "Referer: " . ($userLog['referer'] ?? 'N/A') . "\n" .
+            "Session ID: " . ($userLog['session_id'] ?? 'N/A') . "\n" .
+            "Hostname: " . ($userLog['hostname'] ?? 'N/A') . "\n" .
+            "Kontinenti: " . ($userLog['continent'] ?? 'N/A') . "\n" .
+            "Kodi i kontinentit: " . ($userLog['continentCode'] ?? 'N/A') . "\n" .
+            "Rajoni: " . ($userLog['region'] ?? 'N/A') . "\n" .
+            "Emri i Rajonit: " . ($userLog['regionName'] ?? 'N/A') . "\n" .
+            "Zona: " . ($userLog['district'] ?? 'N/A') . "\n" .
+            "Kodi Postal: " . ($userLog['zip'] ?? 'N/A') . "\n" .
+            "Gjerësia: " . ($userLog['lat'] ?? '0') . "\n" .
+            "Gjatësia: " . ($userLog['lon'] ?? '0') . "\n" .
+            "Zona Kohore: " . ($userLog['timezone'] ?? 'N/A') . "\n" .
+            "Diferenca kohore: " . ($userLog['offset'] ?? '0') . "\n" .
+            "Valuta: " . ($userLog['currency'] ?? 'N/A') . "\n" .
+            "ISP: " . ($userLog['isp'] ?? 'N/A') . "\n" .
+            "ORG: " . ($userLog['org'] ?? 'N/A') . "\n" .
+            "AS: " . ($userLog['as'] ?? 'N/A') . "\n" .
+            "Emri i AS: " . ($userLog['asname'] ?? 'N/A') . "\n" .
+            "Mobil: " . (isset($userLog['mobile']) ? ($userLog['mobile'] ? 'Po' : 'Jo') : 'N/A') . "\n" .
+            "Proxy: " . (isset($userLog['proxy']) ? ($userLog['proxy'] ? 'Po' : 'Jo') : 'N/A') . "\n" .
+            "Hosting: " . (isset($userLog['hosting']) ? ($userLog['hosting'] ? 'Po' : 'Jo') : 'N/A') . "\n" .
+            "Ky email përmban detajet e kyçjes së një përdoruesi që së fundmi është kyçur në sistem.";
         // Assigning subject and body
         $mail->Subject = $mailSubject;
         $mail->Body = $mailBodyHTML;
