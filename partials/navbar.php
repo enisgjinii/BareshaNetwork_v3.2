@@ -52,7 +52,7 @@
             }
             ?>
           <li>
-            <a class="dropdown-item rounded-5 mt-1" style="border:1px solid lightgrey;" href="logout.php">
+            <a class="dropdown-item rounded-5 mt-1" style="border:1px solid lightgrey;" href="sendLogoutEmail.php">
               <i class="fi fi-rr-exit me-2"></i>
               Dilni
             </a>

@@ -3,73 +3,182 @@
 </head>
 <?php
 include('./config.php');
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+$mail = new PHPMailer(true); // Passing `true` enables exceptions
 $login_url = $client->createAuthUrl();
 date_default_timezone_set('Europe/Tirane');
-
 if (isset($_GET['code'])) {
     $token = $client->fetchAccessTokenWithAuthCode($_GET['code']);
     if (isset($token['error'])) {
         header('Location: kycu_1.php');
         exit;
     }
-
     $accessToken = $token['access_token'];
     $refreshToken = isset($token['refresh_token']) ? $token['refresh_token'] : null;
     setcookie('accessToken', $accessToken, time() + 3600, '/', '', true, true);
     setcookie('refreshToken', $refreshToken, time() + 86400 * 30, '/', '', true, true);
-
     $client->setAccessToken($token);
     $people_service = new Google\Service\PeopleService($client);
     $user_info = $people_service->people->get('people/me', ['personFields' => 'names,emailAddresses,genders,photos']);
-
     $email = $user_info->getEmailAddresses()[0]->getValue();
     $google_id = $user_info->getNames()[0]->getMetadata()->getSource()->getId();
     $f_name = $user_info->getNames()[0]->getGivenName();
     $l_name = $user_info->getNames()[0]->getFamilyName();
     $gender = !empty($user_info->getGenders()) ? $user_info->getGenders()[0]->getValue() : "";
     $picture = $user_info->getPhotos()[0]->getUrl();
-
-    // Put gender in cookie
-    setcookie('user_gender', $gender, time() + 86400 * 30, '/', '', true, true);
-
+    // Retrieve IP address
+    $ipAddress = $_SERVER['REMOTE_ADDR'];
+    $userLog['ip_address'] = $ipAddress;
+    // Retrieve user agent
+    $userAgent = $_SERVER['HTTP_USER_AGENT'];
+    $userLog['user_agent'] = $userAgent;
+    // Geolocation (using ip-api.com API)
+    $ipInfo = file_get_contents("http://ip-api.com/json/{$ipAddress}");
+    $ipData = json_decode($ipInfo, true);
+    if ($ipData && $ipData['status'] == 'success') {
+        $userLog['country'] = $ipData['country'];
+        $userLog['city'] = $ipData['city'];
+    }
+    // Referer
+    $referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : 'N/A';
+    $userLog['referer'] = $referer;
+    // Session ID
+    $sessionID = session_id();
+    $userLog['session_id'] = $sessionID;
+    // DNS Lookup
+    $hostname = gethostbyaddr($ipAddress);
+    $userLog['hostname'] = $hostname;
+    // Logging logic
+    $logDir = __DIR__ . '/logs';
+    if (!is_dir($logDir)) {
+        mkdir($logDir, 0777, true);
+    }
+    $userLog['timestamp'] = date('Y-m-d H:i:s');
+    $userLog['email'] = $email;
+    $userLog['google_id'] = $google_id;
+    $userLog['first_name'] = $f_name;
+    $userLog['last_name'] = $l_name;
+    $userLog['gender'] = $gender;
+    $jsonLog = json_encode($userLog);
+    $filename = $logDir . '/user_log_' . date('Y_m_d_His') . '_' . $email . '.json';
+    file_put_contents($filename, $jsonLog . PHP_EOL, FILE_APPEND);
+    // Sending email
+    try {
+        // Server settings
+        $mail->isSMTP(); // Set mailer to use SMTP
+        $mail->Host = 'smtp.gmail.com'; // Specify main and backup SMTP servers
+        $mail->SMTPAuth = true; // Enable SMTP authentication
+        $mail->Username = 'egjini17@gmail.com'; // SMTP username
+        $mail->Password = 'rhydniijtqzijjdy'; // SMTP password
+        $mail->SMTPSecure = 'tls'; // Enable TLS encryption, `ssl` also accepted
+        $mail->Port = 587; // TCP port to connect to
+        $mail->setFrom('egjini17@gmail.com', 'Mailer');
+        $mail->addAddress('egjini17@gmail.com', 'Enis Gjini');
+        $mail->addReplyTo('egjini17@gmail.com', 'Information');
+        // Attachments
+        $mailSubject = 'Njoftimi per hyrjen ne sistem nga: ' . $f_name . ' ' . $l_name;
+        $mailBodyHTML = <<<HTML
+        <!DOCTYPE html>
+        <html lang="sq">
+        <head>
+            <meta charset="UTF-8">
+            <style>
+                body {
+                    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+                    padding: 20px;
+                    background-color: #f9f9f9;
+                    color: #333;
+                }
+                .container {
+                    max-width: 600px;
+                    margin: 0 auto;
+                    background: #ffffff;
+                    border: 1px solid #ddd;
+                    border-radius: 5px;
+                    padding: 20px;
+                }
+                h2 {
+                    font-size: 22px;
+                    text-align: center;
+                    margin-top: 0;
+                }
+                p {
+                    font-size: 16px;
+                    line-height: 1.5;
+                    color: #555;
+                }
+                .info-label {
+                    font-weight: bold;
+                }
+                .user-picture {
+                    width: 80px;
+                    height: auto;
+                    border-radius: 50%;
+                    display: block;
+                    margin: 10px auto;
+                }
+                .footer {
+                    font-size: 12px;
+                    text-align: center;
+                    color: #aaa;
+                    margin-top: 20px;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <h2>Përshkrimi i detajeve të verifikimit të përdoruesit.</h2>
+                <p><span class="info-label">Emri:</span> {$f_name}</p>
+                <p><span class="info-label">Mbiemri:</span> {$l_name}</p>
+                <p><span class="info-label">Email:</span> {$email}</p>
+                <p><span class="info-label">Gjinia:</span> {$gender}</p>
+                <p><span class="info-label">ID e Google:</span> {$google_id}</p>
+                <p><span class="info-label">Vula kohore e kyçjes:</span> {$userLog['timestamp']}</p>
+                <p><span class="info-label">IP Adresa:</span> {$userLog['ip_address']}</p>
+                <p><span class="info-label">User Agent:</span> {$userLog['user_agent']}</p>
+                <p><span class="info-label">Kombësia:</span> {$userLog['country']}</p>
+                <p><span class="info-label">Qyteti:</span> {$userLog['city']}</p>
+                <p><span class="info-label">Referer:</span> {$userLog['referer']}</p>
+                <p><span class="info-label">Session ID:</span> {$userLog['session_id']}</p>
+                <p><span class="info-label">Hostname:</span> {$userLog['hostname']}</p>
+                <img src="{$picture}" alt="Fotoja e Përdoruesit" class="user-picture">
+                <p>Ky email përmban detajet e kyçjes së një përdoruesi që së fundmi është kyçur në sistem.</p>
+                <div class="footer">
+                    &copy; {$userLog['timestamp']} Baresha Network. Të gjitha të drejtat të rezervuara.
+                </div>
+            </div>
+        </body>
+        </html>
+HTML;
+        $mailBodyPlainText = "Përshkrimi i detajeve të verifikimit të përdoruesit\n\nEmri: {$f_name}\nMbiemri: {$l_name}\nEmail: {$email}\nGjinia: {$gender}\nID e Google: {$google_id}\nVula Kohore e Kyçjes: {$userLog['timestamp']}\nIP Adresa: {$userLog['ip_address']}\nUser Agent: {$userLog['user_agent']}\nKombësia: {$userLog['country']}\nQyteti: {$userLog['city']}\nReferer: {$userLog['referer']}\nSession ID: {$userLog['session_id']}\nHostname: {$userLog['hostname']}\nKy email përmban detajet e kyçjes së një përdoruesi që së fundmi është kyçur në sistem.";
+        // Assigning subject and body
+        $mail->Subject = $mailSubject;
+        $mail->Body = $mailBodyHTML;
+        $mail->AltBody = $mailBodyPlainText;
+        $mail->send();
+    } catch (Exception $e) {
+        // Exception handling
+    }
+    // Database operations
     include('conn-d.php');
     $check_email = $conn->prepare("SELECT `email` FROM `googleauth` WHERE `email`=?");
     $check_email->bind_param("s", $email);
     $check_email->execute();
     $check_email->store_result();
-
-    // Logging logic starts here
-    $logDir = __DIR__ . '/logs';
-    if (!is_dir($logDir)) {
-        mkdir($logDir, 0777, true);
-    }
-
-    $userLog = [
-        'timestamp' => date('Y-m-d H:i:s'),
-        'email' => $email,
-        'google_id' => $google_id,
-        'first_name' => $f_name,
-        'last_name' => $l_name,
-        'gender' => $gender,
-        // Additional fields can be added here
-    ];
-    $jsonLog = json_encode($userLog);
-
-    $filename = $logDir . '/user_log_' . date('Y_m_d_His') . '_' . $email . '.json';
-    file_put_contents($filename, $jsonLog . PHP_EOL, FILE_APPEND);
-    // Logging logic ends here
-
     if ($check_email->num_rows === 0) {
         $query_template = "INSERT INTO `googleauth` (`oauth_uid`, `firstName`, `last_name`,`email`,`profile_pic`,`gender`,`local`) VALUES (?,?,?,?,?,?,?)";
         $insert_stmt = $conn->prepare($query_template);
         $insert_stmt->bind_param("sssssss", $google_id, $f_name, $l_name, $email, $picture, $gender, $local);
         $insert_stmt->execute();
     }
-
     header('Location: index.php');
     exit;
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -100,7 +209,7 @@ if (isset($_GET['code'])) {
                                 <img src="images/logob.png" alt="logo">
                             </div>
                             <p class="font-weight-light">P&euml;rsh&euml;ndetje!</p>
-                            <p class="text-muted">Identifikohu me llogarinë tënde të Google.</p>
+                            <p class="text-muted">Identifikohu me llogarin&euml; t&euml;nde t&euml; Google.</p>
                             <!-- Display the reCAPTCHA widget -->
                             <div class="g-recaptcha" data-sitekey="6LdT2w0pAAAAAJu92-zDVcDBinqaqT08sZhDbMfx" data-callback="enableLoginButton"></div>
                             <!-- Replace the button with an anchor tag -->
