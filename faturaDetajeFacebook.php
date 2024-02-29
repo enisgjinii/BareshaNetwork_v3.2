@@ -1,12 +1,9 @@
 <?php
 include 'conn-d.php';
-
 $id = $_GET['invoice'];
-
 // Retrieve invoice data from faturaFacebook table
 $invoiceQuery = $conn->query("SELECT * FROM faturaFacebook WHERE fatura='$id'");
 $invoiceData = mysqli_fetch_array($invoiceQuery);
-
 // Retrieve client data from klientet table
 $clientQuery = $conn->query("SELECT * FROM facebook WHERE id = (SELECT emri FROM faturaFacebook WHERE fatura='$id')");
 $clientData = mysqli_fetch_array($clientQuery);
@@ -15,10 +12,7 @@ $totalSalesQuery = $conn->query("SELECT SUM(totali) as total, SUM(mbetja) as mbe
                                  FROM shitjeFacebook
                                  WHERE fatura='$id'");
 $totalSales = mysqli_fetch_array($totalSalesQuery);
-
 ?>
-
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -35,7 +29,6 @@ $totalSales = mysqli_fetch_array($totalSalesQuery);
     <link rel="stylesheet" href="assets/uicons-regular-rounded/css/uicons-regular-rounded.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="icon" type="image/x-icon" href="images/favicon.png">
-
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet">
@@ -79,7 +72,6 @@ $totalSales = mysqli_fetch_array($totalSalesQuery);
 
         .address {
             text-align: left;
-
         }
 
         .address p {
@@ -145,23 +137,19 @@ $totalSales = mysqli_fetch_array($totalSalesQuery);
 </head>
 
 <body>
-
     <div class="btn-container fixed-top px-3 py-2 bg-light rounded-5 border ms-1" style="width: fit-content;">
         <a href="faturaFacebook.php" class="btn btn-sm btn-light border shadow-0 rounded-5" style="text-transform: none;"><i class="fa fa-angle-left me-2"></i>Kthehu</a>
         <a href="javascript:window.print()" style="text-transform: none;" class="btn btn-sm btn-success shadow-0 rounded-5"><i class="fa fa-print"></i> Printo</a>
-
         <?php if (!empty($invoiceData['emailadd'])) { ?>
             <button type="button" class="btn btn-sm btn-primary shadow-0 rounded-5" style="text-transform: none;" data-mdb-toggle="modal" data-mdb-target="#dergoFaturen">
                 <i class="fi fi-rr-paper-plane"></i>
                 D&euml;rgo</button>
         <?php } else {  ?>
-
             <a href="#" class="btn btn-sm btn-primary disabled shadow-0 rounded-5" style="text-transform: none;">
                 <i class="fi fi-rr-paper-plane"></i>
                 D&euml;rgo</a>
         <?php } ?>
     </div>
-
     <!-- Modal -->
     <div class="modal fade" id="dergoFaturen" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -201,23 +189,19 @@ $totalSales = mysqli_fetch_array($totalSalesQuery);
             </div>
         </div>
     </div>
-
     <script>
         // JavaScript to copy the email into the input field and paragraph
         document.addEventListener('DOMContentLoaded', function() {
             // Replace 'invoiceData.emailadd' with the actual PHP variable that holds the email address
             var recipientEmail = "<?php echo $invoiceData['emailadd']; ?>";
             var invoiceId = "<?php echo $_GET['invoice']; ?>";
-
             // Update the paragraph and input field with the recipient's email
             document.getElementById('recipient-email').textContent = recipientEmail;
             document.getElementById('to').value = recipientEmail;
-
             document.getElementById('subject').textContent = invoiceId;
             document.getElementById('subject').value = 'Fatura juaj nga Baresha Network , #' + invoiceId;
         });
     </script>
-
     <div class="container">
         <div class="row">
             <div class="logo text-left">
@@ -260,28 +244,17 @@ $totalSales = mysqli_fetch_array($totalSalesQuery);
                     <?php endif; ?>
                 </div>
             </div>
-
             <div class="col text-end">
-
-
                 <p class="text-muted m-0 p-0" style="font-size: 12px;">Numri i fatur&euml;s :</p>
                 <h6 class="text-dark"><?php echo $id; ?></h6>
-
-
                 <p class="text-muted m-0 p-0" style="font-size: 12px;">Data e fatur&euml;s :</p>
                 <h6 class="text-dark"><?php
                                         $invoice_date = !empty($invoiceData['data']) ? date('d/m/Y', strtotime($invoiceData['data'])) : '';
                                         echo $invoice_date;
                                         ?>
                 </h6>
-
-
                 <p class="text-muted m-0 p-0" style="font-size: 12px;">Numri renditës :</p>
                 <h6 class="text-dark"><?php echo !empty($invoiceData['id']) ? $invoiceData['id'] : ''; ?></h6>
-
-
-
-
             </div>
         </div>
         <table class="sales-table">
@@ -325,8 +298,12 @@ $totalSales = mysqli_fetch_array($totalSalesQuery);
         <div class="total">
             <h4>Totali : <?php echo $totalSales['total']; ?> €</h4>
         </div>
-
-
+        <hr style="border: 1px dashed red;">
+        <div class="text-center">
+            <img src="images/facebook.jpg" alt="Company Logo" style="width: 50px;">
+            <br><br>
+            <i>Kjo faturë është krijuar nga partneriteti i Facebook-ut.</i>
+        </div>
     </div>
     <!-- MDB -->
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.4.1/mdb.min.js"></script>

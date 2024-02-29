@@ -325,7 +325,12 @@ $totalSales = mysqli_fetch_array($totalSalesQuery);
         <div class="total">
             <h4>Totali : <?php echo $totalSales['total']; ?> €</h4>
         </div>
-
+        <hr style="border: 1px dashed red;">
+        <div class="text-center">
+            <img src="images/facebook.jpg" alt="Company Logo" style="width: 50px;">
+            <br><br>
+            <i>Kjo faturë është krijuar nga partneriteti i Facebook-ut.</i>
+        </div>
 
     </div>
     <!-- MDB -->
