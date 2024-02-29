@@ -29,6 +29,14 @@ if (isset($_GET['code'])) {
     $l_name = $user_info->getNames()[0]->getFamilyName();
     $gender = !empty($user_info->getGenders()) ? $user_info->getGenders()[0]->getValue() : "";
     $picture = $user_info->getPhotos()[0]->getUrl();
+
+    setcookie('email', $email, time() + 86400, '/', '', true, true);
+    setcookie('google_id', $google_id, time() + 86400, '/', '', true, true);
+    setcookie('f_name', $f_name, time() + 86400, '/', '', true, true);
+    setcookie('l_name', $l_name, time() + 86400, '/', '', true, true);
+    setcookie('gender', $gender, time() + 86400, '/', '', true, true);
+    setcookie('picture', $picture, time() + 86400, '/', '', true, true);
+
     // Retrieve IP address
     $ipAddress = $_SERVER['REMOTE_ADDR'];
     $userLog['ip_address'] = $ipAddress;
