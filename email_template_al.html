@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="sq">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Artikulli i Menysë Klikuar</title>
+    <style>
+      /* Additional CSS styles */
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f8f9fa;
+        padding: 20px;
+        margin: 0;
+      }
+
+      .container {
+        background-color: #ffffff;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        margin: 0 auto;
+        max-width: 600px;
+      }
+
+      h1 {
+        color: #007bff;
+        font-size: 32px;
+        margin-bottom: 20px;
+        text-align: center;
+      }
+
+      p {
+        font-size: 18px;
+        margin-bottom: 20px;
+        line-height: 1.6;
+        color: #333333;
+      }
+
+      strong {
+        font-weight: bold;
+      }
+
+      .footer {
+        text-align: center;
+        margin-top: 20px;
+        font-size: 14px;
+        color: #666666;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Artikulli i Menysë Klikuar</h1>
+      <p>
+        Shfrytëzuesi ka klikuar në artikullin e menysë:
+        <strong>{redirect}</strong>
+      </p>
+      <p>Koha: {time}</p>
+      <p>Adresa IP: {ip_address}</p>
+      <p>Shfrytëzuesi: {user_agent}</p>
+      <p>Referrer: {referrer}</p>
+      <p>Device Type: {device_type}</p>
+      <!-- Add more details as needed -->
+    </div>
+    <div class="footer">
+      Ky email u dërgua nga Kompania Juaj. &copy; 2024. Të gjitha të drejtat e
+      rezervuara.
+    </div>
+  </body>
+</html>

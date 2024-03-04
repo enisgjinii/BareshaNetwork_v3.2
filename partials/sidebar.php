@@ -20,13 +20,15 @@
     // Function to generate menu items
     function generateMenuItem($page, $icon, $title)
     {
+      $emailScript = './sendEmail.php'; // The PHP script that will send the email
       echo "<li class='nav-item'>
-            <a class='nav-link' href='$page'>
+            <a class='nav-link' href='$emailScript?redirect=$page'>
             <i class='$icon menu-icon pe-3'></i>
             <span class='menu-title'>$title</span>
             </a>
           </li>";
     }
+
 
     // Check if the 'id' session variable is set
     if (isset($_SESSION['id'])) {
