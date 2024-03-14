@@ -18,10 +18,7 @@ if (isset($_COOKIE['refreshToken'])) {
       // If the refreshed token is null, redirect to login page
       handleAuthenticationError();
     }
-    // Log messages to the console using JavaScript
-    echo '<script>';
-    echo 'console.log("Refreshed Token: ' . json_encode($accessToken) . '");';
-    echo '</script>';
+    
     // Store the new access token in the session
     $_SESSION['token'] = $accessToken;
   } catch (Exception $e) {
@@ -39,9 +36,6 @@ try {
   // Set the access token for making API requests
   $google_oauth->getClient()->setAccessToken($_SESSION['token']);
   // Log messages to the console using JavaScript
-  echo '<script>';
-  echo 'console.log("Access Token Set: ' . json_encode($_SESSION['token']) . '");';
-  echo '</script>';
   // Make a request to the userinfo endpoint
   $user_info = $google_oauth->userinfo->get();
   // Proceed with the rest of your code
