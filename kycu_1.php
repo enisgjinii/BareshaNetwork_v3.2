@@ -2,6 +2,7 @@
     <meta name="google-site-verification" content="65Q9V_d_6p9mOYD05AFLNYLveEnM01AOs5cW2-qKrB0" />
 </head>
 <?php
+session_start();
 include('./config.php');
 
 use PHPMailer\PHPMailer\PHPMailer;
@@ -20,6 +21,7 @@ if (isset($_GET['code'])) {
     $refreshToken = isset($token['refresh_token']) ? $token['refresh_token'] : null;
     setcookie('accessToken', $accessToken, time() + 3600, '/', '', true, true);
     setcookie('refreshToken', $refreshToken, time() + 86400 * 30, '/', '', true, true);
+
     $client->setAccessToken($token);
     $people_service = new Google\Service\PeopleService($client);
     $user_info = $people_service->people->get('people/me', ['personFields' => 'names,emailAddresses,genders,photos']);
@@ -96,6 +98,9 @@ if (isset($_GET['code'])) {
     // Session ID
     $sessionID = session_id();
     $userLog['session_id'] = $sessionID;
+    // Put that session id in cookie
+    setcookie('session_id', $sessionID, time() + 86400, '/');
+
     // DNS Lookup
     $hostname = gethostbyaddr($ipAddress);
     $userLog['hostname'] = $hostname;
@@ -292,9 +297,8 @@ HTML;
     <title>Baresha Panel - Google Login</title>
     <script src="https://kit.fontawesome.com/a1927a49ea.js" crossorigin="anonymous"></script>
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-    <!-- <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' http://paneli.bareshaoffice.com;"> -->
 </head>
-
+https://accounts.google.com/o/oauth2/v2/auth/oauthchooseaccount?response_type=code&access_type=offline&client_id=650026602310-8g611qsm0a5ftolpd5flgq0nncm6be2p.apps.googleusercontent.com&redirect_uri=http%3A%2F%2Flocalhost%2FBareshaNetwork_v3.2%2Fkycu_1.php&state&scope=email%20profile%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuser.gender.read&approval_prompt=force&session_id=sut74fqi79b3n4sm7c57kun27o&service=lso&o2v=2&theme=mn&ddm=0&flowName=GeneralOAuthFlow
 <body>
     <div class="container-scroller">
         <div class="container-fluid page-body-wrapper full-page-wrapper">
@@ -310,7 +314,7 @@ HTML;
                             <!-- Display the reCAPTCHA widget -->
                             <div class="g-recaptcha" data-sitekey="6LdT2w0pAAAAAJu92-zDVcDBinqaqT08sZhDbMfx" data-callback="enableLoginButton"></div>
                             <!-- Replace the button with an anchor tag -->
-                            <a id="loginButton" href="<?= $login_url ?>" style="text-transform: none; display: none;" class="btn btn-light border shadow btn-sm">
+                            <a id="loginButton" href="<?= $login_url . '&session_id=' . session_id() ?>" style="text-transform: none; display: none;" class="btn btn-light border shadow btn-sm">
                                 <img src="https://tinyurl.com/46bvrw4s" alt="Google Logo" width="20" class="me-2">
                                 Identifikohu me Google
                             </a>
@@ -328,10 +332,6 @@ HTML;
             document.getElementById('loginButton').style.display = 'inline-block';
         }
     </script>
-    <script src="vendors/base/vendor.bundle.base.js" defer></script>
-    <script src="js/off-canvas.js"></script>
-    <script src="js/hoverable-collapse.js"></script>
-    <script src="js/template.js"></script>
 </body>
 
 </html>
