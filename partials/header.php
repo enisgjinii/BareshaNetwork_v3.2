@@ -1,48 +1,28 @@
 <?php
+header("X-Frame-Options: DENY");
 if (!isset($_COOKIE['refreshToken'])) {
   handleAuthenticationError();
 }
 include('./config.php');
 include('conn-d.php');
-// Use the existing Google_Client instance from config.php
-// Note: Ensure $client is available in this scope
-// Attempt to refresh the access token using the refresh token
 if (isset($_COOKIE['refreshToken'])) {
   try {
-    // Set the refresh token
     $client->refreshToken($_COOKIE['refreshToken']);
-    // Get the new access token
     $accessToken = $client->getAccessToken();
-    // Check if the refreshed token is null
     if ($accessToken == null) {
-      // If the refreshed token is null, redirect to login page
       handleAuthenticationError();
     }
-    
-    // Store the new access token in the session
     $_SESSION['token'] = $accessToken;
   } catch (Exception $e) {
-    // If an exception occurs while refreshing the token,
-    // it likely means the user removed the app's access.
-    // You can handle this situation by redirecting the user to the login page.
     handleAuthenticationError();
   }
 }
-// Simulate an expired access token (set expiration time to a past timestamp)
 $_SESSION['token']['expires_at'] = time() - 1;
-// Rest of your code remains unchanged
-$google_oauth = new Google_Service_Oauth2($client);
+$google_oauth = new Google\Service\Oauth2($client);
 try {
-  // Set the access token for making API requests
   $google_oauth->getClient()->setAccessToken($_SESSION['token']);
-  // Log messages to the console using JavaScript
-  // Make a request to the userinfo endpoint
   $user_info = $google_oauth->userinfo->get();
-  // Proceed with the rest of your code
 } catch (Google_Service_Exception $e) {
-  // If an exception occurs while making the API request,
-  // it could be due to invalid or expired access token.
-  // You can handle this situation by redirecting the user to the login page.
   handleAuthenticationError();
 }
 $allowedGmailEmails = array('afrimkolgeci@gmail.com', 'besmirakolgeci1@gmail.com', 'egjini17@gmail.com', 'bareshafinance@gmail.com');
@@ -64,11 +44,9 @@ if ($result->num_rows > 0) {
 }
 function handleAuthenticationError()
 {
-  // Log messages to the console using JavaScript
   echo '<script>';
   echo 'console.log("Authentication Error");';
   echo '</script>';
-  // Redirect the user to the login page
   header('Location: kycu_1.php');
   exit;
 }
@@ -91,9 +69,7 @@ function isValidEmailDomain($email, $allowedDomains)
   <meta name="author" content="Enis Gjini">
   <meta name="google-site-verification" content="65Q9V_d_6p9mOYD05AFLNYLveEnM01AOs5cW2-qKrB0" />
   <!-- Title -->
-  <title>BareshaNetwork -
-    <?php echo date("Y"); ?>
-  </title>
+  <title>BareshaNetwork - <?php echo date("Y"); ?></title>
   <!-- UIcons -->
   <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/2.1.0/uicons-regular-rounded/css/uicons-regular-rounded.css'>
   <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/uicons-brands/css/uicons-brands.css'>
@@ -104,7 +80,7 @@ function isValidEmailDomain($email, $allowedDomains)
   <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/2.3.1/list.min.js" integrity="sha512-93wYgwrIFL+b+P3RvYxi/WUFRXXUDSLCT2JQk9zhVGXuS2mHl2axj6d+R6pP+gcU5isMHRj1u0oYE/mWyt/RjA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.6.0/tinymce.min.js" integrity="sha512-hMjDyb/4G3SapFEM71rK+Gea0+ZEr9vDlhBTyjSmRjuEgza0Ytsb67GE0aSpRMYW++z6kZPPcnddwlUG6VKm9w==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tinymce/tinymce.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/darkreader/4.9.58/darkreader.js" integrity="sha512-SVegqt9Q4E2cRDZ5alp9NLqLLJEAh6Ske9I/iU37Jiq0fHSFbkIsIbaIGYPcadf1JBLzdxPrkqfH1cpTuBQJvw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <!-- Material Design Icons -->
   <!-- <link rel="stylesheet" href="vendors/mdi/css/materialdesignicons.min.css"> -->
@@ -156,24 +132,38 @@ function isValidEmailDomain($email, $allowedDomains)
   <!-- Import CSS for the jQuery UI library -->
   <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.0/themes/smoothness/jquery-ui.min.css">
   <!-- Import jQuery UI library -->
-  <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js" integrity="sha512-57oZ/vW8ANMjR/KQ6Be9v/+/h6bq9/l3f0Oc7vn6qMqyhvPd1cvKBRWWpzu0QoneImqr2SkmO4MSqU+RpHom3Q==" crossorigin="anonymous" referrerpolicy="no-referrer">
+  </script>
+  <!-- Dark Reader plugin script -->
   <script src="plugins/dark-reader/darkreader.js"></script>
+  <!-- Mobius1 Selectr CSS -->
   <link href="https://unpkg.com/mobius1-selectr@latest/dist/selectr.min.css" rel="stylesheet" type="text/css">
+  <!-- Mobius1 Selectr JavaScript -->
   <script src="https://unpkg.com/mobius1-selectr@latest/dist/selectr.min.js" type="text/javascript"></script>
+  <!-- Flatpickr CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <!-- Flatpickr JavaScript -->
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <!-- Flatpickr Albanian locale -->
   <script src="https://npmcdn.com/flatpickr/dist/l10n/sq.js"></script>
+  <!-- Weavy Dropin JavaScript -->
   <script src="https://cdn.jsdelivr.net/npm/@weavy/dropin-js/dist/weavy-dropin.js" crossorigin="anonymous"></script>
+  <!-- Flag Icon CSS -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.5.0/css/flag-icon.min.css">
+  <!-- XLSX JavaScript -->
   <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+  <!-- AOS CSS -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" />
+  <!-- AOS JavaScript -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+  <!-- Preconnect to Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- Inter Font CSS from Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet">
   <!-- Moment.js for date formatting -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.2/moment.min.js"></script>
-  <!-- DataTables DateTime Plugin -->
+  <script src="https://cdn.jsdelivr.net/npm/moment/moment.min.js"></script>
+  <!-- DataTables DateTime Plugin JavaScript -->
   <script src="https://cdn.datatables.net/datetime/1.5.1/js/dataTables.dateTime.min.js"></script>
   <style>
     * {

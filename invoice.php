@@ -907,6 +907,11 @@ function getChannelDetails($channelId, $apiKey)
                         text: response,
                       });
                       const currentPage = table.page.info().page;
+                      // Reload table data
+                      table.ajax.reload(function() {
+                        // After reload, set the table to the saved current page
+                        table.page(currentPage).draw('page');
+                      });
                     },
                     error: function(error) {
                       console.error('Error deleting items:', error);
@@ -1116,7 +1121,12 @@ function getChannelDetails($channelId, $apiKey)
                         title: 'Fshirja u krye me sukses!',
                         text: response,
                       });
-                      const currentPage = table.page.info().page;
+                      const currentPage = tableSecond.page.info().page;
+                      // Reload table data
+                      tableSecond.ajax.reload(function() {
+                        // After reload, set the table to the saved current page
+                        tableSecond.page(currentPage).draw('page');
+                      });
                     },
                     error: function(error) {
                       console.error('Error deleting items:', error);

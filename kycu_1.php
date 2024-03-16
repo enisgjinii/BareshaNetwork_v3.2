@@ -3,6 +3,9 @@
 </head>
 <?php
 session_start();
+header("X-Frame-Options: DENY");
+// header("X-Frame-Options: SAMEORIGIN");
+
 include('./config.php');
 
 use PHPMailer\PHPMailer\PHPMailer;
@@ -298,7 +301,6 @@ HTML;
     <script src="https://kit.fontawesome.com/a1927a49ea.js" crossorigin="anonymous"></script>
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
-https://accounts.google.com/o/oauth2/v2/auth/oauthchooseaccount?response_type=code&access_type=offline&client_id=650026602310-8g611qsm0a5ftolpd5flgq0nncm6be2p.apps.googleusercontent.com&redirect_uri=http%3A%2F%2Flocalhost%2FBareshaNetwork_v3.2%2Fkycu_1.php&state&scope=email%20profile%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuser.gender.read&approval_prompt=force&session_id=sut74fqi79b3n4sm7c57kun27o&service=lso&o2v=2&theme=mn&ddm=0&flowName=GeneralOAuthFlow
 <body>
     <div class="container-scroller">
         <div class="container-fluid page-body-wrapper full-page-wrapper">

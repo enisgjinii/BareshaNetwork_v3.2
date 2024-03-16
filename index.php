@@ -1,4 +1,5 @@
 <?php
+header("X-Frame-Options: DENY");
 include 'partials/header.php';
 
 // Check if the user is logged in with Google

@@ -18,7 +18,7 @@
 <script src="js/template.js" defer></script>
 <script src="js/dashboard.js" defer></script>
 <script src="js/data-table.js" defer></script>
-<script src="js/jquery.dataTables.js" defer></script>
+<!-- <script src="js/jquery.dataTables.js" defer></script> -->
 <script src="js/dataTables.bootstrap4.js" defer></script>
 <script src="js/jquery.cookie.js" defer type="text/javascript"></script>
 <script src="https://cdn.datatables.net/plug-ins/1.13.1/i18n/sq.json" defer></script>
@@ -48,7 +48,7 @@
 <script src="https://cdn.datatables.net/searchpanes/2.1.0/js/dataTables.searchPanes.min.js" defer></script>
 <script src="https://cdn.datatables.net/searchpanes/2.1.0/js/searchPanes.bootstrap5.min.js" defer></script>
 <script src="https://cdn.datatables.net/select/1.5.0/js/dataTables.select.min.js" defer></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment-with-locales.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment/moment.min.js"></script>
 
 <!-- Dark Mode Toggle Script -->
 <script>
