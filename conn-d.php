@@ -21,7 +21,7 @@ $conn = new mysqli($db_host, $db_user, $db_pass, $db_name);
 
 // Check connection
 if ($conn->connect_errno) {
-  echo "Lidhja me MySQL d&euml;shtoi: " . $conn->connect_error;
+  echo "Lidhja me MySQL dështoi: " . $conn->connect_error;
   exit();
 }
 

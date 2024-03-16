@@ -1,48 +1,110 @@
-<?php include 'partials/header.php';
+<?php
+include 'partials/header.php';
 
-if (isset($_SESSION['oauth_uid'])) {
-  $user_id = $_SESSION['oauth_uid'];
-} else {
-  // Use SweetAlert2 for the alert
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+require 'vendor/autoload.php';
+if (!isset($_SESSION['oauth_uid'])) {
   echo '<script>
-    Swal.fire({
-      icon: "error",
-      title: "Akses i Kufizuar",
-      text: "Nuk keni akses në këtë sektor.",
-      showConfirmButton: false,
-      timer: 2000  // Close the alert after 2 seconds
-    }).then(function() {
-      window.location.href = "index.php";
-    });
-  </script>';
+            Swal.fire({
+              icon: "error",
+              title: "Akses i Kufizuar",
+              text: "Nuk keni akses në këtë sektor.",
+              showConfirmButton: false,
+              timer: 2000  
+            }).then(function() {
+              window.location.href = "index.php";
+            });
+          </script>';
   exit;
 }
+$user_id = $_SESSION['oauth_uid'];
 if (isset($_POST['paguaj'])) {
   $shpages = $_POST['pagoi'];
   $lloji = $_POST['lloji'];
   $idof = $_POST['idp'];
-  if ($conn->query("UPDATE yinc SET pagoi=pagoi + '$shpages', lloji='$lloji' WHERE id='$idof'")) {
-    echo '<script>alert("Pagesa u be me sukses")</script>';
+  $stmt = $conn->prepare("UPDATE yinc SET pagoi=pagoi + ?, lloji=? WHERE id=?");
+  $stmt->bind_param("dsi", $shpages, $lloji, $idof);
+  if ($stmt->execute()) {
+    echo '<script>
+                Swal.fire({
+                  icon: "success",
+                  title: "Sukses",
+                  text: "Pagesa u be me sukses",
+                  showConfirmButton: false,
+                  timer: 2000  
+                });
+              </script>';
   } else {
-    echo '<script>alert(' . $conn->error . ')</script>';
+    error_log("Error in updating payment: " . $conn->error);
+    echo '<script>
+                Swal.fire({
+                  icon: "error",
+                  title: "Gabim",
+                  text: "Gabim në procesimin e pagesës. Ju lutemi provoni përsëri më vonë.",
+                  showConfirmButton: false,
+                  timer: 2000  
+                });
+              </script>';
   }
 }
 ?>
-
 <!-- Begin Page Content -->
 <div class="main-panel">
   <div class="content-wrapper">
     <div class="container-fluid">
       <div class="container">
-        <nav class="bg-white px-2 rounded-5" style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='currentColor'/%3E%3C/svg%3E&#34;);" aria-label="breadcrumb">
+        <nav class="bg-white px-2 rounded-5" style="width:fit-content;border-style:1px solid black;" aria-label="breadcrumb">
           <ol class="breadcrumb">
             <li class="breadcrumb-item "><a class="text-reset" style="text-decoration: none;">Financat</a>
             </li>
-            <li class="breadcrumb-item active" aria-current="page"><a href="pagesat.php" class="text-reset" style="text-decoration: none;">
-                <!-- Get the path of file  -->
+            <li class="breadcrumb-item active" aria-current="page">
+              <a href="<?php echo __FILE__; ?>" class="text-reset" style="text-decoration: none;">
                 Shpenzimet
-              </a></li>
+              </a>
+            </li>
         </nav>
+        <div class="row mb-2">
+          <div>
+            <!-- Button trigger modal -->
+            <button type="button" class="input-custom-css px-3 py-2" data-bs-toggle="modal" data-bs-target="#exampleModal">
+              <i class="fi fi-rr-add"></i> &nbsp; Shto shpenzim
+            </button>
+            <button type="button" class="input-custom-css px-3 py-2" data-bs-toggle="modal" data-bs-target="#deletedExpenses">
+              <i class="fi fi-rr-trash"></i> &nbsp; Shpenzimet e fshira
+            </button>
+          </div>
+        </div>
+        <!-- Modal -->
+        <div class="modal fade" id="deletedExpenses" tabindex="-1" aria-labelledby="deletedExpenses" aria-hidden="true">
+          <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="deletedExpensesLabel">Shpenzimet e fshira</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <table id="deletedExpensesTable" class="table table-bordered w-100">
+                  <thead class="bg-light">
+                    <tr>
+                      <th>Klienti</th>
+                      <th>Shuma</th>
+                      <th>Pagoi</th>
+                      <th>Obligim</th>
+                      <th>Forma</th>
+                      <th>P&euml;rshkrimi</th>
+                      <th>Data</th>
+                      <th>Link</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
         <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
           <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
@@ -52,7 +114,6 @@ if (isset($_POST['paguaj'])) {
               </div>
               <div class="modal-body">
                 <form method="POST" action="process_form.php">
-                  <!-- Row 1 -->
                   <div class="row">
                     <div class="col-md-6">
                       <label for="emri" class="form-label">Zgjidh nj&euml;rin nga klient&euml;t</label>
@@ -65,19 +126,6 @@ if (isset($_POST['paguaj'])) {
                         <?php } ?>
                       </select>
                     </div>
-
-
-
-
-                    <script>
-                      new Selectr('#stafi', {
-                        searchable: true,
-                        width: 300
-                      });
-                    </script>
-
-
-
                     <div class="col-md-6">
                       <label for="datab" class="form-label">Shuma</label>
                       <div class="input-group mb-2 rounded-5 me-2">
@@ -99,20 +147,15 @@ if (isset($_POST['paguaj'])) {
                       <textarea name="pershkrimi" class="form-control shadow-sm rounded-5" style="border: 1px solid #ced4da"></textarea>
                     </div>
                   </div>
-
                   <div class="row">
                     <div class="col-12">
                       <label for="youtubeLinks" class="form-label">Lidhjet e YouTube</label>
                       <p class="text-muted" style="font-size: 12px;">Në këtë vend mund të shtoni lidhjet e këngëve nga platforma YouTube. Kur vendosni një lidhje dhe dëshironi të shtoni më shumë, duhet të shtoni një presje (",") në fund të çdo lidhjeje. <span class="badge bg-primary rounded-5 px-2">Kujdes, lejohen vetëm 6 lidhje.</span></p>
-
-                      <textarea style="height: 100px" rows="6" name="youtubeLinks" id="youtubeLinks" class="form-control shadow-sm rounded-5" style="border: 1px solid #ced4da">
-                        </textarea>
-
+                      <textarea style="height: 100px" rows="6" name="youtubeLinks" id="youtubeLinks" class="form-control shadow-sm rounded-5" style="border: 1px solid #ced4da"></textarea>
                     </div>
                   </div>
-
                   <!-- Container for video details -->
-                  <div id="videoDetailsContainer" class="mt-3">
+                  <div id="videoDetailsContainer" class="mt-3" style="display: none;">
                     <p class="mb-3">Detajet e videos</p>
                     <div class="card">
                       <div class="card-body">
@@ -122,89 +165,17 @@ if (isset($_POST['paguaj'])) {
                       </div>
                     </div>
                   </div>
-
                   <!-- Grid layout for embedded videos -->
                   <div class="row" id="embeddedVideosGrid"></div>
-
-                  <script>
-                    $(document).ready(function() {
-                      const $youtubeLinksInput = $('#youtubeLinks');
-                      const $videoTitle = $('#videoTitle');
-                      const $videoDescription = $('#videoDescription');
-                      const $publishedAt = $('#publishedAt');
-                      const $embeddedVideosGrid = $('#embeddedVideosGrid');
-                      const apiKey = 'AIzaSyCvc0tIeB58Sz0hpDFSEYxDXFT8tg0VGGQ'; // Replace with your actual API key
-
-                      // Set limits
-                      const maxDisplayedVideos = 6;
-                      const maxDisplayedDetails = 6;
-
-                      $youtubeLinksInput.on('input', function() {
-                        const youtubeLinks = $youtubeLinksInput.val().trim().split(',');
-
-                        // Clear previous content
-                        $embeddedVideosGrid.empty();
-                        clearVideoDetails();
-
-                        if (youtubeLinks.length > 0) {
-                          youtubeLinks.slice(0, maxDisplayedVideos).forEach(link => {
-                            const videoId = extractYouTubeVideoId(link);
-
-                            if (videoId) {
-                              // Create a grid item for each embedded video
-                              const embedCode = `<div class="col-md-4 mb-4"><iframe width="100%" height="200" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe></div>`;
-                              $embeddedVideosGrid.append(embedCode);
-
-                              // Get video details using the YouTube Data API
-                              fetch(`https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${videoId}&key=${apiKey}`)
-                                .then(response => response.json())
-                                .then(data => {
-                                  const videoDetails = data.items[0].snippet;
-                                  displayVideoDetails(videoDetails);
-                                })
-                                .catch(error => console.error('Error fetching video details:', error));
-                            }
-                          });
-                        }
-                      });
-
-                      function extractYouTubeVideoId(link) {
-                        const regex = /[?&]v=([^&]+)/;
-                        const match = link.match(regex) || link.match(/(?:\/|%3D|v=|vi=)([^"&\?\/\s]{11})/);
-                        return match && match[1] ? match[1] : null;
-                      }
-
-                      function displayVideoDetails(details) {
-                        // Append details for each video up to the limit
-                        if ($videoTitle.children().length < maxDisplayedDetails) {
-                          $videoTitle.append(`<p>${details.title}</p>`);
-                          $videoDescription.append(`<p>${details.description}</p>`);
-                          $publishedAt.append(`<p>${details.publishedAt}</p>`);
-                        }
-                      }
-
-                      function clearVideoDetails() {
-                        // Clear details for previous videos
-                        $videoTitle.empty();
-                        $videoDescription.empty();
-                        $publishedAt.empty();
-                      }
-                    });
-                  </script>
-
-
               </div>
               <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Mbylle</button>
-                <input type="submit" class="btn btn-primary" name="ruaj" value="Ruaj">
+                <button type="button" class="input-custom-css px-3 py-2" data-bs-dismiss="modal">Mbylle</button>
+                <input type="submit" class="input-custom-css px-3 py-2" name="ruaj" value="Ruaj">
                 </form>
               </div>
             </div>
           </div>
         </div>
-
-
-
         <div class="card shadow-sm rounded-5">
           <div class="card-body">
             <div class="row">
@@ -214,7 +185,6 @@ if (isset($_POST['paguaj'])) {
                     <thead class="bg-light">
                       <tr>
                         <th></th>
-
                         <th width="2%">Klienti</th>
                         <th>Shuma</th>
                         <th>Pagoi</th>
@@ -225,51 +195,68 @@ if (isset($_POST['paguaj'])) {
                         <th>Link</th>
                       </tr>
                     </thead>
-
                     <tbody>
                       <?php
                       $kueri = $conn->query("SELECT * FROM yinc ORDER BY id DESC");
                       while ($k = mysqli_fetch_array($kueri)) {
-
                       ?>
                         <tr>
                           <?php
                           $sid = $k['kanali'];
                           $gstaf = $conn->query("SELECT * FROM klientet WHERE id='$sid'");
                           $gstafi = mysqli_fetch_array($gstaf);
-                          //My number is 928.
                           $myNumber = $k['shuma'];
-
-                          //I want to get 25% of 928.
                           $percentToGet = (float)$gstafi['perqindja'];
-
-                          //Convert our percentage value into a decimal.
                           $percentInDecimal = $percentToGet / 100;
-
-                          //Get the result.
                           $percent = $percentInDecimal * $myNumber;
-
-                          //Print it out - Result is 232.
-
                           ?>
                           <td style="white-space: normal;">
-                            <a href="delete_record.php?id=<?php echo $k['id']; ?>" class="btn btn-danger px-2 m-2 btn-sm text-white rounded-5 shadow-sm" style="text-transform: none;"><i class="fas fa-trash py-2"></i></a><a data-bs-toggle="modal" data-bs-target="#pages<?php echo $k['id']; ?>" class="btn btn-primary btn-sm px-2 m-2 text-white rounded-5 shadow-sm" style="text-transform: none;"><i class="fas fa-money-bill py-2"></i></a>
+                            <a href="#" class="btn btn-danger px-2 m-2 btn-sm text-white rounded-5 shadow-sm delete-btn" data-id="<?php echo $k['id']; ?>"><i class="fi fi-rr-trash py-3"></i></a>
+                            <a data-bs-toggle="modal" data-bs-target="#pages<?php echo $k['id']; ?>" class="btn btn-primary btn-sm px-2 m-2 text-white rounded-5 shadow-sm" style="text-transform: none;"><i class="fi fi-rr-edit py-3"></i></a>
+                            <button class="btn btn-success px-2 m-2 btn-sm text-white rounded-5 shadow-sm" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight<?php echo $k['id']; ?>" aria-controls="offcanvasRight<?php echo $k['id']; ?>"><i class="fi fi-rr-time-past py-3"></i></button>
+                            <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight<?php echo $k['id']; ?>" aria-labelledby="offcanvasRightLabel<?php echo $k['id']; ?>">
+                              <div class="offcanvas-header bg-primary text-white d-flex justify-content-between align-items-center">
+                                <div>
+                                  <h5 class="offcanvas-title mb-0"><?php echo "Historia e shpenzime për klientin"; ?></h5>
+                                  <div><?php echo $gstafi['emri']; ?></div>
+                                </div>
+                                <button type="button" class="btn-close text-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                              </div>
+                              <div class="offcanvas-body">
+                                <div class="timeline">
+                                  <?php
+                                  // Fetch data from yinc for the corresponding kanali ID
+                                  $yinc_query = "SELECT * FROM yinc WHERE kanali = " . $k['kanali'] . " ORDER BY id DESC";
+                                  $yinc_result = mysqli_query($conn, $yinc_query);
+                                  while ($row = mysqli_fetch_assoc($yinc_result)) {
+                                  ?>
+                                    <div class="timeline-item border p-3 mb-3 rounded shadow">
+                                      <div class="timeline-content">
+                                        <h4 class="text-primary"><?php echo $row['data']; ?></h4>
+                                        <p><?php echo $row['pershkrimi']; ?></p>
+                                        <p><strong>Klienti:</strong> <?php echo $row['kanali']; ?></p>
+                                        <p><strong>Shuma:</strong> <?php echo $row['shuma']; ?></p>
+                                        <p><strong>Lloji:</strong> <?php echo $row['lloji']; ?></p>
+                                        <p><strong>Pagoi:</strong> <?php echo $row['pagoi']; ?></p>
+                                      </div>
+                                    </div>
+                                  <?php
+                                  }
+                                  ?>
+                                </div>
+                              </div>
+                            </div>
                           </td>
                           <td style="white-space: normal;"><?php echo $gstafi['emri']; ?></td>
-
                           <td style="white-space: normal;"><?php echo $k['shuma']; ?>&euro;</td>
                           <td style="white-space: normal;"><?php echo $k['pagoi']; ?>&euro;</td>
                           <td style="color:red;"><?php echo $k['shuma'] - $k['pagoi']; ?>&euro; </td>
-
                           <td style="white-space: normal;"><?php echo $k['lloji']; ?></td>
                           <td style="white-space: normal;"><?php echo $k['pershkrimi']; ?></td>
-
-
                           <td style="white-space: normal;"><?php echo $k['data']; ?></td>
                           <td style="white-space: normal;">
                             <?php
                             $links = explode(',', $k['linku_i_kenges']);
-
                             if (empty($links[0])) { ?>
                               <span class="badge bg-warning text-dark px-3 py-2 rounded-5">Nuk ka link</span>
                               <?php } else {
@@ -279,19 +266,17 @@ if (isset($_POST['paguaj'])) {
                             }
                             ?>
                           </td>
-
                         </tr>
                         <div class="modal fade" id="pages<?php echo $k['id']; ?>" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
                           <div class="modal-dialog modal-dialog-centered" role="document">
                             <div class="modal-content">
                               <div class="modal-header">
-                                <h5 class="modal-title" id="exampleModalLabel">Pages&euml;</h5>
+                                <h5 class="modal-title" id="exampleModalLabel">Pagesë për klientin - <?php echo $gstafi['emri']; ?></h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                               </div>
                               <div class="modal-body">
                                 <form method="POST" action="">
                                   <input type="hidden" name="idp" value="<?php echo $k['id']; ?>">
-
                                   <div class="mb-3">
                                     <label for="pagoi" class="form-label">Shuma:</label>
                                     <div class="input-group">
@@ -299,29 +284,56 @@ if (isset($_POST['paguaj'])) {
                                       <input type="text" name="pagoi" class="form-control" id="pagoi" value="0.00">
                                     </div>
                                   </div>
-
                                   <div class="mb-3">
-                                    <label for="lloji" class="form-label">Forma e pages&euml;s:</label>
+                                    <label for="lloji" class="form-label">Forma e pagesës:</label>
                                     <select name="lloji" class="form-select" id="lloji">
-                                      <option value="Bank">Bank</option>
+                                      <option value="Bank">Banka</option>
                                       <option value="Cash">Cash</option>
                                     </select>
+                                    <br>
+                                    <input type="text" id="customOption" class="form-control rounded-5" placeholder="Shtoni opsionin e personalizuar">
+                                    <br>
+                                    <button onclick="shtoOpcioninPersonalizuar()" class="input-custom-css px-3 py-2" type="button">Shto</button>
+                                    <br>
+                                    <div id="mesazhi-gabimit" class="text-danger mt-2" style="display: none;"></div>
                                   </div>
-
-
+                                  <script>
+                                    function shtoOpcioninPersonalizuar() {
+                                      var elementiSelektuar = document.getElementById("lloji");
+                                      var inputiOpsionitPersonalizuar = document.getElementById("customOption");
+                                      var mesazhiGabimit = document.getElementById("mesazhi-gabimit");
+                                      var vleraOpsionitPersonalizuar = inputiOpsionitPersonalizuar.value.trim();
+                                      // Fshijeni mesazhin e gabimit e mëparshëm
+                                      mesazhiGabimit.style.display = "none";
+                                      if (vleraOpsionitPersonalizuar !== "") {
+                                        // Kontrollo nese opsioni personalizuar tashme ekziston
+                                        var ekziston = Array.from(elementiSelektuar.options).some(option => option.value === vleraOpsionitPersonalizuar);
+                                        if (!ekziston) {
+                                          var opsioni = document.createElement("option");
+                                          opsioni.text = vleraOpsionitPersonalizuar;
+                                          opsioni.value = vleraOpsionitPersonalizuar;
+                                          elementiSelektuar.appendChild(opsioni);
+                                          inputiOpsionitPersonalizuar.value = ""; // Pastrojeni fushën pas shtimit të opsionit personalizuar
+                                        } else {
+                                          mesazhiGabimit.textContent = "Opsioni ekziston";
+                                          mesazhiGabimit.style.display = "block";
+                                        }
+                                      } else {
+                                        mesazhiGabimit.textContent = "Ju lutem jepni një vlerë për opsionin personalizuar";
+                                        mesazhiGabimit.style.display = "block";
+                                      }
+                                    }
+                                  </script>
                               </div>
                               <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hiqe</button>
-                                <button type="submit" name="paguaj" class="btn btn-primary">Paguaj</button>
+                                <button type="button" class="input-custom-css px-3 py-2" data-bs-dismiss="modal">Mbylle</button>
+                                <button type="submit" class="input-custom-css px-3 py-2" name="paguaj">Paguaj</button>
                               </div>
                               </form>
                             </div>
                           </div>
                         </div>
-
-
                       <?php } ?>
-
                     </tbody>
                     <tfoot class="bg-light">
                       <tr>
@@ -346,32 +358,147 @@ if (isset($_POST['paguaj'])) {
     </div>
   </div>
 </div>
-</div>
-</div>
-</div>
 <?php include 'partials/footer.php'; ?>
-
 <script>
-  $('#example').DataTable({
-    search: {
-      return: true,
-    },
-    dom: 'Bfrtip',
-    buttons: [{
-      text: '<i class="fi fi-rr-user-add fa-lg"></i>&nbsp;&nbsp; E re',
-      className: 'btn btn-light border shadow-2 me-2',
-      action: function(e, node, config) {
-        $('#exampleModal').modal('show')
-      }
-    }, ],
-    order: [
+  // const apiKey = 'AIzaSyCvc0tIeB58Sz0hpDFSEYxDXFT8tg0VGGQ';
+  $(document).ready(function() {
+    const $youtubeLinksInput = $('#youtubeLinks');
+    const $videoTitle = $('#videoTitle');
+    const $videoDescription = $('#videoDescription');
+    const $publishedAt = $('#publishedAt');
+    const $embeddedVideosGrid = $('#embeddedVideosGrid');
+    const $videoDetailsContainer = $('#videoDetailsContainer');
+    const $feedbackMessage = $('#feedbackMessage');
+    const apiKey = 'AIzaSyCvc0tIeB58Sz0hpDFSEYxDXFT8tg0VGGQ'; // Replace 'YOUR_API_KEY' with your actual API key
+    const maxDisplayedVideos = 6;
+    const maxDisplayedDetails = 6;
+    const maxLinks = 6; // Maximum number of links allowed
 
+    $youtubeLinksInput.on('input', function() {
+      const youtubeLinks = $youtubeLinksInput.val().trim().split(',');
+      $embeddedVideosGrid.empty();
+      clearVideoDetails();
+
+      if (youtubeLinks.length > maxLinks) {
+        $feedbackMessage.text(`Maximum ${maxLinks} links allowed.`);
+        $feedbackMessage.show();
+        $videoDetailsContainer.hide();
+        return;
+      } else {
+        $feedbackMessage.hide();
+      }
+
+      // Check if textarea is empty or contains only whitespace
+      if (!youtubeLinks.some(link => link.trim() !== '')) {
+        $videoDetailsContainer.hide();
+        return;
+      }
+
+      $videoDetailsContainer.show();
+      youtubeLinks.slice(0, maxDisplayedVideos).forEach(link => {
+        const videoId = extractYouTubeVideoId(link);
+        if (videoId) {
+          // Create a grid item for each embedded video
+          const embedCode = `<div class="col-md-4 mb-4"><iframe width="100%" height="200" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe></div>`;
+          $embeddedVideosGrid.append(embedCode);
+          // Get video details using the YouTube Data API
+          fetch(`https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${videoId}&key=${apiKey}`)
+            .then(response => response.json())
+            .then(data => {
+              const videoDetails = data.items[0].snippet;
+              displayVideoDetails(videoDetails);
+            })
+            .catch(error => console.error('Error fetching video details:', error));
+        }
+      });
+    });
+
+    // Clear button functionality
+    $('#clearButton').click(function() {
+      $youtubeLinksInput.val('');
+      $embeddedVideosGrid.empty();
+      clearVideoDetails();
+      $videoDetailsContainer.hide();
+      $feedbackMessage.hide();
+    });
+
+    function extractYouTubeVideoId(link) {
+      const regex = /[?&]v=([^&]+)/;
+      const match = link.match(regex) || link.match(/(?:\/|%3D|v=|vi=)([^"&\?\/\s]{11})/);
+      return match && match[1] ? match[1] : null;
+    }
+
+    function displayVideoDetails(details) {
+      if ($videoTitle.children().length < maxDisplayedDetails) {
+        $videoTitle.append(`<p>${details.title}</p>`);
+        $videoDescription.append(`<p>${details.description}</p>`);
+        $publishedAt.append(`<p>${details.publishedAt}</p>`);
+      }
+    }
+
+    function clearVideoDetails() {
+      $videoTitle.empty();
+      $videoDescription.empty();
+      $publishedAt.empty();
+    }
+  });
+
+
+  new Selectr('#stafi', {
+    searchable: true,
+    width: 300
+  });
+  $('#example').DataTable({
+    searching: true,
+    dom: "<'row'<'col-md-3'l><'col-md-6'B><'col-md-3'f>>" +
+      "<'row'<'col-md-12'tr>>" +
+      "<'row'<'col-md-6'><'col-md-6'p>>",
+    order: [],
+    buttons: [{
+        extend: "pdfHtml5",
+        text: '<i class="fi fi-rr-file-pdf fa-lg"></i>&nbsp;&nbsp; PDF',
+        titleAttr: "Eksporto tabelen ne formatin PDF",
+        className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
+      },
+      {
+        extend: "copyHtml5",
+        text: '<i class="fi fi-rr-copy fa-lg"></i>&nbsp;&nbsp; Kopjo',
+        titleAttr: "Kopjo tabelen ne formatin Clipboard",
+        className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
+      },
+      {
+        extend: "excelHtml5",
+        text: '<i class="fi fi-rr-file-excel fa-lg"></i>&nbsp;&nbsp; Excel',
+        titleAttr: "Eksporto tabelen ne formatin Excel",
+        className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
+        exportOptions: {
+          modifier: {
+            search: "applied",
+            order: "applied",
+            page: "all",
+          },
+        },
+      },
+      {
+        extend: "print",
+        text: '<i class="fi fi-rr-print fa-lg"></i>&nbsp;&nbsp; Printo',
+        titleAttr: "Printo tabel&euml;n",
+        className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
+      },
     ],
     initComplete: function() {
-      var btns = $('.dt-buttons');
-      btns.addClass('');
-      btns.removeClass('dt-buttons btn-group');
-
+      var btns = $(".dt-buttons");
+      btns.addClass("").removeClass("dt-buttons btn-group");
+      var lengthSelect = $("div.dataTables_length select");
+      lengthSelect.addClass("form-select");
+      lengthSelect.css({
+        width: "auto",
+        margin: "0 8px",
+        padding: "0.375rem 1.75rem 0.375rem 0.75rem",
+        lineHeight: "1.5",
+        border: "1px solid #ced4da",
+        borderRadius: "0.25rem",
+      });
     },
     fixedHeader: false,
     language: {
@@ -379,4 +506,174 @@ if (isset($_POST['paguaj'])) {
     },
     stripeClasses: ['stripe-color']
   })
+  $('#deletedExpensesTable').DataTable({
+    searching: true,
+    "processing": true,
+    "serverSide": true,
+    "ajax": {
+      url: "deleted_expenses.php",
+      type: "POST"
+    },
+    dom: "<'row'<'col-md-3'l><'col-md-6'B><'col-md-3'f>>" +
+      "<'row'<'col-md-12'tr>>" +
+      "<'row'<'col-md-6'><'col-md-6'p>>",
+    buttons: [{
+        extend: "pdfHtml5",
+        text: '<i class="fi fi-rr-file-pdf fa-lg"></i>&nbsp;&nbsp; PDF',
+        titleAttr: "Eksporto tabelen ne formatin PDF",
+        className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
+      },
+      {
+        extend: "copyHtml5",
+        text: '<i class="fi fi-rr-copy fa-lg"></i>&nbsp;&nbsp; Kopjo',
+        titleAttr: "Kopjo tabelen ne formatin Clipboard",
+        className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
+      },
+      {
+        extend: "excelHtml5",
+        text: '<i class="fi fi-rr-file-excel fa-lg"></i>&nbsp;&nbsp; Excel',
+        titleAttr: "Eksporto tabelen ne formatin Excel",
+        className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
+        exportOptions: {
+          modifier: {
+            search: "applied",
+            order: "applied",
+            page: "all",
+          },
+        },
+      },
+      {
+        extend: "print",
+        text: '<i class="fi fi-rr-print fa-lg"></i>&nbsp;&nbsp; Printo',
+        titleAttr: "Printo tabel&euml;n",
+        className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
+      },
+    ],
+    "columns": [{
+        "data": "klienti"
+      },
+      {
+        "data": "shuma"
+      },
+      {
+        "data": "pagoi"
+      },
+      {
+        "data": function(row) {
+          return row.shuma - row.pagoi;
+        }
+      },
+      {
+        "data": "data"
+      },
+      {
+        "data": "lloji"
+      },
+      {
+        "data": "pershkrimi"
+      },
+      {
+        "data": "linku_i_kenges"
+      }
+    ],
+    initComplete: function() {
+      var btns = $(".dt-buttons");
+      btns.addClass("").removeClass("dt-buttons btn-group");
+      var lengthSelect = $("div.dataTables_length select");
+      lengthSelect.addClass("form-select");
+      lengthSelect.css({
+        width: "auto",
+        margin: "0 8px",
+        padding: "0.375rem 1.75rem 0.375rem 0.75rem",
+        lineHeight: "1.5",
+        border: "1px solid #ced4da",
+        borderRadius: "0.25rem",
+      });
+    },
+    fixedHeader: false,
+    language: {
+      url: "https://cdn.datatables.net/plug-ins/1.13.1/i18n/sq.json",
+    },
+    stripeClasses: ['stripe-color']
+  });
+  // Add click event listener to delete buttons
+  const deleteButtons = document.querySelectorAll('.delete-btn');
+  deleteButtons.forEach(function(button) {
+    button.addEventListener('click', function(event) {
+      event.preventDefault(); // Prevent the default action of the link
+      const id = button.getAttribute('data-id');
+      // Show confirmation dialog with additional features
+      Swal.fire({
+        title: 'A jeni i sigurt?',
+        text: 'Nuk do të mund ta rikuperoni këtë rekord!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Po, fshijeni!',
+        cancelButtonText: 'Anulo', // Adding cancel button text
+        reverseButtons: true, // Swapping the buttons position
+        showCloseButton: true, // Display close button
+        showLoaderOnConfirm: true, // Display loader on confirm button
+        preConfirm: () => { // Pre-confirm function
+          return fetch(`delete_record.php?id=${id}`)
+            .then(response => {
+              if (!response.ok) {
+                throw new Error(response.statusText)
+              }
+              return response.text(); // Change to text() to see the response
+            })
+            .then(responseText => {
+              console.log(responseText); // Log the response
+              return responseText; // Return response text
+            })
+            .catch(error => {
+              Swal.showValidationMessage(
+                `Kërkesa dështoi: ${error}`
+              );
+            });
+        }
+      }).then((result) => {
+        if (result.isConfirmed) {
+          // If confirmed, show success message
+          Swal.fire(
+            'Fshirë!',
+            'Rekordi juaj është fshirë.',
+            'success'
+          );
+          // You can perform additional actions after deletion if needed
+          window.location.href = "yinc.php";
+        }
+      });
+    });
+  });
+  document.getElementById('lloji').addEventListener('change', function() {
+    var selectedOption = this.value;
+    if (selectedOption === 'custom') {
+      Swal.fire({
+        title: 'Shëno emrin e personalizuar të bankës:',
+        input: 'text',
+        showCancelButton: true,
+        confirmButtonText: 'Shto',
+        cancelButtonText: 'Anulo',
+        inputValidator: (value) => {
+          if (!value) {
+            return 'Ju duhet të shënoni diçka!';
+          }
+        }
+      }).then((result) => {
+        if (result.isConfirmed) {
+          var customBankName = result.value;
+          // Add the custom bank name as an option
+          var selectElement = document.getElementById('lloji');
+          var customOption = document.createElement('option');
+          customOption.value = customBankName;
+          customOption.textContent = customBankName;
+          selectElement.appendChild(customOption);
+          // Select the newly added custom bank name
+          selectElement.value = customBankName;
+        }
+      });
+    }
+  });
 </script>
