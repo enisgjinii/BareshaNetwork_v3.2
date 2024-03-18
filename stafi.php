@@ -2,93 +2,91 @@
 <div class="main-panel">
   <div class="content-wrapper">
     <div class="container-fluid">
-      <div class="container">
-        <nav class="bg-white px-2 rounded-5" class="bg-white px-2 rounded-5" style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='currentColor'/%3E%3C/svg%3E&#34;);width:fit-content;border-style:1px solid black;" aria-label="breadcrumb">
-          <ol class="breadcrumb">
-            <li class="breadcrumb-item "><a class="text-reset" style="text-decoration: none;">Menaxhimi</a>
-            </li>
-            <li class="breadcrumb-item active" aria-current="page"><a href="invoice.php" class="text-reset" style="text-decoration: none;">
-                Stafi
-              </a>
-            </li>
-        </nav>
-        <div class="card rounded-5 shadow-sm">
-          <div class="card-body">
-            <div class="row">
-              <div class="col-12">
-                <table id="example" class="table table-bordered" style="width: 100%;">
-                  <thead class="bg-light">
-                    <tr>
-                      <th>Emri & Mbiemri</th>
-                      <th>Email Adresa</th>
-                      <th>Rroga</th>
-                      <th>Veprime</th>
-                    </tr>
-                  </thead>
+      <nav class="bg-white px-2 rounded-5" class="bg-white px-2 rounded-5" style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='currentColor'/%3E%3C/svg%3E&#34;);width:fit-content;border-style:1px solid black;" aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item "><a class="text-reset" style="text-decoration: none;">Menaxhimi</a>
+          </li>
+          <li class="breadcrumb-item active" aria-current="page"><a href="invoice.php" class="text-reset" style="text-decoration: none;">
+              Stafi
+            </a>
+          </li>
+      </nav>
+      <div class="card rounded-5 shadow-sm">
+        <div class="card-body">
+          <div class="row">
+            <div class="col-12">
+              <table id="example" class="table table-bordered" style="width: 100%;">
+                <thead class="bg-light">
+                  <tr>
+                    <th>Emri & Mbiemri</th>
+                    <th>Email Adresa</th>
+                    <th>Rroga</th>
+                    <th>Veprime</th>
+                  </tr>
+                </thead>
 
-                  <tbody>
-                    <?php
-                    $kueri = $conn->query("SELECT * FROM googleauth ORDER BY id DESC");
-                    while ($k = mysqli_fetch_array($kueri)) {
-                      if (empty($k['ban'])) {
-                        $eme = $k['firstName'] . " " . $k['last_name'];
-                      } else {
-                        $eme = '<del style="color:red;">' . $k['firstName'] . '</del> ';
-                      }
-                      if (!($k['email'] == $_SESSION['email'])) {
-                    ?>
-                        <tr>
-                          <td><?php echo $eme; ?></td>
-                          <td><?php echo $k['email']; ?></td>
-                          <td><?php echo $k['salary']; ?> &euro;</td>
-                          <td>
-                            <button class="btn btn-sm btn-primary rounded-5 shadow-0 px-2 py-2 text-white" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRightEdit_<?php echo $k['id']; ?>" aria-controls="offcanvasRightEdit_<?php echo $k['id']; ?>" onclick="editEmployee(<?php echo $k['id']; ?>, <?php echo $k['salary']; ?>)">
-                              <i class="fi fi-rr-edit"></i>
-                            </button>
-
-                            <button class="btn btn-sm btn-danger rounded-5 shadow-0 px-2 py-2 text-white delete-btn" data-id="<?php echo $k['id']; ?>">
-                              <i class="fi fi-rr-trash"></i>
-                            </button>
-
-                            <button class="btn btn-sm btn-success rounded-5 shadow-0 px-2 py-2 text-white" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRightAddSalary" aria-controls="offcanvasRightAddSalary">
-                              <i class="fi fi-rr-search-alt"></i>
-                            </button>
-
-                            <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRightEdit_<?php echo $k['id']; ?>" aria-labelledby="offcanvasRightEditLabel_<?php echo $k['id']; ?>">
-                              <div class="offcanvas-header">
-                                <h5 id="offcanvasRightEditLabel_<?php echo $k['id']; ?>">Përditso rrogën e <?php echo $eme; ?></h5>
-                                <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-                              </div>
-                              <div class="offcanvas-body">
-                                <!-- Your edit form with salary input -->
-                                <form id="editForm_<?php echo $k['id']; ?>">
-                                  <div class="card rounded-5 shadow-sm bg-white" style="width: 100%;">
-                                    <div class="card-body">
-                                      <h5 class="card-title" style="text-transform: none;text-decoration: none;">Përshkrimi i detajeve të puntorit - <?php echo $eme; ?></h5>
-                                      <p class="card-text" id="name">Emri & Mbiemri : <?php echo $eme; ?></p>
-                                      <p class="card-text" id="email"> Email : <?php echo $k['email']; ?></p>
-                                      <p class="card-text" id="uid">Oauth UID : <?php echo $k['oauth_uid']; ?></p>
-                                      <p class="card-text" id="role">Rroga aktuale : <?php echo $k['salary']; ?> &euro;</p>
-                                    </div>
-                                  </div>
-
-                                  <br>
-                                  <label for="salary" class="form-label">Rroga:</label>
-                                  <input type="text" class="form-control rounded-5 border border-2 shadow-0" id="salary_<?php echo $k['id']; ?>" name="salary" value="<?php echo $k['salary']; ?>">
-                                  <br>
-                                  <button type="button" class="input-custom-css px-3 py-2" onclick="saveEmployee(<?php echo $k['id']; ?>)">Ruaj ndryshimet e bëra</button>
-                                </form>
-                              </div>
-                            </div>
-                          </td>
-                        </tr>
-                    <?php
-                      }
+                <tbody>
+                  <?php
+                  $kueri = $conn->query("SELECT * FROM googleauth ORDER BY id DESC");
+                  while ($k = mysqli_fetch_array($kueri)) {
+                    if (empty($k['ban'])) {
+                      $eme = $k['firstName'] . " " . $k['last_name'];
+                    } else {
+                      $eme = '<del style="color:red;">' . $k['firstName'] . '</del> ';
                     }
-                    ?>
-                  </tbody>
-                </table>
-              </div>
+                    if (!($k['email'] == $_SESSION['email'])) {
+                  ?>
+                      <tr>
+                        <td><?php echo $eme; ?></td>
+                        <td><?php echo $k['email']; ?></td>
+                        <td><?php echo $k['salary']; ?> &euro;</td>
+                        <td>
+                          <button class="btn btn-sm btn-primary rounded-5 shadow-0 px-2 py-2 text-white" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRightEdit_<?php echo $k['id']; ?>" aria-controls="offcanvasRightEdit_<?php echo $k['id']; ?>" onclick="editEmployee(<?php echo $k['id']; ?>, <?php echo $k['salary']; ?>)">
+                            <i class="fi fi-rr-edit"></i>
+                          </button>
+
+                          <button class="btn btn-sm btn-danger rounded-5 shadow-0 px-2 py-2 text-white delete-btn" data-id="<?php echo $k['id']; ?>">
+                            <i class="fi fi-rr-trash"></i>
+                          </button>
+
+                          <button class="btn btn-sm btn-success rounded-5 shadow-0 px-2 py-2 text-white" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRightAddSalary" aria-controls="offcanvasRightAddSalary">
+                            <i class="fi fi-rr-search-alt"></i>
+                          </button>
+
+                          <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRightEdit_<?php echo $k['id']; ?>" aria-labelledby="offcanvasRightEditLabel_<?php echo $k['id']; ?>">
+                            <div class="offcanvas-header">
+                              <h5 id="offcanvasRightEditLabel_<?php echo $k['id']; ?>">Përditso rrogën e <?php echo $eme; ?></h5>
+                              <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                            </div>
+                            <div class="offcanvas-body">
+                              <!-- Your edit form with salary input -->
+                              <form id="editForm_<?php echo $k['id']; ?>">
+                                <div class="card rounded-5 shadow-sm bg-white" style="width: 100%;">
+                                  <div class="card-body">
+                                    <h5 class="card-title" style="text-transform: none;text-decoration: none;">Përshkrimi i detajeve të puntorit - <?php echo $eme; ?></h5>
+                                    <p class="card-text" id="name">Emri & Mbiemri : <?php echo $eme; ?></p>
+                                    <p class="card-text" id="email"> Email : <?php echo $k['email']; ?></p>
+                                    <p class="card-text" id="uid">Oauth UID : <?php echo $k['oauth_uid']; ?></p>
+                                    <p class="card-text" id="role">Rroga aktuale : <?php echo $k['salary']; ?> &euro;</p>
+                                  </div>
+                                </div>
+
+                                <br>
+                                <label for="salary" class="form-label">Rroga:</label>
+                                <input type="text" class="form-control rounded-5 border border-2 shadow-0" id="salary_<?php echo $k['id']; ?>" name="salary" value="<?php echo $k['salary']; ?>">
+                                <br>
+                                <button type="button" class="input-custom-css px-3 py-2" onclick="saveEmployee(<?php echo $k['id']; ?>)">Ruaj ndryshimet e bëra</button>
+                              </form>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                  <?php
+                    }
+                  }
+                  ?>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
