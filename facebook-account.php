@@ -33,7 +33,7 @@ if ($result && mysqli_num_rows($result) > 0) {
                         </a>
 
                         <h6 class="card-title my-3" style="text-transform:none;">
-                            T&euml; dh&euml;nat p&euml;r "
+                            Te dh&euml;nat p&euml;r "
                             <?php echo $emri_mbiemri; ?>"
                         </h6>
                     </div>

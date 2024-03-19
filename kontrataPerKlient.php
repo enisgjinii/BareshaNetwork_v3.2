@@ -219,7 +219,7 @@ $result = mysqli_query($conn, $query);
                             <?php echo $row['perqindja'] ?>%
                         </b>prej t&euml; t&euml; gjitha t&euml;
                         ardhurave t&euml; gjeneruara nga eksploatimi i k&euml;ng&euml;s pas n&euml;nshkrimit t&euml; k&euml;saj kontrate dhe publikimit te
-                        vepres/kenges. T&euml; ardhurat neto do t&euml; p&euml;rcaktohen si t&euml; gjitha t&euml; ardhurat t&euml; marrura nga Baresha
+                        vepres/kenges. Te ardhurat neto do t&euml; p&euml;rcaktohen si t&euml; gjitha t&euml; ardhurat t&euml; marrura nga Baresha
                         nga
                         eksploatimi i k&euml;ng&euml;s, t&euml; zbritura nga kostot direkte q&euml; Baresha nd&euml;rhyn n&euml; lidhje me k&euml;t&euml;
                         eksploatim.

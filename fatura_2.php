@@ -57,12 +57,12 @@ $gstai2 = mysqli_fetch_array($gstai);
             </div>
 
             <div class="col p-2 border rounded-3">
-                <b>T&euml; dh&euml;nat e kompanis&euml; "Baresha"</b>
+                <b>Te dh&euml;nat e kompanis&euml; "Baresha"</b>
                 <hr>
                 <p> Numri i telefonit : +383 (049) 605 655</p>
             </div>
             <div class="col p-2 border rounded-3 text-end">
-                <b>T&euml; dh&euml;nat e fatur&euml;s "<?php echo $_GET['invoice']; ?>"</b>
+                <b>Te dh&euml;nat e fatur&euml;s "<?php echo $_GET['invoice']; ?>"</b>
                 <hr>
                 <table class="table table-bordered" id="tabelaKlientit">
                     <tr>

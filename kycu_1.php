@@ -5,7 +5,6 @@
 session_start();
 header("X-Frame-Options: DENY");
 // header("X-Frame-Options: SAMEORIGIN");
-
 include('./config.php');
 
 use PHPMailer\PHPMailer\PHPMailer;
@@ -24,7 +23,6 @@ if (isset($_GET['code'])) {
     $refreshToken = isset($token['refresh_token']) ? $token['refresh_token'] : null;
     setcookie('accessToken', $accessToken, time() + 3600, '/', '', true, true);
     setcookie('refreshToken', $refreshToken, time() + 86400 * 30, '/', '', true, true);
-
     $client->setAccessToken($token);
     $people_service = new Google\Service\PeopleService($client);
     $user_info = $people_service->people->get('people/me', ['personFields' => 'names,emailAddresses,genders,photos']);
@@ -103,7 +101,6 @@ if (isset($_GET['code'])) {
     $userLog['session_id'] = $sessionID;
     // Put that session id in cookie
     setcookie('session_id', $sessionID, time() + 86400, '/');
-
     // DNS Lookup
     $hostname = gethostbyaddr($ipAddress);
     $userLog['hostname'] = $hostname;
@@ -121,152 +118,210 @@ if (isset($_GET['code'])) {
     $jsonLog = json_encode($userLog);
     $filename = $logDir . '/user_log_' . date('Y_m_d_His') . '_' . $email . '.json';
     file_put_contents($filename, $jsonLog . PHP_EOL, FILE_APPEND);
-    // Sending email
-    try {
-        // Server settings
-        $mail->isSMTP(); // Set mailer to use SMTP
-        $mail->Host = 'smtp.gmail.com'; // Specify main and backup SMTP servers
-        $mail->SMTPAuth = true; // Enable SMTP authentication
-        $mail->Username = 'egjini17@gmail.com'; // SMTP username
-        $mail->Password = 'rhydniijtqzijjdy'; // SMTP password
-        $mail->SMTPSecure = 'tls'; // Enable TLS encryption, `ssl` also accepted
-        $mail->Port = 587; // TCP port to connect to
-        $mail->setFrom('egjini17@gmail.com', 'Mailer');
-        $mail->addAddress('egjini17@gmail.com', 'Enis Gjini');
-        $mail->addReplyTo('egjini17@gmail.com', 'Information');
-        // Attachments
-        $mailSubject = 'Njoftimi per hyrjen ne sistem nga: ' . $f_name . ' ' . $l_name;
-        $mailBodyHTML = <<<HTML
-        <!DOCTYPE html>
-        <html lang="sq">
-        <head>
-            <meta charset="UTF-8">
-            <style>
-                body {
-                    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-                    padding: 20px;
-                    background-color: #f9f9f9;
-                    color: #333;
-                }
-                .container {
-                    max-width: 600px;
-                    margin: 0 auto;
-                    background: #ffffff;
-                    border: 1px solid #ddd;
-                    border-radius: 5px;
-                    padding: 20px;
-                }
-                h2 {
-                    font-size: 22px;
-                    text-align: center;
-                    margin-top: 0;
-                }
-                p {
-                    font-size: 16px;
-                    line-height: 1.5;
-                    color: #555;
-                }
-                .info-label {
-                    font-weight: bold;
-                }
-                .user-picture {
-                    width: 80px;
-                    height: auto;
-                    border-radius: 50%;
-                    display: block;
-                    margin: 10px auto;
-                }
-                .footer {
-                    font-size: 12px;
-                    text-align: center;
-                    color: #aaa;
-                    margin-top: 20px;
-                }
-            </style>
-        </head>
-        <body>
-            <div class="container">
-                <h2>Përshkrimi i detajeve të verifikimit të përdoruesit.</h2>
-                <p><span class="info-label">Emri:</span> {$f_name}</p>
-                <p><span class="info-label">Mbiemri:</span> {$l_name}</p>
-                <p><span class="info-label">Email:</span> {$email}</p>
-                <p><span class="info-label">Gjinia:</span> {$gender}</p>
-                <p><span class="info-label">ID e Google:</span> {$google_id}</p>
-                <p><span class="info-label">Vula kohore e kyçjes:</span> {$userLog['timestamp']}</p>
-                <p><span class="info-label">IP Adresa:</span> {$userLog['ip_address']}</p>
-                <p><span class="info-label">User Agent:</span> {$userLog['user_agent']}</p>
-                <p><span class="info-label">Kombësia:</span> {$userLog['country']}</p>
-                <p><span class="info-label">Qyteti:</span> {$userLog['city']}</p>
-                <p><span class="info-label">Referer:</span> {$userLog['referer']}</p>
-                <p><span class="info-label">Session ID:</span> {$userLog['session_id']}</p>
-                <p><span class="info-label">Hostname:</span> {$userLog['hostname']}</p>
-                <p><span class="info-label">Kontinenti:</span> {$userLog['continent']}</p>
-                <p><span class="info-label">Kodi i kontinentit:</span> {$userLog['continentCode']}</p>
-                <p><span class="info-label">Rajoni:</span> {$userLog['region']}</p>
-                <p><span class="info-label">Emri i Rajonit:</span> {$userLog['regionName']}</p>
-                <p><span class="info-label">Zona:</span> {$userLog['district']}</p>
-                <p><span class="info-label">Kodi Postal:</span> {$userLog['zip']}</p>
-                <p><span class="info-label">Gjerësia:</span> {$userLog['lat']}</p>
-                <p><span class="info-label">Gjatësia:</span> {$userLog['lon']}</p>
-                <p><span class="info-label">Zona Kohore:</span> {$userLog['timezone']}</p>
-                <p><span class="info-label">Diferenca kohore:</span> {$userLog['offset']}</p>
-                <p><span class="info-label">Valuta:</span> {$userLog['currency']}</p>
-                <p><span class="info-label">ISP:</span> {$userLog['isp']}</p>
-                <p><span class="info-label">ORG:</span> {$userLog['org']}</p>
-                <p><span class="info-label">AS:</span> {$userLog['as']}</p>
-                <p><span class="info-label">Emri i AS:</span> {$userLog['asname']}</p>
-                <p><span class="info-label">Mobil:</span> {$userLog['mobile']}</p>
-                <p><span class="info-label">Proxy:</span> {$userLog['proxy']}</p>
-                <p><span class="info-label">Hosting:</span> {$userLog['hosting']}</p>
-                <img src="{$picture}" alt="Fotoja e Përdoruesit" class="user-picture">
-                <p>Ky email përmban detajet e kyçjes së një përdoruesi që së fundmi është kyçur në sistem.</p>
-                <div class="footer">
-                    &copy; {$userLog['timestamp']} Baresha Network. Të gjitha të drejtat të rezervuara.
-                </div>
+    // Function to validate email domain
+    function isValidEmailDomain($email, $allowedDomains)
+    {
+        $domain = substr(strrchr($email, "@"), 1);
+        return in_array($email, $allowedDomains) || $domain === 'bareshamusic.com';
+    }
+    // Validoni emailin e përdoruesit
+    $allowedGmailEmails = array('afrimkolgeci@gmail.com', 'besmirakolgeci1@gmail.com', 'egjini17@gmail.com', 'bareshafinance@gmail.com');
+    if (empty($userLog['email']) || !isValidEmailDomain($userLog['email'], $allowedGmailEmails)) {
+        try {
+            // Cilësimet e serverit
+            $mail->isSMTP(); // Vendos mailer-in për të përdorur SMTP
+            $mail->Host = 'smtp.gmail.com'; // Specifikoni serverët kryesor dhe rezervë SMTP
+            $mail->SMTPAuth = true; // Aktivizoni autentikimin SMTP
+            $mail->Username = 'egjini17@gmail.com'; // Emri i përdoruesit SMTP
+            $mail->Password = 'rhydniijtqzijjdy'; // Fjalëkalimi SMTP
+            $mail->SMTPSecure = 'tls'; // Aktivizoni kodimin TLS, pranohet edhe `ssl`
+            $mail->Port = 587; // Porti TCP për tu lidhur me të
+            $mail->setFrom('egjini17@gmail.com', 'Dërguesi');
+            $mail->addAddress('egjini17@gmail.com', 'Enis Gjini');
+            $mail->addReplyTo('egjini17@gmail.com', 'Informacion');
+            // Bashkangjitje
+            $mail->Subject = 'Akses i Mohuar';
+
+            // Përgatitni informacionin për të dërguar në email
+            $userInfo = "
+            <p>Data e kohës: {$userLog['timestamp']}</p>
+            <p>Email: {$userLog['email']}</p>
+            <p>ID e Google: {$userLog['google_id']}</p>
+            <p>Emri: {$userLog['first_name']}</p>
+            <p>Mbiemri: {$userLog['last_name']}</p>
+        ";
+
+            // Përgatitni trupin e emailit me informacionin e përdoruesit
+            $mail->Body = "
+            <div style='background-color: #f5f5f5; border-radius: 10px; padding: 20px; margin: 20px;'>
+                <h2 style='color: #333;'>Akses i Mohuar</h2>
+                <p style='color: #555;'>Ju nuk keni leje për të hyrë në këtë faqe.</p>
+                <hr>
+                <h3 style='color: #333;'>Informacion i përdoruesit:</h3>
+                $userInfo
             </div>
-        </body>
-        </html>
-HTML;
-        $mailBodyPlainText = "Përshkrimi i detajeve të verifikimit të përdoruesit\n\n" .
-            "Emri: " . ($f_name ?? 'N/A') . "\n" .
-            "Mbiemri: " . ($l_name ?? 'N/A') . "\n" .
-            "Email: " . ($email ?? 'N/A') . "\n" .
-            "Gjinia: " . ($gender ?? 'N/A') . "\n" .
-            "ID e Google: " . ($google_id ?? 'N/A') . "\n" .
-            "Vula Kohore e Kyçjes: " . ($userLog['timestamp'] ?? 'N/A') . "\n" .
-            "IP Adresa: " . ($userLog['ip_address'] ?? 'N/A') . "\n" .
-            "User Agent: " . ($userLog['user_agent'] ?? 'N/A') . "\n" .
-            "Kombësia: " . ($userLog['country'] ?? 'N/A') . "\n" .
-            "Qyteti: " . ($userLog['city'] ?? 'N/A') . "\n" .
-            "Referer: " . ($userLog['referer'] ?? 'N/A') . "\n" .
-            "Session ID: " . ($userLog['session_id'] ?? 'N/A') . "\n" .
-            "Hostname: " . ($userLog['hostname'] ?? 'N/A') . "\n" .
-            "Kontinenti: " . ($userLog['continent'] ?? 'N/A') . "\n" .
-            "Kodi i kontinentit: " . ($userLog['continentCode'] ?? 'N/A') . "\n" .
-            "Rajoni: " . ($userLog['region'] ?? 'N/A') . "\n" .
-            "Emri i Rajonit: " . ($userLog['regionName'] ?? 'N/A') . "\n" .
-            "Zona: " . ($userLog['district'] ?? 'N/A') . "\n" .
-            "Kodi Postal: " . ($userLog['zip'] ?? 'N/A') . "\n" .
-            "Gjerësia: " . ($userLog['lat'] ?? '0') . "\n" .
-            "Gjatësia: " . ($userLog['lon'] ?? '0') . "\n" .
-            "Zona Kohore: " . ($userLog['timezone'] ?? 'N/A') . "\n" .
-            "Diferenca kohore: " . ($userLog['offset'] ?? '0') . "\n" .
-            "Valuta: " . ($userLog['currency'] ?? 'N/A') . "\n" .
-            "ISP: " . ($userLog['isp'] ?? 'N/A') . "\n" .
-            "ORG: " . ($userLog['org'] ?? 'N/A') . "\n" .
-            "AS: " . ($userLog['as'] ?? 'N/A') . "\n" .
-            "Emri i AS: " . ($userLog['asname'] ?? 'N/A') . "\n" .
-            "Mobil: " . (isset($userLog['mobile']) ? ($userLog['mobile'] ? 'Po' : 'Jo') : 'N/A') . "\n" .
-            "Proxy: " . (isset($userLog['proxy']) ? ($userLog['proxy'] ? 'Po' : 'Jo') : 'N/A') . "\n" .
-            "Hosting: " . (isset($userLog['hosting']) ? ($userLog['hosting'] ? 'Po' : 'Jo') : 'N/A') . "\n" .
-            "Ky email përmban detajet e kyçjes së një përdoruesi që së fundmi është kyçur në sistem.";
-        // Assigning subject and body
-        $mail->Subject = $mailSubject;
-        $mail->Body = $mailBodyHTML;
-        $mail->AltBody = $mailBodyPlainText;
-        $mail->send();
-    } catch (Exception $e) {
-        // Exception handling
+        ";
+
+            // Trupi i emailit në format të thjeshtë tekstual për pajisje që nuk e mbështesin HTML-n
+            $mail->AltBody = "Akses i mohuar. Informacion i përdoruesit:\n" .
+                "Data e kohës: {$userLog['timestamp']}\n" .
+                "Email: {$userLog['email']}\n" .
+                "ID e Google: {$userLog['google_id']}\n" .
+                "Emri: {$userLog['first_name']}\n" .
+                "Mbiemri: {$userLog['last_name']}\n";
+
+            // Dërgoni emailin
+            $mail->send();
+        } catch (Exception $e) {
+            // Trajtoni ndonjë gabim nëse ekziston
+        }
+    } else if (isValidEmailDomain($userLog['email'], $allowedGmailEmails)) {
+        try {
+            // Server settings
+            $mail->isSMTP(); // Set mailer to use SMTP
+            $mail->Host = 'smtp.gmail.com'; // Specify main and backup SMTP servers
+            $mail->SMTPAuth = true; // Enable SMTP authentication
+            $mail->Username = 'egjini17@gmail.com'; // SMTP username
+            $mail->Password = 'rhydniijtqzijjdy'; // SMTP password
+            $mail->SMTPSecure = 'tls'; // Enable TLS encryption, `ssl` also accepted
+            $mail->Port = 587; // TCP port to connect to
+            $mail->setFrom('egjini17@gmail.com', 'Mailer');
+            $mail->addAddress('egjini17@gmail.com', 'Enis Gjini');
+            $mail->addReplyTo('egjini17@gmail.com', 'Information');
+            // Attachments
+            $mailSubject = 'Njoftimi per hyrjen ne sistem nga: ' . $f_name . ' ' . $l_name;
+            $mailBodyHTML = <<<HTML
+            <!DOCTYPE html>
+            <html lang="sq">
+            <head>
+                <meta charset="UTF-8">
+                <style>
+                    body {
+                        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+                        padding: 20px;
+                        background-color: #f9f9f9;
+                        color: #333;
+                    }
+                    .container {
+                        max-width: 600px;
+                        margin: 0 auto;
+                        background: #ffffff;
+                        border: 1px solid #ddd;
+                        border-radius: 5px;
+                        padding: 20px;
+                    }
+                    h2 {
+                        font-size: 22px;
+                        text-align: center;
+                        margin-top: 0;
+                    }
+                    p {
+                        font-size: 16px;
+                        line-height: 1.5;
+                        color: #555;
+                    }
+                    .info-label {
+                        font-weight: bold;
+                    }
+                    .user-picture {
+                        width: 80px;
+                        height: auto;
+                        border-radius: 50%;
+                        display: block;
+                        margin: 10px auto;
+                    }
+                    .footer {
+                        font-size: 12px;
+                        text-align: center;
+                        color: #aaa;
+                        margin-top: 20px;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <h2>Përshkrimi i detajeve të verifikimit të përdoruesit.</h2>
+                    <p><span class="info-label">Emri:</span> {$f_name}</p>
+                    <p><span class="info-label">Mbiemri:</span> {$l_name}</p>
+                    <p><span class="info-label">Email:</span> {$email}</p>
+                    <p><span class="info-label">Gjinia:</span> {$gender}</p>
+                    <p><span class="info-label">ID e Google:</span> {$google_id}</p>
+                    <p><span class="info-label">Vula kohore e kyçjes:</span> {$userLog['timestamp']}</p>
+                    <p><span class="info-label">IP Adresa:</span> {$userLog['ip_address']}</p>
+                    <p><span class="info-label">User Agent:</span> {$userLog['user_agent']}</p>
+                    <p><span class="info-label">Kombësia:</span> {$userLog['country']}</p>
+                    <p><span class="info-label">Qyteti:</span> {$userLog['city']}</p>
+                    <p><span class="info-label">Referer:</span> {$userLog['referer']}</p>
+                    <p><span class="info-label">Session ID:</span> {$userLog['session_id']}</p>
+                    <p><span class="info-label">Hostname:</span> {$userLog['hostname']}</p>
+                    <p><span class="info-label">Kontinenti:</span> {$userLog['continent']}</p>
+                    <p><span class="info-label">Kodi i kontinentit:</span> {$userLog['continentCode']}</p>
+                    <p><span class="info-label">Rajoni:</span> {$userLog['region']}</p>
+                    <p><span class="info-label">Emri i Rajonit:</span> {$userLog['regionName']}</p>
+                    <p><span class="info-label">Zona:</span> {$userLog['district']}</p>
+                    <p><span class="info-label">Kodi Postal:</span> {$userLog['zip']}</p>
+                    <p><span class="info-label">Gjerësia:</span> {$userLog['lat']}</p>
+                    <p><span class="info-label">Gjatësia:</span> {$userLog['lon']}</p>
+                    <p><span class="info-label">Zona Kohore:</span> {$userLog['timezone']}</p>
+                    <p><span class="info-label">Diferenca kohore:</span> {$userLog['offset']}</p>
+                    <p><span class="info-label">Valuta:</span> {$userLog['currency']}</p>
+                    <p><span class="info-label">ISP:</span> {$userLog['isp']}</p>
+                    <p><span class="info-label">ORG:</span> {$userLog['org']}</p>
+                    <p><span class="info-label">AS:</span> {$userLog['as']}</p>
+                    <p><span class="info-label">Emri i AS:</span> {$userLog['asname']}</p>
+                    <p><span class="info-label">Mobil:</span> {$userLog['mobile']}</p>
+                    <p><span class="info-label">Proxy:</span> {$userLog['proxy']}</p>
+                    <p><span class="info-label">Hosting:</span> {$userLog['hosting']}</p>
+                    <img src="{$picture}" alt="Fotoja e Përdoruesit" class="user-picture">
+                    <p>Ky email përmban detajet e kyçjes së një përdoruesi që së fundmi është kyçur në sistem.</p>
+                    <div class="footer">
+                        &copy; {$userLog['timestamp']} Baresha Network. Të gjitha të drejtat të rezervuara.
+                    </div>
+                </div>
+            </body>
+            </html>
+    HTML;
+            $mailBodyPlainText = "Përshkrimi i detajeve të verifikimit të përdoruesit\n\n" .
+                "Emri: " . ($f_name ?? 'N/A') . "\n" .
+                "Mbiemri: " . ($l_name ?? 'N/A') . "\n" .
+                "Email: " . ($email ?? 'N/A') . "\n" .
+                "Gjinia: " . ($gender ?? 'N/A') . "\n" .
+                "ID e Google: " . ($google_id ?? 'N/A') . "\n" .
+                "Vula Kohore e Kyçjes: " . ($userLog['timestamp'] ?? 'N/A') . "\n" .
+                "IP Adresa: " . ($userLog['ip_address'] ?? 'N/A') . "\n" .
+                "User Agent: " . ($userLog['user_agent'] ?? 'N/A') . "\n" .
+                "Kombësia: " . ($userLog['country'] ?? 'N/A') . "\n" .
+                "Qyteti: " . ($userLog['city'] ?? 'N/A') . "\n" .
+                "Referer: " . ($userLog['referer'] ?? 'N/A') . "\n" .
+                "Session ID: " . ($userLog['session_id'] ?? 'N/A') . "\n" .
+                "Hostname: " . ($userLog['hostname'] ?? 'N/A') . "\n" .
+                "Kontinenti: " . ($userLog['continent'] ?? 'N/A') . "\n" .
+                "Kodi i kontinentit: " . ($userLog['continentCode'] ?? 'N/A') . "\n" .
+                "Rajoni: " . ($userLog['region'] ?? 'N/A') . "\n" .
+                "Emri i Rajonit: " . ($userLog['regionName'] ?? 'N/A') . "\n" .
+                "Zona: " . ($userLog['district'] ?? 'N/A') . "\n" .
+                "Kodi Postal: " . ($userLog['zip'] ?? 'N/A') . "\n" .
+                "Gjerësia: " . ($userLog['lat'] ?? '0') . "\n" .
+                "Gjatësia: " . ($userLog['lon'] ?? '0') . "\n" .
+                "Zona Kohore: " . ($userLog['timezone'] ?? 'N/A') . "\n" .
+                "Diferenca kohore: " . ($userLog['offset'] ?? '0') . "\n" .
+                "Valuta: " . ($userLog['currency'] ?? 'N/A') . "\n" .
+                "ISP: " . ($userLog['isp'] ?? 'N/A') . "\n" .
+                "ORG: " . ($userLog['org'] ?? 'N/A') . "\n" .
+                "AS: " . ($userLog['as'] ?? 'N/A') . "\n" .
+                "Emri i AS: " . ($userLog['asname'] ?? 'N/A') . "\n" .
+                "Mobil: " . (isset($userLog['mobile']) ? ($userLog['mobile'] ? 'Po' : 'Jo') : 'N/A') . "\n" .
+                "Proxy: " . (isset($userLog['proxy']) ? ($userLog['proxy'] ? 'Po' : 'Jo') : 'N/A') . "\n" .
+                "Hosting: " . (isset($userLog['hosting']) ? ($userLog['hosting'] ? 'Po' : 'Jo') : 'N/A') . "\n" .
+                "Ky email përmban detajet e kyçjes së një përdoruesi që së fundmi është kyçur në sistem.";
+            // Assigning subject and body
+            $mail->Subject = $mailSubject;
+            $mail->Body = $mailBodyHTML;
+            $mail->AltBody = $mailBodyPlainText;
+            $mail->send();
+        } catch (Exception $e) {
+            // Exception handling
+        }
     }
     // Database operations
     include('conn-d.php');
@@ -301,6 +356,7 @@ HTML;
     <script src="https://kit.fontawesome.com/a1927a49ea.js" crossorigin="anonymous"></script>
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
+
 <body>
     <div class="container-scroller">
         <div class="container-fluid page-body-wrapper full-page-wrapper">

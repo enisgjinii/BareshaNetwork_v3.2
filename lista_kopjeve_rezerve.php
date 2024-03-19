@@ -102,6 +102,10 @@ foreach ($backupFiles as $backupFile) {
         order: [
             [0, 'DESC']
         ],
+        lengthMenu: [
+            [10, 25, 50, -1],
+            [10, 25, 50, 'Te gjitha']
+        ],
         buttons: [{
             extend: 'pdfHtml5',
             text: '<i class="fi fi-rr-file-pdf fa-lg"></i>&nbsp;&nbsp; PDF',
@@ -124,10 +128,18 @@ foreach ($backupFiles as $backupFile) {
             className: 'btn btn-sm btn-light border rounded-5 me-2'
         }, ],
         initComplete: function() {
-            var btns = $('.dt-buttons');
-            btns.addClass('');
-            btns.removeClass('dt-buttons btn-group');
-
+            var btns = $(".dt-buttons");
+            btns.addClass("").removeClass("dt-buttons btn-group");
+            var lengthSelect = $("div.dataTables_length select");
+            lengthSelect.addClass("form-select");
+            lengthSelect.css({
+                width: "auto",
+                margin: "0 8px",
+                padding: "0.375rem 1.75rem 0.375rem 0.75rem",
+                lineHeight: "1.5",
+                border: "1px solid #ced4da",
+                borderRadius: "0.25rem",
+            });
         },
         fixedHeader: true,
         language: {

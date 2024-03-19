@@ -78,7 +78,7 @@
                     Klienti p&euml;rfundon Kontrat&euml;n para se t&euml; p&euml;rfundoj&euml; afati i 3 muajve, Klienti do t&euml; jet&euml; i detyruar t&euml;
                     paguaj&euml; pagesat e mbetura p&euml;r sh&euml;rbimet q&euml; jan&euml; ofruar deri n&euml; at&euml; koh&euml;.</p>
 
-                <p>5. Konfidencialiteti. T&euml; dyja pal&euml;t pajtohen q&euml; t&euml; mbajn&euml; konfidencialitetin e t&euml; gjitha informacioneve
+                <p>5. Konfidencialiteti. Te dyja pal&euml;t pajtohen q&euml; t&euml; mbajn&euml; konfidencialitetin e t&euml; gjitha informacioneve
                     dhe materialeve t&euml; ndar&euml; midis tyre gjat&euml; afatit t&euml; k&euml;saj Kontrate.</p>
 
                 <p>
@@ -94,13 +94,13 @@
                 <p>
                     8.1. LIGJI I ZBATUESHËM. Kjo Marr&euml;veshje dhe t&euml; gjitha t&euml; drejtat dhe detyrimet e pal&euml;ve n&euml; lidhje me
                     k&euml;t&euml; Marr&euml;veshje do t&euml; n&euml;nshtrohen dhe do t&euml; interpretohen n&euml; p&euml;rputhje me ligjet dhe rregulloret e
-                    shtetit [emri i shtetit]. T&euml; gjitha mosmarr&euml;veshjet dhe mosmarr&euml;veshjet n&euml; lidhje me k&euml;t&euml; Marr&euml;veshje do
+                    shtetit [emri i shtetit]. Te gjitha mosmarr&euml;veshjet dhe mosmarr&euml;veshjet n&euml; lidhje me k&euml;t&euml; Marr&euml;veshje do
                     t&euml; zgjidhen n&euml; m&euml;nyr&euml; miq&euml;sore midis pal&euml;ve. N&euml; rast se nuk ka zgjidhje miq&euml;sore, mosmarr&euml;veshjet dhe
                     mosmarr&euml;veshjet do t&euml; zgjidhen n&euml;p&euml;rmjet arbitrazhit n&euml; p&euml;rputhje me procedurat dhe rregulloret e
                     arbitrazhit t&euml; shtetit [emri i shtetit].
                 </p>
 
-                <p>T&euml; n&euml;nshkruarit e m&euml;posht&euml;m pajtohen me kushtet dhe kushtet e k&euml;saj Kontrate:
+                <p>Te n&euml;nshkruarit e m&euml;posht&euml;m pajtohen me kushtet dhe kushtet e k&euml;saj Kontrate:
                 </p>
 
 

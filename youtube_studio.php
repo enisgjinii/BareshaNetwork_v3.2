@@ -140,7 +140,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['channel'])) {
                     <div class="p-5 mb-4 card rounded-5 shadow-sm">
                         <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link rounded-5 shadow-sm active border" style="text-transform: none;" id="pills-teArdhurat-tab" data-bs-toggle="pill" data-bs-target="#pills-teArdhurat" type="button" role="tab" aria-controls="pills-teArdhurat" aria-selected="true">T&euml;
+                                <button class="nav-link rounded-5 shadow-sm active border" style="text-transform: none;" id="pills-teArdhurat-tab" data-bs-toggle="pill" data-bs-target="#pills-teArdhurat" type="button" role="tab" aria-controls="pills-teArdhurat" aria-selected="true">Te
                                     ardhurat</button>
                             </li>
 
@@ -472,7 +472,7 @@ include 'partials/footer.php'; ?>
                 data: {
                     labels: filteredDates,
                     datasets: [{
-                        label: 'T&euml; ardhurat',
+                        label: 'Te ardhurat',
                         data: filteredRevenues,
                         backgroundColor: 'rgba(0, 123, 255, 0.5)',
                         borderColor: 'rgba(0, 123, 255, 1)',
@@ -582,7 +582,7 @@ include 'partials/footer.php'; ?>
     }, 0);
 
     var totalRevenueElement = document.getElementById('totalRevenue');
-    totalRevenueElement.textContent = 'T&euml; ardhurat totale: ' + totalRevenue.toFixed(2) + ' EUR';
+    totalRevenueElement.textContent = 'Te ardhurat totale: ' + totalRevenue.toFixed(2) + ' EUR';
     monthsSelect.appendChild(monthOption);
 
 

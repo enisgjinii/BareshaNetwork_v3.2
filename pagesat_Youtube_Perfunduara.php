@@ -396,7 +396,7 @@ if (isset($_GET['fshij'])) {
 
             lengthMenu: [
                 [10, 25, 50, -1],
-                [10, 25, 50, "T&euml; gjitha"]
+                [10, 25, 50, "Te gjitha"]
             ],
             initComplete: function() {
                 var btns = $('.dt-buttons');

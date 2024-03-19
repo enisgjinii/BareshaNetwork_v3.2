@@ -1,10 +1,25 @@
 <?php
 header("X-Frame-Options: DENY");
-if (!isset($_COOKIE['refreshToken'])) {
-  handleAuthenticationError();
-}
+
+// Include necessary files and establish database connection
 include('./config.php');
 include('conn-d.php');
+
+// Function to handle authentication errors
+function handleAuthenticationError()
+{
+  // Redirect to denied.php if authentication fails
+  header('Location: denied.php');
+  exit;
+}
+
+// Check if refresh token exists
+if (!isset($_COOKIE['refreshToken'])) {
+  header('Location: kycu_1.php');
+  exit;
+}
+
+// Attempt to refresh access token
 if (isset($_COOKIE['refreshToken'])) {
   try {
     $client->refreshToken($_COOKIE['refreshToken']);
@@ -17,7 +32,11 @@ if (isset($_COOKIE['refreshToken'])) {
     handleAuthenticationError();
   }
 }
+
+// Set session token expiration time
 $_SESSION['token']['expires_at'] = time() - 1;
+
+// Fetch user information
 $google_oauth = new Google\Service\Oauth2($client);
 try {
   $google_oauth->getClient()->setAccessToken($_SESSION['token']);
@@ -25,11 +44,14 @@ try {
 } catch (Google_Service_Exception $e) {
   handleAuthenticationError();
 }
+
+// Validate user email
 $allowedGmailEmails = array('afrimkolgeci@gmail.com', 'besmirakolgeci1@gmail.com', 'egjini17@gmail.com', 'bareshafinance@gmail.com');
 if (empty($user_info['email']) || !isValidEmailDomain($user_info['email'], $allowedGmailEmails)) {
   handleAuthenticationError();
 }
-$gender = $user_info['gender'];
+
+// Query the database for user information
 $email = $user_info['email'];
 $sql = "SELECT * FROM googleauth WHERE email = '$email'";
 $result = $conn->query($sql);
@@ -39,23 +61,18 @@ if ($result->num_rows > 0) {
   $_SESSION['email'] = $row['email'];
   $_SESSION['oauth_uid'] = $row['oauth_uid'];
 } else {
-  header('Location: denied.php');
-  exit;
+  handleAuthenticationError();
 }
-function handleAuthenticationError()
-{
-  echo '<script>';
-  echo 'console.log("Authentication Error");';
-  echo '</script>';
-  header('Location: kycu_1.php');
-  exit;
-}
+
+// Function to validate email domain
 function isValidEmailDomain($email, $allowedDomains)
 {
   $domain = substr(strrchr($email, "@"), 1);
   return in_array($email, $allowedDomains) || $domain === 'bareshamusic.com';
 }
 ?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 

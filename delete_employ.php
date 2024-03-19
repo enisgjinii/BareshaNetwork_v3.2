@@ -11,6 +11,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $employeeId = filter_var($employeeId, FILTER_VALIDATE_INT);
 
     if ($employeeId !== false && $employeeId !== null) {
+        // Disable foreign key checks to delete the record without constraints
+        $conn->query("SET FOREIGN_KEY_CHECKS=0");
+
         // Perform the deletion
         $deleteQuery = $conn->prepare("DELETE FROM googleauth WHERE id = ?");
         $deleteQuery->bind_param('i', $employeeId);
@@ -22,6 +25,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Error occurred during deletion
             $response = array('status' => 'error', 'message' => 'Gabim gjatë fshirjes së punonjësit. Ju lutemi provoni përsëri.');
         }
+
+        // Re-enable foreign key checks
+        $conn->query("SET FOREIGN_KEY_CHECKS=1");
 
         $deleteQuery->close();
     } else {

@@ -338,7 +338,7 @@ $numriIFatures = $inicialetEFatures . date('dmYhi');
 
                 lengthMenu: [
                     [10, 25, 50, -1],
-                    [10, 25, 50, "T&euml; gjitha"]
+                    [10, 25, 50, "Te gjitha"]
                 ],
                 dom: '<"row mb-3"<"col-sm-6"l><"col-sm-6"f>>' + // length menu and search input layout with margin bottom
                     'Brtip',

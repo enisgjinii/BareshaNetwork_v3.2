@@ -84,7 +84,7 @@ include 'partials/header.php'; ?>
                                         return 'Rolet';
                                     }
                                     if ($page == 'stafi.php') {
-                                        return 'Klientet';
+                                        return 'Stafi';
                                     }
                                     if ($page == 'ads.php') {
                                         return 'Llogaritë e ADS';
@@ -638,7 +638,7 @@ include 'partials/header.php'; ?>
                 searching: true,
                 lengthMenu: [
                     [10, 25, 50, -1],
-                    [10, 25, 50, "All"]
+                    [10, 25, 50, "Te gjitha"]
                 ],
                 dom: "<'row'<'col-md-3'l><'col-md-6'B><'col-md-3'f>>" +
                     "<'row'<'col-md-12'tr>>" +

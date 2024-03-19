@@ -47,7 +47,7 @@ if (isset($_POST['submit'])) {
     mysqli_close($conn);
 }
 ?>
-<div class="main-panel">
+<div class="main-panel"> 
     <div class="content-wrapper">
         <div class="container-fluid">
             <div class="p-5 shadow-sm rounded-5 mb-4 card">
@@ -589,7 +589,7 @@ if (isset($_POST['submit'])) {
         responsive: true,
         lengthMenu: [
             [10, 25, 50, -1],
-            [10, 25, 50, "T&euml; gjitha"]
+            [10, 25, 50, "Te gjitha"]
         ],
         columnDefs: [{
             "targets": [0, 1, 2, 3, 4], // Indexes of the columns you want to apply the style to

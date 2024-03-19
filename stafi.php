@@ -11,82 +11,211 @@
             </a>
           </li>
       </nav>
-      <div class="card rounded-5 shadow-sm">
-        <div class="card-body">
-          <div class="row">
-            <div class="col-12">
-              <table id="example" class="table table-bordered" style="width: 100%;">
-                <thead class="bg-light">
-                  <tr>
-                    <th>Emri & Mbiemri</th>
-                    <th>Email Adresa</th>
-                    <th>Rroga</th>
-                    <th>Veprime</th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  <?php
-                  $kueri = $conn->query("SELECT * FROM googleauth ORDER BY id DESC");
-                  while ($k = mysqli_fetch_array($kueri)) {
-                    if (empty($k['ban'])) {
-                      $eme = $k['firstName'] . " " . $k['last_name'];
-                    } else {
-                      $eme = '<del style="color:red;">' . $k['firstName'] . '</del> ';
-                    }
-                    if (!($k['email'] == $_SESSION['email'])) {
-                  ?>
+      <ul class="nav nav-pills mb-3 bg-white me-auto rounded-5" id="pills-tab" role="tablist" style="width: fit-content;">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link rounded-5 active" id="pills-tabelaStafit-tab" data-bs-toggle="pill" data-bs-target="#pills-tabelaStafit" style="text-transform: none;text-decoration: none;" type="button" role="tab" aria-controls="pills-tabelaStafit" aria-selected="true">Stafi</button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link rounded-5" id="pills-listaETentativave-tab" data-bs-toggle="pill" data-bs-target="#pills-listaETentativave" type="button" role="tab" aria-controls="pills-listaETentativave" style="text-transform: none;text-decoration: none;" aria-selected="false">Lista e tentativave</button>
+        </li>
+      </ul>
+      <div class="tab-content" id="pills-tabContent">
+        <div class="tab-pane fade show active" id="pills-tabelaStafit" role="tabpanel" aria-labelledby="pills-tabelaStafit-tab" tabindex="0">
+          <div class="card rounded-5 shadow-sm">
+            <div class="card-body">
+              <div class="row">
+                <div class="col-12">
+                  <table id="example" class="table table-bordered" style="width: 100%;">
+                    <thead class="bg-light">
                       <tr>
-                        <td><?php echo $eme; ?></td>
-                        <td><?php echo $k['email']; ?></td>
-                        <td><?php echo $k['salary']; ?> &euro;</td>
-                        <td>
-                          <button class="btn btn-sm btn-primary rounded-5 shadow-0 px-2 py-2 text-white" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRightEdit_<?php echo $k['id']; ?>" aria-controls="offcanvasRightEdit_<?php echo $k['id']; ?>" onclick="editEmployee(<?php echo $k['id']; ?>, <?php echo $k['salary']; ?>)">
-                            <i class="fi fi-rr-edit"></i>
-                          </button>
-
-                          <button class="btn btn-sm btn-danger rounded-5 shadow-0 px-2 py-2 text-white delete-btn" data-id="<?php echo $k['id']; ?>">
-                            <i class="fi fi-rr-trash"></i>
-                          </button>
-
-                          <button class="btn btn-sm btn-success rounded-5 shadow-0 px-2 py-2 text-white" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRightAddSalary" aria-controls="offcanvasRightAddSalary">
-                            <i class="fi fi-rr-search-alt"></i>
-                          </button>
-
-                          <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRightEdit_<?php echo $k['id']; ?>" aria-labelledby="offcanvasRightEditLabel_<?php echo $k['id']; ?>">
-                            <div class="offcanvas-header">
-                              <h5 id="offcanvasRightEditLabel_<?php echo $k['id']; ?>">Përditso rrogën e <?php echo $eme; ?></h5>
-                              <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-                            </div>
-                            <div class="offcanvas-body">
-                              <!-- Your edit form with salary input -->
-                              <form id="editForm_<?php echo $k['id']; ?>">
-                                <div class="card rounded-5 shadow-sm bg-white" style="width: 100%;">
-                                  <div class="card-body">
-                                    <h5 class="card-title" style="text-transform: none;text-decoration: none;">Përshkrimi i detajeve të puntorit - <?php echo $eme; ?></h5>
-                                    <p class="card-text" id="name">Emri & Mbiemri : <?php echo $eme; ?></p>
-                                    <p class="card-text" id="email"> Email : <?php echo $k['email']; ?></p>
-                                    <p class="card-text" id="uid">Oauth UID : <?php echo $k['oauth_uid']; ?></p>
-                                    <p class="card-text" id="role">Rroga aktuale : <?php echo $k['salary']; ?> &euro;</p>
+                        <th>Emri & Mbiemri</th>
+                        <th>Email Adresa</th>
+                        <th>Rroga</th>
+                        <th>Veprime</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <?php
+                      $kueri = $conn->query("SELECT * FROM googleauth ORDER BY id DESC");
+                      while ($k = mysqli_fetch_array($kueri)) {
+                        if (empty($k['ban'])) {
+                          $eme = $k['firstName'] . " " . $k['last_name'];
+                        } else {
+                          $eme = '<del style="color:red;">' . $k['firstName'] . '</del> ';
+                        }
+                        if (!($k['email'] == $_SESSION['email'])) {
+                      ?>
+                          <tr>
+                            <td><?php echo $eme; ?></td>
+                            <td><?php echo $k['email']; ?></td>
+                            <td><?php echo $k['salary']; ?> &euro;</td>
+                            <td>
+                              <button class="btn btn-sm btn-primary rounded-5 shadow-0 px-2 py-2 text-white" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRightEdit_<?php echo $k['id']; ?>" aria-controls="offcanvasRightEdit_<?php echo $k['id']; ?>" onclick="editEmployee(<?php echo $k['id']; ?>, <?php echo $k['salary']; ?>)">
+                                <i class="fi fi-rr-edit"></i>
+                              </button>
+                              <button class="btn btn-sm btn-danger rounded-5 shadow-0 px-2 py-2 text-white delete-btn" data-id="<?php echo $k['id']; ?>">
+                                <i class="fi fi-rr-trash"></i>
+                              </button>
+                              <button class="btn btn-sm btn-success rounded-5 shadow-0 px-2 py-2 text-white" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasActivities_<?php echo $k['id']; ?>" aria-controls="offcanvasActivities_<?php echo $k['id']; ?>">
+                                <i class="fi fi-rr-search-alt"></i>
+                              </button>
+                              <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasActivities_<?php echo $k['id']; ?>" aria-labelledby="offcanvasActivities_<?php echo $k['id']; ?>">
+                                <div class="offcanvas-header border-bottom">
+                                  <h5 id="offcanvasRightEditLabel_<?php echo $k['id']; ?>">Aktiviteti ne sistem i puntorit <?php echo $eme; ?></h5>
+                                  <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                                </div>
+                                <div class="offcanvas-body">
+                                  <div class="timeline">
+                                    <?php
+                                    $query_logs = $conn->query("SELECT * FROM logs WHERE stafi = '" . $eme . "' ORDER BY id DESC");
+                                    while ($logs = mysqli_fetch_array($query_logs)) {
+                                    ?>
+                                      <div class="timeline-item">
+                                        <div class="timeline-item-content bg-light border rounded-5 p-3 my-3">
+                                          <span class="text-muted d-block mb-2"><?php echo $logs['koha']; ?></span>
+                                          <p class="mb-3 fs-6 text-wrap"><?php echo $logs['ndryshimi']; ?></p>
+                                        </div>
+                                      </div>
+                                    <?php
+                                    }
+                                    ?>
                                   </div>
                                 </div>
+                              </div>
+                              <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRightEdit_<?php echo $k['id']; ?>" aria-labelledby="offcanvasRightEditLabel_<?php echo $k['id']; ?>">
+                                <div class="offcanvas-header">
+                                  <h5 id="offcanvasRightEditLabel_<?php echo $k['id']; ?>">Përditso rrogën e <?php echo $eme; ?></h5>
+                                  <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                                </div>
+                                <div class="offcanvas-body">
 
-                                <br>
-                                <label for="salary" class="form-label">Rroga:</label>
-                                <input type="text" class="form-control rounded-5 border border-2 shadow-0" id="salary_<?php echo $k['id']; ?>" name="salary" value="<?php echo $k['salary']; ?>">
-                                <br>
-                                <button type="button" class="input-custom-css px-3 py-2" onclick="saveEmployee(<?php echo $k['id']; ?>)">Ruaj ndryshimet e bëra</button>
-                              </form>
-                            </div>
-                          </div>
-                        </td>
+                                  <!-- Your edit form with salary input -->
+                                  <form id="editForm_<?php echo $k['id']; ?>">
+                                    <div class="card rounded-5 shadow-sm bg-white" style="width: 100%;">
+                                      <div class="card-body">
+                                        <h5 class="card-title" style="text-transform: none;text-decoration: none;">Përshkrimi i detajeve të puntorit - <?php echo $eme; ?></h5>
+                                        <p class="card-text" id="name">Emri & Mbiemri : <?php echo $eme; ?></p>
+                                        <p class="card-text" id="email"> Email : <?php echo $k['email']; ?></p>
+                                        <?php
+                                        // Check if the cookie is set
+                                        if (isset($_COOKIE['google_id'])) {
+                                          // Retrieve and sanitize the value from the cookie
+                                          $google_id = filter_var($_COOKIE['google_id'], FILTER_SANITIZE_STRING);
+
+                                          // Fetch user information based on OAuth UID using a prepared statement
+                                          $sqlStaf = "SELECT * FROM googleauth WHERE oauth_uid = ?";
+                                          $stmtStaf = $conn->prepare($sqlStaf);
+
+                                          // Bind parameters and execute the statement
+                                          $stmtStaf->bind_param("s", $google_id); // Assuming oauth_uid is a string
+                                          $stmtStaf->execute();
+                                          $resultStaf = $stmtStaf->get_result();
+                                          $rowStaf = $resultStaf->fetch_assoc();
+
+                                          // If user information found
+                                          if ($rowStaf) {
+                                            // Fetch the role ID of the user using a prepared statement
+                                            $sql_for_role = "SELECT role_id FROM user_roles WHERE user_id = ?";
+                                            $stmt_for_role = $conn->prepare($sql_for_role);
+                                            $stmt_for_role->bind_param("i", $rowStaf['id']);
+                                            $stmt_for_role->execute();
+                                            $result_for_role = $stmt_for_role->get_result();
+                                            $row_for_role = $result_for_role->fetch_assoc();
+                                            $role_id = $row_for_role['role_id'];
+
+                                            // Fetch the role name based on the role ID using a prepared statement
+                                            $get_role_name = "SELECT name FROM roles WHERE id = ?";
+                                            $stmt_role_name = $conn->prepare($get_role_name);
+                                            $stmt_role_name->bind_param("i", $role_id);
+                                            $stmt_role_name->execute();
+                                            $result_role_name = $stmt_role_name->get_result();
+                                            $row_role_name = $result_role_name->fetch_assoc();
+                                            $role_name = $row_role_name['name'];
+
+                                            // Check if the role name is "Administrator"
+                                            if ($role_name === "Administrator") {
+                                              // Display the OAuth UID only for administrators
+                                              echo '<p class="card-text uid" style="filter: blur(5px);">Oauth UID : ' . htmlspecialchars($rowStaf['oauth_uid']) . '</p>';
+                                            }
+                                          }
+
+                                          // Close prepared statements
+                                          $stmtStaf->close();
+                                          $stmt_for_role->close();
+                                          $stmt_role_name->close();
+                                        } else {
+                                          // Handle the case where the cookie is not set
+                                          echo "Cookie 'google_id' is not set.";
+                                        }
+                                        ?>
+
+                                        <p class="card-text" id="role">Rroga aktuale : <?php echo $k['salary']; ?> &euro;</p>
+                                      </div>
+                                    </div>
+                                    <br>
+                                    <label for="salary" class="form-label">Rroga:</label>
+                                    <input type="text" class="form-control rounded-5 border border-2 shadow-0" id="salary_<?php echo $k['id']; ?>" name="salary" value="<?php echo $k['salary']; ?>">
+                                    <br>
+                                    <button type="button" class="input-custom-css px-3 py-2" onclick="saveEmployee(<?php echo $k['id']; ?>)">Ruaj ndryshimet e bëra</button>
+                                  </form>
+                                </div>
+                              </div>
+                            </td>
+                          </tr>
+                      <?php
+                        }
+                      }
+                      ?>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <script>
+          $(document).ready(function() {
+            $(".uid").hover(function() {
+              $(this).css("filter", "none");
+            }, function() {
+              $(this).css("filter", "blur(5px)");
+            });
+          });
+        </script>
+        <div class="tab-pane fade" id="pills-listaETentativave" role="tabpanel" aria-labelledby="pills-listaETentativave-tab" tabindex="0">
+          <div class="card rounded-5 shadow-sm">
+            <div class="card-body">
+              <div class="row">
+                <div class="col-12">
+                  <table id="access_denial_logs" class="table table-bordered" style="width: 100%;">
+                    <thead class="bg-light">
+                      <tr>
+                        <th>ID</th>
+                        <th>Ip Address</th>
+                        <th>Email attempted</th>
+                        <th>User Agent</th>
+                        <th>Timestamp</th>
                       </tr>
-                  <?php
-                    }
-                  }
-                  ?>
-                </tbody>
-              </table>
+                    </thead>
+                    <tbody>
+                      <?php
+                      $kueri = $conn->query("SELECT * FROM access_denial_logs ORDER BY id DESC");
+                      while ($k = mysqli_fetch_array($kueri)) {
+                      ?>
+                        <tr>
+                          <td><?php echo $k['id']; ?></td>
+                          <td><?php echo $k['ip_address']; ?></td>
+                          <td><?php echo $k['email_attempted']; ?></td>
+                          <td><?php echo $k['user_agent']; ?></td>
+                          <td><?php echo $k['timestamp']; ?></td>
+                        </tr>
+                      <?php
+                      }
+                      ?>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -99,17 +228,14 @@
   // Function to handle AJAX salary update
   function saveEmployee(employeeId) {
     const newSalary = document.getElementById(`salary_${employeeId}`).value;
-
     // Send AJAX request to update salary
     const xhr = new XMLHttpRequest();
     xhr.open('POST', 'update_salary.php', true);
     xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-
     // Handle the response from update_salary.php
     xhr.onload = function() {
       if (xhr.status == 200) {
         const response = JSON.parse(xhr.responseText);
-
         // Check the status of the response
         if (response.status === 'success') {
           // If update is successful, show success message
@@ -131,7 +257,6 @@
         }
       }
     };
-
     // Send the request with the employee ID and salary
     xhr.send('id=' + employeeId + '&salary=' + newSalary);
   }
@@ -140,52 +265,45 @@
     // Set the dynamic ID for the offcanvas and form
     const offcanvasId = `offcanvasRightEdit_${employeeId}`;
     const formId = `editForm_${employeeId}`;
-
     // Set the dynamic IDs to the offcanvas and form
     document.getElementById(offcanvasId).id = offcanvasId;
     document.getElementById(formId).id = formId;
-
     // Populate the form fields with the current salary
     document.getElementById(`salary_${employeeId}`).value = currentSalary;
   }
 </script>
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
-    // Handle delete button click
-    document.querySelectorAll('.delete-btn').forEach(function(button) {
-      button.addEventListener('click', function() {
-        const employeeId = this.getAttribute('data-id');
-
-        // Show SweetAlert2 confirmation dialog
-        Swal.fire({
-          title: 'A je i sigurt?',
-          text: 'Ju nuk do të jeni në gjendje ta ktheni këtë!',
-          icon: 'warning',
-          showCancelButton: true,
-          confirmButtonColor: '#3085d6',
-          cancelButtonColor: '#d33',
-          confirmButtonText: 'Po, fshijeni!'
-        }).then((result) => {
-          if (result.isConfirmed) {
-            // If user confirms, send AJAX request to delete_employ.php
-            deleteEmployee(employeeId);
-          }
-        });
+  $(document).ready(function() {
+    // Handle delete button click using event delegation
+    $('#example').on('click', '.delete-btn', function(event) {
+      const employeeId = $(this).data('id');
+      // Show SweetAlert2 confirmation dialog
+      Swal.fire({
+        title: 'A je i sigurt?',
+        text: 'Ju nuk do të jeni në gjendje ta ktheni këtë!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Po, fshijeni!'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          // If user confirms, send AJAX request to delete_employ.php
+          deleteEmployee(employeeId);
+        }
       });
     });
-
     // Function to handle AJAX deletion
     function deleteEmployee(employeeId) {
       // Send AJAX request to delete_employ.php
-      const xhr = new XMLHttpRequest();
-      xhr.open('POST', 'delete_employ.php', true);
-      xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-
-      // Handle the response from delete_employ.php
-      xhr.onload = function() {
-        if (xhr.status == 200) {
-          const response = JSON.parse(xhr.responseText);
-
+      $.ajax({
+        type: 'POST',
+        url: 'delete_employ.php',
+        data: {
+          id: employeeId
+        },
+        dataType: 'json',
+        success: function(response) {
           // Check the status of the response
           if (response.status === 'success') {
             // If deletion is successful, show success message
@@ -205,11 +323,12 @@
               icon: 'error'
             });
           }
+        },
+        error: function(xhr, status, error) {
+          // Handle error if AJAX request fails
+          console.error(xhr.responseText);
         }
-      };
-
-      // Send the request with the employee ID
-      xhr.send('id=' + employeeId);
+      });
     }
   });
 </script>

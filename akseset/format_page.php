@@ -8,7 +8,7 @@ function format_page_name($page)
         return 'Rolet';
     }
     if ($page == 'stafi.php') {
-        return 'Klientet';
+        return 'Stafi';
     }
     if ($page == 'ads.php') {
         return 'Llogarit&euml; e ADS';

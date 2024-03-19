@@ -27,7 +27,7 @@ if (isset($_GET['email'])) {
     $stmt->close();
     $conn->close();
 } else {
-    echo "Access denied.";
+    // echo "Access denied.";
 }
 ?>
 

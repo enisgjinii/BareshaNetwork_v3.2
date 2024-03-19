@@ -1,42 +1,23 @@
-<?php session_start();
-
-if (!isset($_SESSION['token'])) {
-    header('Location: kycu_1.php');
-    exit;
+<?php
+if (isset($_SERVER['HTTP_COOKIE'])) {
+    $cookies = explode(';', $_SERVER['HTTP_COOKIE']);
+    foreach ($cookies as $cookie) {
+        $parts = explode('=', $cookie);
+        $name = trim($parts[0]);
+        setcookie($name, '', time() - 1000);  // Set expiration time to a past value
+    }
 }
 
-include('./config.php');
-$client = new Google_Client();
-$client->setAccessToken($_SESSION['token']);
-
-# Revoke the Google access token
-$client->revokeToken();
-
-# Capture the session data before clearing
-$clearedSessionData = $_SESSION;
-
-# Clear all session data
-session_unset();
-
-# Delete the session cookie
-if (ini_get("session.use_cookies")) {
-    $params = session_get_cookie_params();
-    setcookie(
-        session_name(),
-        '',
-        time() - 42000,
-        $params["path"],
-        $params["domain"],
-        $params["secure"],
-        $params["httponly"]
-    );
+// Clear all other cookies (if needed)
+$cookiesToClear = ['accessToken', 'email', 'f_name', 'gender', 'google_id', 'l_name', 'picture', 'refreshToken', 'session_id'];
+foreach ($cookiesToClear as $cookieName) {
+    if (isset($_COOKIE[$cookieName])) {
+        unset($_COOKIE[$cookieName]);
+        setcookie($cookieName, '', time() - 900000, '/');  // Set expiration time to a past value
+    }
 }
 
-# Destroy the session
-session_destroy();
-
-
-
-# Redirect to a login page or any other desired location
+// Redirect to the login page or any other desired location
 header("Location: kycu_1.php");
 exit;
+?>
