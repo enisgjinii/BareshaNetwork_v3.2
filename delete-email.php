@@ -18,7 +18,7 @@ if (isset($_GET['id'])) {
         $deleteResult = mysqli_query($conn, $deleteQuery);
 
         if ($deleteResult) {
-            header("Location: facebook.php");
+            header("Location: vegla_facebook.php");
             exit(); // Make sure to include this line after the redirect
         } else {
             echo "<p class='text-danger'>Failed to delete email. Please try again.</p>";

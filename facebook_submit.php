@@ -24,7 +24,7 @@ if (isset($_POST['submit'])) {
 
     // Execute the SQL statement
     if (mysqli_query($conn, $sql)) {
-        echo '<script>window.location.href = "facebook.php"</script>';
+        echo '<script>window.location.href = "vegla_facebook.php"</script>';
     } else {
         echo "Error: " . $sql . "<br>" . mysqli_error($conn);
     }

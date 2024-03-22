@@ -92,10 +92,15 @@ $invoiceDate = str_replace($shortMonth, $albanianMonth, $orderDate);
 	<div class="container-fluid">
 		<div class="row justify-content-center mt-5">
 			<div class="col-md-8">
-				<div class="card">
+				<div class="card border-0">
 					<div class="invoice-header text-center">
 						<img src="images/logob.png" alt="Company Logo" class="company-logo">
-						<h2 class="mb-0">Fatura - <?php echo $invoiceValues['invoice_number']; ?></h2>
+						<?php
+						$invoice_number = $invoiceValues['invoice_number'];
+						$invoice_parts = explode('-', $invoice_number);
+						$invoice_prefix = $invoice_parts[0] . '-' . $invoice_parts[1]; // Joining the first two parts with hyphen
+						?>
+						<h2 class="mb-0">Fatura - <?php echo $invoice_prefix; ?></h2>
 						<p>Shërbimi i ofruar nga: Baresha Music</p> <!-- Add your company name here -->
 						<p>Numri i telefonit: +383 (0) 49 605 655</p>
 						<p>Tax ID : 811499228</p>
@@ -105,19 +110,18 @@ $invoiceDate = str_replace($shortMonth, $albanianMonth, $orderDate);
 						<div class="row">
 							<div class="col-md-6">
 								<p class="mb-1">Për,</p>
-								<p class="mb-1"><strong>MARRËSI (FATURA PËR)</strong></p>
 								<p class="mb-1">Emri: <?php echo $invoiceValues['order_receiver_name']; ?></p>
 								<p class="mb-1">Adresa e faturimit: <?php echo $invoiceValues['order_receiver_address']; ?></p>
 							</div>
-							<div class="col-md-6">
-								<p class="mb-1">Numri i faturës: <?php echo $invoiceValues['invoice_number']; ?></p>
-								<p class="mb-1">ID e faturës: <?php echo $invoiceValues['order_id']; ?></p>
+							<div class="col-md-6" style="text-align: right;">
+								<p class="mb-1">Numri i faturës: <?php echo $invoice_prefix ?></p>
 								<p class="mb-1">Data e faturës: <?php echo $invoiceDate; ?></p>
 								<p class="mb-1"> Numri i telefonit: <?php echo $invoiceValues['mobile']; ?></p>
 								<p class="mb-1"> Email: <?php echo $invoiceValues['email']; ?></p>
 								<p class="mb-1">Tax ID: <?php echo $invoiceValues['tax_id']; ?></p>
 							</div>
 						</div>
+
 						<div class="invoice-details">
 							<p class="mb-1"><strong>Detajet e faturës:</strong></p>
 							<!-- <p class="mb-1">Nën-totali: <?php echo $invoiceValues['order_total_before_tax']; ?></p> -->
@@ -128,7 +132,6 @@ $invoiceDate = str_replace($shortMonth, $albanianMonth, $orderDate);
 								<thead>
 									<tr>
 										<th>Nr.</th>
-										<th>Kodi i Artikullit</th>
 										<th>Emri i Artikullit</th>
 										<th>Sasia</th>
 										<th>Çmimi</th>
@@ -143,7 +146,6 @@ $invoiceDate = str_replace($shortMonth, $albanianMonth, $orderDate);
 										echo '
                                         <tr>
                                             <td>' . $count . '</td>
-                                            <td>' . $invoiceItem["item_code"] . '</td>
                                             <td>' . $invoiceItem["item_name"] . '</td>
                                             <td>' . $invoiceItem["order_item_quantity"] . '</td>
                                             <td>' . $invoiceItem["order_item_price"] . '</td>
@@ -154,12 +156,21 @@ $invoiceDate = str_replace($shortMonth, $albanianMonth, $orderDate);
 								</tbody>
 								<tfoot>
 									<tr>
-										<td colspan="5" class="text-end invoice-total">Totali:</td>
+										<td colspan="4" class="text-end invoice-total">Totali:</td>
 										<td><?php echo $invoiceValues['order_total_after_tax']; ?></td>
 									</tr>
 								</tfoot>
 							</table>
+
 						</div>
+					</div>
+				</div><br>
+				<div class="row" style="margin-top: 80px;">
+					<div class="col-6">
+						<hr style="width: 75%;" class="mx-auto">
+					</div>
+					<div class="col-6">
+						<hr style="width: 75%;" class="mx-auto">
 					</div>
 				</div>
 			</div>

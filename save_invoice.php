@@ -13,24 +13,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // Get data from the form
     $postData = array(
-        'companyName' => $_POST['companyName'],
-        'address' => $_POST['address'],
-        'mobile' => $_POST['mobile'],
-        'email' => $_POST['email'],
-        'taxId' => $_POST['taxId'],
-        'invoiceDate' => $_POST['invoiceDate'],
-        'subTotal' => $_POST['subTotal'],
-        'taxAmount' => $_POST['taxAmount'],
-        'taxRate' => $_POST['taxRate'],
-        'totalAftertax' => $_POST['totalAftertax'],
-        'amountPaid' => $_POST['amountPaid'],
-        'amountDue' => $_POST['amountDue'],
-        'notes' => $_POST['notes'],
-        'productCode' => $_POST['productCode'],
-        'productName' => $_POST['productName'],
-        'quantity' => $_POST['quantity'],
-        'price' => $_POST['price'],
-        'total' => $_POST['total']
+        'companyName' => isset($_POST['companyName']) ? $_POST['companyName'] : '',
+        'address' => isset($_POST['address']) ? $_POST['address'] : '',
+        'mobile' => isset($_POST['mobile']) ? $_POST['mobile'] : '',
+        'email' => isset($_POST['email']) ? $_POST['email'] : '',
+        'taxId' => isset($_POST['taxId']) ? $_POST['taxId'] : '',
+        'invoiceDate' => isset($_POST['invoiceDate']) ? $_POST['invoiceDate'] : '',
+        'subTotal' => isset($_POST['subTotal']) ? $_POST['subTotal'] : 0,
+        'taxAmount' => isset($_POST['taxAmount']) ? $_POST['taxAmount'] : 0,
+        'taxRate' => isset($_POST['taxRate']) ? $_POST['taxRate'] : 0,
+        'totalAftertax' => isset($_POST['totalAftertax']) ? $_POST['totalAftertax'] : 0,
+        'amountPaid' => isset($_POST['amountPaid']) ? $_POST['amountPaid'] : 0,
+        'amountDue' => isset($_POST['amountDue']) ? $_POST['amountDue'] : 0,
+        'notes' => isset($_POST['notes']) ? $_POST['notes'] : '',
+        'productCode' => isset($_POST['productCode']) ? $_POST['productCode'] : array(),
+        'productName' => isset($_POST['productName']) ? $_POST['productName'] : array(),
+        'quantity' => isset($_POST['quantity']) ? $_POST['quantity'] : array(),
+        'price' => isset($_POST['price']) ? $_POST['price'] : array(),
+        'total' => isset($_POST['total']) ? $_POST['total'] : array()
     );
 
     // Save invoice

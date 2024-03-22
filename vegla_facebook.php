@@ -47,7 +47,7 @@ if (isset($_POST['submit'])) {
     mysqli_close($conn);
 }
 ?>
-<div class="main-panel"> 
+<div class="main-panel">
     <div class="content-wrapper">
         <div class="container-fluid">
             <div class="p-5 shadow-sm rounded-5 mb-4 card">
@@ -120,14 +120,12 @@ if (isset($_POST['submit'])) {
                                 </div>
                                 <div class="row my-3">
                                     <div class="col">
-                                        <label for="dataKrijimit" class="form-label">Data e krijimit te
-                                            kontrates</label>
-                                        <input type="date" name="dataKrijimit" id="dataKrijimit" class="form-control shadow-sm rounded-5">
+                                        <label for="dataKrijimit" class="form-label">Data e krijimit te kontrates</label>
+                                        <input type="text" name="dataKrijimit" id="dataKrijimit" class="form-control shadow-sm rounded-5 " readonly>
                                     </div>
                                     <div class="col">
-                                        <label for="dataSkadimit" class="form-label">Data e skadimit te
-                                            kontrates</label>
-                                        <input type="date" name="dataSkadimit" id="dataSkadimit" class="form-control shadow-sm rounded-5">
+                                        <label for="dataSkadimit" class="form-label">Data e skadimit te kontrates</label>
+                                        <input type="text" name="dataSkadimit" id="dataSkadimit" class="form-control shadow-sm rounded-5 " readonly>
                                     </div>
                                 </div>
                                 <div class="row my-3">
@@ -146,9 +144,9 @@ if (isset($_POST['submit'])) {
                                         <!-- <label for="adsAccount" class="form-label">ADS Account: </label>
                                             <input type="text" name="merre_adresen" id="merre_adresen"
                                                 class="form-control shadow-sm rounded-5"> -->
-                                        <label for="exampleFormControlSelect2" class="form-label">ADS Account:
+                                        <label for="merre_adresen" class="form-label">ADS Account:
                                         </label>
-                                        <select class="form-select shadow-sm rounded-5 py-2" name="merre_adresen" id="exampleFormControlSelect2">
+                                        <select class="form-select shadow-sm rounded-5 py-2" name="merre_adresen" id="merre_adresen">
                                             <?php
                                             include 'conn-d.php';
                                             $adresa = $conn->query("SELECT * FROM facebook_ads");
@@ -175,6 +173,7 @@ if (isset($_POST['submit'])) {
                                         </select>
                                     </div>
                                 </div>
+
                                 <div class="row my-3">
                                     <div class="col">
                                         <label for="numriTelefonit" class="form-label">Numri i telefonit</label>
@@ -210,9 +209,8 @@ if (isset($_POST['submit'])) {
                                     </div>
                                 </div>
                                 <div>
-                                    <button type="submit" class="btn rounded-5 btn-facebook px-5" style="text-transform: none;" name="submit">
-                                        <i class="fa-solid fa-plus icon" style="display: inline-block; vertical-align: middle;"></i>
-                                        <span style="display: inline-block; vertical-align: middle;">Regjistro</span>
+                                    <button type="submit" class="input-custom-css px-3 py-2" style="text-transform: none;" name="submit">
+                                        Regjistro
                                     </button>
                                 </div>
                             </div>
@@ -265,12 +263,14 @@ if (isset($_POST['submit'])) {
                                         echo "<tr>";
                                         echo '<td> ' . $row['emri_mbiemri'] . '</td>';
                                         echo "<td>" . $row['emri_faqes'] . "</td>";
-                                        echo "<td><a class='input-custom-css px-3 py-2' style='text-decoration: none;' href='" . $row['linkuFaqes'] . "'>Linku</a></td>";
+                                        echo "<td><a class='input-custom-css px-3 py-2' target='_blank' style='text-decoration: none;' href='" . $row['linkuFaqes'] . "'>Linku</a></td>";
                                         echo "<td>" . $row['infoShtese'] . "</td>";
-                                        echo "<td>" . $row['monetizuar'] . "</td>";
+                                        $monetizuar = $row['monetizuar'];
+                                        $color = ($monetizuar == 'PO') ? 'green' : 'red';
+                                        echo "<td style='color: $color;'>" . $monetizuar . "</td>";
                                         echo "<td>";
                                         echo "<a class='btn btn-primary text-white rounded-5 px-2 py-2' href='facebook-account.php?kid=" . $row['id'] . "'><i class='fi fi-rr-edit'></i></a> &nbsp;";
-                                        echo "<a class='btn btn-danger text-white rounded-5 px-2 py-2' href='?del=" . $row['id'] . "'><i class='fi fi-rr-trash'></i></a>";
+                                        echo "<a class='btn btn-danger text-white rounded-5 px-2 py-2' onclick='confirmDelete(" . $row['id'] . ")'><i class='fi fi-rr-trash'></i></a>";
                                         echo "</td>";
                                         echo "</tr>";
                                     }
@@ -278,7 +278,7 @@ if (isset($_POST['submit'])) {
                             }
                             $table = new FacebookTable($conn);
                             ?>
-                            <table id="example" class="table table-border table-hover w-100">
+                            <table id="example" class="table table-border  w-100">
                                 <thead class="bg-light">
                                     <tr>
                                         <th>Emri dhe mbiemri</th>
@@ -606,12 +606,14 @@ if (isset($_POST['submit'])) {
                 text: '<i class="fi fi-rr-file-pdf fa-lg"></i>&nbsp;&nbsp; PDF',
                 titleAttr: "Eksporto tabelen ne formatin PDF",
                 className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
+                filename: "lista_klienteve_facebook"
             },
             {
                 extend: "copyHtml5",
                 text: '<i class="fi fi-rr-copy fa-lg"></i>&nbsp;&nbsp; Kopjo',
                 titleAttr: "Kopjo tabelen ne formatin Clipboard",
                 className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
+                filename: "lista_klienteve_facebook"
             },
             {
                 extend: "excelHtml5",
@@ -625,12 +627,14 @@ if (isset($_POST['submit'])) {
                         page: "all",
                     },
                 },
+                filename: "lista_klienteve_facebook"
             },
             {
                 extend: "print",
                 text: '<i class="fi fi-rr-print fa-lg"></i>&nbsp;&nbsp; Printo',
                 titleAttr: "Printo tabel&euml;n",
                 className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
+                filename: "lista_klienteve_facebook"
             },
         ],
         initComplete: function() {
@@ -653,5 +657,80 @@ if (isset($_POST['submit'])) {
         },
         stripeClasses: ['stripe-color'],
         order: false,
+    });
+</script>
+<script>
+    function confirmDelete(id) {
+        Swal.fire({
+            title: 'Jeni i sigurt?',
+            text: "Nuk do të keni mundësi të ktheheni mbrapsht!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Po, fshije!',
+            cancelButtonText: 'Anulo',
+            // Custom icon
+            iconHtml: '<i class="fas fa-exclamation-triangle"></i>',
+            // Custom timer
+            timer: 5000,
+            timerProgressBar: true,
+            allowOutsideClick: false, // Prevents users from clicking outside the dialog to close it
+            allowEscapeKey: false // Prevents users from using the escape key to close the dialog
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Redirect to delete script with the row ID
+                window.location.href = "?del=" + id;
+            }
+        });
+    }
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Define today's date
+        var today = new Date();
+        flatpickr('#dataKrijimit', {
+            dateFormat: 'Y-m-d', // Set desired date format
+            allowInput: true, // Allow manual input
+            maxDate: today, // Restrict selection to today or earlier
+            onClose: function(selectedDates, dateStr, instance) {
+                // Validate selected date
+                if (selectedDates.length === 0) {
+                    // Show error message if no date is selected
+                    instance.redraw();
+                    instance._input.classList.add('is-invalid');
+                } else {
+                    // Remove error message if a valid date is selected
+                    instance._input.classList.remove('is-invalid');
+                }
+            }
+        });
+        flatpickr('#dataSkadimit', {
+            dateFormat: 'Y-m-d', // Set desired date format
+            allowInput: true, // Allow manual input
+            minDate: today, // Restrict selection to today or later
+            onClose: function(selectedDates, dateStr, instance) {
+                // Validate selected date
+                if (selectedDates.length === 0) {
+                    // Show error message if no date is selected
+                    instance.redraw();
+                    instance._input.classList.add('is-invalid');
+                } else {
+                    // Remove error message if a valid date is selected
+                    instance._input.classList.remove('is-invalid');
+                }
+            }
+        });
+    });
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        new Selectr('#merre_adresen', {
+            searchEnabled: true
+        })
+        new Selectr('#kategoria', {
+            searchEnabled: true
+        });
     });
 </script>

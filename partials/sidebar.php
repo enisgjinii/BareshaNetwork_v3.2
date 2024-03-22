@@ -173,7 +173,7 @@
         "icon" => "fa-brands fa-facebook menu-icon pe-3",
         "collapseId" => "facebook",
         "menuItems" => [
-          "facebook.php" => "Vegla Facebook",
+          "vegla_facebook.php" => "Vegla Facebook",
           "faturaFacebook.php" => "Krijo fatur&euml; (Facebook)",
           "lista_faturave_facebook.php" => "Lista e faturave (Facebook)",
         ],

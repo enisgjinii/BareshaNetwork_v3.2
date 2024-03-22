@@ -31,7 +31,7 @@ if (isset($_POST['submit'])) {
 
     if (mysqli_query($conn, $sql)) {
         echo "Record inserted successfully.";
-        header("Location: facebook.php");
+        header("Location: vegla_facebook.php");
         exit(); // Make sure to include this line after the redirect
     } else {
         echo "Error: " . $sql . "<br>" . mysqli_error($conn);

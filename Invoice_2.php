@@ -8,6 +8,8 @@ class Invoice
 	private $invoiceUserTable = 'invoice_user';
 	private $invoiceOrderTable = 'invoice_order';
 	private $invoiceOrderItemTable = 'invoice_order_item';
+
+	private $userTable = 'users_quick_invoice';
 	private $dbConnect = false;
 	public function __construct()
 	{
@@ -86,6 +88,9 @@ class Invoice
                       VALUES ('$userId', '$invoiceNumber', '$companyName', '$address', '$mobile', '$email', '$taxId', '$subTotal', '$taxAmount', '$taxRate', '$totalAfterTax', '$amountPaid', '$amountDue', '$notes')";
 		$insertOrderResult = mysqli_query($this->dbConnect, $sqlInsertOrder);
 		$lastInsertId = mysqli_insert_id($this->dbConnect);
+
+		// Insert user informations 
+		$sqlInsertUser = "INSERT INTO {$this->userTable} (user_id, name, address, mobile, email) VALUES ('$userId', '$companyName', '$address', '$mobile', '$email')";
 
 		// Insert invoice order item data
 		foreach ($productCodes as $key => $productCode) {

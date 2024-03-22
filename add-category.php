@@ -18,12 +18,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($insertResult) {
         // Category inserted successfully
         // Redirect back to the main page or show a success message
-        header("Location: facebook.php");
+        header("Location: vegla_facebook.php");
         exit;
     } else {
         // Error occurred while inserting the category
         // Redirect back to the main page or show an error message
-        header("Location: facebook.php?error=1");
+        header("Location: vegla_facebook.php?error=1");
         exit;
     }
 

@@ -1,21 +1,17 @@
 <?php
 // Përfshij header-in e faqes
 include 'partials/header.php';
-
 // Fillon buffer-in e jashtëzakonshëm dhe sesionin
 ob_start();
 session_start();
-
 // Nëse është caktuar 'id' në GET
 if (isset($_GET['id'])) {
   // Përdorimi i shprehjeve të përllogaritura për të siguruar vlerën e 'id'
   $gid = mysqli_real_escape_string($conn, $_GET['id']);
-
   // Përdorimi i deklaratës së përgatitur për të përditësuar të dhënat në bazën e të dhënave
   $updateStatement = $conn->prepare("UPDATE rrogat SET lexuar='1' WHERE id=?");
   $updateStatement->bind_param("i", $gid);
   $result = $updateStatement->execute();
-
   // Nëse ndodh ndonjë gabim gjatë përpunimit të kërkesës
   if (!$result) {
     echo '<script>
@@ -26,11 +22,9 @@ if (isset($_GET['id'])) {
                 });
               </script>';
   }
-
   // Mbyll deklaratën e përgatitur
   $updateStatement->close();
 }
-
 // Nëse është shtypur butoni me emër 'ruaj' në POST
 if (isset($_POST['ruaj'])) {
   // Përdorimi i shprehjeve të përllogaritura për të siguruar vlerat e POST
@@ -46,7 +40,6 @@ if (isset($_POST['ruaj'])) {
   $kont2 =  ($kontributi2 / 100) * $shuma;
   // Check if the checkbox is checked
   $prepaid = isset($_POST['parapagim']) ? 1 : 0;
-
   // Kalkulo shumat dhe përpuno përshtatjet e tyre
   $pagaa = $shuma - $kont;
   if ($pagaa <= 80) {
@@ -63,7 +56,6 @@ if (isset($_POST['ruaj'])) {
       }
     }
   }
-
   if ($pagaa - $p80 - $p80_250 <= 200) {
     $p250_450 = $pagaa - $p80 - $p80_250;
   } else {
@@ -77,7 +69,6 @@ if (isset($_POST['ruaj'])) {
   } else {
     $p450 = 0;
   }
-
   // Kalkulo përfundimisht shumat e ndryshme dhe përpuno tatimin dhe neton
   $paga0 = $p80;
   $paga1 = $p80_250 * 0.04;
@@ -85,12 +76,10 @@ if (isset($_POST['ruaj'])) {
   $paga3 = $p450 * 0.1;
   $tatimi = $paga1 + $paga2 + $paga3;
   $neto = $pagaa - $paga1 - $paga2 - $paga3;
-
   // Përdorimi i deklaratës së përgatitur për të futur të dhënat në bazën e të dhënave
   $insertStatement = $conn->prepare("INSERT INTO rrogat (stafi, muaji, viti, shuma, kontributi, kontributi2, tatimi, neto, data, pagesa, lexuar, parapagim) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '0', ?)");
   $insertStatement->bind_param("ssssssssssi", $stafi, $muaji, $viti, $shuma, $kont, $kont2, $tatimi, $neto, $data, $pagesa, $prepaid);
   $result = $insertStatement->execute();
-
   // Nëse ndodh ndonjë gabim gjatë përpunimit të kërkesës
   if (!$result) {
     echo '<script>
@@ -110,14 +99,10 @@ if (isset($_POST['ruaj'])) {
                 });
               </script>';
   }
-
   // Mbyll deklaratën e përgatitur
   $insertStatement->close();
 }
 ?>
-
-
-
 <style>
   .blurred {
     filter: blur(5px);
@@ -144,8 +129,6 @@ if (isset($_POST['ruaj'])) {
     </div>
   </div>
 </div>
-
-
 <div class="main-panel blurred">
   <div class="content-wrapper">
     <div class="container">
@@ -159,11 +142,9 @@ if (isset($_POST['ruaj'])) {
       </nav>
       <p id="remainingTime"></p>
       <p id="informationAboutRemainingTime"></p>
-
       <button type="button" class="input-custom-css px-3 py-2 mb-2" data-bs-toggle="modal" data-bs-target="#exampleModal">
         <i class="fi fi-rr-add" style="font-size: 13px"></i> E re
       </button>
-
       <?php include 'salaries_modal.php'; ?>
       <div class="card rounded-5" style="border-style:1px solid red;">
         <div class="card-body">
@@ -195,7 +176,6 @@ if (isset($_POST['ruaj'])) {
                       if (!is_null($gstafi)) {
                         $name = $gstafi['firstName'];
                         $last_name = $gstafi['last_name'];
-
                         $name = $name . " " . $last_name;
                       } else {
                         $name = "Unknow";
@@ -220,7 +200,6 @@ if (isset($_POST['ruaj'])) {
                         <td><?php echo $k['neto']; ?>&euro;</td>
                         <td><?php echo $k['data']; ?></td>
                         <td><?php echo $k['pagesa']; ?></td>
-
                         </td>
                         <td>
                           <button class="btn btn-primary text-white rounded-5 px-2 py-2 edit-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" data-row-id="<?php echo $k['id']; ?>">
@@ -229,15 +208,11 @@ if (isset($_POST['ruaj'])) {
                           <button class="btn btn-danger text-white rounded-5 px-2 py-2 delete-btn" type="button" data-bs-toggle="modal" data-bs-target="#deleteModal" data-row-id="<?php echo $k['id']; ?>">
                             <i class="fi fi-rr-trash"></i>
                           </button>
-
                         </td>
                       </tr>
                     <?php } ?>
-
-
                   </tbody>
                 </table>
-
               </div>
             </div>
           </div>
@@ -255,26 +230,19 @@ if (isset($_POST['ruaj'])) {
     <form id="editForm">
       <!-- <label class="form-label" for="editedName">Stafi</label>
       <input type="text" class="form-control rounded-5 border border-2 mb-2" id="editedName" name="editedName" required> -->
-
       <label class="form-label" for="editedMuaji">Muaji</label>
       <input type="text" class="form-control rounded-5 border border-2 mb-2" id="editedMuaji" name="editedMuaji" required>
       <!-- Add more input fields based on your data -->
-
       <label class="form-label" for="editedBruto">Bruto</label>
       <input type="text" class="form-control rounded-5 border border-2 mb-2" id="editedBruto" name="editedBruto" required>
-
       <label class="form-label" for="editedKontributi">Kontributi</label>
       <input type="text" class="form-control rounded-5 border border-2 mb-2" id="editedKontributi" name="editedKontributi" required>
-
       <label class="form-label" for="editedKontributi2">Kontributi 2</label>
       <input type="text" class="form-control rounded-5 border border-2 mb-2" id="editedKontributi2" name="editedKontributi2" required>
-
       <label class="form-label" for="editedTatimi">Tatimi</label>
       <input type="text" class="form-control rounded-5 border border-2 mb-2" id="editedTatimi" name="editedTatimi" required>
-
       <label class="form-label" for="editedNeto">Neto</label>
       <input type="text" class="form-control rounded-5 border border-2 mb-2" id="editedNeto" name="editedNeto" required>
-
       <br>
       <button type="button" class="input-custom-css px-3 py-2" id="saveChanges">Ruaj ndryshimet</button>
     </form>
@@ -286,7 +254,6 @@ if (isset($_POST['ruaj'])) {
     document.querySelectorAll('.edit-btn').forEach(function(button) {
       button.addEventListener('click', function() {
         var rowId = this.getAttribute('data-row-id');
-
         // Fetch corresponding data using AJAX
         $.ajax({
           type: 'GET', // Assuming you have a server endpoint to fetch data
@@ -303,7 +270,6 @@ if (isset($_POST['ruaj'])) {
             $('#editedData').val(data.data);
             $('#editedPagesa').val(data.pagesa);
             // ... add more fields as needed
-
             // Show the off-canvas
             $('#offcanvasRight').offcanvas('show');
           },
@@ -320,14 +286,12 @@ if (isset($_POST['ruaj'])) {
     });
   });
 </script>
-
 <?php include 'partials/footer.php'; ?>
 <script>
   document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.delete-btn').forEach(function(button) {
       button.addEventListener('click', function() {
         var rowId = this.getAttribute('data-row-id');
-
         // Show SweetAlert2 confirmation dialog
         Swal.fire({
           title: 'A je i sigurt?',
@@ -398,7 +362,6 @@ if (isset($_POST['ruaj'])) {
           return type === 'display' && data !== null ? '<div style="white-space: normal;">' + data + '</div>' : data;
         }
       }],
-
       buttons: [{
           extend: "pdf",
           text: '<i class="fi fi-rr-file-pdf fa-lg"></i>&nbsp;&nbsp; PDF',
@@ -468,7 +431,6 @@ if (isset($_POST['ruaj'])) {
         }
       });
     }
-
     // Function to update remaining time in UI
     function updateRemainingTime() {
       $.ajax({
@@ -486,20 +448,16 @@ if (isset($_POST['ruaj'])) {
         }
       });
     }
-
     // Call the functions initially
     checkSessionStatus();
     updateRemainingTime();
-
     // Set an interval to update every second
     setInterval(function() {
       checkSessionStatus();
       updateRemainingTime();
     }, 500);
-
     $('#submitPassword').click(function() {
       var enteredPassword = $('#password').val();
-
       $.ajax({
         url: 'password-validation.php',
         method: 'POST',

@@ -14,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (mysqli_query($conn, $sql)) {
         mysqli_close($conn);
-        header("Location: facebook.php");
+        header("Location: vegla_facebook.php");
         exit;
     } else {
         echo "Error updating row: " . mysqli_error($conn);

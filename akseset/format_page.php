@@ -124,7 +124,7 @@ function format_page_name($page)
     if ($page == 'lista_kontratave_gjenerale.php') {
         return 'Lista e kontratave ( Gjenerale )';
     }
-    if ($page == 'facebook.php') {
+    if ($page == 'vegla_facebook.php') {
         return 'Vegla Facebook';
     }
     if ($page == 'lista_faturave_facebook.php') {
@@ -195,7 +195,7 @@ $pages = array(
     'youtube_studio.php',
     'kontrata_gjenelare_2.php',
     'lista_kontratave_gjenerale.php',
-    'facebook.php',
+    'vegla_facebook.php',
     'lista_faturave_facebook.php',
     'autor.php',
     'faturaFacebook.php',

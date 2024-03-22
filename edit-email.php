@@ -19,12 +19,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($updateResult) {
         // Email updated successfully
         // Redirect back to the main page or show a success message
-        header("Location: facebook.php");
+        header("Location: vegla_facebook.php");
         exit;
     } else {
         // Error occurred while updating the email
         // Redirect back to the main page or show an error message
-        header("Location: facebook.php?error=1");
+        header("Location: vegla_facebook.php?error=1");
         exit;
     }
 

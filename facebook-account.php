@@ -27,7 +27,7 @@ if ($result && mysqli_num_rows($result) > 0) {
                 <div class="p-5 shadow-sm rounded-5 mb-4 card">
                     <div class="my-3">
                         <a type="button" class="btn btn-light shadow-sm rounded-3 btn-sm"
-                            style="border: 1px solid lightgrey; text-transform: none;" href="facebook.php">
+                            style="border: 1px solid lightgrey; text-transform: none;" href="vegla_facebook.php">
                             <i class="fi fi-rr-arrow-left"></i>
                             &nbsp; Kthehu
                         </a>

@@ -9,7 +9,7 @@ if (isset($_GET['id'])) {
     $deleteResult = mysqli_query($conn, $deleteQuery);
 
     if ($deleteResult) {
-        header("Location: facebook.php");
+        header("Location: vegla_facebook.php");
         exit;
     } else {
         echo "<p class='text-danger'>Failed to delete the category.</p>";

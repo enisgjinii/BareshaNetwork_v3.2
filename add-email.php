@@ -11,8 +11,8 @@ if (isset($_POST['submit'])) {
 
     if ($result) {
         echo "Email successfully saved in the database.";
-        // Redirect to facebook.php
-        header("Location: facebook.php");
+        // Redirect to vegla_facebook.php
+        header("Location: vegla_facebook.php");
         exit(); // Make sure to include this line after the redirect
     } else {
         echo "Error: " . mysqli_error($conn);

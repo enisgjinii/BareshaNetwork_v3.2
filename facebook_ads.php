@@ -12,8 +12,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $sql = "INSERT INTO facebook_ads (email, ads_id, shteti) VALUES ('$email', '$adsID', '$shteti')";
 
     if ($conn->query($sql) === TRUE) {
-        // Data inserted successfully, redirect to facebook.php
-        header("Location: facebook.php");
+        // Data inserted successfully, redirect to vegla_facebook.php
+        header("Location: vegla_facebook.php");
         exit;
     } else {
         echo "Error: " . $sql . "<br>" . $conn->error;

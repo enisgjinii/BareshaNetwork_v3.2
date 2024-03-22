@@ -10,7 +10,7 @@ if (isset($_GET['id'])) {
 
     if ($deleteResult) {
         // Redirect back to the original page after successful deletion
-        header("Location: facebook.php");
+        header("Location: vegla_facebook.php");
         exit();
     } else {
         echo "Error deleting row: " . mysqli_error($conn);
