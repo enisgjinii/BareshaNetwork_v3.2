@@ -1,4 +1,18 @@
-<?php include_once 'partials/header.php' ?>
+<?php
+session_start();
+// Function to generate a CSRF token
+function generate_csrf_token()
+{
+    if (empty($_SESSION['csrf_token'])) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+    return $_SESSION['csrf_token'];
+}
+// Check if CSRF token exists in session, generate a new one if not
+if (isset($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = generate_csrf_token();
+}
+include_once 'partials/header.php' ?>
 <style>
     .btn-facebook {
         position: relative;
@@ -173,7 +187,6 @@ if (isset($_POST['submit'])) {
                                         </select>
                                     </div>
                                 </div>
-
                                 <div class="row my-3">
                                     <div class="col">
                                         <label for="numriTelefonit" class="form-label">Numri i telefonit</label>
@@ -303,29 +316,34 @@ if (isset($_POST['submit'])) {
                     <div class="tab-pane fade <?php if (!isset($_GET['tab']) || $_GET['tab'] == 'adsregister')
                                                     echo 'show active'; ?>" id="pills-adsregister" role="tabpanel" aria-labelledby="pills-adsregister-tab" tabindex="0">
                         <div class="p-5 shadow-sm rounded-5 mb-4 card">
-                            <form action="facebook_ads.php" method="post">
+                            <form action="facebook_ads.php" method="post" onsubmit="return validateForm()">
+                                <!-- CSRF Token -->
+                                <input type="hidden" id="csrf_token" name="csrf_token" value="<?php echo generate_csrf_token(); ?>">
                                 <div class="row">
                                     <div class="col">
                                         <label for="email_ads" class="form-label">Email</label>
-                                        <input type="text" class="form-control shadow-sm rounded-5" name="email_ads" id="email_ads">
+                                        <input type="email" class="form-control shadow-sm rounded-5" name="email_ads" id="email_ads" placeholder="Shëno email-in" required>
+                                        <div id="email_error" class="text-danger"></div>
                                     </div>
                                     <div class="col">
                                         <label for="adsID" class="form-label">ADS ID</label>
-                                        <input type="text" class="form-control shadow-sm rounded-5" name="adsID" id="adsID">
+                                        <input type="text" class="form-control shadow-sm rounded-5" name="adsID" id="adsID" placeholder="Shëno ADS ID" required>
+                                        <div id="adsID_error" class="text-danger"></div>
                                     </div>
                                 </div>
                                 <div class="row mt-3">
                                     <div class="col">
                                         <label for="shteti" class="form-label">Shteti</label>
-                                        <input type="text" class="form-control shadow-sm rounded-5" name="shteti" id="shteti">
+                                        <input type="text" class="form-control shadow-sm rounded-5" name="shteti" id="shteti" placeholder="Shëno shtetin" required>
+                                        <div id="shteti_error" class="text-danger"></div>
                                     </div>
                                     <div class="col">
                                     </div>
                                 </div>
                                 <br>
-                                <button type="submit" class="btn btn-light rounded-5 float-right border" style="text-transform:none;" name="submit">
+                                <button type="submit" class="input-custom-css px-3 py-2 rounded-5 float-right" style="text-transform:none;" name="submit">
                                     <i class="fi fi-rr-paper-plane" style="display:inline-block;vertical-align:middle;"></i>
-                                    <span style="display:inline-block;vertical-align:middle;">D&euml;rgo</span>
+                                    <span style="display:inline-block;vertical-align:middle;">Regjistro llogari të re</span>
                                 </button>
                             </form>
                             <br>
@@ -336,7 +354,7 @@ if (isset($_POST['submit'])) {
                                             <th>Email</th>
                                             <th>Ads ID</th>
                                             <th>Shteti</th>
-                                            <th>Actions</th>
+                                            <th>Veprimet</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -352,8 +370,8 @@ if (isset($_POST['submit'])) {
                                             echo "<td>" . $row['ads_id'] . "</td>";
                                             echo "<td>" . $row['shteti'] . "</td>";
                                             echo "<td>";
-                                            echo "<button class='btn btn-primary edit-btn' data-toggle='modal' data-target='#editModal' data-id='" . $row['id'] . "' data-email='" . $row['email'] . "' data-adsid='" . $row['ads_id'] . "' data-shteti='" . $row['shteti'] . "'>Edit</button>";
-                                            echo " <a href='delete-ads.php?id=" . $row['id'] . "' class='btn btn-danger'>Delete</a>";
+                                            echo "<button class='input-custom-css px-3 py-2 edit-btn' data-toggle='modal' data-target='#editModal' data-id='" . $row['id'] . "' data-email='" . $row['email'] . "' data-adsid='" . $row['ads_id'] . "' data-shteti='" . $row['shteti'] . "'><i class='fi fi-rr-edit'></i></button>";
+                                            echo " <a style='text-decoration:none;text-transform:none' href='#' onclick='confirmDelete(" . $row['id'] . ")' class='input-custom-css px-3 py-2'><i class='fi fi-rr-trash'></i></a>";
                                             echo "</td>";
                                             echo "</tr>";
                                         }
@@ -494,27 +512,25 @@ if (isset($_POST['submit'])) {
                         <div class="modal-dialog" role="document">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h5 class="modal-title" id="editModalLabel">Edit Row</h5>
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
+                                    <h5 class="modal-title" id="modalTitle" name="modalTitle"></h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
                                     <form id="editForm" action="update-ads.php" method="post">
                                         <div class="form-group">
                                             <label for="email_ads_edit">Email</label>
-                                            <input type="text" class="form-control" name="email_ads_edit" id="email_ads_edit">
+                                            <input type="text" class="form-control border border-2 rounded-5" name="email_ads_edit" id="email_ads_edit">
                                         </div>
                                         <div class="form-group">
                                             <label for="adsID_edit">ADS ID</label>
-                                            <input type="text" class="form-control" name="adsID_edit" id="adsID_edit">
+                                            <input type="text" class="form-control border border-2 rounded-5" name="adsID_edit" id="adsID_edit">
                                         </div>
                                         <div class="form-group">
                                             <label for="shteti_edit">Shteti</label>
-                                            <input type="text" class="form-control" name="shteti_edit" id="shteti_edit">
+                                            <input type="text" class="form-control border border-2 rounded-5" name="shteti_edit" id="shteti_edit">
                                         </div>
                                         <input type="hidden" name="row_id" id="row_id">
-                                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                                        <button type="submit" class="input-custom-css px-3 py-2">Përditso të dhënat</button>
                                     </form>
                                 </div>
                             </div>
@@ -534,10 +550,12 @@ if (isset($_POST['submit'])) {
             var email = $(this).data('email');
             var adsID = $(this).data('adsid');
             var shteti = $(this).data('shteti');
+            var modalTitle = $(this).data('modal-title');
             $('#row_id').val(id);
             $('#email_ads_edit').val(email);
             $('#adsID_edit').val(adsID);
             $('#shteti_edit').val(shteti);
+            $('#modalTitle').text("Përditso llogarinë e " + email);
             $('#editModal').modal('show');
         });
     });
@@ -686,6 +704,38 @@ if (isset($_POST['submit'])) {
     }
 </script>
 <script>
+    function validateForm() {
+        // Merr vlerat nga fushat e formës
+        var email = document.getElementById('email_ads').value.trim();
+        var adsID = document.getElementById('adsID').value.trim();
+        var shteti = document.getElementById('shteti').value.trim();
+        var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        // Ndryshojeni në të vërtetë nëse formës i mungon validimi
+        var isValid = true;
+        // Fshini mesazhet e gabimeve nga fushat e mëparshme
+        document.getElementById('email_error').innerHTML = '';
+        document.getElementById('adsID_error').innerHTML = '';
+        document.getElementById('shteti_error').innerHTML = '';
+        // Validimi i fushës së emailit
+        if (!emailRegex.test(email)) {
+            document.getElementById('email_error').innerHTML = 'Adresa email është e pavlefshme';
+            isValid = false;
+        }
+        // Validimi i fushës së ADS ID
+        if (adsID.length < 3) {
+            document.getElementById('adsID_error').innerHTML = 'ID e ADS duhet të jetë të paktën 3 karaktere';
+            isValid = false;
+        }
+        // Validimi i fushës së shtetit
+        if (shteti.length === 0) {
+            document.getElementById('shteti_error').innerHTML = 'Ju lutem shkruani shtetin';
+            isValid = false;
+        }
+        // Kthe vlerën përfundimtare të validitetit të formës
+        return isValid;
+    }
+</script>
+<script>
     document.addEventListener('DOMContentLoaded', function() {
         // Define today's date
         var today = new Date();
@@ -723,7 +773,6 @@ if (isset($_POST['submit'])) {
         });
     });
 </script>
-
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         new Selectr('#merre_adresen', {
@@ -733,4 +782,34 @@ if (isset($_POST['submit'])) {
             searchEnabled: true
         });
     });
+</script>
+<script>
+    function confirmDelete(id) {
+        // Thirrni SweetAlert2 për të kërkuar konfirmimin para largimit
+        Swal.fire({
+            title: 'Konfirmo fshirjen',
+            text: 'A jeni të sigurt që dëshironi të fshini këtë artikull?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Po, fshije!',
+            cancelButtonText: 'Anulo',
+            preConfirm: () => {
+                return new Promise((resolve) => {
+                    // Këtu mund të bëni validime shtesë ose veprime të tjera përpara se të konfirmohet fshirja
+                    // Për shembull, mund të bëni një verifikim shtesë
+                    resolve();
+                });
+            }
+        }).then((result) => {
+            // Nëse përdoruesi konfirmon, përcaktojuni në lidhjen e fshirjes
+            if (result.isConfirmed) {
+                // Përdorni JavaScript për të përcaktuar URL-në e fshirjes duke përdorur id
+                var deleteURL = 'delete-ads.php?id=' + id;
+                // Përcaktimi në lidhjen e fshirjes
+                window.location.href = deleteURL;
+            }
+        });
+    }
 </script>
