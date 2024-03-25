@@ -1,20 +1,10 @@
 <?php
 include 'partials/header.php';
 include 'conn-d.php';
-
-
 // Grab the value of client and reporting period from the POST parameters
 $selectedClient = $_POST['selectedClient'] ?? null;
 $reportingPeriod = $_POST['reportingPeriod'] ?? null;
-
 ?>
-
-
-
-
-
-
-
 <div class="main-panel">
     <div class="content-wrapper">
         <div class="container-fluid">
@@ -27,8 +17,6 @@ $reportingPeriod = $_POST['reportingPeriod'] ?? null;
                                 Lista e te ardhurave nga Platformat
                             </a></li>
                 </nav>
-
-
                 <div class="row mb-2">
                     <form id="filterForm">
                         <div class="row p-3 bg-white rounded-5 border shadow-sm">
@@ -36,10 +24,8 @@ $reportingPeriod = $_POST['reportingPeriod'] ?? null;
                                 <label for="selectClient" class="form-label"> Emri i klientit</label>
                                 <select name="selectClient" id="selectClient" class="form-select shadow-sm rounded-5" style="border: 1px solid #ced4da">
                                     <?php
-
                                     $get_NameOfClient = "SELECT DISTINCT Emri FROM platformat_2";
                                     $result = $conn->query($get_NameOfClient);
-
                                     if ($result->num_rows > 0) {
                                         while ($row = $result->fetch_assoc()) {
                                             echo "<option value='" . $row['Emri'] . "'>" . $row['Emri'] . "</option>";
@@ -52,20 +38,16 @@ $reportingPeriod = $_POST['reportingPeriod'] ?? null;
                                 <label for="reportingPeriod" class="form-label">Periudha e raportimit ( Reporting Period )</label>
                                 <select name="reportingPeriod" id="reportingPeriod" class="form-select shadow-sm rounded-5" style="border: 1px solid #ced4da">
                                     <?php
-
                                     $get_Period = "SELECT DISTINCT ReportingPeriod FROM platformat_2";
                                     $result = $conn->query($get_Period);
-
                                     if ($result->num_rows > 0) {
                                         while ($row = $result->fetch_assoc()) {
                                             echo "<option value='" . $row['ReportingPeriod'] . "'>" . $row['ReportingPeriod'] . "</option>";
                                         }
                                     }
-
                                     ?>
                                 </select>
                             </div>
-
                             <div>
                                 <button class="input-custom-css btn-sm rounded-5 shadow-sm mt-3 px-3 py-2" type="submit" value="Filtro">
                                     <i class="fi fi-rr-filter"></i>
@@ -84,7 +66,6 @@ $reportingPeriod = $_POST['reportingPeriod'] ?? null;
                             #printable-content,
                             #printable-content * {
                                 visibility: visible;
-                               
                                 /* border: 0; */
                             }
 
@@ -93,6 +74,7 @@ $reportingPeriod = $_POST['reportingPeriod'] ?? null;
                                 left: 0;
                                 top: 0;
                             }
+
                             /* Dont print the button */
                             #printable-content .input-custom-css {
                                 display: none;
@@ -123,16 +105,13 @@ $reportingPeriod = $_POST['reportingPeriod'] ?? null;
                             </div>
                         </div>
                     </div>
-
                     <script>
                         function printContent() {
                             // Show only the content you want to print
                             document.body.style.visibility = 'hidden';
                             document.getElementById('printable-content').style.visibility = 'visible';
-
                             // Trigger the browser's print functionality
                             window.print();
-
                             // Reset visibility after printing
                             document.body.style.visibility = 'visible';
                         }
@@ -145,36 +124,29 @@ $reportingPeriod = $_POST['reportingPeriod'] ?? null;
                                 width: 300,
                                 clearable: true,
                             });
-
                             // Initialize Selectr for the reporting period select
                             var selectReportingPeriod = new Selectr('#reportingPeriod', {
                                 searchable: false,
                                 width: 200,
                                 clearable: true,
                             });
-
                             // Add an event listener for the form submission
                             $('#filterForm').submit(function(event) {
                                 // Prevent the default form submission
                                 event.preventDefault();
-
                                 // Get the selected values
                                 var selectedClient = selectClient.getValue();
                                 var selectedReportingPeriod = selectReportingPeriod.getValue();
-
                                 // Clear previous results and errors
                                 $('#displaySelectedClient').empty();
                                 $('#displaySelectedReportingPeriod').empty();
                                 $('#totalRevenue').empty();
                                 $('#errorContainer').empty();
-
                                 // Update spans with selected values
                                 $('#displaySelectedClient').text(selectedClient);
                                 $('#displaySelectedReportingPeriod').text(selectedReportingPeriod);
-
                                 // Reload the DataTable with the selected values
                                 table.ajax.url('fetch_CSV.php?selectedClient=' + selectedClient + '&reportingPeriod=' + selectedReportingPeriod).load();
-
                                 // Fetch total revenue from the server
                                 $.ajax({
                                     url: 'fetch_total_revenue.php',
@@ -186,14 +158,12 @@ $reportingPeriod = $_POST['reportingPeriod'] ?? null;
                                     success: function(response) {
                                         // Parse the response as a number
                                         var totalRevenue = parseFloat(response);
-
                                         // Check if the parsing was successful
                                         if (!isNaN(totalRevenue)) {
                                             // Format the number with commas and decimal places
                                             var formattedTotalRevenue = totalRevenue.toLocaleString(undefined, {
                                                 maximumFractionDigits: 2
                                             });
-
                                             // Update the total revenue
                                             $('#totalRevenue').text(formattedTotalRevenue + ' USD');
                                         } else {
@@ -202,7 +172,6 @@ $reportingPeriod = $_POST['reportingPeriod'] ?? null;
                                             $('#errorContainer').text('Error: Failed to parse total revenue.');
                                         }
                                     },
-
                                     error: function(jqXHR, textStatus, errorThrown) {
                                         // Handle errors
                                         console.error('Error fetching total revenue:', textStatus, errorThrown);
@@ -210,11 +179,8 @@ $reportingPeriod = $_POST['reportingPeriod'] ?? null;
                                     }
                                 });
                             });
-
                         });
                     </script>
-
-
                     <div class="row">
                         <div class="col-12 card p-5 rounded-5">
                             <div class="table-responsive">
@@ -233,8 +199,6 @@ $reportingPeriod = $_POST['reportingPeriod'] ?? null;
                                             <th>Split Pay Share (%)</th>
                                         </tr>
                                     </thead>
-
-
                                     <tfoot class="bg-light">
                                         <tr>
                                             <th>Emri</th>
@@ -253,34 +217,10 @@ $reportingPeriod = $_POST['reportingPeriod'] ?? null;
                             </div>
                         </div>
                     </div>
-
-
                 </div>
             </div>
         </div>
     </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     <script>
         var table = $('#example').DataTable({
             responsive: true,
@@ -298,7 +238,6 @@ $reportingPeriod = $_POST['reportingPeriod'] ?? null;
                     d.search.value = $('#example_filter input').val(); // Include search value
                 }
             },
-
             columns: [{
                     data: 'Emri'
                 },
@@ -330,9 +269,7 @@ $reportingPeriod = $_POST['reportingPeriod'] ?? null;
                     data: 'SplitPayShare'
                 }
             ],
-
             searching: true,
-
             dom: 'Bfrtip',
             buttons: [{
                 extend: 'pdfHtml5',
@@ -346,7 +283,6 @@ $reportingPeriod = $_POST['reportingPeriod'] ?? null;
                 titleAttr: 'Kopjo tabelen ne formatin Clipboard',
                 className: 'input-custom-css text-dark px-3 py-2',
                 title: 'Lista e ' + $('#selectClient').val() + ' për të ardhurat nga platformat gjatë periodes ' + $('#reportingPeriod').val(),
-
             }, {
                 extend: 'excelHtml5',
                 text: '<i class="fi fi-rr-file-excel fa-lg"></i>&nbsp;&nbsp; Excel',
@@ -373,10 +309,7 @@ $reportingPeriod = $_POST['reportingPeriod'] ?? null;
             language: {
                 url: "https://cdn.datatables.net/plug-ins/1.13.1/i18n/sq.json",
             },
-
             stripeClasses: ['stripe-color']
-
         });
     </script>
-
     <?php include 'partials/footer.php'; ?>
