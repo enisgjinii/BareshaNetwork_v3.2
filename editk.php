@@ -26,7 +26,7 @@ if (isset($_POST['ndrysho'])) {
   $nrllog = mysqli_real_escape_string($conn, $_POST['nrllog']);
   $bank_info = mysqli_real_escape_string($conn, $_POST['bank_info']);
   $perdoruesi = mysqli_real_escape_string($conn, $_POST['perdoruesi']);
-  $fjalekalimi = md5(mysqli_real_escape_string($conn, $_POST['fjalekalimi']));
+  $fjalekalimi = md5(mysqli_real_escape_string($conn, $_POST['fjalkalimi']));
   // Convert the array to a comma-separated string
   $emails = isset($_POST['emails']) ? implode(',', $_POST['emails']) : '';
   $perqindja_check = isset($_POST['perqindja_check']) ? '1' : '0';
@@ -100,12 +100,8 @@ if (isset($_POST['ndrysho'])) {
 }
 // Retrieve the data for editing
 $editcl = mysqli_fetch_array($conn->query("SELECT * FROM klientet WHERE id='$editid'"));
-
 // Retrieve the contract start date
 $contractStartDate = mysqli_fetch_array($conn->query("SELECT * FROM kontrata_gjenerale WHERE youtube_id='$editcl[youtube]'"));
-
-
-
 ?>
 <div class="main-panel">
   <div class="content-wrapper">
@@ -290,8 +286,8 @@ $contractStartDate = mysqli_fetch_array($conn->query("SELECT * FROM kontrata_gje
                     <br>
                     <div class="col">
                       <label class="form-label" for="dk">Data e fillimit të kontratës</label>
-                      <input type="date" name="dk" id="dk" class="form-control rounded-5 border border-2" placeholder="Shkruaj Daten e kontrates" value="<?php 
-                      echo $contractStartDate['data_e_krijimit']; ?>">
+                      <input type="date" name="dk" id="dk" class="form-control rounded-5 border border-2" placeholder="Shkruaj Daten e kontrates" value="<?php
+                                                                                                                                                          echo $contractStartDate['data_e_krijimit']; ?>">
                     </div>
                     <br>
                     <div class="col">
@@ -305,8 +301,6 @@ $contractStartDate = mysqli_fetch_array($conn->query("SELECT * FROM kontrata_gje
                       ?>
                       <input type="date" name="dks" id="dks" class="form-control rounded-5 border border-2" placeholder="Shkruaj Daten e skaditimit" value="<?php echo $expirationDate->format('Y-m-d'); ?>">
                     </div>
-
-
                     <br>
                     <div class="col">
                       <label class="form-label" for="yt">Zgjedh kategorinë</label>
@@ -538,7 +532,7 @@ $contractStartDate = mysqli_fetch_array($conn->query("SELECT * FROM kontrata_gje
                     <br>
                     <div class="col">
                       <label class="form-label">Fjalekalimi <small>(Sistemit)</small>:</label>
-                      <input type="password" name="password" class="form-control border border-2 rounded-5" placeholder="Fjalkalimi i sistemit" value="<?php echo $editcl['fjalkalimi']; ?>">
+                      <input type="password" name="fjalkalimi" class="form-control border border-2 rounded-5" placeholder="Fjalkalimi i sistemit" value="<?php echo $editcl['fjalkalimi']; ?>">
                       <button type="button" class="input-custom-css px-3 py-2 rounded-5 mt-1" data-bs-toggle="modal" data-bs-target="#passwordInfoModal">Info</button>
                       <!-- Create a modal for displaying password reset information -->
                       <div class="modal fade" id="passwordInfoModal" tabindex="-1" role="dialog" aria-labelledby="passwordInfoModalLabel" aria-hidden="true">

@@ -22,12 +22,13 @@ $sql .= "OR SUBSTRING_INDEX(kg.artisti, '||', 1) = k.emri ";
 $sql .= "OR (kg.youtube_id IS NOT NULL AND kg.youtube_id != '' AND kg.youtube_id = k.youtube) ";
 $sql .= "OR kg.artisti LIKE CONCAT('%', k.emri, '%')";
 $sql .= "OR CONCAT(kg.emri, ' ', kg.mbiemri) LIKE CONCAT('%', k.emri, '%')";
+$sql .= " WHERE k.aktiv IS NULL OR k.aktiv = 0"; // Condition for aktiv column
 $sqlTotal = $sql; // Total query (without paging)
 $sqlFiltered = $sql; // Query for data filtering
 // Apply search filter if a search term is provided
 if (!empty($requestData['search']['value'])) {
     $searchValue = $conn->real_escape_string($requestData['search']['value']);
-    $sqlFiltered .= " WHERE (";
+    $sqlFiltered .= " AND (";
     foreach ($columnsToDisplay as $column) {
         $sqlFiltered .= "$column LIKE '%$searchValue%' OR "; // Corrected concatenation
     }
