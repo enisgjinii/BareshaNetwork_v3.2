@@ -1,18 +1,25 @@
 <?php
-
 ob_start();
 include 'partials/header.php';
 include('conn-d.php');
-
+// Function to get the file extension
+function getFileExtension($filename)
+{
+    return strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+}
 if (isset($_POST['submit_file'])) {
     $file = $_FILES["file"]["tmp_name"];
+    // Check if the uploaded file is a CSV file
+    if (getFileExtension($_FILES["file"]["name"]) !== 'csv') {
+        // echo "Only CSV files are allowed!";
+        header("Location: csvFiles.php");
+        exit;
+    }
     $file_open = fopen($file, "r");
     $selected_option = mysqli_real_escape_string($conn, $_POST['my-select']);
-
     $counter = 0; // initialize counter variable
     $batchSize = 100; // Adjust the batch size as needed
     $batchValues = array();
-
     while (($csv = fgetcsv($file_open, 0, ",")) !== false) {
         if ($counter >= 3) {
             $ReportingPeriod = mysqli_real_escape_string($conn, str_replace("'", "\'", isset($csv[0]) ? $csv[0] : ""));
@@ -29,10 +36,8 @@ if (isset($_POST['submit_file'])) {
             $RevenueUSD = mysqli_real_escape_string($conn, str_replace("'", "\'", isset($csv[11]) ? $csv[11] : ""));
             $RevenueShare = mysqli_real_escape_string($conn, str_replace("'", "\'", isset($csv[12]) ? $csv[12] : ""));
             $SplitPayShare = mysqli_real_escape_string($conn, str_replace("'", "\'", isset($csv[13]) ? $csv[13] : ""));
-
             // Build values for batch insertion
             $batchValues[] = "('$ReportingPeriod', '$AccountingPeriod', '$Artist', '$Release', '$Track', '$UPC', '$ISRC', '$Partner', '$Country', '$Type', '$Units', '$RevenueUSD', '$RevenueShare', '$SplitPayShare', '$selected_option')";
-
             // Check if a batch is ready to be inserted
             if (count($batchValues) >= $batchSize) {
                 $query = "INSERT INTO platformat_2 (`ReportingPeriod`, `AccountingPeriod`, `Artist`, `Release`, `Track`, `UPC`, `ISRC`, `Partner`, `Country`, `Type`, `Units`, `RevenueUSD`, `RevenueShare`, `SplitPayShare`, `Emri`) VALUES " . implode(",", $batchValues);
@@ -42,35 +47,25 @@ if (isset($_POST['submit_file'])) {
         }
         $counter++; // increment counter variable
     }
-
     // Insert any remaining rows in the batch
     if (count($batchValues) > 0) {
         $query = "INSERT INTO platformat_2 (`ReportingPeriod`, `AccountingPeriod`, `Artist`, `Release`, `Track`, `UPC`, `ISRC`, `Partner`, `Country`, `Type`, `Units`, `RevenueUSD`, `RevenueShare`, `SplitPayShare`, `Emri`) VALUES " . implode(",", $batchValues);
         $conn->query($query);
     }
-
     // Close file
     fclose($file_open);
-
     // Redirect to the same page with a success status
     header('Location: ' . $_SERVER['PHP_SELF'] . '?status=success');
     exit;
 }
-
 // Check if the form was successfully submitted
 if (isset($_GET['status']) && $_GET['status'] == 'success') {
 }
-
 // Commit any open transaction
 $conn->commit();
-
 // Flush the output buffer
 ob_flush();
 ?>
-
-
-
-
 <div class="main-panel">
     <div class="content-wrapper">
         <div class="container-fluid">
@@ -85,7 +80,29 @@ ob_flush();
                             </a>
                         </li>
                 </nav>
-                <div class="p-5 mb-4 card rounded-5 shadow-sm" id="upload-container">
+                <!-- Button trigger modal -->
+                <a type="button" style="text-decoration:none;" href="csvFiles.php" class="input-custom-css px-3 py-2" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                    Shiko Guiden per insertimin e CSV-së
+                </a>
+                <!-- Modal -->
+                <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-xl">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h1 class="modal-title fs-5" id="exampleModalLabel">Guida per insertimin e CSV-së</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <iframe src="https://www.iorad.com/player/2354781/Guida-per-insertimin-e-nje-dokumenti-CSV-nga-Repost-Network---SOundCloud-Artist--?src=iframe&oembed=1" width="100%" height="500px" style="width: 100%; height: 500px; border-bottom: 1px solid #ccc;" referrerpolicy="strict-origin-when-cross-origin" frameborder="0" webkitallowfullscreen="webkitallowfullscreen" mozallowfullscreen="mozallowfullscreen" allowfullscreen="allowfullscreen" allow="camera; microphone; clipboard-write"></iframe>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-primary">Save changes</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-5 my-3 card rounded-5 shadow-sm" id="upload-container">
                     <form method="post" enctype="multipart/form-data" onsubmit="handleFormSubmission()">
                         <select id="my-select" name="my-select" class="form-select border shadow-sm rounded-5 text-dark">
                             <?php
@@ -105,15 +122,44 @@ ob_flush();
                         </script>
                         <input type="hidden" name="selected_option" id="selected_option">
                         <div class="d-flex w-50 my-4">
-                            <div class="custom-file">
-                                <input type="file" class="custom-file-input form-control shadow-sm rounded-5" id="file" name="file" placeholder="Zgjedh nj&euml; fajll">
-                            </div>
-                            &nbsp;&nbsp;&nbsp;
-                            <input type="submit" name="submit_file" class="btn btn-primary shadow-sm rounded-5 text-white" value="Ngarko" />
+                            <script>
+                                function validateFileType() {
+                                    var fileInput = document.getElementById('file');
+                                    var filePath = fileInput.value;
+                                    // Get the file extension
+                                    var fileExtension = filePath.split('.').pop().toLowerCase();
+                                    // Check if the file extension is csv
+                                    if (fileExtension === 'csv') {
+                                        return true; // Accept the file
+                                    } else {
+                                        alert('Only CSV files are allowed!');
+                                        return false; // Reject the file
+                                    }
+                                }
+                            </script>
+                            <form onsubmit="return validateFileType()">
+                                <div class="custom-file">
+                                    <input type="file" class="custom-file-input form-control shadow-sm rounded-5" id="file" name="file" placeholder="Zgjedh nj&euml; fajll" accept=".csv">
+                                </div>
+                                &nbsp;&nbsp;&nbsp;
+                                <button type="submit" name="submit_file" class="btn btn-primary shadow-sm rounded-5 text-white" value="Ngarko">Submit</button>
+                            </form>
                     </form>
-
                     <script>
                         function handleFormSubmission() {
+                            // Check if file is selected
+                            var fileInput = document.getElementById('file');
+                            if (fileInput.files.length === 0) {
+                                alert('Ju lutemi zgjidhni një skedar për të ngarkuar.');
+                                return false;
+                            }
+                            // Check file type
+                            var file = fileInput.files[0];
+                            var fileType = file.type;
+                            if (fileType !== 'text/csv') {
+                                alert('Vetëm skedarët CSV janë të lejuar.');
+                                return false;
+                            }
                             // Show loading spinner
                             Swal.fire({
                                 title: 'Duke u ngarkuar...',
@@ -126,11 +172,9 @@ ob_flush();
                                     Swal.showLoading();
                                 },
                             });
-
-                            // Perform the form submission
-                            return true; // Continue with form submission
+                            // Continue with form submission
+                            return true;
                         }
-
                         document.addEventListener('DOMContentLoaded', function() {
                             <?php if (isset($_GET['status']) && $_GET['status'] == 'success') { ?>
                                 Swal.fire({
@@ -147,9 +191,6 @@ ob_flush();
                     </script>
                 </div>
             </div>
-
-
-
             <script>
                 var table = $('#example').DataTable({
                     responsive: true,
@@ -172,7 +213,6 @@ ob_flush();
                         text: '<i class="fi fi-rr-file-excel fa-lg"></i>&nbsp;&nbsp; Excel',
                         titleAttr: 'Eksporto tabelen ne formatin CSV',
                         className: 'btn btn-light border shadow-2 me-2',
-
                     }, {
                         extend: 'print',
                         text: '<i class="fi fi-rr-print fa-lg"></i>&nbsp;&nbsp; Printo',
@@ -183,17 +223,14 @@ ob_flush();
                         var btns = $('.dt-buttons');
                         btns.addClass('');
                         btns.removeClass('dt-buttons btn-group');
-
                     },
                     fixedHeader: true,
                     language: {
                         url: "https://cdn.datatables.net/plug-ins/1.13.1/i18n/sq.json",
                     },
-
                 });
             </script>
         </div>
     </div>
 </div>
-
 <?php include 'partials/footer.php'; ?>

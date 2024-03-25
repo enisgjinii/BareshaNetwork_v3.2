@@ -1,10 +1,8 @@
 <?php
 header("X-Frame-Options: DENY");
-
 // Include necessary files and establish database connection
 include('./config.php');
 include('conn-d.php');
-
 // Function to handle authentication errors
 function handleAuthenticationError()
 {
@@ -12,13 +10,11 @@ function handleAuthenticationError()
   header('Location: denied.php');
   exit;
 }
-
 // Check if refresh token exists
 if (!isset($_COOKIE['refreshToken'])) {
   header('Location: kycu_1.php');
   exit;
 }
-
 // Attempt to refresh access token
 if (isset($_COOKIE['refreshToken'])) {
   try {
@@ -32,10 +28,8 @@ if (isset($_COOKIE['refreshToken'])) {
     handleAuthenticationError();
   }
 }
-
 // Set session token expiration time
 $_SESSION['token']['expires_at'] = time() - 1;
-
 // Fetch user information
 $google_oauth = new Google\Service\Oauth2($client);
 try {
@@ -44,13 +38,11 @@ try {
 } catch (Google_Service_Exception $e) {
   handleAuthenticationError();
 }
-
 // Validate user email
-$allowedGmailEmails = array('afrimkolgeci@gmail.com', 'besmirakolgeci1@gmail.com', 'egjini17@gmail.com', 'bareshafinance@gmail.com');
+$allowedGmailEmails = array('afrimkolgeci@gmail.com', 'besmirakolgeci1@gmail.com', 'egjini17@gmail.com', 'bareshafinance@gmail.com', 'gjinienis148@gmail.com');
 if (empty($user_info['email']) || !isValidEmailDomain($user_info['email'], $allowedGmailEmails)) {
   handleAuthenticationError();
 }
-
 // Query the database for user information
 $email = $user_info['email'];
 $sql = "SELECT * FROM googleauth WHERE email = '$email'";
@@ -63,7 +55,6 @@ if ($result->num_rows > 0) {
 } else {
   handleAuthenticationError();
 }
-
 // Function to validate email domain
 function isValidEmailDomain($email, $allowedDomains)
 {
@@ -71,8 +62,6 @@ function isValidEmailDomain($email, $allowedDomains)
   return in_array($email, $allowedDomains) || $domain === 'bareshamusic.com';
 }
 ?>
-
-
 <!DOCTYPE html>
 <html lang="en">
 

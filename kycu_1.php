@@ -125,7 +125,7 @@ if (isset($_GET['code'])) {
         return in_array($email, $allowedDomains) || $domain === 'bareshamusic.com';
     }
     // Validoni emailin e përdoruesit
-    $allowedGmailEmails = array('afrimkolgeci@gmail.com', 'besmirakolgeci1@gmail.com', 'egjini17@gmail.com', 'bareshafinance@gmail.com');
+    $allowedGmailEmails = array('afrimkolgeci@gmail.com', 'besmirakolgeci1@gmail.com', 'egjini17@gmail.com', 'bareshafinance@gmail.com','gjinienis148@gmail.com');
     if (empty($userLog['email']) || !isValidEmailDomain($userLog['email'], $allowedGmailEmails)) {
         try {
             // Cilësimet e serverit

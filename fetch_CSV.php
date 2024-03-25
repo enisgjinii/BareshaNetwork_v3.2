@@ -23,6 +23,8 @@ $lastItemId = $_POST['lastItemId'] ?? null;
 
 $selectedClient = $_POST['selectedClient'] ?? null;
 $reportingPeriod = $_POST['reportingPeriod'] ?? null;
+$selectedCountry = $_POST['selectedCountry'] ?? null;
+$selectedSplitPayShare = $_POST['selectedSplitPayShare'] ?? null;
 
 // Add conditions for the new parameters
 if (!empty($selectedClient)) {
@@ -31,6 +33,14 @@ if (!empty($selectedClient)) {
 
 if (!empty($reportingPeriod)) {
     $conditions .= " AND ReportingPeriod = '$reportingPeriod'";
+}
+
+if (!empty($selectedCountry)) {
+    $conditions .= " AND Country = '$selectedCountry'";
+}
+
+if (!empty($selectedSplitPayShare)) {
+    $conditions .= " AND SplitPayShare = '$selectedSplitPayShare'";
 }
 
 if (!empty($searchValue)) {
