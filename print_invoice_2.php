@@ -7,7 +7,6 @@ if (!empty($_GET['invoice_id']) && $_GET['invoice_id']) {
 	$invoiceValues = $invoice->getInvoice($_GET['invoice_id']);
 	$invoiceItems = $invoice->getInvoiceItems($_GET['invoice_id']);
 }
-
 $months = array(
 	'Jan' => 'Janar',
 	'Feb' => 'Shkurt',
@@ -22,7 +21,6 @@ $months = array(
 	'Nov' => 'Nëntor',
 	'Dec' => 'Dhjetor'
 );
-
 $orderDate = date("d M Y, H:i:s", strtotime($invoiceValues['order_date']));
 $shortMonth = date("M", strtotime($invoiceValues['order_date']));
 $albanianMonth = $months[$shortMonth];
@@ -30,7 +28,6 @@ $invoiceDate = str_replace($shortMonth, $albanianMonth, $orderDate);
 ?>
 <!DOCTYPE html>
 <html lang="sq">
-
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -42,52 +39,42 @@ $invoiceDate = str_replace($shortMonth, $albanianMonth, $orderDate);
 			max-width: 150px;
 			margin-bottom: 20px;
 		}
-
 		.invoice-header {
 			background-color: #f8f9fa;
 			padding: 20px;
 		}
-
 		.invoice-header h2 {
 			margin-bottom: 0;
 		}
-
 		.invoice-header p {
 			margin-bottom: 5px;
 		}
-
 		.invoice-details {
 			margin-top: 30px;
 			margin-bottom: 20px;
 		}
-
 		.invoice-details p {
 			margin-bottom: 5px;
 		}
-
 		.invoice-table th,
 		.invoice-table td {
 			vertical-align: middle;
 		}
-
 		.invoice-total {
 			font-weight: bold;
 		}
-
 		/* use media print */
 		@media print {
 			* {
 				margin: 0;
 				border: none;
 			}
-
 			.card {
 				border-style: none;
 			}
 		}
 	</style>
 </head>
-
 <body>
 	<div class="container-fluid">
 		<div class="row justify-content-center mt-5">
@@ -121,7 +108,6 @@ $invoiceDate = str_replace($shortMonth, $albanianMonth, $orderDate);
 								<p class="mb-1">Tax ID: <?php echo $invoiceValues['tax_id']; ?></p>
 							</div>
 						</div>
-
 						<div class="invoice-details">
 							<p class="mb-1"><strong>Detajet e faturës:</strong></p>
 							<!-- <p class="mb-1">Nën-totali: <?php echo $invoiceValues['order_total_before_tax']; ?></p> -->
@@ -161,12 +147,14 @@ $invoiceDate = str_replace($shortMonth, $albanianMonth, $orderDate);
 									</tr>
 								</tfoot>
 							</table>
-
 						</div>
 					</div>
 				</div><br>
 				<div class="row" style="margin-top: 80px;">
 					<div class="col-6">
+						<div>
+							<p class="text-center"><?php echo $invoiceValues['note']; ?></p>
+						</div>
 						<hr style="width: 75%;" class="mx-auto">
 					</div>
 					<div class="col-6">
@@ -177,5 +165,4 @@ $invoiceDate = str_replace($shortMonth, $albanianMonth, $orderDate);
 		</div>
 	</div>
 </body>
-
 </html>
