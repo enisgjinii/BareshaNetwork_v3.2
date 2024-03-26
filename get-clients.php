@@ -1,63 +1,77 @@
 <?php
 // Include your database connection code here
 include 'conn-d.php';
-// Define the specific columns to display
-$columnsToDisplay = array(
-    'k.emri', // Specifying the table alias
-    'k.emriart',
-    'k.emailadd',
-    'k.dk',
-    'k.dks',
-    'kg.data_e_krijimit',
-    'kg.kohezgjatja',
-    'k.monetizuar',
-    'k.id'
-);
+
 // DataTables server-side processing
-$requestData = $_GET;
+$requestData = $_POST;
+
 // Initialize default values for length, start, and draw
-$length = isset($requestData['length']) ? intval($requestData['length']) : 10; // Default length of 10
-$start = isset($requestData['start']) ? intval($requestData['start']) : 0; // Default start position of 0
-$draw = isset($requestData['draw']) ? intval($requestData['draw']) : 0; // Default draw counter of 0
-$sql = "SELECT k.emri, k.emriart, k.emailadd,k.dk, k.dks ,kg.data_e_krijimit, kg.kohezgjatja, k.monetizuar, k.id ";
-$sql .= "FROM klientet k ";
-$sql .= "LEFT JOIN kontrata_gjenerale kg ON CONCAT(kg.emri, ' ', kg.mbiemri) = k.emri ";
-$sql .= "OR SUBSTRING_INDEX(kg.artisti, '||', 1) = k.emri ";
-$sql .= "OR (kg.youtube_id IS NOT NULL AND kg.youtube_id != '' AND kg.youtube_id = k.youtube) ";
-$sql .= "OR kg.artisti LIKE CONCAT('%', k.emri, '%')";
-$sql .= "OR CONCAT(kg.emri, ' ', kg.mbiemri) LIKE CONCAT('%', k.emri, '%')";
-$sql .= " WHERE k.aktiv IS NULL OR k.aktiv = 0"; // Condition for aktiv column
-$sqlTotal = $sql; // Total query (without paging)
-$sqlFiltered = $sql; // Query for data filtering
-// Apply search filter if a search term is provided
-if (!empty($requestData['search']['value'])) {
-    $searchValue = $conn->real_escape_string($requestData['search']['value']);
-    $sqlFiltered .= " AND (";
-    foreach ($columnsToDisplay as $column) {
-        $sqlFiltered .= "$column LIKE '%$searchValue%' OR "; // Corrected concatenation
-    }
-    $sqlFiltered = rtrim($sqlFiltered, "OR "); // Remove the last "OR" from the query
-    $sqlFiltered .= ")";
+$length = isset($requestData['length']) ? intval($requestData['length']) : 10;
+$start = isset($requestData['start']) ? intval($requestData['start']) : 0;
+$draw = isset($requestData['draw']) ? intval($requestData['draw']) : 0;
+
+// Fetch search value
+$searchValue = isset($requestData['search']['value']) ? $requestData['search']['value'] : '';
+
+// Column index to sort
+$sortColumnIndex = isset($requestData['order'][0]['column']) ? intval($requestData['order'][0]['column']) : null;
+
+// Sorting order
+$sortDirection = isset($requestData['order'][0]['dir']) ? $requestData['order'][0]['dir'] : 'desc'; // Default sorting order
+
+// Prepare SQL query with search, sorting, and pagination
+$sql = "SELECT emri, emriart, emailadd, dk, dks, monetizuar, id, youtube 
+        FROM klientet 
+        WHERE (aktiv IS NULL OR aktiv = 0)";
+
+// Apply search filter
+if (!empty($searchValue)) {
+    $sql .= " AND (emri LIKE '%" . $searchValue . "%' 
+                 OR emriart LIKE '%" . $searchValue . "%' 
+                 OR emailadd LIKE '%" . $searchValue . "%')";
 }
-// Execute the filtered query to get the data count (before pagination)
-$totalRecords = $conn->query($sqlFiltered)->num_rows;
-// Apply length (limit) and offset for pagination
-$length = intval($requestData['length']);
-$start = intval($requestData['start']);
-$sqlFiltered .= " ORDER BY id DESC"; // Example sorting by the first column
-$sqlFiltered .= " LIMIT $start, $length";
-// Execute the filtered and ordered query to get the data
-$result = $conn->query($sqlFiltered);
+
+// Get total records count without filtering
+$totalRecordsQuery = "SELECT COUNT(id) AS total FROM klientet WHERE aktiv IS NULL OR aktiv = 0";
+$totalRecordsResult = $conn->query($totalRecordsQuery);
+$totalRecords = $totalRecordsResult->fetch_assoc()['total'];
+
+// Apply sorting
+$sortColumn = null;
+$columns = array('emri', 'emriart', 'emailadd', 'dk', 'dks', 'monetizuar', 'id', 'youtube');
+if ($sortColumnIndex !== null && isset($columns[$sortColumnIndex])) {
+    $sortColumn = $columns[$sortColumnIndex];
+}
+if ($sortColumn !== null) {
+    $sql .= " ORDER BY " . $sortColumn . " " . $sortDirection;
+} else {
+    // Default sorting by id DESC if no sort column provided
+    $sql .= " ORDER BY id DESC";
+}
+
+// Get filtered records count
+$filterRecordsQuery = $sql;
+$filterRecordsResult = $conn->query($filterRecordsQuery);
+$filterRecords = $filterRecordsResult->num_rows;
+
+// Apply pagination
+$sql .= " LIMIT " . $length . " OFFSET " . $start;
+
+// Execute the query
+$result = $conn->query($sql);
+
+// Prepare response data
 $data = array();
 while ($row = $result->fetch_assoc()) {
     $data[] = $row;
 }
-// Prepare the response JSON
+
+// JSON response
 $response = array(
-    "draw" => intval($requestData['draw']),
-    "recordsTotal" => $totalRecords,
-    "recordsFiltered" => $totalRecords,
-    "data" => $data,
+    "draw" => $draw,
+    "recordsTotal" => intval($totalRecords),
+    "recordsFiltered" => intval($filterRecords),
+    "data" => $data
 );
-// Output the JSON response
+
 echo json_encode($response);

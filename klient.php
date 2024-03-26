@@ -129,7 +129,7 @@ $non_monetized_percentage = ($non_monetized_clients / $total_clients) * 100;
         <div class="card-body">
           <div class="row">
             <div class="table-responsive">
-              <table id="example" class="table">
+              <table id="listaKlientave" class="table">
                 <thead class="bg-light">
                   <tr>
                     <th>Emri & Mbiemri</th>
@@ -152,191 +152,191 @@ $non_monetized_percentage = ($non_monetized_clients / $total_clients) * 100;
 </div>
 <?php include 'partials/footer.php'; ?>
 <script>
-  $('#example').DataTable({
-    ordering: false,
-    searching: true,
-    processing: true,
-    serverSide: true,
-    lengthMenu: [
-      [10, 25, 50, 100, 500, 1000],
-      [10, 25, 50, 100, 500, 1000],
-    ],
-    ajax: {
-      url: 'get-clients.php', // Replace with your server-side script URL
-      type: 'GET',
-    },
-    columns: [{
-        data: 'emri',
-        render: function(data, type, row) {
-          if (row.monetizuar == 'PO') {
-            return '<p>' + data + '</p>' +
-              '<span class="text-success">Klient i monetizuar </span>';
-          } else {
-            return '<p>' + data + '</p>' + '<span class="text-danger rounded-5">Klient i pa-monetizuar </span>';
-          }
-        }
-      }, {
-        data: 'emriart'
+  $(document).ready(function() {
+    $('#listaKlientave').DataTable({
+      ordering: false,
+      searching: true,
+      processing: true,
+      serverSide: true,
+      lengthMenu: [
+        [10, 25, 50, 100, 500, 1000],
+        [10, 25, 50, 100, 500, 1000],
+      ],
+      ajax: {
+        url: 'get-clients.php', // Replace with your server-side script URL
+        type: 'POST', // Change request type to POST
       },
-      {
-        data: 'emailadd'
-      },
-      {
-        data: null,
-        render: function(data, type, row) {
-          return row.dk + ' - ' + row.dks;
-        }
-      },
-      {
-        data: 'data_e_krijimit',
-        render: function(data, type, row) {
-          // Set Albanian locale for moment.js
-          moment.locale('sq');
-          if (!data) {
-            return '<span class="text-danger">Nuk u gjet asnjë datë.</span>';
-          } else {
-            var contractStartDate = moment(data); // Assuming data_e_krijimit is the contract start date
-            if (!contractStartDate.isValid()) {
-              return '<span class="text-danger">Data e fillimit të kontratës e pavlefshme</span>';
-            }
-            // Format the contract creation date in Albanian
-            var creationDateFormatted = contractStartDate.format('dddd, D MMMM YYYY');
-            return '<span>' + creationDateFormatted + '</span>';
-          }
-        }
-      },
-      {
-        data: 'kohezgjatja',
-        render: function(data, type, row) {
-          // Check if the contract duration is null or empty
-          if (data == null || data === '') {
-            return '<span class="text-danger">Nuk u gjet asnjë datë.</span>'; // Handle null or empty values
-          } else {
-            var months = parseInt(data);
-            if (isNaN(months) || months <= 0) {
-              return '<span class="text-danger">Data e skadimit jo-valide</span>'; // Handle invalid values
-            }
-            var years = Math.floor(months / 12);
-            var remainingMonths = months % 12;
-            var durationHTML = '';
-            if (years === 0) {
-              // If less than a year, display only months
-              durationHTML = '<p>' + data + ' Muaj</p>';
-            } else if (remainingMonths === 0) {
-              // If exact years, display only years
-              durationHTML = '<p>' + years + ' Vjet</p>';
+      columns: [{
+          data: 'emri',
+          render: function(data, type, row) {
+            if (row.monetizuar == 'PO') {
+              return '<p>' + data + '</p>' +
+                '<span class="text-success">Klient i monetizuar </span>';
             } else {
-              // Display both years and remaining months
-              durationHTML = '<p>' + years + ' Vjet ' + remainingMonths + ' Muaj</p>';
-            }
-            // Set contract start date and calculate expiration date
-            var contractDate = moment(row.data_e_krijimit); // Assuming data_e_krijimit is the contract start date
-            if (!contractDate.isValid()) {
-              return '<span class="text-danger">Data e fillimit të kontratës e pavlefshme</span>'; // Handle invalid date
-            }
-            var expirationDate = contractDate.clone().add(months, 'months');
-            expirationDate.locale('sq');
-            var expirationDateFormatted = expirationDate.format('dddd, LL');
-            // Set current date and calculate days until expiration
-            var today = moment();
-            var daysUntilExpiration = expirationDate.diff(today, 'days');
-            // Define thresholds for near and far expiration
-            var nearExpirationThreshold = 30; // 30 days
-            var farExpirationThreshold = 90; // 90 days
-            // Determine contract status based on expiration date
-            var contractStatus, statusClass, statusMessage;
-            if (daysUntilExpiration < 0) {
-              contractStatus = 'Skaduar';
-              statusClass = 'text-warning';
-              statusMessage = 'Kontrata është skaduar';
-            } else if (daysUntilExpiration <= nearExpirationThreshold) {
-              contractStatus = 'Afër skadimit';
-              statusClass = 'text-danger';
-              statusMessage = 'Skadon shumë shpejt';
-            } else if (daysUntilExpiration <= farExpirationThreshold) {
-              contractStatus = 'Pranë skadimit';
-              statusClass = 'text-warning';
-              statusMessage = 'Skadon në një të ardhme të afërt';
-            } else {
-              contractStatus = 'Aktive';
-              statusClass = 'text-success';
-              statusMessage = 'Aktive';
-            }
-            // Return formatted output with contract status
-            if (contractStatus === 'Skaduar') {
-              return durationHTML + '<span class="' + statusClass + '">' + statusMessage + '</span>';
-            } else {
-              return durationHTML + '<span class="' + statusClass + '">' + expirationDateFormatted + ' (' + statusMessage + ')</span>';
+              return '<p>' + data + '</p>' + '<span class="text-danger rounded-5">Klient i pa-monetizuar </span>';
             }
           }
-        }
-      },
-      { // Custom column for buttons
-        data: 'id', // Assuming 'id' is the property containing the ID
-        render: function(data, type, row) {
-          var buttonsHtml = `
+        }, {
+          data: 'emriart'
+        },
+        {
+          data: 'emailadd'
+        },
+        {
+          data: null,
+          render: function(data, type, row) {
+            return row.dk + ' - ' + row.dks;
+          }
+        },
+        {
+          data: 'data_e_krijimit',
+          render: function(data, type, row) {
+            // Set Albanian locale for moment.js
+            moment.locale('sq');
+            if (!data) {
+              return '<span class="text-danger">Nuk u gjet asnjë datë.</span>';
+            } else {
+              var contractStartDate = moment(data); // Assuming data_e_krijimit is the contract start date
+              if (!contractStartDate.isValid()) {
+                return '<span class="text-danger">Data e fillimit të kontratës e pavlefshme</span>';
+              }
+              // Format the contract creation date in Albanian
+              var creationDateFormatted = contractStartDate.format('dddd, D MMMM YYYY');
+              return '<span>' + creationDateFormatted + '</span>';
+            }
+          }
+        },
+        {
+          data: 'kohezgjatja',
+          render: function(data, type, row) {
+            // Check if the contract duration is null or empty
+            if (data == null || data === '') {
+              return '<span class="text-danger">Nuk u gjet asnjë datë.</span>'; // Handle null or empty values
+            } else {
+              var months = parseInt(data);
+              if (isNaN(months) || months <= 0) {
+                return '<span class="text-danger">Data e skadimit jo-valide</span>'; // Handle invalid values
+              }
+              var years = Math.floor(months / 12);
+              var remainingMonths = months % 12;
+              var durationHTML = '';
+              if (years === 0) {
+                // If less than a year, display only months
+                durationHTML = '<p>' + data + ' Muaj</p>';
+              } else if (remainingMonths === 0) {
+                // If exact years, display only years
+                durationHTML = '<p>' + years + ' Vjet</p>';
+              } else {
+                // Display both years and remaining months
+                durationHTML = '<p>' + years + ' Vjet ' + remainingMonths + ' Muaj</p>';
+              }
+              // Set contract start date and calculate expiration date
+              var contractDate = moment(row.data_e_krijimit); // Assuming data_e_krijimit is the contract start date
+              if (!contractDate.isValid()) {
+                return '<span class="text-danger">Data e fillimit të kontratës e pavlefshme</span>'; // Handle invalid date
+              }
+              var expirationDate = contractDate.clone().add(months, 'months');
+              expirationDate.locale('sq');
+              var expirationDateFormatted = expirationDate.format('dddd, LL');
+              // Set current date and calculate days until expiration
+              var today = moment();
+              var daysUntilExpiration = expirationDate.diff(today, 'days');
+              // Define thresholds for near and far expiration
+              var nearExpirationThreshold = 30; // 30 days
+              var farExpirationThreshold = 90; // 90 days
+              // Determine contract status based on expiration date
+              var contractStatus, statusClass, statusMessage;
+              if (daysUntilExpiration < 0) {
+                contractStatus = 'Skaduar';
+                statusClass = 'text-warning';
+                statusMessage = 'Kontrata është skaduar';
+              } else if (daysUntilExpiration <= nearExpirationThreshold) {
+                contractStatus = 'Afër skadimit';
+                statusClass = 'text-danger';
+                statusMessage = 'Skadon shumë shpejt';
+              } else if (daysUntilExpiration <= farExpirationThreshold) {
+                contractStatus = 'Pranë skadimit';
+                statusClass = 'text-warning';
+                statusMessage = 'Skadon në një të ardhme të afërt';
+              } else {
+                contractStatus = 'Aktive';
+                statusClass = 'text-success';
+                statusMessage = 'Aktive';
+              }
+              // Return formatted output with contract status
+              if (contractStatus === 'Skaduar') {
+                return durationHTML + '<span class="' + statusClass + '">' + statusMessage + '</span>';
+              } else {
+                return durationHTML + '<span class="' + statusClass + '">' + expirationDateFormatted + ' (' + statusMessage + ')</span>';
+              }
+            }
+          }
+        },
+        { // Custom column for buttons
+          data: 'id', // Assuming 'id' is the property containing the ID
+          render: function(data, type, row) {
+            var buttonsHtml = `
             <a style="text-transform: none;text-decoration:none;" class="input-custom-css px-3 py-2" href="editk.php?id=${data}"><i class="fi fi-rr-edit"></i></a>
             <a style="text-transform: none; text-decoration:none;" class="input-custom-css px-3 py-2" onclick="konfirmoDeaktivizimin(${data})"><i class="fi fi-rr-user-slash"></i></a>
         `;
-          return buttonsHtml;
+            return buttonsHtml;
+          }
         }
-      }
-      //  <a class="btn btn-sm btn-primary py-2 px-2 rounded-5 shadow-sm text-white" data-bs-toggle="modal" data-bs-target="#pass${data}"><i class="fi fi-rr-lock"></i></a>
-      // <a class="btn btn-sm btn-danger py-2 px-2 rounded-5 shadow-sm text-white" href="klient.php?blocked=${data}&block=${row.blockii}"><i class="fi fi-rr-ban"></i></a>
-    ],
-    columnDefs: [{
-      "targets": [0, 1, 2, 3, 4, 5, 6], // Indexes of the columns you want to apply the style to
-      "render": function(data, type, row) {
-        // Apply the style to the specified columns
-        return type === 'display' && data !== null ? '<div style="white-space: normal;">' + data + '</div>' : data;
-      }
-    }],
-    dom: "<'row'<'col-md-3'l><'col-md-6'B><'col-md-3'f>>" +
-      "<'row'<'col-md-12'tr>>" +
-      "<'row'<'col-md-6'i><'col-md-6'p>>",
-    buttons: [{
-      extend: 'pdfHtml5',
-      text: '<i class="fi fi-rr-file-pdf fa-lg"></i>&nbsp;&nbsp; PDF',
-      titleAttr: 'Eksporto tabelen ne formatin PDF',
-      className: 'btn btn-light btn-sm bg-light border me-2 rounded-5',
-    }, {
-      extend: 'excelHtml5',
-      text: '<i class="fi fi-rr-file-excel fa-lg"></i>&nbsp;&nbsp; Excel',
-      titleAttr: 'Eksporto tabelen ne formatin CSV',
-      className: 'btn btn-light btn-sm bg-light border me-2 rounded-5'
-    }, {
-      extend: "copyHtml5",
-      text: '<i class="fi fi-rr-copy fa-lg"></i>&nbsp;&nbsp; Kopjo',
-      titleAttr: "Kopjo tabelen ne formatin Clipboard",
-      className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
-    }, {
-      extend: 'print',
-      text: '<i class="fi fi-rr-print fa-lg"></i>&nbsp;&nbsp; Printo',
-      titleAttr: 'Printo tabelën',
-      className: 'btn btn-light btn-sm bg-light border me-2 rounded-5'
-    }, ],
-    initComplete: function() {
-      var btns = $(".dt-buttons");
-      btns.addClass("").removeClass("dt-buttons btn-group");
-      var lengthSelect = $("div.dataTables_length select");
-      lengthSelect.addClass("form-select");
-      lengthSelect.css({
-        width: "auto",
-        margin: "0 8px",
-        padding: "0.375rem 1.75rem 0.375rem 0.75rem",
-        lineHeight: "1.5",
-        border: "1px solid #ced4da",
-        borderRadius: "0.25rem",
-      });
-    },
-    fixedHeader: true,
-    language: {
-      url: "https://cdn.datatables.net/plug-ins/1.13.1/i18n/sq.json",
-    },
-    stripeClasses: ['stripe-color'],
-    "ordering": false
-  })
-  $(document).ready(function() {
+        //  <a class="btn btn-sm btn-primary py-2 px-2 rounded-5 shadow-sm text-white" data-bs-toggle="modal" data-bs-target="#pass${data}"><i class="fi fi-rr-lock"></i></a>
+        // <a class="btn btn-sm btn-danger py-2 px-2 rounded-5 shadow-sm text-white" href="klient.php?blocked=${data}&block=${row.blockii}"><i class="fi fi-rr-ban"></i></a>
+      ],
+      columnDefs: [{
+        "targets": [0, 1, 2, 3, 4, 5, 6], // Indexes of the columns you want to apply the style to
+        "render": function(data, type, row) {
+          // Apply the style to the specified columns
+          return type === 'display' && data !== null ? '<div style="white-space: normal;">' + data + '</div>' : data;
+        }
+      }],
+      dom: "<'row'<'col-md-3'l><'col-md-6'B><'col-md-3'f>>" +
+        "<'row'<'col-md-12'tr>>" +
+        "<'row'<'col-md-6'i><'col-md-6'p>>",
+      buttons: [{
+        extend: 'pdfHtml5',
+        text: '<i class="fi fi-rr-file-pdf fa-lg"></i>&nbsp;&nbsp; PDF',
+        titleAttr: 'Eksporto tabelen ne formatin PDF',
+        className: 'btn btn-light btn-sm bg-light border me-2 rounded-5',
+      }, {
+        extend: 'excelHtml5',
+        text: '<i class="fi fi-rr-file-excel fa-lg"></i>&nbsp;&nbsp; Excel',
+        titleAttr: 'Eksporto tabelen ne formatin CSV',
+        className: 'btn btn-light btn-sm bg-light border me-2 rounded-5'
+      }, {
+        extend: "copyHtml5",
+        text: '<i class="fi fi-rr-copy fa-lg"></i>&nbsp;&nbsp; Kopjo',
+        titleAttr: "Kopjo tabelen ne formatin Clipboard",
+        className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
+      }, {
+        extend: 'print',
+        text: '<i class="fi fi-rr-print fa-lg"></i>&nbsp;&nbsp; Printo',
+        titleAttr: 'Printo tabelën',
+        className: 'btn btn-light btn-sm bg-light border me-2 rounded-5'
+      }, ],
+      initComplete: function() {
+        var btns = $(".dt-buttons");
+        btns.addClass("").removeClass("dt-buttons btn-group");
+        var lengthSelect = $("div.dataTables_length select");
+        lengthSelect.addClass("form-select");
+        lengthSelect.css({
+          width: "auto",
+          margin: "0 8px",
+          padding: "0.375rem 1.75rem 0.375rem 0.75rem",
+          lineHeight: "1.5",
+          border: "1px solid #ced4da",
+          borderRadius: "0.25rem",
+        });
+      },
+      fixedHeader: true,
+      language: {
+        url: "https://cdn.datatables.net/plug-ins/1.13.1/i18n/sq.json",
+      },
+      stripeClasses: ['stripe-color'],
+      "ordering": false
+    });
     // Initialize the DataTable
     $('#non_monetized_clients').DataTable({
       dom: "<'row'<'col-md-3'l><'col-md-6'B><'col-md-3'f>>" +
