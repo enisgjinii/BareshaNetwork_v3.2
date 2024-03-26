@@ -25,6 +25,33 @@ if (isset($_GET['import'])) {
                         </a>
                     </li>
             </nav>
+            <!-- Button trigger modal -->
+            <button type="button" class="input-custom-css px-3 py-2 mb-2" data-bs-toggle="modal" data-bs-target="#deletedNgarkimiModal">
+                Lista e këngëve të fshira
+            </button>
+            <!-- Modal -->
+            <div class="modal fade" id="deletedNgarkimiModal" tabindex="-1" aria-labelledby="deletedNgarkimiModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-xl">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="deletedNgarkimiModalLabel">Lista e këngëve të fshira</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <table id="deletedRecordsTable" class="table table-bordered table-sm" style="width:100%">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Rekordi i fshirë</th>
+                                        <th>Koha e fshirjes</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div class="card rounded-5 shadow-sm">
                 <div class="card-body">
                     <div class="table-responsive">
@@ -263,6 +290,100 @@ if (isset($_GET['import'])) {
                     });
                 }
             });
+        });
+    });
+    $(document).ready(function() {
+        $('#deletedRecordsTable').DataTable({
+            "processing": true,
+            "serverSide": true,
+            dom: "<'row'<'col-md-3'l><'col-md-6'B><'col-md-3'f>>" +
+                "<'row'<'col-md-12'tr>>" +
+                "<'row'<'col-md-6'><'col-md-6'p>>",
+            buttons: [{
+                    extend: "pdfHtml5",
+                    text: '<i class="fi fi-rr-file-pdf fa-lg"></i>&nbsp;&nbsp; PDF',
+                    titleAttr: "Eksporto tabelen ne formatin PDF",
+                    className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
+                },
+                {
+                    extend: "copyHtml5",
+                    text: '<i class="fi fi-rr-copy fa-lg"></i>&nbsp;&nbsp; Kopjo',
+                    titleAttr: "Kopjo tabelen ne formatin Clipboard",
+                    className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
+                },
+                {
+                    extend: "excelHtml5",
+                    text: '<i class="fi fi-rr-file-excel fa-lg"></i>&nbsp;&nbsp; Excel',
+                    titleAttr: "Eksporto tabelen ne formatin Excel",
+                    className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
+                    exportOptions: {
+                        modifier: {
+                            search: "applied",
+                            order: "applied",
+                            page: "all",
+                        },
+                    },
+                },
+                {
+                    extend: "print",
+                    text: '<i class="fi fi-rr-print fa-lg"></i>&nbsp;&nbsp; Printo',
+                    titleAttr: "Printo tabel&euml;n",
+                    className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
+                },
+            ],
+            initComplete: function() {
+                var btns = $(".dt-buttons");
+                btns.addClass("").removeClass("dt-buttons btn-group");
+                var lengthSelect = $("div.dataTables_length select");
+                lengthSelect.addClass("form-select");
+                lengthSelect.css({
+                    width: "auto",
+                    margin: "0 8px",
+                    padding: "0.375rem 1.75rem 0.375rem 0.75rem",
+                    lineHeight: "1.5",
+                    border: "1px solid #ced4da",
+                    borderRadius: "0.25rem",
+                });
+            },
+            fixedHeader: true,
+            language: {
+                url: "https://cdn.datatables.net/plug-ins/1.13.1/i18n/sq.json"
+            },
+            stripeClasses: ['stripe-color'],
+            lengthMenu: [
+                [10, 25, 50, -1],
+                [10, 25, 50, "All"]
+            ],
+            paging: true,
+            "ajax": {
+                "url": "fetch_deleted_records.php",
+                "type": "POST",
+            },
+            "columns": [{
+                    "data": 0
+                }, // Index of the "id" column
+                {
+                    "data": 1
+                }, // Index of the "deleted_record" column
+                {
+                    "data": 2
+                } // Index of the "deleted_at" column
+            ],
+            "columnDefs": [{
+                "targets": 1, // Index of the "deleted_record" column
+                "render": function(data, type, row) {
+                    if (type === 'display' && data !== null) {
+                        var rowData = JSON.parse(data); // Parse the JSON string
+                        var html = '';
+                        for (var key in rowData) {
+                            var capitalizedKey = key.charAt(0).toUpperCase() + key.slice(1);
+                            html += '<p><strong>' + capitalizedKey + ':</strong> ' + rowData[key] + '</p>';
+                        }
+                        return html;
+                    }
+                    return data;
+                }
+            }]
         });
     });
 </script>
