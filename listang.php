@@ -11,15 +11,8 @@ if (isset($_GET['import'])) {
         echo '<script>alert("' . $cdata['status'] . '");</script>';
     }
 }
-if (isset($_GET['del'])) {
-    $stmt = $conn->prepare("DELETE FROM ngarkimi WHERE id=?");
-    $stmt->bind_param("s", $_GET['del']);
-    if ($stmt->execute()) {
-        echo '<script>alert("Eshte fshir me sukses")</script>';
-    } else {
-        echo "Pershkrimi i gabimit: " . $conn->error;
-    }
-} ?><div class="main-panel">
+?>
+<div class="main-panel">
     <div class="content-wrapper">
         <div class="container-fluid">
             <nav class="bg-white px-2 rounded-5" style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='currentColor'/%3E%3C/svg%3E&#34;);width:fit-content;border-style:1px solid black;" aria-label="breadcrumb">
@@ -68,7 +61,7 @@ if (isset($_GET['del'])) {
 <?php include 'partials/footer.php'; ?>
 <script>
     $(document).ready(function() {
-        $('#example').DataTable({
+        var table = $('#example').DataTable({
             // responsive: true,
             order: [
                 [0, 'desc'] // Default sorting on the first column in ascending order
@@ -82,7 +75,6 @@ if (isset($_GET['del'])) {
                     text: '<i class="fi fi-rr-file-pdf fa-lg"></i>&nbsp;&nbsp; PDF',
                     titleAttr: "Eksporto tabelen ne formatin PDF",
                     className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
-
                 },
                 {
                     extend: "copyHtml5",
@@ -135,12 +127,18 @@ if (isset($_GET['del'])) {
                 dataType: 'json',
                 dataSrc: 'data'
             },
-
             columns: [{
                     data: "id"
                 },
                 {
-                    data: 'kengetari'
+                    data: 'kengetari',
+                    render: function(data, type, row) {
+                        if (type === 'display') {
+                            // Add paragraph with kengetari data and trash icon button
+                            return `<p>${data}</p><button class="btn btn-danger text-white px-2 py-1 rounded-5 delete-btn" data-id="${row.id}"><i class="fi fi-rr-trash"></i></button>`;
+                        }
+                        return data;
+                    }
                 },
                 {
                     data: null,
@@ -156,7 +154,6 @@ if (isset($_GET['del'])) {
                 <p><strong>Data:</strong> ${row.data}</p>
                 <p><strong>Gjuha:</strong> ${row.gjuha}</p>
                 <p><strong>Postuar nga:</strong> ${row.postuar_nga}</p>
-
             `;
                             return paragraphHTML;
                         } else {
@@ -164,7 +161,6 @@ if (isset($_GET['del'])) {
                         }
                     }
                 },
-
                 {
                     data: null,
                     render: function(data, type, row) {
@@ -183,16 +179,13 @@ if (isset($_GET['del'])) {
                                 'AudioMack': 'fas fa-music',
                                 // Add more platforms as needed
                             };
-
                             // Split the 'platformat' data into individual platform names
                             const platformNames = row.platformat.split(', ');
-
                             // Generate HTML for platform icons
                             const platformIconsHTML = platformNames.map(platformName => {
                                 const iconClass = icons[platformName] || 'fas fa-question'; // Default icon if platform not found
                                 return `<i class="${iconClass} fa-lg"></i>`;
                             }).join(' ');
-
                             const paragraphHTML = `
                 <p><strong>Facebook:</strong> ${row.facebook}</p>
                 <p><strong>Instagram:</strong> ${row.instagram}</p>
@@ -219,6 +212,57 @@ if (isset($_GET['del'])) {
                     return type === 'display' && data !== null ? '<div style="white-space: normal;">' + data + '</div>' : data;
                 }
             }],
+        });
+        // Dëgjuesi i eventit për butonin e fshirjes
+        $('#example').on('click', '.delete-btn', function() {
+            var id = $(this).data('id');
+            // Shfaq dialogun e konfirmimit
+            Swal.fire({
+                title: 'A jeni i sigurt që dëshironi ta fshini?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Po, fshije!',
+                cancelButtonText: 'Anulo'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Nëse është konfirmuar, dërgoni një kërkesë AJAX për të fshirë regjistrin
+                    $.ajax({
+                        url: 'delete_ngarkimi.php', // Ndryshoni këtë me URL-në e skriptit tuaj të fshirjes
+                        method: 'POST',
+                        data: {
+                            id: id
+                        },
+                        success: function(response) {
+                            const currentPage = table.page.info().page;
+                            // Reload table data
+                            table.ajax.reload(function() {
+                                // After reload, set the table to the saved current page
+                                table.page(currentPage).draw('page');
+                            });
+                            // Shfaqni një njoftim për suksesin e fshirjes
+                            Swal.fire({
+                                title: 'Fshirja është kryer me sukses!',
+                                icon: 'success',
+                                showConfirmButton: false,
+                                timer: 1500 // Njoftimi do të zhduket pas 1.5 sekondave
+                            });
+                        },
+                        error: function(xhr, status, error) {
+                            // Trajtoni gabimin
+                            console.error(xhr.responseText);
+                            // Shfaqni një njoftim për gabimin
+                            Swal.fire({
+                                title: 'Gabim!',
+                                text: 'Ka ndodhur një problem gjatë fshirjes së regjistrit.',
+                                icon: 'error',
+                                confirmButtonText: 'OK'
+                            });
+                        }
+                    });
+                }
+            });
         });
     });
 </script>

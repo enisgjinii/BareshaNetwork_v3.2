@@ -15,6 +15,10 @@ $columnsToDisplay = array(
 );
 // DataTables server-side processing
 $requestData = $_GET;
+// Initialize default values for length, start, and draw
+$length = isset($requestData['length']) ? intval($requestData['length']) : 10; // Default length of 10
+$start = isset($requestData['start']) ? intval($requestData['start']) : 0; // Default start position of 0
+$draw = isset($requestData['draw']) ? intval($requestData['draw']) : 0; // Default draw counter of 0
 $sql = "SELECT k.emri, k.emriart, k.emailadd,k.dk, k.dks ,kg.data_e_krijimit, kg.kohezgjatja, k.monetizuar, k.id ";
 $sql .= "FROM klientet k ";
 $sql .= "LEFT JOIN kontrata_gjenerale kg ON CONCAT(kg.emri, ' ', kg.mbiemri) = k.emri ";

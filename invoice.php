@@ -178,6 +178,7 @@ function getChannelDetails($channelId, $apiKey)
       white-space: normal;
       cursor: pointer;
     }
+
     .custom-dot {
       width: 10px;
       height: 10px;
@@ -188,6 +189,7 @@ function getChannelDetails($channelId, $apiKey)
       white-space: normal;
       cursor: pointer;
     }
+
     .custom-tooltiptext {
       visibility: hidden;
       width: 80px;
@@ -206,17 +208,20 @@ function getChannelDetails($channelId, $apiKey)
       white-space: normal;
       cursor: pointer;
     }
+
     .custom-tooltip:hover .custom-tooltiptext {
       cursor: pointer;
       visibility: visible;
       white-space: normal;
       opacity: 0.9;
     }
+
     @media (max-width: 767px) {
       .breadcrumb-item a {
         font-size: 14px;
         /* Adjust the font size as needed */
       }
+
       .input-custom-css {
         font-size: 12px;
         /* Adjust the font size as needed */
@@ -229,24 +234,29 @@ function getChannelDetails($channelId, $apiKey)
         text-align: center;
         /* Center text within buttons */
       }
+
       .input-custom-css i {
         display: none;
         /* Hide icons on mobile */
       }
+
       .nav-pills {
         display: flex;
         justify-content: center;
         flex-wrap: wrap;
       }
+
       .nav-item {
         text-align: center;
         margin: 0 5px;
         /* Adjust margin as needed */
       }
+
       .table-sm th,
       .table-sm td {
         padding: 0.25rem;
       }
+
       .text-sm {
         font-size: 12px;
       }
@@ -268,64 +278,16 @@ function getChannelDetails($channelId, $apiKey)
             <button style="text-transform: none;" class="input-custom-css px-3 py-2" data-bs-toggle="modal" data-bs-target="#newInvoice">
               <i class="fi fi-rr-add-document fa-lg"></i>&nbsp; Fatur&euml; e re
             </button>
-            <?php
-            // Check if the cookie is set
-            if (isset($_COOKIE['google_id'])) {
-              // Retrieve and sanitize the value from the cookie
-              $google_id = filter_var($_COOKIE['google_id'], FILTER_SANITIZE_STRING);
-              // Fetch user information based on OAuth UID using a prepared statement
-              $sqlStaf = "SELECT * FROM googleauth WHERE oauth_uid = ?";
-              $stmtStaf = $conn->prepare($sqlStaf);
-              // Bind parameters and execute the statement
-              $stmtStaf->bind_param("s", $google_id); // Assuming oauth_uid is a string
-              $stmtStaf->execute();
-              $resultStaf = $stmtStaf->get_result();
-              $rowStaf = $resultStaf->fetch_assoc();
-              // If user information found
-              if ($rowStaf) {
-                // Fetch the role ID of the user using a prepared statement
-                $sql_for_role = "SELECT role_id FROM user_roles WHERE user_id = ?";
-                $stmt_for_role = $conn->prepare($sql_for_role);
-                $stmt_for_role->bind_param("i", $rowStaf['id']);
-                $stmt_for_role->execute();
-                $result_for_role = $stmt_for_role->get_result();
-                $row_for_role = $result_for_role->fetch_assoc();
-                $role_id = $row_for_role['role_id'];
-                // Fetch the role name based on the role ID using a prepared statement
-                $get_role_name = "SELECT name FROM roles WHERE id = ?";
-                $stmt_role_name = $conn->prepare($get_role_name);
-                $stmt_role_name->bind_param("i", $role_id);
-                $stmt_role_name->execute();
-                $result_role_name = $stmt_role_name->get_result();
-                $row_role_name = $result_role_name->fetch_assoc();
-                $role_name = $row_role_name['name'];
-                // Check if the role name is "Administrator"
-                if ($role_name === "Lirie") {
-                  // Display the OAuth UID only for administrators
-                  // echo '<p class="card-text uid" style="filter: blur(5px);">Oauth UID : ' . htmlspecialchars($rowStaf['oauth_uid']) . '</p>';
-                }
-              }
-              // Close prepared statements
-              $stmtStaf->close();
-              $stmt_for_role->close();
-              $stmt_role_name->close();
-            } else {
-              // Handle the case where the cookie is not set
-              echo "Cookie 'google_id' is not set.";
-            }
-            ?>
-             <?php if ($role_name === "Administrator") { ?>
             <button style="text-transform: none;" class="input-custom-css px-3 py-2" data-bs-toggle="modal" data-bs-target="#listOfLoansModal">
               <i class="fi fi-rr-hand-holding-usd fa-lg"></i>&nbsp; Borgjet
             </button>
-            <?php } ?>
             <button style="text-transform: none;" class="input-custom-css px-3 py-2 " data-bs-toggle="modal" data-bs-target="#trashInvoices">
               <i class="fi fi-rr-delete-document fa-lg"></i>&nbsp; Faturat e fshira
             </button>
-            <?php if ($role_name === "Administrator") { ?>
-            <a style="text-transform: none;text-decoration: none;" href="<?php echo $client->createAuthUrl(); ?>" class="input-custom-css px-3 py-2">
-              <i class="fi fi-brands-youtube fa-lg"></i>&nbsp; Lidh kanal
-            </a>
+            <?php if (!($user_info['email'] == 'lirie@bareshamusic.com')) { ?>
+              <a style="text-transform: none;text-decoration: none;" href="<?php echo $client->createAuthUrl(); ?>" class="input-custom-css px-3 py-2">
+                <i class="fi fi-brands-youtube fa-lg"></i>&nbsp; Lidh kanal
+              </a>
             <?php } ?>
             <ul class="nav nav-pills bg-white my-3 mx-0 rounded-5" style="width: fit-content; border: 1px solid lightgrey;" id="pills-tab" role="tablist">
               <li class="nav-item" role="presentation">
@@ -336,16 +298,16 @@ function getChannelDetails($channelId, $apiKey)
                   Lista e faturave ( Biznes )
                 </button>
               </li>
-              <?php if ($role_name === "Administrator") { ?>
-              <li class="nav-item" role="presentation">
-                <button class="nav-link rounded-5" style="text-transform: none" id="pills-lista_e_kanaleve-tab" data-bs-toggle="pill" data-bs-target="#pills-lista_e_kanaleve" type="button" role="tab" aria-controls="pills-lista_e_kanaleve" aria-selected="false">Lista e kanaleve</button>
-              </li>
-              <li class="nav-item" role="presentation">
-                <button class="nav-link rounded-5" style="text-transform: none" id="pills-lista_e_faturave_te_kryera-tab" data-bs-toggle="pill" data-bs-target="#pills-lista_e_faturave_te_kryera" type="button" role="tab" aria-controls="pills-lista_e_faturave_te_kryera" aria-selected="false">Pagesat e kryera ( Personal )</button>
-              </li>
-              <li class="nav-item" role="presentation">
-                <button class="nav-link rounded-5" style="text-transform: none" id="pills-lista_e_faturave_te_kryera_biznes-tab" data-bs-toggle="pill" data-bs-target="#pills-lista_e_faturave_te_kryera_biznes" type="button" role="tab" aria-controls="pills-lista_e_faturave_te_kryera_biznes" aria-selected="false">Pagesa e kryera (Biznese)</button>
-              </li>
+              <?php if (!($user_info['email'] == 'lirie@bareshamusic.com')) { ?>
+                <li class="nav-item" role="presentation">
+                  <button class="nav-link rounded-5" style="text-transform: none" id="pills-lista_e_kanaleve-tab" data-bs-toggle="pill" data-bs-target="#pills-lista_e_kanaleve" type="button" role="tab" aria-controls="pills-lista_e_kanaleve" aria-selected="false">Lista e kanaleve</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                  <button class="nav-link rounded-5" style="text-transform: none" id="pills-lista_e_faturave_te_kryera-tab" data-bs-toggle="pill" data-bs-target="#pills-lista_e_faturave_te_kryera" type="button" role="tab" aria-controls="pills-lista_e_faturave_te_kryera" aria-selected="false">Pagesat e kryera ( Personal )</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                  <button class="nav-link rounded-5" style="text-transform: none" id="pills-lista_e_faturave_te_kryera_biznes-tab" data-bs-toggle="pill" data-bs-target="#pills-lista_e_faturave_te_kryera_biznes" type="button" role="tab" aria-controls="pills-lista_e_faturave_te_kryera_biznes" aria-selected="false">Pagesa e kryera (Biznese)</button>
+                </li>
               <?php } ?>
             </ul>
           </div>
@@ -835,6 +797,7 @@ function getChannelDetails($channelId, $apiKey)
     var totalAmountAfterPercentage = totalAmount - (totalAmount * (percentage / 100));
     document.getElementById('total_amount_after_percentage').value = totalAmountAfterPercentage.toFixed(2);
   });
+
   function getCustomerName(customerId) {
     var customerName = '';
     $.ajax({
@@ -1480,6 +1443,7 @@ function getChannelDetails($channelId, $apiKey)
       },
       stripeClasses: ['stripe-color']
     });
+
     function getCurrentDate() {
       var today = new Date();
       var dd = String(today.getDate()).padStart(2, '0');
@@ -1537,4 +1501,5 @@ function getChannelDetails($channelId, $apiKey)
 <script src="states.js"></script>
 <?php include 'partials/footer.php' ?>
 </body>
+
 </html>

@@ -1,45 +1,29 @@
 <?php
+session_start();
 date_default_timezone_set('Europe/Tirane');
 include 'partials/header.php';
-
-class Database
+// Function to generate CSRF token
+function generateCsrfToken()
 {
-  private $conn;
-
-  public function __construct($conn)
-  {
-    $this->conn = $conn;
+  if (!isset($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
   }
-
-  public function insertData($insertQuery, $data)
-  {
-    $stmt = $this->conn->prepare($insertQuery);
-    if (!$stmt) {
-      return false;
-    }
-    $stmt->bind_param(...$data);
-    $success = $stmt->execute();
-    $stmt->close();
-    return $success;
-  }
-
-  public function insertLog($logQuery, $data)
-  {
-    $stmt = $this->conn->prepare($logQuery);
-    if (!$stmt) {
-      return false;
-    }
-    $stmt->bind_param(...$data);
-    $success = $stmt->execute();
-    $stmt->close();
-    return $success;
-  }
+  return $_SESSION['csrf_token'];
 }
-
-if (isset($_POST['ruaj'])) {
+// Function to validate CSRF token
+// Function to validate CSRF token
+function validateCsrfToken()
+{
+  if (!isset($_SESSION['csrf_token'])) {
+    return false;
+  }
+  return true;
+}
+// Check if form is submitted and CSRF token is valid
+if (isset($_POST['ruaj']) && validateCsrfToken()) {
   // Assuming $conn is your database connection
-  $db = new Database($conn);
-
+  require_once "conn-d.php";
+  // Your database interaction logic
   // Define your insert query and data separately
   $insertQuery = "INSERT INTO ngarkimi (kengetari, emri, teksti, muzika, orkestra, co, facebook, instagram, veper, klienti, platforma, platformat, linku, data, gjuha, infosh, nga, linkuplat) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
   $data = [
@@ -63,16 +47,31 @@ if (isset($_POST['ruaj'])) {
     $user_info['givenName'] . ' ' . $user_info['familyName'],
     $_POST['linkuplat']
   ];
-
-  // Execute insertion and logging
-  $insertSuccess = $db->insertData($insertQuery, $data);
-
+  // Prepare and execute insertion query
+  $stmt = $conn->prepare($insertQuery);
+  if ($stmt) {
+    $stmt->bind_param(...$data);
+    $insertSuccess = $stmt->execute();
+    $stmt->close();
+  } else {
+    $insertSuccess = false;
+  }
+  // Handle insertion result
   if ($insertSuccess) {
+    // Log successful insertion
     $log_description = $data[17] . " ka ngarkuar " . $data[1] . " në sistem";
     $date_information = date('Y-m-d H:i:s');
     $logQuery = "INSERT INTO logs (stafi, ndryshimi, koha) VALUES (?, ?, ?)";
     $logData = ["sss", $data[17], $log_description, $date_information];
-    $logSuccess = $db->insertLog($logQuery, $logData);
+    $stmt = $conn->prepare($logQuery);
+    if ($stmt) {
+      $stmt->bind_param(...$logData);
+      $logSuccess = $stmt->execute();
+      $stmt->close();
+    } else {
+      $logSuccess = false;
+    }
+    // Show success message
     if ($logSuccess) {
       echo '<script>
                 Swal.fire({
@@ -93,6 +92,7 @@ if (isset($_POST['ruaj'])) {
             </script>';
     }
   } else {
+    // Show error message
     echo '<script>
             Swal.fire({
               icon: "error",
@@ -102,9 +102,20 @@ if (isset($_POST['ruaj'])) {
             });
         </script>';
   }
+} elseif (isset($_POST['ruaj'])) {
+  // If CSRF token is missing or invalid, show error message
+  echo '<script>
+        Swal.fire({
+          icon: "error",
+          title: "Error!",
+          text: "Invalid CSRF token. Please try again.",
+          confirmButtonText: "OK"
+        });
+    </script>';
 }
+// Generate CSRF token
+$csrf_token = generateCsrfToken();
 ?>
-
 <!-- Begin Page Content -->
 <div class="main-panel">
   <div class="content-wrapper">
@@ -126,10 +137,24 @@ if (isset($_POST['ruaj'])) {
             <div class="form-group row">
               <div class="col">
                 <label for="emri" class="form-label">K&euml;ng&euml;tari</label>
-                <input type="text" name="kengtari" id="term" class="form-control border border-2 rounded-5" placeholder="Shëno emrin e këngëtarit" required>
+                <!-- Your select element -->
+                <select name="kengtari" id="term" class="form-control border border-2 rounded-5" required>
+                  <?php
+                  require_once "conn-d.php";
+                  $query = "SELECT DISTINCT kengetari FROM ngarkimi";
+                  $result = mysqli_query($conn, $query);
+                  while ($row = mysqli_fetch_assoc($result)) {
+                    echo "<option value='" . $row['kengetari'] . "'>" . $row['kengetari'] . "</option>";
+                  }
+                  ?>
+                </select>
+                <!-- Initialize Selectr -->
                 <script type="text/javascript">
-                  $("#term").autocomplete({
-                    source: 'ajax-db-search.php',
+                  document.addEventListener("DOMContentLoaded", function() {
+                    var termSelect = document.getElementById('term');
+                    var selectr = new Selectr(termSelect, {
+                      placeholder: "Shëno emrin e këngëtarit"
+                    });
                   });
                 </script>
               </div>
@@ -187,11 +212,8 @@ if (isset($_POST['ruaj'])) {
                     dateFormat: 'Y-m-d',
                     maxDate: new Date().toISOString().split("T")[0], // Set max date to today
                     "locale": "sq" // locale for this instance only
-
                   });
                 </script>
-
-
               </div>
               <div class="col">
                 <label for="imei" class="form-label">Klienti </label>
@@ -231,18 +253,15 @@ if (isset($_POST['ruaj'])) {
                   <option value="AudioMack" selected="selected">AudioMack</option>
                 </select>
               </div>
-
             </div>
             <div class="form-group row">
               <div class="col">
                 <label for="info" class="form-label">Linku i këngës (nëse aplikohet)</label>
                 <input type="url" name="linku" class="form-control border border-2 rounded-5" placeholder="Vendosni linkun e këngës" autocomplete="off">
-
               </div>
               <div class="col">
                 <label for="info" class="form-label">Linku për platformat (nëse aplikohet)</label><br>
                 <input type="url" name="linkuplat" class="form-control border border-2 rounded-5" placeholder="Vendosni linkun për platformat" autocomplete="off">
-
               </div>
             </div>
             <div class="form-group row">
@@ -256,7 +275,6 @@ if (isset($_POST['ruaj'])) {
                     "locale": "sq" // locale for this instance only
                   });
                 </script>
-
               </div>
               <div class="col">
                 <label for="imei" class="form-label">Gjuha</label>
@@ -276,7 +294,6 @@ if (isset($_POST['ruaj'])) {
             <div class="col">
               <label for="simpleMde" class="form-label">Informacion shtesë (përdorni këtë hapësirë për të dhënë detaje shtesë)</label>
               <textarea id="simpleMde" name="infosh" placeholder="Shkruani informacionin shtesë këtu..." class="form-control border border-2 rounded-5"></textarea>
-
             </div>
             <button type="submit" class="input-custom-css px-3 py-2 mt-3" name="ruaj"><i class="fi fi-rr-paper-plane"></i> Ruaj</button>
         </div>
