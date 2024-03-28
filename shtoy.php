@@ -2,6 +2,7 @@
 session_start();
 date_default_timezone_set('Europe/Tirane');
 include 'partials/header.php';
+
 // Function to generate CSRF token
 function generateCsrfToken()
 {

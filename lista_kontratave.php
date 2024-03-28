@@ -20,6 +20,39 @@ include('partials/header.php');
                         </a>
                     </li>
             </nav>
+            <!-- Button trigger modal -->
+            <button type="button" class="input-custom-css px-3 py-2 my-2" data-bs-toggle="modal" data-bs-target="#deletedContractsOfSongs">
+                Lista e kontratave ( Këngë ) të fshira
+            </button>
+            <!-- Modal -->
+            <div class="modal fade" id="deletedContractsOfSongs" tabindex="-1" aria-labelledby="deletedContractsOfSongsLabel" aria-hidden="true">
+                <div class="modal-dialog modal-xl">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="deletedContractsOfSongsLabel">
+                                Lista e kontratave ( Këngë ) të fshira
+                            </h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <table class="table w-100" id="deleted_contracts_of_songs">
+                                <thead class="table-light">
+                                    <!-- Emri dhe mbiemri	Perqindja	Klienti	Vepra	Data	Kontrata PDF	Kontrata e vjeter	Modifiko -->
+                                    <tr>
+                                        <th>Emri dhe mbiemri</th>
+                                        <th>Perqindja</th>
+                                        <th>Klienti</th>
+                                        <th>Vepra</th>
+                                        <th>Data</th>
+                                        <th>Kontrata PDF</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div class="card shadow-sm rounded-5">
                 <div class="card-body">
                     <h4 class="card-title">Lista e kontratave</h4>
@@ -151,7 +184,7 @@ include('partials/header.php');
                                                 <td style="font-size: 12px;" class="wrap-text">
                                                     <!-- Add edit and delete buttons -->
                                                     <a href="modifiko_kontraten.php?id=<?php echo $k['id']; ?>" class="btn btn-primary rounded-5 text-white"><i class="fi fi-rr-edit"></i></a>
-                                                    <a href="fshij_kontraten.php?id=<?php echo $k['id']; ?>" class="btn btn-danger text-white rounded-5" onclick="return confirm('Are you sure you want to delete this record?')"><i class="fi fi-rr-trash"></i></a>
+                                                    <a href="#" class="btn btn-danger text-white rounded-5 delete-contract" data-id="<?php echo $k['id']; ?>"><i class="fi fi-rr-trash"></i></a>
                                                     <br><br>
                                                     <?php if ($k['nenshkrimi'] == !null) { ?>
                                                     <?php } else {
@@ -164,18 +197,6 @@ include('partials/header.php');
                                             </tr>
                                         <?php } ?>
                                     </tbody>
-                                    <tfoot class="bg-light">
-                                        <tr>
-                                            <th style="font-size: 14px;">Emri dhe mbiemri</th>
-                                            <th style="font-size: 14px;">Perqindja</th>
-                                            <th style="font-size: 14px;">Klienti</th>
-                                            <th style="font-size: 14px;">Vepra</th>
-                                            <th style="font-size: 14px;">Data</th>
-                                            <th style="font-size: 14px;">Kontrata PDF</th>
-                                            <th style="font-size: 14px;">Kontrata e vjeter</th>
-                                            <th style="font-size: 14px;">Modifiko</th>
-                                        </tr>
-                                    </tfoot>
                                 </table>
                             </div>
                         </div>
@@ -498,7 +519,6 @@ ob_flush();
 ?>
 <script>
     var token = "<?php echo isset($token) ? $token : ''; ?>";
-
     function updateEmailInput(button) {
         var id = button.getAttribute("data-id");
         var tableRow = button.closest("tr");
@@ -530,6 +550,85 @@ ob_flush();
 </script>
 <script type="text/javascript">
     $(document).ready(function() {
+        $('#deleted_contracts_of_songs').DataTable({
+            "processing": true,
+            "serverSide": true,
+            ordering: false,
+            "ajax": {
+                "url": "deleted_contracts_of_songs.php", // Specify the URL of your server-side script
+                "type": "POST" // Use POST method to send data
+            },
+            dom: "<'row'<'col-md-3'l><'col-md-6'B><'col-md-3'f>>" +
+                "<'row'<'col-md-12'tr>>" +
+                "<'row'<'col-md-6'><'col-md-6'p>>",
+            buttons: [{
+                extend: 'pdfHtml5',
+                text: '<i class="fi fi-rr-file-pdf fa-lg"></i>&nbsp;&nbsp; PDF',
+                titleAttr: 'Eksporto tabelen ne formatin PDF',
+                className: 'btn btn-light btn-sm bg-light border me-2 rounded-5'
+            }, {
+                extend: 'copyHtml5',
+                text: '<i class="fi fi-rr-copy fa-lg"></i>&nbsp;&nbsp; Kopjo',
+                titleAttr: 'Kopjo tabelen ne formatin Clipboard',
+                className: 'btn btn-light btn-sm bg-light border me-2 rounded-5'
+            }, {
+                extend: 'excelHtml5',
+                text: '<i class="fi fi-rr-file-excel fa-lg"></i>&nbsp;&nbsp; Excel',
+                titleAttr: 'Eksporto tabelen ne formatin CSV',
+                className: 'btn btn-light btn-sm bg-light border me-2 rounded-5'
+            }],
+            initComplete: function() {
+                var btns = $(".dt-buttons");
+                btns.addClass("").removeClass("dt-buttons btn-group");
+                var lengthSelect = $("div.dataTables_length select");
+                lengthSelect.addClass("form-select");
+                lengthSelect.css({
+                    width: "auto",
+                    margin: "0 8px",
+                    padding: "0.375rem 1.75rem 0.375rem 0.75rem",
+                    lineHeight: "1.5",
+                    border: "1px solid #ced4da",
+                    borderRadius: "0.25rem",
+                });
+            },
+            language: {
+                url: "https://cdn.datatables.net/plug-ins/1.13.1/i18n/sq.json",
+            },
+            stripeClasses: ['stripe-color'],
+            "columns": [{
+                    "data": null,
+                    "render": function(data, type, row) {
+                        // Concatenate "emri" and "mbiemri" fields
+                        return data.emri + " " + data.mbiemri;
+                    }
+                },
+                {
+                    "data": "perqindja"
+                },
+                {
+                    "data": "klienti",
+                    "render": function(data, type, row) {
+                        // Split the string by "|" and return the first part
+                        return data.split('|')[0];
+                    }
+                },
+                {
+                    "data": "vepra"
+                },
+                {
+                    "data": "data"
+                },
+                {
+                    "data": "pdf_file"
+                },
+            ],
+            "columnDefs": [{
+                "targets": [0, 1, 2, 3, 4, 5],
+                "render": function(data, type, row) {
+                    return type === 'display' && data !== null ? '<div style="white-space: normal;">' + data + '</div>' : data;
+                }
+            }]
+        });
         let minDate, maxDate;
         // Create date inputs
         minDate = new DateTime('#min', {
@@ -541,41 +640,45 @@ ob_flush();
         let table = $('#example').DataTable({
             responsive: false,
             "ordering": false,
-            search: {
-                return: true,
-            },
-            dom: 'Bfrtip',
+            "searching": true,
+            dom: "<'row'<'col-md-3'l><'col-md-6'B><'col-md-3'f>>" +
+                "<'row'<'col-md-12'tr>>" +
+                "<'row'<'col-md-6'><'col-md-6'p>>",
             buttons: [{
                 extend: 'pdfHtml5',
                 text: '<i class="fi fi-rr-file-pdf fa-lg"></i>&nbsp;&nbsp; PDF',
                 titleAttr: 'Eksporto tabelen ne formatin PDF',
-                className: 'btn btn-light border shadow-2 me-2'
+                className: 'btn btn-light btn-sm bg-light border me-2 rounded-5'
             }, {
                 extend: 'copyHtml5',
                 text: '<i class="fi fi-rr-copy fa-lg"></i>&nbsp;&nbsp; Kopjo',
                 titleAttr: 'Kopjo tabelen ne formatin Clipboard',
-                className: 'btn btn-light border shadow-2 me-2'
+                className: 'btn btn-light btn-sm bg-light border me-2 rounded-5'
             }, {
                 extend: 'excelHtml5',
                 text: '<i class="fi fi-rr-file-excel fa-lg"></i>&nbsp;&nbsp; Excel',
                 titleAttr: 'Eksporto tabelen ne formatin CSV',
-                className: 'btn btn-light border shadow-2 me-2'
-            }, {
-                extend: 'print',
-                text: '<i class="fi fi-rr-print fa-lg"></i>&nbsp;&nbsp; Printo',
-                titleAttr: 'Printo tabelën',
-                className: 'btn btn-light border shadow-2 me-2'
+                className: 'btn btn-light btn-sm bg-light border me-2 rounded-5'
             }, {
                 text: '<i class="fi fi-rr-add-document fa-lg"></i>&nbsp;&nbsp; Shto kontratë',
-                className: 'btn btn-light border shadow-2 me-2',
+                className: 'btn btn-light btn-sm bg-light border me-2 rounded-5',
                 action: function(e, node, config) {
                     window.location.href = 'kontrata_2.php';
                 }
             }],
             initComplete: function() {
-                var btns = $('.dt-buttons');
-                btns.addClass('');
-                btns.removeClass('dt-buttons btn-group');
+                var btns = $(".dt-buttons");
+                btns.addClass("").removeClass("dt-buttons btn-group");
+                var lengthSelect = $("div.dataTables_length select");
+                lengthSelect.addClass("form-select");
+                lengthSelect.css({
+                    width: "auto",
+                    margin: "0 8px",
+                    padding: "0.375rem 1.75rem 0.375rem 0.75rem",
+                    lineHeight: "1.5",
+                    border: "1px solid #ced4da",
+                    borderRadius: "0.25rem",
+                });
             },
             fixedHeader: true,
             language: {
@@ -625,6 +728,32 @@ ob_flush();
         // Refilter the table
         $('#min, #max').on('change', function() {
             table.draw();
+        });
+    });
+</script>
+<script>
+    $(document).ready(function() {
+        $(".delete-contract").click(function(e) {
+            e.preventDefault();
+            var contractId = $(this).data("id");
+            Swal.fire({
+                icon: "warning",
+                title: "Jeni të sigurt?",
+                text: "Ky veprim nuk mund të zhbëhet!",
+                showCancelButton: true,
+                confirmButtonColor: "#d33",
+                cancelButtonColor: "#3085d6",
+                confirmButtonText: "Po, fshije!",
+                cancelButtonText: "Anulo",
+                reverseButtons: true, // Reverses the positions of the confirm and cancel buttons
+                allowOutsideClick: false, // Prevents users from closing the modal by clicking outside of it
+                allowEscapeKey: false // Prevents users from closing the modal by pressing the Escape key
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Nëse është konfirmuar, ridrejtohuni te skenari i fshirjes me ID-në e kontratës
+                    window.location.href = "fshij_kontraten.php?id=" + contractId;
+                }
+            });
         });
     });
 </script>
