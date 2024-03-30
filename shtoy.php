@@ -2,7 +2,6 @@
 session_start();
 date_default_timezone_set('Europe/Tirane');
 include 'partials/header.php';
-
 // Function to generate CSRF token
 function generateCsrfToken()
 {
@@ -11,7 +10,6 @@ function generateCsrfToken()
   }
   return $_SESSION['csrf_token'];
 }
-// Function to validate CSRF token
 // Function to validate CSRF token
 function validateCsrfToken()
 {
@@ -121,185 +119,169 @@ $csrf_token = generateCsrfToken();
 <div class="main-panel">
   <div class="content-wrapper">
     <div class="container-fluid">
-      <div class="container">
-        <nav class="bg-white px-2 rounded-5" style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='currentColor'/%3E%3C/svg%3E&#34;);width:fit-content;border-style:1px solid black;" aria-label="breadcrumb">
-          <ol class="breadcrumb">
-            <li class="breadcrumb-item "><a class="text-reset" style="text-decoration: none;">Videot / Ngarkimi</a>
-            </li>
-            <li class="breadcrumb-item active" aria-current="page">
-              <a href="<?php echo __FILE__; ?>" class="text-reset" style="text-decoration: none;">
-                Regjistro një këngë
-                <?php echo $filename ?>
-              </a>
-            </li>
-        </nav>
-        <div class="card rounded-5 bordered p-5">
-          <form method="POST" action="" enctype="multipart/form-data">
-            <div class="form-group row">
-              <div class="col">
-                <label for="emri" class="form-label">K&euml;ng&euml;tari</label>
-                <!-- Your select element -->
-                <select name="kengtari" id="term" class="form-control border border-2 rounded-5" required>
-                  <?php
-                  require_once "conn-d.php";
-                  $query = "SELECT DISTINCT kengetari FROM ngarkimi";
-                  $result = mysqli_query($conn, $query);
-                  while ($row = mysqli_fetch_assoc($result)) {
-                    echo "<option value='" . $row['kengetari'] . "'>" . $row['kengetari'] . "</option>";
-                  }
-                  ?>
-                </select>
-                <!-- Initialize Selectr -->
-                <script type="text/javascript">
-                  document.addEventListener("DOMContentLoaded", function() {
-                    var termSelect = document.getElementById('term');
-                    var selectr = new Selectr(termSelect, {
-                      placeholder: "Shëno emrin e këngëtarit"
-                    });
-                  });
-                </script>
-              </div>
-              <div class="col">
-                <label for="emri" class="form-label">Emri i k&euml;nges</label>
-                <input type="text" name="emri" class="form-control border border-2 rounded-5" placeholder="Shëno emrin e këngës" autocomplete="off" required>
-              </div>
-            </div>
-            <div class="form-group row">
-              <div class="col">
-                <label for="dk" class="form-label">Tekst Shkrues</label>
-                <input type="text" name="teksti" class="form-control border border-2 rounded-5" placeholder="Shëno emrin e tekst shkruesit" autocomplete="off">
-              </div>
-              <div class="col">
-                <label for="dks" class="form-label">Muzika</label>
-                <input type="text" name="muzika" class="form-control border border-2 rounded-5" placeholder="Shëno muzikën" autocomplete="off">
-              </div>
-            </div>
-            <div class="form-group row">
-              <div class="col">
-                <label for="tel" class="form-label">Orkestra</label>
-                <input type="text" name="orkestra" class="form-control border border-2 rounded-5" placeholder="Shëno orkestrën" autocomplete="off">
-              </div>
-              <div class="col">
-                <label for="tel" class="form-label">C / O</label>
-                <input type="text" name="co" class="form-control border border-2 rounded-5" placeholder="Co" autocomplete="off">
-              </div>
-            </div>
-            <hr />
-            <div class="form-group row">
-              <div class="col">
-                <label for="tel" class="form-label">Cover / Origjinale </label><br>
-                <input type="radio" id="html" name="cover" value="Cover" class="form-check-input">
-                <label for="html">Cover</label>
-                <input type="radio" id="css" name="cover" value="Origjinale" class="form-check-input">
-                <label for="css">Origjinale</label>
-                <input type="radio" id="css" name="cover" value="Potpuri" class="form-check-input">
-                <label for="css">Potpuri</label><br>
-              </div>
-              <div class="col">
-                <label for="tel" class="form-label">Platformat sociale </label><br>
-                <input type="checkbox" id="facebook" name="facebook" value="Po" class="form-check-input">
-                <label for="Facebook">Facebook</label><br>
-                <input type="checkbox" name="Instagram" value="Po" class="form-check-input">
-                <label for="Instagram"> Instagram</label><br>
-              </div>
-            </div>
-            <hr />
-            <div class="form-group row">
-              <div class="col">
-                <label for="yt" class="form-label">Veper Nga Koha</label>
-                <input type="text" name="veper" id="datepicker" class="form-control border border-2 rounded-5 w-100" placeholder="Kliko mbi input dhe zgjedh kohen" value="" autocomplete="off">
-                <script>
-                  flatpickr("#datepicker", {
-                    dateFormat: 'Y-m-d',
-                    maxDate: new Date().toISOString().split("T")[0], // Set max date to today
-                    "locale": "sq" // locale for this instance only
-                  });
-                </script>
-              </div>
-              <div class="col">
-                <label for="imei" class="form-label">Klienti </label>
-                <select class="form-select shadow-sm rounded-5" id="klientiSelect" name="klienti" required>
-                  <?php
-                  $mads = $conn->query("SELECT * FROM klientet");
-                  while ($ads = mysqli_fetch_array($mads)) {
-                  ?>
-                    <option value="<?php echo $ads['id']; ?>"><?php echo $ads['emri']; ?></option>
-                  <?php } ?>
-                </select>
-                <script>
-                  new Selectr('#klientiSelect', {
-                    searchable: true,
-                    width: 300
-                  });
-                </script>
-              </div>
-              <div class="form-group row">
-              </div>
-              <div class="col">
-                <label for="platforma" class="form-label">Platforma</label>
-                <input type="text" class="form-control border border-2 rounded-5" name="platforma" value="YouTube">
-              </div>
-              <div class="col">
-                <label for="platforms" class="form-label">Platformat tjera për publikimin e këngës <br><small>(Mbaj shtypur CTRL për të zgjedhur disa opsione)</small> </label>
-                <select multiple class="form-select shadow-sm rounded-5" name="platformat[]" id="exampleFormControlSelect2" style="height:fit-content">
-                  <option value="Spotify" selected="selected">Spotify</option>
-                  <option value="YouTube Music" selected="selected">YouTube Music</option>
-                  <option value="iTunes" selected="selected">iTunes</option>
-                  <option value="Apple Music" selected="selected">Apple Music</option>
-                  <option value="TikTok" selected="selected">TikTok</option>
-                  <option value="Instagram Stories" selected="selected">Instagram Stories</option>
-                  <option value="Tidal" selected="selected">Tidal</option>
-                  <option value="Amazon Music" selected="selected">Amazon Music</option>
-                  <option value="Pandora" selected="selected">Pandora</option>
-                  <option value="AudioMack" selected="selected">AudioMack</option>
-                </select>
-              </div>
-            </div>
-            <div class="form-group row">
-              <div class="col">
-                <label for="info" class="form-label">Linku i këngës (nëse aplikohet)</label>
-                <input type="url" name="linku" class="form-control border border-2 rounded-5" placeholder="Vendosni linkun e këngës" autocomplete="off">
-              </div>
-              <div class="col">
-                <label for="info" class="form-label">Linku për platformat (nëse aplikohet)</label><br>
-                <input type="url" name="linkuplat" class="form-control border border-2 rounded-5" placeholder="Vendosni linkun për platformat" autocomplete="off">
-              </div>
-            </div>
-            <div class="form-group row">
-              <div class="col">
-                <label for="imei" class="form-label">Data</label>
-                <input type="text" name="data" id="dataChoice" class="form-control border border-2 rounded-5 w-100" value="<?php echo date("Y-m-d"); ?>">
-                <script>
-                  flatpickr("#dataChoice", {
-                    dateFormat: 'Y-m-d',
-                    maxDate: new Date().toISOString().split("T")[0], // Set max date to today
-                    "locale": "sq" // locale for this instance only
-                  });
-                </script>
-              </div>
-              <div class="col">
-                <label for="imei" class="form-label">Gjuha</label>
-                <select name="gjuha" id="gjuha" class="form-select shadow-sm rounded-5">
-                  <option value="Shqip" selected="">Shqip (E parazgjedhur)</option>
-                  <option value="English">English</option>
-                  <option value="German">German</option>
-                </select>
-                <script>
-                  new Selectr('#gjuha', {
-                    searchable: true,
-                    width: 300
-                  });
-                </script>
-              </div>
+      <nav class="bg-white px-2 rounded-5" style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='currentColor'/%3E%3C/svg%3E&#34;);width:fit-content;border-style:1px solid black;" aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item "><a class="text-reset" style="text-decoration: none;">Videot / Ngarkimi</a>
+          </li>
+          <li class="breadcrumb-item active" aria-current="page">
+            <a href="<?php echo __FILE__; ?>" class="text-reset" style="text-decoration: none;">
+              Regjistro një këngë
+              <?php echo $filename ?>
+            </a>
+          </li>
+      </nav>
+      <div class="card rounded-5 bordered p-5">
+        <form method="POST" action="" enctype="multipart/form-data">
+          <div class="form-group row">
+            <div class="col">
+              <label for="emri" class="form-label">K&euml;ng&euml;tari</label>
+              <input type="text" name="kengtari" id="term" class="form-control border border-2 rounded-5" placeholder="Shëno emrin e këngëtarit" required>
+              <script type="text/javascript">
+                $("#term").autocomplete({
+                  source: 'ajax-db-search.php',
+                });
+              </script>
             </div>
             <div class="col">
-              <label for="simpleMde" class="form-label">Informacion shtesë (përdorni këtë hapësirë për të dhënë detaje shtesë)</label>
-              <textarea id="simpleMde" name="infosh" placeholder="Shkruani informacionin shtesë këtu..." class="form-control border border-2 rounded-5"></textarea>
+              <label for="emri" class="form-label">Emri i k&euml;nges</label>
+              <input type="text" name="emri" class="form-control border border-2 rounded-5" placeholder="Shëno emrin e këngës" autocomplete="off" required>
             </div>
-            <button type="submit" class="input-custom-css px-3 py-2 mt-3" name="ruaj"><i class="fi fi-rr-paper-plane"></i> Ruaj</button>
-        </div>
-        </form>
+          </div>
+          <div class="form-group row">
+            <div class="col">
+              <label for="dk" class="form-label">Tekst Shkrues</label>
+              <input type="text" name="teksti" class="form-control border border-2 rounded-5" placeholder="Shëno emrin e tekst shkruesit" autocomplete="off">
+            </div>
+            <div class="col">
+              <label for="dks" class="form-label">Muzika</label>
+              <input type="text" name="muzika" class="form-control border border-2 rounded-5" placeholder="Shëno muzikën" autocomplete="off">
+            </div>
+          </div>
+          <div class="form-group row">
+            <div class="col">
+              <label for="tel" class="form-label">Orkestra</label>
+              <input type="text" name="orkestra" class="form-control border border-2 rounded-5" placeholder="Shëno orkestrën" autocomplete="off">
+            </div>
+            <div class="col">
+              <label for="tel" class="form-label">C / O</label>
+              <input type="text" name="co" class="form-control border border-2 rounded-5" placeholder="Co" autocomplete="off">
+            </div>
+          </div>
+          <hr />
+          <div class="form-group row">
+            <div class="col">
+              <label for="tel" class="form-label">Cover / Origjinale </label><br>
+              <input type="radio" id="html" name="cover" value="Cover" class="form-check-input">
+              <label for="html">Cover</label>
+              <input type="radio" id="css" name="cover" value="Origjinale" class="form-check-input">
+              <label for="css">Origjinale</label>
+              <input type="radio" id="css" name="cover" value="Potpuri" class="form-check-input">
+              <label for="css">Potpuri</label><br>
+            </div>
+            <div class="col">
+              <label for="tel" class="form-label">Platformat sociale </label><br>
+              <input type="checkbox" id="facebook" name="facebook" value="Po" class="form-check-input">
+              <label for="Facebook">Facebook</label><br>
+              <input type="checkbox" name="Instagram" value="Po" class="form-check-input">
+              <label for="Instagram"> Instagram</label><br>
+            </div>
+          </div>
+          <hr />
+          <div class="form-group row">
+            <div class="col">
+              <label for="yt" class="form-label">Veper Nga Koha</label>
+              <input type="text" name="veper" id="datepicker" class="form-control border border-2 rounded-5 w-100" placeholder="Kliko mbi input dhe zgjedh kohen" value="" autocomplete="off">
+              <script>
+                flatpickr("#datepicker", {
+                  dateFormat: 'Y-m-d',
+                  maxDate: new Date().toISOString().split("T")[0], // Set max date to today
+                  "locale": "sq" // locale for this instance only
+                });
+              </script>
+            </div>
+            <div class="col">
+              <label for="imei" class="form-label">Klienti </label>
+              <select class="form-select shadow-sm rounded-5" id="klientiSelect" name="klienti" required>
+                <?php
+                $mads = $conn->query("SELECT * FROM klientet");
+                while ($ads = mysqli_fetch_array($mads)) {
+                ?>
+                  <option value="<?php echo $ads['id']; ?>"><?php echo $ads['emri']; ?></option>
+                <?php } ?>
+              </select>
+              <script>
+                new Selectr('#klientiSelect', {
+                  searchable: true,
+                  width: 300
+                });
+              </script>
+            </div>
+            <div class="form-group row">
+            </div>
+            <div class="col">
+              <label for="platforma" class="form-label">Platforma</label>
+              <input type="text" class="form-control border border-2 rounded-5" name="platforma" value="YouTube">
+            </div>
+            <div class="col">
+              <label for="platforms" class="form-label">Platformat tjera për publikimin e këngës <br><small>(Mbaj shtypur CTRL për të zgjedhur disa opsione)</small> </label>
+              <select multiple class="form-select shadow-sm rounded-5" name="platformat[]" id="exampleFormControlSelect2" style="height:fit-content">
+                <option value="Spotify" selected="selected">Spotify</option>
+                <option value="YouTube Music" selected="selected">YouTube Music</option>
+                <option value="iTunes" selected="selected">iTunes</option>
+                <option value="Apple Music" selected="selected">Apple Music</option>
+                <option value="TikTok" selected="selected">TikTok</option>
+                <option value="Instagram Stories" selected="selected">Instagram Stories</option>
+                <option value="Tidal" selected="selected">Tidal</option>
+                <option value="Amazon Music" selected="selected">Amazon Music</option>
+                <option value="Pandora" selected="selected">Pandora</option>
+                <option value="AudioMack" selected="selected">AudioMack</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group row">
+            <div class="col">
+              <label for="info" class="form-label">Linku i këngës (nëse aplikohet)</label>
+              <input type="url" name="linku" class="form-control border border-2 rounded-5" placeholder="Vendosni linkun e këngës" autocomplete="off">
+            </div>
+            <div class="col">
+              <label for="info" class="form-label">Linku për platformat (nëse aplikohet)</label><br>
+              <input type="url" name="linkuplat" class="form-control border border-2 rounded-5" placeholder="Vendosni linkun për platformat" autocomplete="off">
+            </div>
+          </div>
+          <div class="form-group row">
+            <div class="col">
+              <label for="imei" class="form-label">Data</label>
+              <input type="text" name="data" id="dataChoice" class="form-control border border-2 rounded-5 w-100" value="<?php echo date("Y-m-d"); ?>">
+              <script>
+                flatpickr("#dataChoice", {
+                  dateFormat: 'Y-m-d',
+                  maxDate: new Date().toISOString().split("T")[0], // Set max date to today
+                  "locale": "sq" // locale for this instance only
+                });
+              </script>
+            </div>
+            <div class="col">
+              <label for="imei" class="form-label">Gjuha</label>
+              <select name="gjuha" id="gjuha" class="form-select shadow-sm rounded-5">
+                <option value="Shqip" selected="">Shqip (E parazgjedhur)</option>
+                <option value="English">English</option>
+                <option value="German">German</option>
+              </select>
+              <script>
+                new Selectr('#gjuha', {
+                  searchable: true,
+                  width: 300
+                });
+              </script>
+            </div>
+          </div>
+          <div class="col">
+            <label for="simpleMde" class="form-label">Informacion shtesë (përdorni këtë hapësirë për të dhënë detaje shtesë)</label>
+            <textarea id="simpleMde" name="infosh" placeholder="Shkruani informacionin shtesë këtu..." class="form-control border border-2 rounded-5"></textarea>
+          </div>
+          <button type="submit" class="input-custom-css px-3 py-2 mt-3" name="ruaj"><i class="fi fi-rr-paper-plane"></i> Ruaj</button>
       </div>
+      </form>
     </div>
   </div>
   <?php include 'partials/footer.php'; ?>
