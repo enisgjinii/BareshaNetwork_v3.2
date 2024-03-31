@@ -4,19 +4,19 @@ include('partials/header.php');
 <div class="main-panel">
     <div class="content-wrapper">
         <div class="container-fluid">
-            <div class="p-5 mb-4 card shadow-sm rounded-5">
-                <h4 class="font-weight-bold text-gray-800 mb-4">Lista e kontratave</h4>
-                <nav class="d-flex">
-                    <h6 class="mb-0">
-                        <a href="" class="text-reset">Kontrata</a>
-                        <span>/</span>
-                        <a href="lista_kontratave.php" class="text-reset" data-bs-placement="top" data-bs-toggle="tooltip" title="<?php echo __FILE__; ?>"><u>Lista e kontratave</u></a>
-                    </h6>
-                </nav>
-            </div>
+            <nav class="bg-white px-2 rounded-5" style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='currentColor'/%3E%3C/svg%3E&#34;);width:fit-content;border-style:1px solid black;" aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item "><a class="text-reset" style="text-decoration: none;">Kontratat</a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">
+                        <a href="<?php echo __FILE__; ?>" class="text-reset" style="text-decoration: none;">
+                            Lista e kontratave ( Gjenerale )
+                            <?php echo $filename ?>
+                        </a>
+                    </li>
+            </nav>
             <div class="card shadow-sm rounded-5">
                 <div class="card-body">
-                    <h4 class="card-title">Lista e kontratave</h4>
                     <form method="POST" action="delete_contracts.php">
                         <button type="submit" id="deleteButton" name="delete_selected" class="btn btn-danger rounded-5 mb-4 text-white btn-sm" disabled>
                             <i class="fi fi-rr-trash"></i> Fshij
@@ -129,14 +129,11 @@ include('partials/header.php');
                                                         // Assuming $k is your array containing data_e_krijimit and kohezgjatja
                                                         $data_e_krijimit = $k['data_e_krijimit'];
                                                         $kohezgjatja = $k['kohezgjatja'];
-
                                                         // Calculate expiration date
                                                         $expiration_date = date('Y-m-d', strtotime($data_e_krijimit . ' + ' . $kohezgjatja . ' months'));
-
                                                         echo $expiration_date;
                                                         ?>
                                                     </td>
-
                                                     <td>
                                                         <?php echo $k['tvsh']; ?>
                                                     </td>
@@ -190,110 +187,60 @@ include('partials/header.php');
     </div>
 </div>
 </div>
-</div>
 <?php
+require './vendor/autoload.php';
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
 if (isset($_POST['submit'])) {
     $email = $_POST['email'];
     $linkuKontrates = $_POST['linkuKontrates'];
-    $imagePath = 'images/brand-icon.png';
-    $imageData = file_get_contents($imagePath);
-    $imageDataEncoded = base64_encode($imageData);
-    $curl = curl_init();
-    curl_setopt_array($curl, [
-        CURLOPT_URL => "https://mail-sender-api1.p.rapidapi.com/",
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_ENCODING => "",
-        CURLOPT_MAXREDIRS => 10,
-        CURLOPT_TIMEOUT => 30,
-        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-        CURLOPT_CUSTOMREQUEST => "POST",
-        CURLOPT_POSTFIELDS => json_encode([
-            'sendto' => $email,
-            'name' => 'Baresha',
-            'replyTo' => 'bareshainfo@gmail.com',
-            'ishtml' => 'true',
-            'title' => 'Kontrata Gjenerale',
-            'body' => '<html>
-                        <head>
-                            <style>
-                                * {
-                                    font-family: -apple-system, system-ui, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
-                                }
-                                .email-container {
-                                    font-family: -apple-system, system-ui, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
-                                    max-width: 500px;
-                                    margin: 0 auto;
-                                    padding: 20px;
-                                    background-color: #ffffff;
-                                    border: 1px solid rgba(27, 31, 35, .15);
-                                    border-radius: 6px;
-                                    box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
-                                }
-                                h1 {
-                                    color: #333333;
-                                    font-size: 24px;
-                                    margin-bottom: 10px;
-                                }
-                                p {
-                                    color: #555555;
-                                    font-size: 16px;
-                                    margin-bottom: 10px;
-                                }
-                                .button {
-                                    appearance: none;
-                                    background-color: #ffffff;
-                                    border: 1px solid rgba(27, 31, 35, .15);
-                                    border-radius: 6px;
-                                    box-shadow: rgba(27, 31, 35, .1) 0 1px 0;
-                                    box-sizing: border-box;
-                                    color: #000000;
-                                    cursor: pointer;
-                                    display: inline-block;
-                                    font-family: -apple-system, system-ui, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
-                                    font-size: 14px;
-                                    font-weight: 600;
-                                    line-height: 20px;
-                                    padding: 6px 16px;
-                                    position: relative;
-                                    text-align: center;
-                                    text-decoration: none;
-                                    user-select: none;
-                                    -webkit-user-select: none;
-                                    touch-action: manipulation;
-                                    vertical-align: middle;
-                                    white-space: nowrap;
-                                }
-                            </style>
-                        </head>
-                        <body>
-                            <div class="email-container">
-                                <div style="text-align: center;">
-                                    <img src="cid:brand-icon" alt="" width="25%" style="display: inline-block;">
+    // Inicializimi i objektit PHPMailer
+    $mail = new PHPMailer(true);
+    try {
+        // Cilësimet e serverit
+        $mail->isSMTP();
+        $mail->Host       = 'smtp.gmail.com'; // Serveri SMTP
+        $mail->SMTPAuth   = true;
+        $mail->Username   = 'bareshakontrata@gmail.com'; // Emri i përdoruesit SMTP
+        $mail->Password   = 'ygxcwgkqyzmlmbcj'; // Fjalëkalimi SMTP
+        $mail->SMTPSecure = 'tls';
+        $mail->Port = 587;
+        // Cilësimet e dërguesit dhe të pranuesit
+        $mail->setFrom('bareshakontrata@gmail.com', 'Baresha Kontratë');
+        $mail->addAddress($email);
+        // Bashkangjit imazhin
+        $mail->addStringEmbeddedImage(file_get_contents('images/brand-icon.png'), 'brand-icon', 'brand-icon.png');
+        // Përmbajtja e emailit
+        $mail->isHTML(true);
+        $mail->Subject = 'Kontrata Gjenerale';
+        $mail->Body    = '<html>
+                            <head>
+                                <style>
+                                    /* Stilet tuaja CSS këtu */
+                                </style>
+                            </head>
+                            <body>
+                                <div style="max-width: 500px; margin: 0 auto; padding: 20px; background-color: #ffffff; border: 1px solid rgba(27, 31, 35, .15); border-radius: 6px; box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;">
+                                    <div style="text-align: center;">
+                                        <img src="cid:brand-icon" alt="" width="25%" style="display: inline-block;">
+                                    </div>
+                                    <br>
+                                    <br>
+                                    <h1 style="color: #333333; font-size: 24px; margin-bottom: 10px;">Përshendetje</h1>
+                                    <p style="color: #555555; font-size: 16px; margin-bottom: 10px;">Klikoni butonin më poshtë për të kaluar në faqen për të nënshkruar kontratën gjenerale.</p>
+                                    <p><a href="' . $linkuKontrates . '" style="appearance: none; background-color: #ffffff; border: 1px solid rgba(27, 31, 35, .15); border-radius: 6px; box-shadow: rgba(27, 31, 35, .1) 0 1px 0; box-sizing: border-box; color: #000000; cursor: pointer; display: inline-block; font-size: 14px; font-weight: 600; line-height: 20px; padding: 6px 16px; position: relative; text-align: center; text-decoration: none; user-select: none; -webkit-user-select: none; touch-action: manipulation; vertical-align: middle; white-space: nowrap;" class="button">Kontrata</a></p>
+                                    <p>Ju faleminderit</p>
+                                    <i>Ky link skadon pas 24 ore prej ketij momenti</i>
                                 </div>
-                                <br>
-                                <br>
-                                <h1>Përshendetje</h1>
-                                <p>Klikoni butonin më poshtë për të kaluar në faqen për të nënshkruar kontratën gjenerale.</p>
-                                <p><a href="' . $linkuKontrates . '" class="button">Kontrata</a></p>
-                                <p>Ju faleminderit</p>
-                                <i>Ky link skadon pas 24 ore prej ketij momenti</i>
-                            </div>
-                        </body>
-                    </html>',
-        ]),
-        CURLOPT_HTTPHEADER => [
-            "X-RapidAPI-Host: mail-sender-api1.p.rapidapi.com",
-            "X-RapidAPI-Key: 335200c4afmsh64cfbbf7fdf4cf2p1aae94jsn05a3bad585de",
-            "content-type: application/json"
-        ],
-    ]);
-    $response = curl_exec($curl);
-    $err = curl_error($curl);
-    curl_close($curl);
-    if ($err) {
-        echo "cURL Error #:" . $err;
-    } else {
-        // echo "Email sent successfully!";
+                            </body>
+                        </html>';
+        // Dërgoni emailin
+        $mail->send();
+        echo 'Emaili është dërguar me sukses!';
+    } catch (Exception $e) {
+        echo "Mesazhi nuk mund të dërgohet. Gabimi i Mailer: {$mail->ErrorInfo}";
     }
 }
 ?>
@@ -334,6 +281,7 @@ if (isset($_POST['submit'])) {
             </form>
         </div>
     </div>
+</div>
 </div>
 <?php
 include('partials/footer.php');
@@ -423,33 +371,34 @@ include('partials/footer.php');
 <script>
     $('#example').DataTable({
         responsive: false,
-        search: {
-            return: true,
-        },
-        dom: 'Bfrtip',
+        searching: true,
+        dom: "<'row'<'col-md-3'l><'col-md-6'B><'col-md-3'f>>" +
+            "<'row'<'col-md-12'tr>>" +
+            "<'row'<'col-md-6'><'col-md-6'p>>",
+        
         buttons: [{
             extend: 'pdfHtml5',
             text: '<i class="fi fi-rr-file-pdf fa-lg"></i>&nbsp;&nbsp; PDF',
             titleAttr: 'Eksporto tabelen ne formatin PDF',
-            className: 'btn btn-light border shadow-2 me-2'
+            className: 'btn btn-light btn-sm bg-light border me-2 rounded-5'
         }, {
             extend: 'copyHtml5',
             text: '<i class="fi fi-rr-copy fa-lg"></i>&nbsp;&nbsp; Kopjo',
             titleAttr: 'Kopjo tabelen ne formatin Clipboard',
-            className: 'btn btn-light border shadow-2 me-2'
+            className: 'btn btn-light btn-sm bg-light border me-2 rounded-5'
         }, {
             extend: 'excelHtml5',
             text: '<i class="fi fi-rr-file-excel fa-lg"></i>&nbsp;&nbsp; Excel',
             titleAttr: 'Eksporto tabelen ne formatin CSV',
-            className: 'btn btn-light border shadow-2 me-2'
+            className: 'btn btn-light btn-sm bg-light border me-2 rounded-5'
         }, {
             extend: 'print',
             text: '<i class="fi fi-rr-print fa-lg"></i>&nbsp;&nbsp; Printo',
             titleAttr: 'Printo tabelën',
-            className: 'btn btn-light border shadow-2 me-2'
+            className: 'btn btn-light btn-sm bg-light border me-2 rounded-5'
         }, {
             text: '<i class="fi fi-rr-add-document fa-lg"></i>&nbsp;&nbsp; Shto kontratë',
-            className: 'btn btn-light border shadow-2 me-2',
+            className: 'btn btn-light btn-sm bg-light border me-2 rounded-5',
             action: function(e, node, config) {
                 window.location.href = 'kontrata_gjenelare_2.php';
             }
@@ -458,6 +407,16 @@ include('partials/footer.php');
             var btns = $('.dt-buttons');
             btns.addClass('');
             btns.removeClass('dt-buttons btn-group');
+            var lengthSelect = $('div.dataTables_length select');
+            lengthSelect.addClass('form-select');
+            lengthSelect.css({
+                'width': 'auto',
+                'margin': '0 8px',
+                'padding': '0.375rem 1.75rem 0.375rem 0.75rem',
+                'line-height': '1.5',
+                'border': '1px solid #ced4da',
+                'border-radius': '0.25rem',
+            });
         },
         fixedHeader: true,
         language: {
