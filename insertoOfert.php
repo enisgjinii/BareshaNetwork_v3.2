@@ -4,7 +4,7 @@ include 'conn-d.php';
 // Get form data
 $emri_ofertes = $_POST['emri_ofertes'];
 $emri_klientit = $_POST['emri_klientit'];
-$kohezgjatja = $_POST['koh&euml;zgjatja'];
+$kohezgjatja = $_POST['kohëzgjatja'];
 $pershkrimi_ofertes = $_POST['pershkrimi_ofertes'];
 $dataAktuale = $_POST['dataAktuale'];
 // Prepare SQL statement
