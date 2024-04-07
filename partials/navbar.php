@@ -9,20 +9,6 @@
     </div>
   </div>
   <div class="navbar-menu-wrapper d-flex align-items-center justify-content-end">
-    <!-- <span class="badge rounded-pill text-bg-primary" id="token-countdown">Hover over me</span>
-    <span class="badge rounded-pill text-bg-danger text-white ms-2" id="time_of_token_expiry">This is shown on hover</span> -->
-    <ul class="navbar-nav mr-lg-4 w-100">
-      <li class="nav-item nav-search d-none d-lg-block w-100">
-        <div class="toggle-button shadow">
-          <span class="toggle-icon mt-1"><i class="fi fi-rr-brightness"></i></span>
-          <span class="toggle-switch">
-            <input type="checkbox" id="toggle-mode">
-            <label for="toggle-mode"></label>
-          </span>
-          <span class="toggle-icon mt-1"><i class="fi fi-rr-moon-stars"></i></span>
-        </div>
-      </li>
-    </ul>
     <ul class="navbar-nav navbar-nav-right d-flex align-items-center ms-2">
       <li class="dropdown-center ms-auto mt-2">
         <button class="btn btn-light btn-sm shadow-sm rounded-6 dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border:1px solid lightgrey;">
@@ -32,25 +18,6 @@
         <ul class="dropdown-menu p-2">
           <li class="rounded-5 mt-1 text-center py-1" style="border:1px solid lightgrey;font-size:11px;"> <?php echo $user_info['email'] ?>
           </li>
-          <li class="rounded-5 mt-1 text-center py-1" style="border:1px solid lightgrey;font-size:11px;">
-            <!-- Display gender -->
-            <?php
-            // Retrieve gender from cookie
-            $gender = isset($_COOKIE['user_gender']) ? $_COOKIE['user_gender'] : '';
-            // Translate and display gender
-            if (!empty($gender)) {
-              switch ($gender) {
-                case 'male':
-                  echo "Gjinia : Mashkull";
-                  break;
-                case 'female':
-                  echo "Gjinia : Femer";
-                  break;
-                default:
-                  echo "Gjinia : $gender"; // For other or unspecified values
-              }
-            }
-            ?>
           <li>
             <a class="dropdown-item rounded-5 mt-1" style="border:1px solid lightgrey;" href="sendLogoutEmail.php">
               <i class="fi fi-rr-exit me-2"></i>

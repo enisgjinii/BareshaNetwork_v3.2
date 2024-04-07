@@ -8,8 +8,6 @@
     <span><b>Version: </b> 3.2 </span>
   </div>
 </footer>
-
-
 <!-- JavaScript libraries and custom scripts -->
 <script src="https://code.jquery.com/jquery-3.6.3.js" defer integrity="sha256-nQLuAZGRRcILA+6dMBOvcRh5Pe310sBpanc6+QBmyVM=" crossorigin="anonymous"></script>
 <script src="vendors/chart.js/Chart.min.js" defer></script>
@@ -49,22 +47,10 @@
 <script src="https://cdn.datatables.net/searchpanes/2.1.0/js/searchPanes.bootstrap5.min.js" defer></script>
 <script src="https://cdn.datatables.net/select/1.5.0/js/dataTables.select.min.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/moment/moment.min.js"></script>
-
-<!-- Dark Mode Toggle Script -->
-<script>
-  const userPreference = localStorage.getItem('darkMode');
-  if (userPreference === 'dark') {
-    document.getElementById('toggle-mode').checked = true;
-    DarkReader.enable({
-      brightness: 100,
-      contrast: 90,
-      sepia: 10
-    });
-  }
-
-  const toggleMode = document.getElementById('toggle-mode');
-  toggleMode.addEventListener('change', function() {
-    if (this.checked) {
+<!-- <script>
+  // Function to toggle dark mode
+  function toggleDarkMode(isDarkMode) {
+    if (isDarkMode) {
       DarkReader.enable({
         brightness: 100,
         contrast: 90,
@@ -75,8 +61,17 @@
       DarkReader.disable();
       localStorage.setItem('darkMode', 'light');
     }
-  });
-</script>
+  }
+  // Function to check local storage for dark mode preference
+  function checkDarkModePreference() {
+    const userPreference = localStorage.getItem('darkMode');
+    if (userPreference === 'dark') {
+      document.getElementById('toggle-mode').checked = true;
+      toggleDarkMode(true); // Enable dark mode
+    }
+  }
+  // Check local storage for dark mode preference on page load
+  window.addEventListener('load', checkDarkModePreference);
+</script> -->
 </body>
-
 </html>

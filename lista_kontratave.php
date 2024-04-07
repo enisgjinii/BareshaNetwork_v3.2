@@ -207,6 +207,11 @@ include('partials/header.php');
     </div>
 </div>
 <?php
+require './vendor/autoload.php';
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
 $dateComponent = date('Ymd');
 $nameComponent = 'BAR';
 $token = $dateComponent . $nameComponent;
@@ -232,102 +237,50 @@ if (isset($_POST['submit'])) {
     }
     // $deleteQuery = "DELETE FROM tokens WHERE expiration_time < " . time();
     // mysqli_query($conn, $deleteQuery);
-    $email = $_POST['email'];
     $linkuKontrates = $_POST['linkuKontrates'];
-    $imagePath = 'images/brand-icon.png';
-    $imageData = file_get_contents($imagePath);
-    $imageDataEncoded = base64_encode($imageData);
-    $curl = curl_init();
-    curl_setopt_array($curl, [
-        CURLOPT_URL => "https://mail-sender-api1.p.rapidapi.com/",
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_ENCODING => "",
-        CURLOPT_MAXREDIRS => 10,
-        CURLOPT_TIMEOUT => 30,
-        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-        CURLOPT_CUSTOMREQUEST => "POST",
-        CURLOPT_POSTFIELDS => json_encode([
-            'sendto' => $email,
-            'name' => 'Baresha',
-            'replyTo' => 'bareshainfo@gmail.com',
-            'ishtml' => 'true',
-            'title' => 'Kontrata',
-            'body' => '<html>
-            <head>
-                <style>
-                    * {
-                        font-family: -apple-system, system-ui, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
-                    }
-                    .email-container {
-                        font-family: -apple-system, system-ui, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
-                        max-width: 500px;
-                        margin: 0 auto;
-                        padding: 20px;
-                        background-color: #ffffff;
-                        border: 1px solid rgba(27, 31, 35, .15);
-                        border-radius: 6px;
-                        box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
-                    }
-                    h1 {
-                        color: #333333;
-                        font-size: 24px;
-                        margin-bottom: 10px;
-                    }
-                    p {
-                        color: #555555;
-                        font-size: 16px;
-                        margin-bottom: 10px;
-                    }
-                    .button {
-                        appearance: none;
-                        background-color: #ffffff;
-                        border: 1px solid rgba(27, 31, 35, .15);
-                        border-radius: 6px;
-                        box-shadow: rgba(27, 31, 35, .1) 0 1px 0;
-                        box-sizing: border-box;
-                        color: #000000;
-                        cursor: pointer;
-                        display: inline-block;
-                        font-family: -apple-system, system-ui, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
-                        font-size: 14px;
-                        font-weight: 600;
-                        line-height: 20px;
-                        padding: 6px 16px;
-                        position: relative;
-                        text-align: center;
-                        text-decoration: none;
-                        user-select: none;
-                        -webkit-user-select: none;
-                        touch-action: manipulation;
-                        vertical-align: middle;
-                        white-space: nowrap;
-                    }
-                </style>
-            </head>
-            <body>
-                <div class="email-container">
-                    <br>
-                    <h1>Përshendetje nga stafi i Bareshës</h1>
-                    <p>Klikoni butonin më poshtë për të kaluar në faqen për të nënshkruar kontratën e këngës.</p>
-                    <p><a href="' . $linkuKontrates . '" class="button">Kontrata</a></p>
-                    <p>Ju faleminderit</p>
-                    <i>Ky link skadon pas 24 ore prej ketij momenti</i>
-                </div>
-            </body>
-        </html>'
-        ]),
-        CURLOPT_HTTPHEADER => [
-            "X-RapidAPI-Host: mail-sender-api1.p.rapidapi.com",
-            "X-RapidAPI-Key: 335200c4afmsh64cfbbf7fdf4cf2p1aae94jsn05a3bad585de",
-            "content-type: application/json"
-        ],
-    ]);
-    $response = curl_exec($curl);
-    $err = curl_error($curl);
-    curl_close($curl);
-    if ($err) {
-        echo "cURL Error #:" . $err;
-    } else {
+    // Initialize PHPMailer
+    $mail = new PHPMailer(true);
+    // Server settings
+    $mail->isSMTP();
+    $mail->Host       = 'smtp.gmail.com'; // SMTP server
+    $mail->SMTPAuth   = true;
+    $mail->Username   = 'bareshakontrata@gmail.com'; // SMTP username
+    $mail->Password   = 'ygxcwgkqyzmlmbcj'; // SMTP password
+    $mail->SMTPSecure = 'tls';
+    $mail->Port       = 587;
+    $mail->CharSet = 'UTF-8';
+    // Sender and recipient settings
+    $mail->setFrom('bareshakontrata@gmail.com', 'Baresha Kontratë');
+    $mail->addAddress($_POST['email']);
+    // Attach image
+    $mail->addStringEmbeddedImage(file_get_contents('images/brand-icon.png'), 'brand-icon', 'brand-icon.png');
+    // Email content
+    $mail->isHTML(true);
+    $mail->Subject = 'Kontrata për këngë';
+    $mail->Body    = '<html>
+                            <head>
+                                <style>
+                                    /* Stilet tuaja CSS këtu */
+                                </style>
+                            </head>
+                            <body>
+                                <div style="max-width: 500px; margin: 0 auto; padding: 20px; background-color: #ffffff; border: 1px solid rgba(27, 31, 35, .15); border-radius: 6px; box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;">
+                                    <div style="text-align: center;">
+                                        <img src="cid:brand-icon" alt="" width="25%" style="display: inline-block;">
+                                    </div>
+                                    <br>
+                                    <br>
+                                    <h1 style="color: #333333; font-size: 24px; margin-bottom: 10px;">Përshendetje</h1>
+                                    <p style="color: #555555; font-size: 16px; margin-bottom: 10px;">Klikoni butonin më poshtë për të kaluar në faqen për të nënshkruar kontratën për këngë.</p>
+                                    <p><a href="' . $linkuKontrates . '" style="appearance: none; background-color: #ffffff; border: 1px solid rgba(27, 31, 35, .15); border-radius: 6px; box-shadow: rgba(27, 31, 35, .1) 0 1px 0; box-sizing: border-box; color: #000000; cursor: pointer; display: inline-block; font-size: 14px; font-weight: 600; line-height: 20px; padding: 6px 16px; position: relative; text-align: center; text-decoration: none; user-select: none; -webkit-user-select: none; touch-action: manipulation; vertical-align: middle; white-space: nowrap;" class="button">Kontrata</a></p>
+                                    <p>Ju faleminderit</p>
+                                    <i>Ky link skadon pas 24 ore prej ketij momenti</i>
+                                </div>
+                            </body>
+                        </html>';
+    try {
+        // Send email
+        $mail->send();
         echo "<script>
             Swal.fire({
                 title: 'Sukses',
@@ -340,136 +293,9 @@ if (isset($_POST['submit'])) {
             });
         </script>";
         exit();
+    } catch (Exception $e) {
+        echo "Email dështoi për shkak të: {$mail->ErrorInfo}";
     }
-    // curl_setopt_array($curl, [
-    //     CURLOPT_URL => "https://rapidprod-sendgrid-v1.p.rapidapi.com/mail/send",
-    //     CURLOPT_RETURNTRANSFER => true,
-    //     CURLOPT_ENCODING => "",
-    //     CURLOPT_MAXREDIRS => 10,
-    //     CURLOPT_TIMEOUT => 30,
-    //     CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-    //     CURLOPT_CUSTOMREQUEST => "POST",
-    //     CURLOPT_POSTFIELDS => json_encode([
-    //         'personalizations' => [
-    //             [
-    //                 'to' => [
-    //                     [
-    //                         'email' => $email
-    //                     ]
-    //                 ],
-    //                 'subject' => 'Veprimi i kërkuar: Nënshkrimi i kontratës me Baresha Network'
-    //             ]
-    //         ],
-    //         'from' => [
-    //             'email' => 'no-reply@baresha.com'
-    //         ],
-    //         'content' => [
-    //             [
-    //                 'type' => 'text/html',
-    //                 'value' => '<html>
-    //                     <head>
-    //                         <style>
-    //                             * {
-    //                                 font-family: -apple-system, system-ui, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
-    //                             }
-    //                             .email-container {
-    //                                 font-family: -apple-system, system-ui, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
-    //                                 max-width: 500px;
-    //                                 margin: 0 auto;
-    //                                 padding: 20px;
-    //                                 background-color: #ffffff;
-    //                                 border: 1px solid rgba(27, 31, 35, .15);
-    //                                 border-radius: 6px;
-    //                                 box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
-    //                             }
-    //                             h1 {
-    //                                 color: #333333;
-    //                                 font-size: 24px;
-    //                                 margin-bottom: 10px;
-    //                             }
-    //                             p {
-    //                                 color: #555555;
-    //                                 font-size: 16px;
-    //                                 margin-bottom: 10px;
-    //                             }
-    //                             .button {
-    //                                 appearance: none;
-    //                                 background-color: #ffffff;
-    //                                 border: 1px solid rgba(27, 31, 35, .15);
-    //                                 border-radius: 6px;
-    //                                 box-shadow: rgba(27, 31, 35, .1) 0 1px 0;
-    //                                 box-sizing: border-box;
-    //                                 color: #000000;
-    //                                 cursor: pointer;
-    //                                 display: inline-block;
-    //                                 font-family: -apple-system, system-ui, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
-    //                                 font-size: 14px;
-    //                                 font-weight: 600;
-    //                                 line-height: 20px;
-    //                                 padding: 6px 16px;
-    //                                 position: relative;
-    //                                 text-align: center;
-    //                                 text-decoration: none;
-    //                                 user-select: none;
-    //                                 -webkit-user-select: none;
-    //                                 touch-action: manipulation;
-    //                                 vertical-align: middle;
-    //                                 white-space: nowrap;
-    //                             }
-    //                         </style>
-    //                     </head>
-    //                     <body>
-    //                         <div class="email-container">
-    //                             <div style="text-align: center;">
-    //                                 <img src="cid:brand-icon" alt="" width="25%" style="display: inline-block;">
-    //                             </div>
-    //                             <br>
-    //                             <br>
-    //                             <h1>Përshendetje</h1>
-    //                             <p>Klikoni butonin më poshtë për të kaluar në faqen për të nënshkruar kontratën.</p>
-    //                             <p><a href="' . $linkuKontrates . '" class="button">Kontrata</a></p>
-    //                             <p>Ju faleminderit</p>
-    //                             <i>Ky link skadon pas 24 ore prej ketij momenti</i>
-    //                         </div>
-    //                     </body>
-    //                 </html>'
-    //             ]
-    //         ],
-    //         'attachments' => [
-    //             [
-    //                 'content' => $imageDataEncoded,
-    //                 'type' => 'image/png',
-    //                 'filename' => 'brand-icon.png',
-    //                 'disposition' => 'inline',
-    //                 'content_id' => 'brand-icon'
-    //             ]
-    //         ]
-    //     ]),
-    //     CURLOPT_HTTPHEADER => [
-    //         "X-RapidAPI-Host: rapidprod-sendgrid-v1.p.rapidapi.com",
-    //         "X-RapidAPI-Key: 335200c4afmsh64cfbbf7fdf4cf2p1aae94jsn05a3bad585de",
-    //         "content-type: application/json"
-    //     ],
-    // ]);
-    // $response = curl_exec($curl);
-    // $err = curl_error($curl);
-    // curl_close($curl);
-    // if ($err) {
-    //     echo "cURL Error #:" . $err;
-    // } else {
-    //     echo "<script>
-    //         Swal.fire({
-    //             title: 'Sukses',
-    //             text: 'Email-i juaj është dërguar.',
-    //             icon: 'success',
-    //             timer: 3000,
-    //             showConfirmButton: false
-    //         }).then(function() {
-    //             location.href = '" . $_SERVER['PHP_SELF'] . "';
-    //         });
-    //     </script>";
-    //     exit();
-    // }
 }
 ?>
 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -519,6 +345,7 @@ ob_flush();
 ?>
 <script>
     var token = "<?php echo isset($token) ? $token : ''; ?>";
+
     function updateEmailInput(button) {
         var id = button.getAttribute("data-id");
         var tableRow = button.closest("tr");

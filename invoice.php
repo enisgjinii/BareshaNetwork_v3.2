@@ -499,7 +499,7 @@ function getChannelDetails($channelId, $apiKey)
                     <div class="sql-commands-container" style="display: none;">
                       <p>Komandat SQL për shtimin e të dhënave në tabelën e faturave. Këto përfshijnë "INSERT INTO" për
                         shtimin e rreshtave të reja në një tabelë.</p>
-                      <pre id="sqlCommands" class="sql-commands"></pre>
+                      <code id="sqlCommands" class="sql-commands"></code>
                     </div>
                     <br>
                     <?php
@@ -508,7 +508,7 @@ function getChannelDetails($channelId, $apiKey)
                       // User has applied the filter, proceed with displaying the table and making the API request
                     ?>
                       <div>
-                        <button id="submitSql" type="button" class="input-custom-css px-3 py-2 mt-2">Dorëzoje në bazën e të
+                        <button id="submitSql" type="button" class="input-custom-css px-3 py-2 my-2">Dorëzoje në bazën e të
                           dhënave</button>
                       </div>
                       <div class="table-responsive">
