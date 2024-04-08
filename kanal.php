@@ -5,15 +5,63 @@ $guse = $conn->query("SELECT * FROM klientet WHERE id='$kid'");
 $guse2 = mysqli_fetch_array($guse);
 $channel_id = $guse2['youtube'];
 $api_key = "AIzaSyBrE0kFGTQJwn36FeR4NIyf4FEw2HqSSIQ";
+// Fetch channel data from the YouTube API
 $apiu = file_get_contents('https://www.googleapis.com/youtube/v3/channels?part=snippet&id=' . $channel_id . '&key=' . $api_key);
 $apid = json_decode($apiu, true);
+echo "<script>console.log(" . json_encode($apid) . ")</script>"; // Log the channel snippet data
+// Fetch channel statistics data from the YouTube API
 $aa = file_get_contents('https://www.googleapis.com/youtube/v3/channels?part=statistics&id=' . $channel_id . '&key=' . $api_key);
 $aaa = json_decode($aa, true);
-if (isset($_POST['infoprw'])) {
-  $idup = $_POST['idup'];
-  $texti = $_POST['infoprw'];
-  if ($conn->query("UPDATE klientet SET infoprw='$texti' WHERE id='$idup'")) {
-    echo "<script>alert('Infot private u ndryshuan me sukses, nese nuk shfaqen menjeher bejeni refresh faqen.')</script>";
+echo "<script>console.log(" . json_encode($aaa) . ")</script>"; // Log the channel statistics data
+$get_banner = file_get_contents('https://www.googleapis.com/youtube/v3/channels?part=brandingSettings&id=' . $channel_id . '&key=' . $api_key);
+$banner = json_decode($get_banner, true);
+echo "<script>console.log(" . json_encode($banner) . ")</script>";
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+  if (isset($_POST['infoprw'])) {
+    $idup = $_POST['idup'];
+    $texti = $_POST['infoprw'];
+    // Sanitize input data to prevent SQL injection
+    $idup = mysqli_real_escape_string($conn, $idup);
+    $texti = mysqli_real_escape_string($conn, $texti);
+    // Update the database
+    $result = $conn->query("UPDATE klientet SET infoprw='$texti' WHERE id='$idup'");
+    if ($result) {
+      // Display SweetAlert 2 success message
+      echo "<script>
+                    Swal.fire({
+                      title: 'Sukses!',
+                      text: 'Infot private u ndryshuan me sukses.',
+                      icon: 'success',
+                      showConfirmButton: false,
+                      timer: 2000 // 2 seconds
+                    }).then(function() {
+                        window.location.href = 'kanal.php?kid=" . $kid . "';
+                    });
+                  </script>";
+      exit(); // Stop further execution
+    } else {
+      // Display SweetAlert 2 error message
+      echo "<script>
+                    Swal.fire({
+                      title: 'Gabim!',
+                      text: 'Dicka shkoi keq. Ju lutem provoni përsëri.',
+                      icon: 'error',
+                      showConfirmButton: false,
+                      timer: 2000 // 2 seconds
+                    });
+                  </script>";
+    }
+  } else {
+    // Handle case when infoprw is not set in the POST request
+    echo "<script>
+                Swal.fire({
+                  title: 'Gabim!',
+                  text: 'Nuk u dërgua asnjë informacion për përditësim.',
+                  icon: 'error',
+                  showConfirmButton: false,
+                  timer: 2000 // 2 seconds
+                });
+              </script>";
   }
 }
 if (isset($_POST['shto'])) {
@@ -27,8 +75,7 @@ if (isset($_POST['shto'])) {
   if ($conn->query($query)) {
     echo "<script>alert('Strike u shtua me sukses');</script>";
   } else {
-    echo "<script>alert('" . $conn->error;
-    "');</script>";
+    echo "<script>alert('" . $conn->error . "');</script>";
   }
 }
 ?>
@@ -58,6 +105,28 @@ if (isset($_POST['shto'])) {
       <button type="button" class="input-custom-css px-3 py-2 mb-3" data-bs-toggle="modal" data-bs-target="#platformsTableModal">
         <i class="fi fi-rr-globe"></i> &nbsp; Shiko të ardhurat nga platformat
       </button>
+      <!-- Button trigger modal -->
+      <button type="button" class="input-custom-css px-3 py-2 mb-3" data-bs-toggle="modal" data-bs-target="#bannerModal">
+        Shiko banerin e ketij kanali
+      </button>
+      <!-- Modal -->
+      <div class="modal fade" id="bannerModal" tabindex="-1" aria-labelledby="bannerModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="bannerModalLabel">Kjo është fotoja e banerit te kanalit <?php echo $guse2['emri']; ?></h1>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <img src="<?php echo $banner['items'][0]['brandingSettings']['image']['bannerExternalUrl']; ?>" alt="Vizitoni kanalin tonë të ndjekur" class="mb-4 img-fluid mx-auto">
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="input-custom-css px-3 py-2" data-bs-dismiss="modal">Mbylle</button>
+              <a style="text-decoration: none;text-transform: none" href="<?php echo $banner['items'][0]['brandingSettings']['image']['bannerExternalUrl']; ?>" download="banner_image.jpg" class="input-custom-css px-3 py-2">Shkarko foton</a>
+            </div>
+          </div>
+        </div>
+      </div>
       <div class="modal fade" id="platformsTableModal" tabindex="-1" aria-labelledby="platformsTableModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-xl">
           <div class="modal-content">
@@ -100,6 +169,7 @@ if (isset($_POST['shto'])) {
                 <img src="<?php echo $apid['items'][0]['snippet']['thumbnails']['high']['url']; ?>" alt="Vizitoni kanalin tonë në youtube" class="rounded-circle mb-4" width="150">
                 <h4 class="card-title mb-3"><?php echo $apid['items'][0]['snippet']['title']; ?></h4>
                 <p class="card-text text-muted"><?php echo $apid['items'][0]['snippet']['description']; ?></p>
+                <!-- Get the channel banner -->
                 <div class="row justify-content-center">
                   <div class="col-auto">
                     <div class="text-secondary"><i class="ti-user"></i> Total Abonues:</div>
@@ -129,7 +199,6 @@ if (isset($_POST['shto'])) {
               </div>
             </div>
           </div>
-
           <div class="card mt-3">
             <ul class="list-group list-group-flush">
               <!-- Modal -->
@@ -359,10 +428,6 @@ if (isset($_POST['shto'])) {
                   <td><?php echo $guse2['dks']; ?></td>
                 </tr>
                 <tr>
-                  <th>Kontrata</th>
-                  <td><a href="kontrata.php?id=<?php echo $guse2['id']; ?>" target="_blank" class="btn btn-light"><i class="far fa-file-pdf"></i></a></td>
-                </tr>
-                <tr>
                   <th>Adresa</th>
                   <td><?php echo $guse2['adresa']; ?></td>
                 </tr>
@@ -393,17 +458,17 @@ if (isset($_POST['shto'])) {
                 <tr>
                   <th>Info Private</th>
                   <td>
-                    <form method="POST" action="">
-                      <input type="hidden" name="idup" value="<?php echo $guse2['id']; ?>">
-                      <textarea id="editor" name="infoprw" placeholder="Info Shtesë"><?php echo $guse2['infoprw']; ?></textarea>
-                      <center><button type="submit" class="btn btn-info">Përditso Infot Private</button></center>
+                    <form id="updateForm" method="POST" action="">
+                      <input type="hidden" name="idup" value="<?php echo htmlspecialchars($guse2['id']); ?>">
+                      <textarea id="editor" name="infoprw" placeholder="Info Shtesë"><?php echo htmlspecialchars($guse2['infoprw']); ?></textarea>
+                      <button type="submit" class="input-custom-css px-3 py-2 my-2">Përditso të dhënat personale</button>
                     </form>
                   </td>
                 </tr>
                 <tr>
                   <td colspan="2">
-                    <a class="btn btn-info " href="editk.php?id=<?php echo $_GET['kid']; ?>">Ndrysho</a>
-                    <a class="btn btn-danger " href="#">Fshij</a>
+                    <a class="input-custom-css px-3 py-2" style="text-decoration: none;text-transform: none" href="editk.php?id=<?php echo $_GET['kid']; ?>">Ndrysho</a>
+                    <a class="input-custom-css px-3 py-2" style="text-decoration: none;text-transform: none" onclick="konfirmoDeaktivizimin('<?php echo $_GET['kid']; ?>')" ;>Fshij</a>
                   </td>
                 </tr>
               </table>
@@ -414,67 +479,6 @@ if (isset($_POST['shto'])) {
     </div>
   </div>
 </div>
-<!-- <style type="text/css">
-  body {
-    color: #1a202c;
-    text-align: left;
-    background-color: #e2e8f0;
-  }
-
-  .main-body {
-    padding: 15px;
-  }
-
-  .card {
-    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, .1), 0 1px 2px 0 rgba(0, 0, 0, .06);
-  }
-
-  .card {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-    word-wrap: break-word;
-    background-color: #fff;
-    background-clip: border-box;
-    border: 0 solid rgba(0, 0, 0, .125);
-    border-radius: .25rem;
-  }
-
-  .card-body {
-    flex: 1 1 auto;
-    min-height: 1px;
-    padding: 1rem;
-  }
-
-  .gutters-sm {
-    margin-right: -8px;
-    margin-left: -8px;
-  }
-
-  .gutters-sm>.col,
-  .gutters-sm>[class*=col-] {
-    padding-right: 8px;
-    padding-left: 8px;
-  }
-
-  .mb-3,
-  .my-3 {
-    margin-bottom: 1rem !important;
-  }
-
-  .bg-gray-300 {
-    background-color: #e2e8f0;
-  }
-
-  .h-100 {
-    height: 100% !important;
-  }
-
-  .shadow-none {
-    box-shadow: none !important;
-  }
-</style> -->
 <?php include 'partials/footer.php'; ?>
 <script>
   var table = $('#example').DataTable({
@@ -599,4 +603,41 @@ if (isset($_POST['shto'])) {
       "autoWidth": false
     });
   });
+</script>
+<script>
+  function konfirmoDeaktivizimin(clientId) {
+    Swal.fire({
+      title: 'A jeni i sigurt?',
+      text: 'Jeni duke u përgatitur për të deaktivizuar këtë klient!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Po, deaktivizoje!',
+      cancelButtonText: 'Anulo',
+      reverseButtons: true,
+      showLoaderOnConfirm: true,
+      preConfirm: () => {
+        return new Promise((resolve) => {
+          setTimeout(() => {
+            resolve();
+          }, 2000); // Add a delay to simulate server-side action
+        });
+      },
+      allowOutsideClick: () => !Swal.isLoading()
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire({
+          title: 'Deaktivizuar!',
+          text: 'Klienti është deaktivizuar me sukses.',
+          icon: 'success',
+          confirmButtonColor: '#3085d6',
+          confirmButtonText: 'OK'
+        }).then(() => {
+          // Redirect to the deactivation script with the client ID
+          window.location.href = 'passive_client.php?id=' + clientId;
+        });
+      }
+    });
+  }
 </script>
