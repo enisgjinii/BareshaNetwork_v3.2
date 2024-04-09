@@ -155,13 +155,15 @@
                     extend: "pdfHtml5",
                     text: '<i class="fi fi-rr-file-pdf fa-lg"></i>&nbsp;&nbsp; PDF',
                     titleAttr: "Eksporto tabelen ne formatin PDF",
-                    className: "btn btn-light btn-sm bg-light border me-2 rounded-5"
+                    className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
+                    filename: "lista_e_kanaleve_te_lidhura",
                 },
                 {
                     extend: "copyHtml5",
                     text: '<i class="fi fi-rr-copy fa-lg"></i>&nbsp;&nbsp; Kopjo',
                     titleAttr: "Kopjo tabelen ne formatin Clipboard",
-                    className: "btn btn-light btn-sm bg-light border me-2 rounded-5"
+                    className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
+                    filename: "lista_e_kanaleve_te_lidhura",
                 },
                 {
                     extend: "excelHtml5",
@@ -174,13 +176,15 @@
                             order: "applied",
                             page: "all"
                         }
-                    }
+                    },
+                    filename: "lista_e_kanaleve_te_lidhura",
                 },
                 {
                     extend: "print",
                     text: '<i class="fi fi-rr-print fa-lg"></i>&nbsp;&nbsp; Printo',
                     titleAttr: "Printo tabel&euml;n",
-                    className: "btn btn-light btn-sm bg-light border me-2 rounded-5"
+                    className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
+                    filename: "lista_e_kanaleve_te_lidhura",
                 },
             ],
             fixedHeader: true,

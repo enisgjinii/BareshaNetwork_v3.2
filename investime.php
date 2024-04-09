@@ -10,7 +10,7 @@ require_once 'vendor/autoload.php';
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="editModalLabel">Edito regjistrimin</h5>
+                <h5 class="modal-title" id="editModalLabel">Edito regjistrimin <span id="idOfRow" name="idOfRow"></span></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -53,16 +53,22 @@ require_once 'vendor/autoload.php';
                             Investime
                         </a>
                     </li>
+                </ol>
             </nav>
+            <div class="row mb-2">
+                <div>
+                    <ul class="nav nav-pills bg-white my-3 mx-0 rounded-5" id="pills-tab" role="tablist" style="width: fit-content;">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link rounded-5 active" style="text-transform: none;" id="pills-shto_investim-tab" data-bs-toggle="pill" data-bs-target="#pills-shto_investim" type="button" role="tab" aria-controls="pills-shto_investim" aria-selected="true">Shto investim</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link  rounded-5" style="text-transform: none;" id="pills-lista_e_investimeve-tab" data-bs-toggle="pill" data-bs-target="#pills-lista_e_investimeve" type="button" role="tab" aria-controls="pills-lista_e_investimeve" aria-selected="false">Lista e investimeve</button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
             <div class="p-5 rounded-5 shadow-sm mb-4 card">
-                <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link rounded-5 active" style="text-transform: none;" id="pills-shto_investim-tab" data-bs-toggle="pill" data-bs-target="#pills-shto_investim" type="button" role="tab" aria-controls="pills-shto_investim" aria-selected="true">Shto investim</button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link  rounded-5" style="text-transform: none;" id="pills-lista_e_investimeve-tab" data-bs-toggle="pill" data-bs-target="#pills-lista_e_investimeve" type="button" role="tab" aria-controls="pills-lista_e_investimeve" aria-selected="false">Lista e investimeve</button>
-                    </li>
-                </ul>
+
                 <div class="tab-content" id="pills-tabContent">
                     <div class="tab-pane fade show active" id="pills-shto_investim" role="tabpanel" aria-labelledby="pills-shto_investim-tab">
                         <form id="myForm" action="insert_investim.php" method="post">
@@ -100,7 +106,7 @@ require_once 'vendor/autoload.php';
                                         <th>Mbiemri</th>
                                         <th>Emri i kenges</th>
                                         <th>Shenim</th>
-                                        <th>Action</th> <!-- Add a new column for the delete button -->
+                                        <th>Veprim</th> <!-- Add a new column for the delete button -->
                                     </tr>
                                 </thead>
                             </table>
@@ -158,12 +164,14 @@ require_once 'vendor/autoload.php';
                 extend: 'pdfHtml5',
                 text: '<i class="fi fi-rr-file-pdf fa-lg"></i>&nbsp;&nbsp; PDF',
                 titleAttr: 'Eksporto tabelen ne formatin PDF',
-                className: 'btn btn-sm btn-light border rounded-5 me-2'
+                className: 'btn btn-sm btn-light border rounded-5 me-2',
+                filename: 'lista_e_investimeve'
             }, {
                 extend: 'copyHtml5',
                 text: '<i class="fi fi-rr-copy fa-lg"></i>&nbsp;&nbsp; Kopjo',
                 titleAttr: 'Kopjo tabelen ne formatin Clipboard',
-                className: 'btn btn-sm btn-light border rounded-5 me-2'
+                className: 'btn btn-sm btn-light border rounded-5 me-2',
+                filename: 'lista_e_investimeve'
             }, {
                 extend: 'excelHtml5',
                 text: '<i class="fi fi-rr-file-excel fa-lg"></i>&nbsp;&nbsp; Excel',
@@ -175,12 +183,14 @@ require_once 'vendor/autoload.php';
                         order: 'applied',
                         page: 'all'
                     }
-                }
+                },
+                filename: 'lista_e_investimeve'
             }, {
                 extend: 'print',
                 text: '<i class="fi fi-rr-print fa-lg"></i>&nbsp;&nbsp; Printo',
                 titleAttr: 'Printo tabel&euml;n',
-                className: 'btn btn-sm btn-light border rounded-5 me-2'
+                className: 'btn btn-sm btn-light border rounded-5 me-2',
+                filename: 'lista_e_investimeve'
             }, ],
             fixedHeader: true,
             language: {
@@ -209,19 +219,26 @@ require_once 'vendor/autoload.php';
                 {
                     data: 'shenim',
                     render: function(data, type, row) {
-                        // Create the View button with data attributes to hold the shenim content
-                        var viewBtn = '<button class="btn btn-primary btn-sm rounded-5 shadow-sm text-white view-btn" data-shenim="' + data + '"><i class="fi fi-rr-eye"></i></button>';
-                        return viewBtn;
+                        // Check if the shenim data is not empty
+                        if (data.trim() !== '') {
+                            // Create the View button with data attributes to hold the shenim content
+                            var viewBtn = '<button class="input-custom-css px-3 py-2 view-btn" data-shenim="' + data + '"><i class="fi fi-rr-eye"></i></button>';
+                            return viewBtn;
+                        } else {
+                            // Return empty string if shenim is empty
+                            return '';
+                        }
                     }
                 },
+
                 {
                     // Use the 'render' function to create the delete button
                     // 'data' parameter contains the full row data
                     data: null,
                     render: function(data, type, row) {
                         // Return the buttons HTML
-                        var editBtn = '<button class="btn btn-primary btn-sm rounded-5 shadow-sm text-white edit-btn" data-id="' + data.id + '"><i class="fi fi-rr-pencil"></i></button>';
-                        var deleteBtn = '<button class="btn btn-danger btn-sm rounded-5 shadow-sm text-white delete-btn" data-id="' + data.id + '"><i class="fi fi-rr-trash"></i></button>';
+                        var editBtn = '<button class="input-custom-css px-3 py-2 edit-btn" data-id="' + data.id + '"><i class="fi fi-rr-edit"></i></button>';
+                        var deleteBtn = '<button class="input-custom-css px-3 py-2 delete-btn" data-id="' + data.id + '"><i class="fi fi-rr-trash"></i></button>';
                         return editBtn + ' ' + deleteBtn;
                     }
                 }
@@ -291,6 +308,7 @@ require_once 'vendor/autoload.php';
                     // 'data' contains the fetched data for the row with the specified ID
                     // Populate the modal form with the fetched data
                     $('#editId').val(data.id);
+                    $('#idOfRow').text(data.id);
                     $('#editEmri').val(data.emri);
                     $('#editMbiemri').val(data.mbiemri);
                     $('#editEmriIKenges').val(data.emri_i_kenges);
