@@ -8,28 +8,121 @@
                 </ol>
             </nav>
             <div class="card p-3">
-                <div class="table-responsive">
-                    <table class="table table-hover w-full" id="authenticated_channels">
-                        <thead>
+                <div class="table-responsive d-none d-lg-block"> <!-- Hide on XS, SM, MD, show on LG, XL -->
+                    <table class="table w-full" id="authenticated_channels">
+                        <thead class="table-light">
                             <tr>
                                 <th>ID</th>
                                 <th>ID-ja kanalit</th>
-                                <th>Emri kanalit</th>
-                                <th>Krijimi i kanalit ne databazë</th>
+                                <th>Emri i kanalit</th>
+                                <th>Emri i regjistruar si klient</th>
+                                <th>Data e krijimit</th>
                                 <th>Veprim</th> <!-- Add a new column for action -->
                             </tr>
                         </thead>
                         <tbody>
                             <?php
-                            $sql = "SELECT * FROM refresh_tokens ORDER BY id DESC";
+                            $sql = "SELECT rt.*, k.emri AS klient_emri 
+        FROM refresh_tokens rt 
+        LEFT JOIN klientet k ON rt.channel_id = k.youtube 
+        ORDER BY rt.id DESC";
                             $result = $conn->query($sql);
                             while ($row = $result->fetch_assoc()) {
-                                echo "<tr><td>{$row['id']}</td><td>{$row['channel_id']}</td><td>{$row['channel_name']}</td><td>{$row['created_at']}</td><td><button style='text-transform:none;' class='btn btn-danger rounded-5 py-1 px-2 text-white btn-sm delete-btn' data-id='{$row['id']}'>
-                                <i class='fi fi-rr-trash'></i></button></td></tr>";
+                            ?>
+                                <tr>
+                                    <td>
+                                        <?php echo $row['id']; ?>
+                                    </td>
+                                    <td>
+                                        <?php echo $row['channel_id']; ?>
+                                        <br><br>
+                                        <a href="kanali.php?id=<?php echo $row['channel_id']; ?>" class="input-custom-css px-3 py-2 mt-3" style="text-transform:none;text-decoration:none"><i class="fi fi-rr-user"></i> Shiko kanalin</a>
+                                    </td>
+                                    <td><?php echo $row['channel_name']; ?></td>
+                                    <td>
+                                        <?php
+                                        if (!empty($row['klient_emri'])) {
+                                            echo $row['klient_emri'];
+                                        } else {
+                                            echo '<span class="badge bg-warning rounded-pill">Ky klient nuk posedon regjistrim te kanalit te Youtubes në listën e klientëve, të lutem rishikoje</span>';
+                                        }
+                                        ?>
+                                    </td>
+
+                                    <td><?php echo $row['created_at']; ?></td>
+                                    <td>
+                                        <button style="text-transform:none;" class="input-custom-css px-3 py-2 delete-btn" data-id="<?php echo $row['id']; ?>">
+                                            <i class="fi fi-rr-trash"></i> Fshij
+                                        </button>
+                                        <button class="input-custom-css px-3 py-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvas_<?php echo $row['id']; ?>" aria-controls="offcanvas_<?php echo $row['id']; ?>">
+                                            <i class="fi fi-rr-eye"></i> Trego
+                                        </button>
+                                        <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvas_<?php echo $row['id']; ?>" aria-labelledby="offcanvas_<?php echo $row['id']; ?>_label">
+                                            <div class="offcanvas-header">
+                                                <h5 class="offcanvas-title" id="offcanvas_<?php echo $row['id']; ?>_label">
+                                                    Të dhënat për <?php echo $row['channel_name']; ?>
+                                                </h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                                            </div>
+                                            <div class="offcanvas-body">
+                                                <ul class="list-group">
+                                                    <?php
+                                                    $get_client_infos = "SELECT * FROM klientet WHERE youtube = '" . $row['channel_id'] . "'";
+                                                    $client_result = $conn->query($get_client_infos); // Use a different variable for the inner query result
+                                                    while ($client_row = $client_result->fetch_assoc()) {
+                                                    ?>
+                                                        <li class="list-group-item">
+                                                            <strong>ID:</strong> <?php echo $client_row['id']; ?><br>
+                                                            <strong>Emri:</strong> <?php echo $client_row['emri']; ?><br>
+                                                            <strong>Monetizuar:</strong> <?php echo $client_row['monetizuar']; ?><br>
+                                                            <strong>YouTube:</strong> <?php echo $client_row['youtube']; ?><br>
+                                                            <strong>Perqindja:</strong> <?php echo $client_row['perqindja']; ?><br>
+                                                            <strong>Ads:</strong> <?php echo $client_row['ads']; ?><br>
+                                                            <strong>FB:</strong> <?php echo $client_row['fb']; ?><br>
+                                                            <strong>IG:</strong> <?php echo $client_row['ig']; ?><br>
+                                                            <strong>Adresa:</strong> <?php echo $client_row['adresa']; ?><br>
+                                                            <strong>Kategoria:</strong> <?php echo $client_row['kategoria']; ?><br>
+                                                        </li>
+                                                        <br>
+                                                        <div>
+                                                            <a href="editk.php?id=<?php echo $client_row['id']; ?>" class="input-custom-css px-3 py-2 mt-3" style="text-transform:none;text-decoration:none">Shiko të dhënat e përgjithshme</a>
+                                                        </div>
+                                                    <?php
+                                                    }
+                                                    ?>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <?php
                             }
                             ?>
                         </tbody>
                     </table>
+                </div>
+                <!-- Display as list on XS -->
+                <div class="d-block d-lg-none">
+                    <?php
+                    $sql = "SELECT * FROM refresh_tokens ORDER BY id DESC";
+                    $result = $conn->query($sql);
+                    while ($row = $result->fetch_assoc()) {
+                    ?>
+                        <div class="card mb-3 m-0 p-0">
+                            <div class="card-body">
+                                <h5 class="card-title">Informacioni i Kanalit</h5>
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item"><strong>ID:</strong> <?php echo $row['id']; ?></li>
+                                    <li class="list-group-item"><strong>ID-ja e Kanalit:</strong> <?php echo $row['channel_id']; ?></li>
+                                    <li class="list-group-item"><strong>Emri i Kanalit:</strong> <?php echo $row['channel_name']; ?></li>
+                                    <li class="list-group-item"><strong>Krijimi i Kanalit në Bazë të të Dhënave:</strong> <?php echo $row['created_at']; ?></li>
+                                </ul>
+                                <button style="text-transform:none;" class="input-custom-css px-3 py-2 delete-btn" data-id="<?php echo $row['id']; ?>"><i class="fi fi-rr-trash"></i> Fshij</button>
+                            </div>
+                        </div>
+                    <?php
+                    }
+                    ?>
                 </div>
             </div>
         </div>
@@ -102,28 +195,47 @@
                 }
             }],
         });
-
-        // Add event listener for delete button click
-        $('#authenticated_channels').on('click', '.delete-btn', function() {
+        // Add event listener for delete button click (for both table and list)
+        $(document).on('click', '.delete-btn', function() {
             var rowId = $(this).data('id');
-            var confirmation = confirm("Are you sure you want to delete this entry?");
-            if (confirmation) {
-                $.ajax({
-                    url: 'delete_auth_channel.php', // Change the URL to your PHP script for deleting
-                    type: 'POST',
-                    data: {
-                        id: rowId
-                    },
-                    success: function(response) {
-                        // Remove the row from the table
-                        $('#authenticated_channels').DataTable().row($(this).closest('tr')).remove().draw(false);
-                        console.log("Row deleted successfully");
-                    },
-                    error: function(xhr, status, error) {
-                        console.error(xhr.responseText);
-                    }
-                });
-            }
+            var deleteButton = $(this); // Store reference to the button
+            Swal.fire({
+                title: 'Jeni të sigurtë?',
+                text: 'Jeni të sigurtë që dëshironi të fshini këtë regjistrim?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Po, fshije!',
+                cancelButtonText: 'Anulo'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: 'delete_auth_channel.php',
+                        type: 'POST',
+                        data: {
+                            id: rowId
+                        },
+                        success: function(response) {
+                            // Remove the row from the table or list
+                            deleteButton.closest('tr, .card').remove();
+                            Swal.fire(
+                                'Fshirë!',
+                                'Regjistrimi është fshirë me sukses.',
+                                'success'
+                            );
+                        },
+                        error: function(xhr, status, error) {
+                            console.error(xhr.responseText);
+                            Swal.fire(
+                                'Gabim!',
+                                'Diçka shkoi gabim. Ju lutemi, provoni përsëri më vonë.',
+                                'error'
+                            );
+                        }
+                    });
+                }
+            });
         });
     });
 </script>
