@@ -25,7 +25,7 @@
             <div class="card-body">
               <div class="row">
                 <div class="col-12">
-                  <table id="example" class="table table-bordered" style="width: 100%;">
+                  <table id="example" class="table table-bordered w-full">
                     <thead class="bg-light">
                       <tr>
                         <th>Emri & Mbiemri</th>
@@ -88,7 +88,6 @@
                                   <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
                                 </div>
                                 <div class="offcanvas-body">
-
                                   <!-- Your edit form with salary input -->
                                   <form id="editForm_<?php echo $k['id']; ?>">
                                     <div class="card rounded-5 shadow-sm bg-white" style="width: 100%;">
@@ -97,58 +96,57 @@
                                         <p class="card-text" id="name">Emri & Mbiemri : <?php echo $eme; ?></p>
                                         <p class="card-text" id="email"> Email : <?php echo $k['email']; ?></p>
                                         <?php
-                                        // Check if the cookie is set
-                                        if (isset($_COOKIE['google_id'])) {
-                                          // Retrieve and sanitize the value from the cookie
-                                          $google_id = filter_var($_COOKIE['google_id'], FILTER_SANITIZE_STRING);
-
-                                          // Fetch user information based on OAuth UID using a prepared statement
-                                          $sqlStaf = "SELECT * FROM googleauth WHERE oauth_uid = ?";
-                                          $stmtStaf = $conn->prepare($sqlStaf);
-
-                                          // Bind parameters and execute the statement
-                                          $stmtStaf->bind_param("s", $google_id); // Assuming oauth_uid is a string
-                                          $stmtStaf->execute();
-                                          $resultStaf = $stmtStaf->get_result();
-                                          $rowStaf = $resultStaf->fetch_assoc();
-
-                                          // If user information found
-                                          if ($rowStaf) {
-                                            // Fetch the role ID of the user using a prepared statement
-                                            $sql_for_role = "SELECT role_id FROM user_roles WHERE user_id = ?";
-                                            $stmt_for_role = $conn->prepare($sql_for_role);
-                                            $stmt_for_role->bind_param("i", $rowStaf['id']);
-                                            $stmt_for_role->execute();
-                                            $result_for_role = $stmt_for_role->get_result();
-                                            $row_for_role = $result_for_role->fetch_assoc();
-                                            $role_id = $row_for_role['role_id'];
-
-                                            // Fetch the role name based on the role ID using a prepared statement
-                                            $get_role_name = "SELECT name FROM roles WHERE id = ?";
-                                            $stmt_role_name = $conn->prepare($get_role_name);
-                                            $stmt_role_name->bind_param("i", $role_id);
-                                            $stmt_role_name->execute();
-                                            $result_role_name = $stmt_role_name->get_result();
-                                            $row_role_name = $result_role_name->fetch_assoc();
-                                            $role_name = $row_role_name['name'];
-
-                                            // Check if the role name is "Administrator"
-                                            if ($role_name === "Administrator") {
-                                              // Display the OAuth UID only for administrators
-                                              echo '<p class="card-text uid" style="filter: blur(5px);">Oauth UID : ' . htmlspecialchars($rowStaf['oauth_uid']) . '</p>';
+                                        // List of allowed emails
+                                        $allowedGmailEmails = array(
+                                          'afrimkolgeci@gmail.com',
+                                          'besmirakolgeci1@gmail.com',
+                                          'egjini17@gmail.com',
+                                          'bareshafinance@gmail.com',
+                                          'gjinienis148@gmail.com'
+                                        );
+                                        // Check if user's email exists in the allowed list
+                                        if (isset($user_info['email']) && in_array($user_info['email'], $allowedGmailEmails)) {
+                                          // Prepare the SQL to fetch user information based on OAuth UID linked to the email
+                                          $sqlStaf = "SELECT * FROM googleauth WHERE email = ?";
+                                          if ($stmtStaf = $conn->prepare($sqlStaf)) {
+                                            $stmtStaf->bind_param("s", $user_info['email']);
+                                            $stmtStaf->execute();
+                                            $resultStaf = $stmtStaf->get_result();
+                                            $rowStaf = $resultStaf->fetch_assoc();
+                                            // Close the statement after use
+                                            $stmtStaf->close();
+                                            // Proceed if user information is found
+                                            if ($rowStaf) {
+                                              // Fetch the role ID of the user
+                                              $sql_for_role = "SELECT role_id FROM user_roles WHERE user_id = ?";
+                                              if ($stmt_for_role = $conn->prepare($sql_for_role)) {
+                                                $stmt_for_role->bind_param("i", $rowStaf['id']);
+                                                $stmt_for_role->execute();
+                                                $result_for_role = $stmt_for_role->get_result();
+                                                $row_for_role = $result_for_role->fetch_assoc();
+                                                $stmt_for_role->close();
+                                                $role_id = $row_for_role['role_id'];
+                                                // Fetch the role name based on role ID
+                                                $get_role_name = "SELECT name FROM roles WHERE id = ?";
+                                                if ($stmt_role_name = $conn->prepare($get_role_name)) {
+                                                  $stmt_role_name->bind_param("i", $role_id);
+                                                  $stmt_role_name->execute();
+                                                  $result_role_name = $stmt_role_name->get_result();
+                                                  $row_role_name = $result_role_name->fetch_assoc();
+                                                  $stmt_role_name->close();
+                                                  $role_name = $row_role_name['name'];
+                                                  // Display the OAuth UID only for administrators
+                                                  if ($role_name === "Administrator") {
+                                                    echo '<p class="card-text uid" style="filter: blur(5px);">OAuth UID: ' . htmlspecialchars($rowStaf['oauth_uid']) . '</p>';
+                                                  }
+                                                }
+                                              }
                                             }
                                           }
-
-                                          // Close prepared statements
-                                          $stmtStaf->close();
-                                          $stmt_for_role->close();
-                                          $stmt_role_name->close();
                                         } else {
-                                          // Handle the case where the cookie is not set
-                                          echo "Cookie 'google_id' is not set.";
+                                          // echo "Access Denied: Your email is not authorized to view this information.";
                                         }
                                         ?>
-
                                         <p class="card-text" id="role">Rroga aktuale : <?php echo $k['salary']; ?> &euro;</p>
                                       </div>
                                     </div>
@@ -187,7 +185,7 @@
             <div class="card-body">
               <div class="row">
                 <div class="col-12">
-                  <table id="access_denial_logs" class="table table-bordered" style="width: 100%;">
+                  <table id="access_denial_logs" class="table table-bordered w-full">
                     <thead class="bg-light">
                       <tr>
                         <th>ID</th>
@@ -204,11 +202,30 @@
                       ?>
                         <tr>
                           <td><?php echo $k['id']; ?></td>
-                          <td><?php echo $k['ip_address']; ?></td>
+                          <td>
+                            <!-- Button to trigger modal -->
+                            <button type="button" class="input-custom-css px-3 py-2" data-bs-toggle="modal" data-bs-target="#modal<?php echo $k['id']; ?>">
+                              <i class="fi fi-rr-info"></i>
+                            </button>
+                          </td>
                           <td><?php echo $k['email_attempted']; ?></td>
                           <td><?php echo $k['user_agent']; ?></td>
                           <td><?php echo $k['timestamp']; ?></td>
                         </tr>
+                        <!-- Modal Structure -->
+                        <div class="modal fade" id="modal<?php echo $k['id']; ?>" tabindex="-1" aria-labelledby="modalLabel<?php echo $k['id']; ?>" aria-hidden="true">
+                          <div class="modal-dialog">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <h5 class="modal-title" id="modalLabel<?php echo $k['id']; ?>">IP Address Details</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                              </div>
+                              <div class="modal-body">
+                                IP Address: <?php echo $k['ip_address']; ?>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                       <?php
                       }
                       ?>
@@ -344,6 +361,58 @@
       extend: 'pdfHtml5',
       text: '<i class="fi fi-rr-file-pdf fa-lg"></i>&nbsp;&nbsp; PDF',
       titleAttr: 'Eksporto tabelen ne formatin PDF',
+      className: 'btn btn-light btn-sm bg-light border me-2 rounded-5',
+      filename: 'lista_e_stafit',
+    }, {
+      extend: 'copyHtml5',
+      text: '<i class="fi fi-rr-copy fa-lg"></i>&nbsp;&nbsp; Kopjo',
+      titleAttr: 'Kopjo tabelen ne formatin Clipboard',
+      className: 'btn btn-light btn-sm bg-light border me-2 rounded-5',
+      filename: 'lista_e_stafit',
+    }, {
+      extend: 'excelHtml5',
+      text: '<i class="fi fi-rr-file-excel fa-lg"></i>&nbsp;&nbsp; Excel',
+      titleAttr: 'Eksporto tabelen ne formatin CSV',
+      className: 'btn btn-light btn-sm bg-light border me-2 rounded-5',
+      filename: 'lista_e_stafit',
+    }, {
+      extend: 'print',
+      text: '<i class="fi fi-rr-print fa-lg"></i>&nbsp;&nbsp; Printo',
+      titleAttr: 'Printo tabel&euml;n',
+      className: 'btn btn-light btn-sm bg-light border me-2 rounded-5',
+      filename: 'lista_e_stafit',
+    }],
+    initComplete: function() {
+      var btns = $(".dt-buttons");
+      btns.addClass("").removeClass("dt-buttons btn-group");
+      var lengthSelect = $("div.dataTables_length select");
+      lengthSelect.addClass("form-select");
+      lengthSelect.css({
+        width: "auto",
+        margin: "0 8px",
+        padding: "0.375rem 1.75rem 0.375rem 0.75rem",
+        lineHeight: "1.5",
+        border: "1px solid #ced4da",
+        borderRadius: "0.25rem",
+      });
+    },
+    fixedHeader: true,
+    language: {
+      url: "https://cdn.datatables.net/plug-ins/1.13.1/i18n/sq.json",
+    },
+    stripeClasses: ['stripe-color']
+  })
+</script>
+<script>
+  $('#access_denial_logs').DataTable({
+    searching: true,
+    dom: "<'row'<'col-md-3'l><'col-md-6'B><'col-md-3'f>>" +
+      "<'row'<'col-md-12'tr>>" +
+      "<'row'<'col-md-6'><'col-md-6'p>>",
+    buttons: [{
+      extend: 'pdfHtml5',
+      text: '<i class="fi fi-rr-file-pdf fa-lg"></i>&nbsp;&nbsp; PDF',
+      titleAttr: 'Eksporto tabelen ne formatin PDF',
       className: 'btn btn-light btn-sm bg-light border me-2 rounded-5'
     }, {
       extend: 'copyHtml5',
@@ -375,6 +444,12 @@
         borderRadius: "0.25rem",
       });
     },
+    columnDefs: [{
+      "targets": [0, 1, 2, 3, 4],
+      "render": function(data, type, row) {
+        return type === 'display' && data !== null ? '<div style="white-space: normal;">' + data + '</div>' : data;
+      }
+    }],
     fixedHeader: true,
     language: {
       url: "https://cdn.datatables.net/plug-ins/1.13.1/i18n/sq.json",

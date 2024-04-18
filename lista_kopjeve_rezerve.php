@@ -2,20 +2,16 @@
 require_once 'partials/header.php';
 // Define the directory where the backup files are stored
 $backupDirectory = 'backups';
-
 // Get the list of backup files
 $backupFiles = scandir($backupDirectory);
-
 // Remove the "." and ".." entries from the list
 $backupFiles = array_diff($backupFiles, array('.', '..'));
-
 // Sort the backup files in descending order based on file creation time
 usort($backupFiles, function ($a, $b) use ($backupDirectory) {
     $fileA = $backupDirectory . '/' . $a;
     $fileB = $backupDirectory . '/' . $b;
     return filemtime($fileB) - filemtime($fileA);
 });
-
 // Check if there is no backup for the current day
 $hasTodayBackup = false;
 $today = date('d-m-Y');
@@ -72,12 +68,11 @@ foreach ($backupFiles as $backupFile) {
                                                     <?php echo $creationTime; ?>
                                                 </td>
                                                 <td>
-                                                    <a class="btn btn-primary py-2 shadow rounded-5 text-white btn-sm" href="<?php echo $backupFilePath; ?>" download style="text-transform:none;"><i class="fi fi-rr-download"></i>
+                                                    <a class="input-custom-css px-3 py-2" style="text-transform:none;text-decoration:none" href="<?php echo $backupFilePath; ?>" download style="text-transform:none;"><i class="fi fi-rr-download"></i>
                                                         Shkarkoje</a>
-                                                    <button style="text-transform:none;" class="btn btn-danger py-2 shadow rounded-5 text-white btn-sm" style="text-transform:none;" onclick="deleteBackup('<?php echo $backupFile; ?>')"><i class="fi fi-rr-trash"></i>Fshije</button>
+                                                    <button class="input-custom-css px-3 py-2" style="text-transform:none;text-decoration:none" onclick="deleteBackup('<?php echo $backupFile; ?>')"><i class="fi fi-rr-trash"></i>Fshije</button>
                                                 </td>
                                             </tr>
-
                                         <?php endforeach; ?>
                                     </tbody>
                                 </table>
@@ -89,7 +84,6 @@ foreach ($backupFiles as $backupFile) {
         </div>
     </div>
 </div>
-
 <script>
     $('#listaKopjeve').DataTable({
         responsive: false,
@@ -147,7 +141,6 @@ foreach ($backupFiles as $backupFile) {
         },
         stripeClasses: ['stripe-color']
     })
-
 
     function deleteBackup(backupFile) {
         Swal.fire({
