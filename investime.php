@@ -41,7 +41,6 @@ require_once 'vendor/autoload.php';
         </div>
     </div>
 </div>
-
 <!-- Your JavaScript code -->
 <div class="main-panel">
     <div class="content-wrapper">
@@ -55,39 +54,51 @@ require_once 'vendor/autoload.php';
                     </li>
                 </ol>
             </nav>
-            <div class="row mb-2">
+            <div class="row mb-2 d-none d-lg-block">
                 <div>
                     <ul class="nav nav-pills bg-white my-3 mx-0 rounded-5" id="pills-tab" role="tablist" style="width: fit-content;">
                         <li class="nav-item" role="presentation">
                             <button class="nav-link rounded-5 active" style="text-transform: none;" id="pills-shto_investim-tab" data-bs-toggle="pill" data-bs-target="#pills-shto_investim" type="button" role="tab" aria-controls="pills-shto_investim" aria-selected="true">Shto investim</button>
                         </li>
                         <li class="nav-item" role="presentation">
-                            <button class="nav-link  rounded-5" style="text-transform: none;" id="pills-lista_e_investimeve-tab" data-bs-toggle="pill" data-bs-target="#pills-lista_e_investimeve" type="button" role="tab" aria-controls="pills-lista_e_investimeve" aria-selected="false">Lista e investimeve</button>
+                            <button class="nav-link rounded-5" style="text-transform: none;" id="pills-lista_e_investimeve-tab" data-bs-toggle="pill" data-bs-target="#pills-lista_e_investimeve" type="button" role="tab" aria-controls="pills-lista_e_investimeve" aria-selected="false">Lista e investimeve</button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="row d-lg-none mb-2">
+                <div class="col-12">
+                    <ul class="nav nav-tabs my-3 mx-0" role="tablist">
+                        <li class="nav-item dropdown">
+                            <a class="input-custom-css px-3 py-2 nav-link dropdown-toggle active" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false" style="text-transform: none; padding: 8px 12px;">Investime</a>
+                            <ul class="dropdown-menu">
+                                <li><button class="dropdown-item" id="pills-shto_investim-mobile-tab" data-bs-toggle="pill" data-bs-target="#pills-shto_investim" type="button" role="tab" aria-controls="pills-shto_investim" aria-selected="true">Shto investim</button></li>
+                                <li><button class="dropdown-item" id="pills-lista_e_investimeve-mobile-tab" data-bs-toggle="pill" data-bs-target="#pills-lista_e_investimeve" type="button" role="tab" aria-controls="pills-lista_e_investimeve" aria-selected="false">Lista e investimeve</button></li>
+                            </ul>
                         </li>
                     </ul>
                 </div>
             </div>
             <div class="p-5 rounded-5 shadow-sm mb-4 card">
-
                 <div class="tab-content" id="pills-tabContent">
                     <div class="tab-pane fade show active" id="pills-shto_investim" role="tabpanel" aria-labelledby="pills-shto_investim-tab">
                         <form id="myForm" action="insert_investim.php" method="post">
                             <div class="row my-3">
-                                <div class="col">
+                                <div class="col-12 col-md-6">
                                     <label class="form-label" for="emri">Emri</label>
                                     <input type="text" class="form-control rounded-5 border border-2" name="emri" id="emri">
                                 </div>
-                                <div class="col">
+                                <div class="col-12 col-md-6">
                                     <label class="form-label" for="mbiemri">Mbiemri</label>
                                     <input type="text" class="form-control rounded-5 border border-2" name="mbiemri" id="mbiemri">
                                 </div>
                             </div>
                             <div class="row my-3">
-                                <div class="col">
+                                <div class="col-12 col-lg-6">
                                     <label class="form-label" for="emri_i_kenges">Emri i kenges</label>
                                     <input type="text" class="form-control rounded-5 border border-2" name="emri_i_kenges" id="emri_i_kenges">
                                 </div>
-                                <div class="col">
+                                <div class="col-12 col-lg-6">
                                     <label class="form-label" for="shenim">Shenim</label>
                                     <textarea class="form-control rounded-5 border border-2" name="shenim" id="tinymce-editor"></textarea>
                                 </div>
@@ -137,7 +148,7 @@ require_once 'vendor/autoload.php';
     $(document).ready(function() {
         // Initialize DataTable with AJAX
         var dataTables = $('#example').DataTable({
-            responsive: false,
+            responsive: true,
             lengthMenu: [
                 [10, 25, 50, -1],
                 [10, 25, 50, "Te gjitha"]
@@ -157,9 +168,9 @@ require_once 'vendor/autoload.php';
                     'border-radius': '0.25rem',
                 });
             },
-            dom: "<'row'<'col-md-3'l><'col-md-6'B><'col-md-3'f>>" +
-                "<'row'<'col-md-12'tr>>" +
-                "<'row'<'col-md-6'><'col-md-6'p>>",
+            dom: "<'row'<'col-sm-12 col-md-4'l><'col-sm-12 col-md-4 text-center'B><'col-sm-12 col-md-4'f>>" +
+                "<'row'<'col-12'tr>>" +
+                "<'row'<'col-md-5'i><'col-md-7'p>>",
             buttons: [{
                 extend: 'pdfHtml5',
                 text: '<i class="fi fi-rr-file-pdf fa-lg"></i>&nbsp;&nbsp; PDF',
@@ -205,11 +216,13 @@ require_once 'vendor/autoload.php';
                 dataSrc: '', // Since your response is an array, set this to an empty string
             },
             columns: [{
-                    data: 'id'
-                }, // 'id' should be the name of the column in your database table
+                    data: 'id',
+                    responsivePriority: 3
+                }, // Adjust priority to control visibility
                 {
-                    data: 'emri'
-                }, // 'emri' should be the name of the column in your database table
+                    data: 'emri',
+                    responsivePriority: 2
+                },
                 {
                     data: 'mbiemri'
                 }, // 'mbiemri' should be the name of the column in your database table
@@ -230,7 +243,6 @@ require_once 'vendor/autoload.php';
                         }
                     }
                 },
-
                 {
                     // Use the 'render' function to create the delete button
                     // 'data' parameter contains the full row data
@@ -243,7 +255,7 @@ require_once 'vendor/autoload.php';
                     }
                 }
             ],
-        }); // Handle the delete button click using AJAX
+        });
         $('#example').on('click', '.delete-btn', function() {
             var rowId = $(this).data('id');
             // Show a confirmation dialog before proceeding with the deletion
@@ -326,7 +338,6 @@ require_once 'vendor/autoload.php';
                 },
             });
         });
-
         $('#updateBtn').click(function() {
             // Create a new FormData object and append the form data to it
             var formData = new FormData($('#updateForm')[0]);
@@ -334,7 +345,6 @@ require_once 'vendor/autoload.php';
             var shenimContent = $('#editShenim').val();
             // formData.append('shenim', shenimContent); // Append the shenim content to the formData
             formData.append('shenim', shenimContent);
-
             $.ajax({
                 url: 'update_investimi.php',
                 type: 'POST',
@@ -400,9 +410,7 @@ require_once 'vendor/autoload.php';
         // Handle form submission using AJAX
         $("#myForm").submit(function(event) {
             event.preventDefault(); // Parandalon formën të dërgojë normalisht
-
             const formData = new FormData(event.target);
-
             $.ajax({
                 url: "insert_investim.php",
                 type: "POST",
@@ -443,6 +451,5 @@ require_once 'vendor/autoload.php';
                 },
             });
         });
-
     });
 </script>
