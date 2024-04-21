@@ -145,7 +145,7 @@ function isValidEmailDomain($email, $allowedDomains)
   <!-- Mobius1 Selectr CSS -->
   <link href="https://unpkg.com/mobius1-selectr@latest/dist/selectr.min.css" rel="stylesheet" type="text/css">
   <!-- Mobius1 Selectr JavaScript -->
-  <script src="https://unpkg.com/mobius1-selectr@latest/dist/selectr.min.js" type="text/javascript"></script>
+  <script src="https://unpkg.com/mobius1-selectr@latest/dist/selectr.min.js"></script>
   <!-- Flatpickr CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   <!-- Flatpickr JavaScript -->

@@ -2,7 +2,7 @@
 <div class="main-panel">
     <div class="content-wrapper">
         <div class="container-fluid">
-            <nav class="bg-white px-2 rounded-5" style="width:fit-content;border-style:1px solid black;" aria-label="breadcrumb">
+            <nav class="bg-white px-2 rounded-5" style="width:fit-content" aria-label="breadcrumb">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item active" aria-current="page"><a href="authenticated_channels.php" class="text-reset" style="text-decoration: none;">Kanalet e autentifikuara</a></li>
                 </ol>
@@ -35,7 +35,6 @@
                                     </td>
                                     <td>
                                         <?php echo $row['channel_id']; ?>
-                                        <br><br>
                                         <a href="kanali.php?id=<?php echo $row['channel_id']; ?>" class="input-custom-css px-3 py-2 mt-3" style="text-transform:none;text-decoration:none"><i class="fi fi-rr-user"></i> Shiko kanalin</a>
                                     </td>
                                     <td><?php echo $row['channel_name']; ?></td>
@@ -48,7 +47,6 @@
                                         }
                                         ?>
                                     </td>
-
                                     <td><?php echo $row['created_at']; ?></td>
                                     <td>
                                         <button style="text-transform:none;" class="input-custom-css px-3 py-2 delete-btn" data-id="<?php echo $row['id']; ?>">
@@ -72,21 +70,21 @@
                                                     while ($client_row = $client_result->fetch_assoc()) {
                                                     ?>
                                                         <li class="list-group-item">
-                                                            <strong>ID:</strong> <?php echo $client_row['id']; ?><br>
-                                                            <strong>Emri:</strong> <?php echo $client_row['emri']; ?><br>
-                                                            <strong>Monetizuar:</strong> <?php echo $client_row['monetizuar']; ?><br>
-                                                            <strong>YouTube:</strong> <?php echo $client_row['youtube']; ?><br>
-                                                            <strong>Perqindja:</strong> <?php echo $client_row['perqindja']; ?><br>
-                                                            <strong>Ads:</strong> <?php echo $client_row['ads']; ?><br>
-                                                            <strong>FB:</strong> <?php echo $client_row['fb']; ?><br>
-                                                            <strong>IG:</strong> <?php echo $client_row['ig']; ?><br>
-                                                            <strong>Adresa:</strong> <?php echo $client_row['adresa']; ?><br>
-                                                            <strong>Kategoria:</strong> <?php echo $client_row['kategoria']; ?><br>
+                                                            <strong>ID:</strong> <?php echo $client_row['id']; ?>
+                                                            <strong>Emri:</strong> <?php echo $client_row['emri']; ?>
+                                                            <strong>Monetizuar:</strong> <?php echo $client_row['monetizuar']; ?>
+                                                            <strong>YouTube:</strong> <?php echo $client_row['youtube']; ?>
+                                                            <strong>Perqindja:</strong> <?php echo $client_row['perqindja']; ?>
+                                                            <strong>Ads:</strong> <?php echo $client_row['ads']; ?>
+                                                            <strong>FB:</strong> <?php echo $client_row['fb']; ?>
+                                                            <strong>IG:</strong> <?php echo $client_row['ig']; ?>
+                                                            <strong>Adresa:</strong> <?php echo $client_row['adresa']; ?>
+                                                            <strong>Kategoria:</strong> <?php echo $client_row['kategoria']; ?>
                                                         </li>
-                                                        <br>
-                                                        <div>
+                                                        <!-- Displaying 'Shiko të dhënat e përgjithshme' link after each list item -->
+                                                        <li>
                                                             <a href="editk.php?id=<?php echo $client_row['id']; ?>" class="input-custom-css px-3 py-2 mt-3" style="text-transform:none;text-decoration:none">Shiko të dhënat e përgjithshme</a>
-                                                        </div>
+                                                        </li>
                                                     <?php
                                                     }
                                                     ?>

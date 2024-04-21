@@ -12,7 +12,7 @@
     <ul class="navbar-nav navbar-nav-right d-flex align-items-center ms-2">
       <li class="dropdown-center ms-auto mt-2">
         <button class="btn btn-light btn-sm shadow-sm rounded-6 dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border:1px solid lightgrey;">
-          <img src="<?php echo $user_info['picture']; ?>" alt="profile" width="25px" style="border-radius:50%;margin-right:15px" />
+          <img src="<?php echo $user_info['picture']; ?>" alt="profile" width="25" style="border-radius:50%;margin-right:15px" />
           <?php echo $user_info['givenName'] . ' ' . $user_info['familyName']; ?>
         </button>
         <ul class="dropdown-menu p-2">
