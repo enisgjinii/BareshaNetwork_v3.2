@@ -178,7 +178,6 @@ function getChannelDetails($channelId, $apiKey)
       white-space: normal;
       cursor: pointer;
     }
-
     .custom-dot {
       width: 10px;
       height: 10px;
@@ -189,7 +188,6 @@ function getChannelDetails($channelId, $apiKey)
       white-space: normal;
       cursor: pointer;
     }
-
     .custom-tooltiptext {
       visibility: hidden;
       width: 80px;
@@ -208,20 +206,17 @@ function getChannelDetails($channelId, $apiKey)
       white-space: normal;
       cursor: pointer;
     }
-
     .custom-tooltip:hover .custom-tooltiptext {
       cursor: pointer;
       visibility: visible;
       white-space: normal;
       opacity: 0.9;
     }
-
     @media (max-width: 767px) {
       .breadcrumb-item a {
         font-size: 14px;
         /* Adjust the font size as needed */
       }
-
       .input-custom-css {
         font-size: 12px;
         /* Adjust the font size as needed */
@@ -234,29 +229,24 @@ function getChannelDetails($channelId, $apiKey)
         text-align: center;
         /* Center text within buttons */
       }
-
       .input-custom-css i {
         display: none;
         /* Hide icons on mobile */
       }
-
       .nav-pills {
         display: flex;
         justify-content: center;
         flex-wrap: wrap;
       }
-
       .nav-item {
         text-align: center;
         margin: 0 5px;
         /* Adjust margin as needed */
       }
-
       .table-sm th,
       .table-sm td {
         padding: 0.25rem;
       }
-
       .text-sm {
         font-size: 12px;
       }
@@ -553,7 +543,27 @@ function getChannelDetails($channelId, $apiKey)
                                   <?php echo $counter++; ?>
                                 </td>
                                 <td>
-                                  <?php echo $invoiceNumber . $id ?>
+                                  <?php
+                                  /**
+                                   * Gjeneron një numër fature unik për t'u shfaqur në qelizën e tabelës.
+                                   * 
+                                   * Ky fragment i kodit gjeneron dinamikisht një numër fature unik duke kombinuar elemente të ndryshme:
+                                   * 
+                                   * - `$invoiceNumber`: Një identifikues unik i gjeneruar nga funksioni `uniqid()`.
+                                   *   Parametri `more_entropy` e vendosur në `true` siguron unicitet.
+                                   * 
+                                   * - `$counter - 1`: Variabla e numëruesit e shtuar për çdo rresht, tregon pozicionin e faturës.
+                                   * 
+                                   * - `strtoupper(preg_replace('/[^A-Z]/', '', $tokenInfo['channel_name']))`:
+                                   *   Konverton emrin e kanalit në shkronja të mëdha dhe heq karakteret jo alfabetike, siguruar konsistencën.
+                                   * 
+                                   * Numri fature rezultues shfaqet brenda qelizës së tabelës për të identifikuar në mënyrë unike çdo rresht.
+                                   * 
+                                   * Për shembull, nëse `$invoiceNumber` është "230420241158481SR", kjo do të rezultonte në një string të tillë për shfaqje: 
+                                   * "230420241158481SR" në qelizën e tabelës.
+                                   */
+                                  echo $invoiceNumber . ($counter - 1) . strtoupper(preg_replace('/[^A-Z]/', '', $tokenInfo['channel_name']));
+                                  ?>
                                 </td>
                                 <td>
                                   <?php
@@ -797,7 +807,6 @@ function getChannelDetails($channelId, $apiKey)
     var totalAmountAfterPercentage = totalAmount - (totalAmount * (percentage / 100));
     document.getElementById('total_amount_after_percentage').value = totalAmountAfterPercentage.toFixed(2);
   });
-
   function getCustomerName(customerId) {
     var customerName = '';
     $.ajax({
@@ -1443,7 +1452,6 @@ function getChannelDetails($channelId, $apiKey)
       },
       stripeClasses: ['stripe-color']
     });
-
     function getCurrentDate() {
       var today = new Date();
       var dd = String(today.getDate()).padStart(2, '0');
@@ -1501,5 +1509,4 @@ function getChannelDetails($channelId, $apiKey)
 <script src="states.js"></script>
 <?php include 'partials/footer.php' ?>
 </body>
-
 </html>
