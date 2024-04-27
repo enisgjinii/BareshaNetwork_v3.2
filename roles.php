@@ -4,13 +4,10 @@ function generateCSRFToken()
 {
     return bin2hex(random_bytes(32));
 }
-
 // Generate CSRF token and store it in a variable
 $csrf_token = generateCSRFToken();
-
 // Set CSRF token as a cookie
 setcookie('csrf_token', $csrf_token, time() + 3600, '/', '', false, true); // Expiry time set to 1 hour
-
 ?>
 <?php
 include 'partials/header.php'; ?>
@@ -32,8 +29,7 @@ include 'partials/header.php'; ?>
                     <button class="nav-link rounded-5 active" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#pills-home" type="button" role="tab" aria-controls="pills-home" aria-selected="true" style="text-transform:none;"><i class="fi fi-rr-smile-plus me-2 fa fa-lg"></i> Krijo rol të ri</button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link rounded-5" id="pills-profile-tab" data-bs-toggle="pill" data-bs-target="#pills-profile" type="button" role="tab" aria-controls="pills-profile" aria-selected="false" style="text-transform:none;"><i class="fi fi-rr-puzzle me-2 fa fa-lg"></i>
-                        Lista e roleve</button>
+                    <button class="nav-link rounded-5" id="pills-profile-tab" data-bs-toggle="pill" data-bs-target="#pills-profile" type="button" role="tab" aria-controls="pills-profile" aria-selected="false" style="text-transform:none;"><i class="fi fi-rr-puzzle me-2 fa fa-lg"></i> Lista e roleve</button>
                 </li>
                 <li class="nav-item" role="presentation">
                     <button class="nav-link rounded-5" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#pills-contact" type="button" role="tab" aria-controls="pills-contact" aria-selected="false" style="text-transform:none;">
@@ -57,17 +53,17 @@ include 'partials/header.php'; ?>
                                 </div>
                                 <div class="row my-3">
                                     <div class="col">
-                                        <button type="button" class="btn btn-primary rounded-5 float-right text-white" style="text-transform:none;" onclick="checkAll()">
+                                        <button type="button" class="input-custom-css px-3 py-2 rounded-5 float-right" style="text-transform:none;" onclick="checkAll()">
                                             <i class="fi fi-rr-list-check me-2" style="display:inline-block;vertical-align:middle;"></i>
                                             <span style="display:inline-block;vertical-align:middle;">Selekto te
                                                 gjitha</span>
                                         </button>
-                                        <button type="button" class="btn btn-danger rounded-5 float-right text-white" style="text-transform:none;" onclick="uncheckAll()">
+                                        <button type="button" class="input-custom-css px-3 py-2 rounded-5 float-right" style="text-transform:none;" onclick="uncheckAll()">
                                             <i class="fi fi-rr-list me-2" style="display:inline-block;vertical-align:middle;"></i>
                                             <span style="display:inline-block;vertical-align:middle;">Hiq
                                                 selektimin</span>
                                         </button>
-                                        <button type="submit" class="btn btn-warning text-white rounded-5 float-right" style="text-transform:none;">
+                                        <button type="submit" class="input-custom-css px-3 py-2 rounded-5 float-right" style="text-transform:none;">
                                             <i class="fi fi-rr-id-badge me-2" style="display:inline-block;vertical-align:middle;"></i>
                                             <span style="display:inline-block;vertical-align:middle;">Krijo rolin</span>
                                         </button>
@@ -77,167 +73,168 @@ include 'partials/header.php'; ?>
                                 <?php
                                 function format_page_name($page)
                                 {
+                                    $button_html = '<br><a href="' . $page . '" target="_blank" class="input-custom-css px-3 py-2 " style="text-transform:none;text-decoration:none;">Vizito faqen</a>';
                                     if ($page == 'index.php') {
-                                        return 'Shtepia';
+                                        return 'Shtepia' . '<br><br>' . '<p class="text-muted">Faqja e panelit i cila i shfaq te dhenat ne menyre te permbledhure</p>' . $button_html;
                                     }
                                     if ($page == 'roles.php') {
-                                        return 'Rolet';
+                                        return 'Rolet' . '<br><br>' . '<p class="text-muted">Faqja në të cilen jepen rolet e stafit</p>' . $button_html;
                                     }
                                     if ($page == 'stafi.php') {
-                                        return 'Stafi';
+                                        return 'Stafi' . '<br><br>' . '<p class="text-muted">Faqja e cila i shfaq te dhenat e stafit</p>' . $button_html;
                                     }
                                     if ($page == 'ads.php') {
-                                        return 'Llogaritë e ADS';
+                                        return 'Llogaritë e ADS' . '<br><br>' . '<p class="text-muted">Faqja e cila i shfaq llogaritë e ADS</p>' . $button_html;
                                     }
                                     if ($page == 'emails.php') {
-                                        return 'Lista e email-eve';
+                                        return 'Lista e email-eve' . '<br><br>' . '<p class="text-muted">Faqja e cila i shfaq listen e email-eve</p>' . $button_html;
                                     }
                                     if ($page == 'klient.php') {
-                                        return 'Lista e klientëve';
+                                        return 'Lista e klientëve' . '<br><br>' . '<p class="text-muted">Faqja e cila i shfaq listen e klientëve</p>' . $button_html;
                                     }
                                     if ($page == 'kategorit.php') {
-                                        return 'Lista e kategorive';
+                                        return 'Lista e kategorive' . '<br><br>' . '<p class="text-muted">Faqja e cila i shfaq listen e kategorive</p>' . $button_html;
                                     }
                                     if ($page == 'claim.php') {
-                                        return 'Recent Claim';
+                                        return 'Recent Claim' . '<br><br>' . '<p class="text-muted">Faqja e cila i shfaq listen e recent claim</p>' . $button_html;
                                     }
                                     if ($page == 'tiketa.php') {
-                                        return 'Lista e tiketave';
+                                        return 'Lista e tiketave ' . '<br><br>' . '<p class="text-muted">Faqja e cila i shfaq listen e tiketave</p>' . $button_html;
                                     }
                                     if ($page == 'listang.php') {
-                                        return 'Lista e këngëve';
+                                        return 'Lista e këngëve' . '<br><br>' . '<p class="text-muted">Faqja e cila i shfaq listen e këngëve</p>' . $button_html;
                                     }
                                     if ($page == 'shtoy.php') {
-                                        return 'Regjistro këngë';
+                                        return 'Regjistro këngë' . '<br><br>' . '<p class="text-muted">Faqja e cila i shfaq regjistrimin e këngëve</p>' . $button_html;
                                     }
                                     if ($page == 'listat.php') {
-                                        return 'Lista e tiketave';
+                                        return 'Lista e tiketave' . '<br><br>' . '<p class="text-muted">Faqja e cila i shfaq listen e tiketave</p>' . $button_html;
                                     }
                                     if ($page == 'tiketa.php') {
-                                        return 'Tiket e re';
+                                        return 'Tiket e re' . '<br><br>' . '<p class="text-muted">Faqja e cila lejon krijimin e nje tikete te re</p>' . $button_html;
                                     }
                                     if ($page == 'whitelist.php') {
-                                        return 'Whitelist';
+                                        return 'Whitelist' . '<br><br>' . '<p class="text-muted">Faqja e cila i shfaq listen e whitelist</p>' . $button_html;
                                     }
                                     if ($page == 'faturat.php') {
-                                        return 'Pagesat Youtube';
+                                        return 'Pagesat Youtube' . '<br><br>' . '<p class="text-muted">Faqja e cila i shfaq listen e pagesave nga YouTube</p>' . $button_html;
                                     }
                                     if ($page == 'invoice.php') {
-                                        return 'Pagesat Youtube_channel ( New )';
+                                        return 'Pagesat Youtube_channel ( New )' . '<br><br>' . '<p class="text-muted">Faqja e cila i shfaq listen e pagesave nga YouTube ( Implementimi i faturave te reja )</p>' . $button_html;
                                     }
                                     if ($page == 'pagesat_youtube.php') {
-                                        return 'Pagesat YouTube ( Faza Test )';
+                                        return 'Pagesat YouTube ( Faza Test )' . $button_html;
                                     }
                                     if ($page == 'pagesat.php') {
-                                        return 'Pagesat e kryera';
+                                        return 'Pagesat e kryera' . '<br><br>' . '<p class="text-muted">Faqja e cila i shfaq listen e pagesave ( faturave ) të kryera </p>' . $button_html;
                                     }
                                     if ($page == 'rrogat.php') {
-                                        return 'Pagat';
+                                        return 'Pagat' . '<br><br>' . '<p class="text-muted">Faqja e cila i shfaq listen e pagave te stafit </p>' . $button_html;
                                     }
                                     if ($page == 'shpenzimep.php') {
-                                        return 'Shpenzimet personale';
+                                        return 'Shpenzimet personale' . '<br><br>' . '<p class="text-muted">Faqja e cila i shfaq listen e shpenzimeve te personale </p>' . $button_html;
                                     }
                                     if ($page == 'tatimi.php') {
-                                        return 'Tatimi';
+                                        return 'Tatimi' . '<br><br>' . '<p class="text-muted">Faqja e cila i shfaq listen e tatimit </p>' . $button_html;
                                     }
                                     if ($page == 'yinc.php') {
-                                        return 'Shpenzimet';
+                                        return 'Shpenzimet' . '<br><br>' . '<p class="text-muted">Faqja e cila i shfaq listen e shpenzimeve </p>' . $button_html;
                                     }
                                     if ($page == 'filet.php') {
-                                        return 'Dokumente tjera';
+                                        return 'Dokumente tjera' . '<br><br>' . '<p class="text-muted">Faqja e cila i shfaq listen e dokumenteve tjera </p>' . $button_html;
                                     }
                                     if ($page == 'klient_CSV.php') {
-                                        return 'Klient CSV';
+                                        return 'Klient CSV' . '<br><br>' . '<p class="text-muted">Faqja e cila i shfaq listen e klienteve CSV </p>' . $button_html;
                                     }
                                     if ($page == 'logs.php') {
-                                        return 'Logs';
+                                        return 'Logs' . '<br><br>' . '<p class="text-muted">Faqja e cila i shfaq listen e aktiviteteve te stafit ne sistem </p>' . $button_html;
                                     }
                                     if ($page == 'notes.php') {
-                                        return 'Shenime';
+                                        return 'Shenime' . '<br><br>' . '<p class="text-muted">Faqja e cila i shfaq listen e shenimeve </p>' . $button_html;
                                     }
                                     if ($page == 'takimet.php') {
-                                        return 'Takimet';
+                                        return 'Takimet' . '<br><br>' . '<p class="text-muted">Faqja e cila i shfaq listen e takimeve </p>' . $button_html;
                                     }
                                     if ($page == 'todo_list.php') {
-                                        return 'To Do';
+                                        return 'To Do' . '<br><br>' . '<p class="text-muted">Faqja e cila i shfaq listen e aktiviteteve te stafit ne sistem </p>' . $button_html;
                                     }
                                     if ($page == 'kontrata_2.php') {
-                                        return 'Kontrata e re';
+                                        return 'Kontrata e re' . '<br><br>' . '<p class="text-muted">Faqja e cila sherben per krijimin e nje kontrate te re per kenge e cila eshte digjitale </p>' . $button_html;
                                     }
                                     if ($page == 'lista_kontratave.php') {
-                                        return 'Lista e kontratave';
+                                        return 'Lista e kontratave' . '<br><br>' . '<p class="text-muted">Faqja e cila i shfaq listen e kontratave per kenge</p>' . $button_html;
                                     }
                                     if ($page == 'csvFiles.php') {
-                                        return 'Inserto CSV';
+                                        return 'Inserto CSV' . '<br><br>' . '<p class="text-muted">Faqja e cila i shfaq opsionin per te shtuar CSV nga Repost Network </p>' . $button_html;
                                     }
                                     if ($page == 'filtroCSV.php') {
-                                        return 'Filtro CSV';
+                                        return 'Filtro CSV' . '<br><br>' . '<p class="text-muted">Faqja e cila i shfaq listen e filtrimit te CSV nga Repost Network </p>' . $button_html;
                                     }
                                     if ($page == 'listaEFaturaveTePlatformave.php') {
-                                        return 'Lista e faturave';
+                                        return 'Lista e faturave' . '<br><br>' . '<p class="text-muted">Faqja e cila i shfaq listen e faturave te platformave </p>' . $button_html;
                                     }
                                     if ($page == 'pagesatEKryera.php') {
-                                        return 'Pagesat e perfunduara';
+                                        return 'Pagesat e perfunduara'  . '<br><br>' . '<p class="text-muted">Faqja e cila i shfaq listen e pagesave te perfunduarave </p>' . $button_html;
                                     }
                                     if ($page == 'dataYT.php') {
-                                        return 'Statistikat nga Youtube';
+                                        return 'Statistikat nga Youtube <br><br>' . $button_html;
                                     }
                                     if ($page == 'channel_selection.php') {
-                                        return 'Kanalet';
+                                        return 'Kanalet' . $button_html;
                                     }
                                     if ($page == 'ofertat.php') {
-                                        return 'Ofertat';
+                                        return 'Ofertat' . '<br><br>' . '<p class="text-muted">Faqja e cila lejon krijimin e ndonje oferte </p>' . $button_html;
                                     }
                                     if ($page == 'kontrata_gjenelare_2.php') {
-                                        return 'Kontrate e re ( Gjenerale )';
+                                        return 'Kontrate e re ( Gjenerale )' . '<br><br>' . '<p class="text-muted">Faqja e cila sherben per krijimin e nje kontrate te re digjitale e cila eshte gjenerale</p>' . $button_html;
                                     }
                                     if ($page == 'lista_kontratave_gjenerale.php') {
-                                        return 'Lista e kontratave ( Gjenerale )';
+                                        return 'Lista e kontratave ( Gjenerale )' . '<br><br>' . '<p class="text-muted">Faqja e cila i shfaq listen e kontratave gjenerale te cilat jane digjitale</p>' . $button_html;
                                     }
                                     if ($page == 'vegla_facebook.php') {
-                                        return 'Vegla Facebook';
+                                        return 'Vegla Facebook' . '<br><br>' . '<p class="text-muted">Faqja e cila sherben per funksionalitete si krijimin e nje klienti , listimin e klienteve e qe te gjitha keto jane per platformen Facebook </p>' . $button_html;
                                     }
                                     if ($page == 'lista_faturave_facebook.php') {
-                                        return 'Lista e faturave (Facebook)';
+                                        return 'Lista e faturave (Facebook) ' . '<br><br>' . '<p class="text-muted">Faqja e cila i shfaq listen e faturave per platformen Facebook </p>' . $button_html;
                                     }
                                     if ($page == 'autor.php') {
-                                        return 'Autor';
+                                        return 'Autor' . '<br><br>' . '<p class="text-muted">Faqja e cila i shfaq informacionet e autorit </p>' . $button_html;
                                     }
                                     if ($page == 'lista_kopjeve_rezerve.php') {
-                                        return 'Lista e kopjeve rezerve';
+                                        return 'Lista e kopjeve rezerve' . '<br><br>' . '<p class="text-muted">Faqja e cila i shfaq listen e kopjeve rezerve te sistemit </p>' . $button_html;
                                     }
                                     if ($page == 'faturaFacebook.php') {
-                                        return 'Krijo faturë (Facebook)';
+                                        return 'Krijo faturë (Facebook)' . '<br><br>' . '<p class="text-muted">Faqja e cila i shfaq opsionin per te krijuar faturë per platformen Facebook </p>'    . $button_html;
                                     }
                                     if ($page == 'ascap.php') {
-                                        return 'Ascap';
+                                        return 'Ascap' . '<br><br>' . '<p class="text-muted">Faqja e cila i shfaq informacionet e kategorise Ascap </p>' . $button_html;
                                     }
                                     if ($page == 'klient-avanc.php') {
-                                        return 'Lista e avanceve te klienteve';
+                                        return 'Lista e avanceve te klienteve' . '<br><br>' . '<p class="text-muted">Faqja e cila i shfaq listen e avanceve te klienteve </p>' . $button_html;
                                     }
                                     if ($page == 'office_investments.php') {
-                                        return 'Investimet e objektit';
+                                        return 'Investimet e objektit' . '<br><br>' . '<p class="text-muted">Faqja e cila i shfaq informacionet e investimit te objektit </p>' . $button_html;
                                     }
                                     if ($page == 'office_damages.php') {
-                                        return 'Prishjet';
+                                        return 'Prishjet' . '<br><br>' . '<p class="text-muted">Faqja e cila i shfaq informacionet e prishjeve </p>' . $button_html;
                                     }
                                     if ($page == 'office_requirements.php') {
-                                        return 'Kerkesat';
+                                        return 'Kerkesat' . '<br><br>' . '<p class="text-muted">Faqja e cila i shfaq informacionet e kerkesave </p>' . $button_html;
                                     }
                                     if ($page == 'platform_invoices.php') {
-                                        return 'Raportet e platformave';
+                                        return 'Raportet e platformave' . '<br><br>' . '<p class="text-muted">Faqja e cila i shfaq raportet e platformave </p>' . $button_html;
                                     }
                                     if ($page == 'currency.php') {
-                                        return 'Valutimi';
+                                        return 'Valutimi' . '<br><br>' . '<p class="text-muted">Faqja e cila i shfaq informacionet e valutimit </p>' . $button_html;
                                     }
                                     if ($page == 'rating_list.php') {
-                                        return 'Lista e vlersimeve';
+                                        return 'Lista e vlersimeve' . '<br><br>' . '<p class="text-muted">Faqja e cila i shfaq listen e vlersimeve nga aplikacioni e derguara nga klientit</p>' . $button_html;
                                     }
                                     if ($page == 'invoice_list_2.php') {
-                                        return 'Faturë e shpejtë';
+                                        return 'Faturë e shpejtë <br><br>'  . $button_html;
                                     }
                                     if ($page == 'authenticated_channels.php') {
-                                        return 'Kanalet e autentifikuara';
+                                        return 'Kanalet e autentifikuara <br><br>' . $button_html;
                                     }
                                 }
                                 $pages = array(
@@ -294,7 +291,7 @@ include 'partials/header.php'; ?>
                                 echo '<thead class="bg-light"><tr><th>Emri i faqes</th><th>Zgjedhe</th></tr></thead>';
                                 echo '<tbody>';
                                 foreach ($pages as $page) {
-                                    echo '<tr><td>' . format_page_name($page) . '</td><td><label><input type="checkbox" name="pages[]" value="' . $page . '"> </label></td></tr>';
+                                    echo '<tr><td>' . format_page_name($page) . '</td><td><label><input type="checkbox" name="pages[]" value="' . $page . '" onclick="toggleCheckbox(event, this)"></label></td></tr>';
                                 }
                                 echo '</tbody>';
                                 echo '</table>';
@@ -314,6 +311,41 @@ include 'partials/header.php'; ?>
                                     for (var i = 0; i < checkboxes.length; i++) {
                                         checkboxes[i].checked = false;
                                     }
+                                }
+                            </script>
+                            <script>
+                                var lastClickedCheckbox = null;
+
+                                function toggleCheckbox(event, checkbox) {
+                                    // Check if Shift key is pressed
+                                    if (event.shiftKey && lastClickedCheckbox !== null) {
+                                        var checkboxes = document.getElementsByName('pages[]');
+                                        var currentIndex = -1;
+                                        var lastIndex = -1;
+                                        // Find the indices of the clicked checkbox and the last clicked checkbox
+                                        for (var i = 0; i < checkboxes.length; i++) {
+                                            if (checkboxes[i] === checkbox) {
+                                                currentIndex = i;
+                                            } else if (checkboxes[i] === lastClickedCheckbox) {
+                                                lastIndex = i;
+                                            }
+                                        }
+                                        // Ensure both checkboxes were found
+                                        if (currentIndex !== -1 && lastIndex !== -1) {
+                                            // Determine the range of checkboxes to toggle
+                                            var startIndex = Math.min(currentIndex, lastIndex);
+                                            var endIndex = Math.max(currentIndex, lastIndex);
+                                            // Toggle checkboxes within the range
+                                            for (var i = startIndex; i <= endIndex; i++) {
+                                                checkboxes[i].checked = checkbox.checked;
+                                            }
+                                        }
+                                    } else {
+                                        // If Shift key is not pressed, treat as a regular click
+                                        checkbox.checked = !checkbox.checked;
+                                    }
+                                    // Update last clicked checkbox
+                                    lastClickedCheckbox = checkbox;
                                 }
                             </script>
                         </div>
@@ -683,6 +715,35 @@ include 'partials/header.php'; ?>
                     url: "https://cdn.datatables.net/plug-ins/1.13.1/i18n/sq.json",
                 },
                 stripeClasses: ['stripe-color'],
+            });
+        });
+    </script>
+    <script>
+        $(document).ready(function() {
+            const tabs = $('.nav-link[data-bs-toggle="pill"]');
+            const tabContent = $(".tab-pane");
+            const activeTab = localStorage.getItem("activeTab");
+            if (activeTab) {
+                tabs.each(function() {
+                    const tabId = $(this).attr('id');
+                    if (tabId === activeTab) {
+                        $(this).addClass("active").attr("aria-selected", "true");
+                    } else {
+                        $(this).removeClass("active").attr("aria-selected", "false");
+                    }
+                });
+                tabContent.each(function() {
+                    const contentId = $(this).attr('id');
+                    if (contentId === activeTab.replace("-tab", "")) {
+                        $(this).addClass("show active");
+                    } else {
+                        $(this).removeClass("show active");
+                    }
+                });
+            }
+            tabs.on("click", function() {
+                const tabId = $(this).attr("id");
+                localStorage.setItem("activeTab", tabId);
             });
         });
     </script>
