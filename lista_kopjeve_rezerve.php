@@ -40,11 +40,12 @@ foreach ($backupFiles as $backupFile) {
                             Lista e kopjeve rezerve
                         </a>
                     </li>
+                </ol>
             </nav>
-            <div class="card shadow-sm rounded-5">
-                <div class="card-body">
+            <div class="card shadow-sm rounded-5 d-none d-lg-block">
+                <div class="card-body ">
                     <div class="row">
-                        <div class="col-12">
+                        <div class="col-12 ">
                             <div class="table-responsive">
                                 <table class="table" id="listaKopjeve">
                                     <thead class="bg-light">
@@ -81,9 +82,43 @@ foreach ($backupFiles as $backupFile) {
                     </div>
                 </div>
             </div>
+            <!-- Second card for devices less than or equal to lg size -->
+            <div class="card shadow-sm rounded-5 d-block d-lg-none">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="list-group">
+                                <?php foreach ($backupFiles as $backupFile) : ?>
+                                    <?php
+                                    $backupFilePath = $backupDirectory . '/' . $backupFile;
+                                    $creationTime = date('d-m-Y H:i:s', filemtime($backupFilePath));
+                                    ?>
+                                    <div class="list-group-item list-group-item-action">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <h5 class="mb-0"><?php echo $backupFile; ?></h5>
+                                                <small class="text-muted"><?php echo $creationTime; ?></small>
+                                            </div>
+                                        </div>
+                                        <div class="mt-2">
+                                            <a class="input-custom-css px-3 py-2 me-2" style="text-transform:none;text-decoration:none" href="<?php echo $backupFilePath; ?>" download>
+                                                <i class="fi fi-rr-download"></i>
+                                            </a>
+                                            <button class="input-custom-css px-3 py-2" onclick="deleteBackup('<?php echo $backupFile; ?>')">
+                                                <i class="fi fi-rr-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+<?php include "partials/footer.php"; ?>
 <script>
     $('#listaKopjeve').DataTable({
         responsive: false,
@@ -141,7 +176,6 @@ foreach ($backupFiles as $backupFile) {
         },
         stripeClasses: ['stripe-color']
     })
-
     function deleteBackup(backupFile) {
         Swal.fire({
             title: 'A jeni të sigurt?',
