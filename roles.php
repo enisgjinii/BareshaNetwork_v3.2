@@ -48,20 +48,18 @@ include 'partials/header.php'; ?>
                                 <label>Shkruani emrin e rolit</label>
                                 <div class="row my-3">
                                     <div class="col-6">
-                                        <input type="text" name="role_name" class="form-control rounded-5  w-50" required>
+                                        <input type="text" name="role_name" class="form-control rounded-5 w-50" required oninvalid="this.setCustomValidity('Ju lutem plotësoni këtë fushë')" oninput="this.setCustomValidity('')">
                                     </div>
                                 </div>
                                 <div class="row my-3">
                                     <div class="col">
                                         <button type="button" class="input-custom-css px-3 py-2 rounded-5 float-right" style="text-transform:none;" onclick="checkAll()">
                                             <i class="fi fi-rr-list-check me-2" style="display:inline-block;vertical-align:middle;"></i>
-                                            <span style="display:inline-block;vertical-align:middle;">Selekto te
-                                                gjitha</span>
+                                            <span style="display:inline-block;vertical-align:middle;">Selekto të gjitha</span>
                                         </button>
                                         <button type="button" class="input-custom-css px-3 py-2 rounded-5 float-right" style="text-transform:none;" onclick="uncheckAll()">
                                             <i class="fi fi-rr-list me-2" style="display:inline-block;vertical-align:middle;"></i>
-                                            <span style="display:inline-block;vertical-align:middle;">Hiq
-                                                selektimin</span>
+                                            <span style="display:inline-block;vertical-align:middle;">Hiqe selektimin</span>
                                         </button>
                                         <button type="submit" class="input-custom-css px-3 py-2 rounded-5 float-right" style="text-transform:none;">
                                             <i class="fi fi-rr-id-badge me-2" style="display:inline-block;vertical-align:middle;"></i>
@@ -315,7 +313,6 @@ include 'partials/header.php'; ?>
                             </script>
                             <script>
                                 var lastClickedCheckbox = null;
-
                                 function toggleCheckbox(event, checkbox) {
                                     // Check if Shift key is pressed
                                     if (event.shiftKey && lastClickedCheckbox !== null) {

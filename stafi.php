@@ -11,7 +11,7 @@
             </a>
           </li>
       </nav>
-      <ul class="nav nav-pills mb-3 bg-white me-auto rounded-5" id="pills-tab" role="tablist" style="width: fit-content;">
+      <ul class="nav nav-pills mb-3 bg-white me-auto justify-content-center justify-content-md-start rounded-5" id="pills-tab" role="tablist" style="width: fit-content;">
         <li class="nav-item" role="presentation">
           <button class="nav-link rounded-5 active" id="pills-tabelaStafit-tab" data-bs-toggle="pill" data-bs-target="#pills-tabelaStafit" style="text-transform: none;text-decoration: none;" type="button" role="tab" aria-controls="pills-tabelaStafit" aria-selected="true">Stafi</button>
         </li>
@@ -21,7 +21,7 @@
       </ul>
       <div class="tab-content" id="pills-tabContent">
         <div class="tab-pane fade show active" id="pills-tabelaStafit" role="tabpanel" aria-labelledby="pills-tabelaStafit-tab" tabindex="0">
-          <div class="card rounded-5 shadow-sm">
+          <div class="card rounded-5 shadow-sm  d-none d-md-none d-lg-block">
             <div class="card-body">
               <div class="row">
                 <div class="col-12">
@@ -44,9 +44,15 @@
                           $eme = '<del style="color:red;">' . $k['firstName'] . '</del> ';
                         }
                         if (!($k['email'] == $_SESSION['email'])) {
+                          $query_logs = $conn->query("SELECT * FROM logs WHERE stafi = '" . $eme . "' ORDER BY id DESC");
+                          // Count the number of rows returned by the query
+                          $num_logs = mysqli_num_rows($query_logs);
                       ?>
                           <tr>
-                            <td><?php echo $eme; ?></td>
+                            <td>
+                              <span class="badge rounded-pill bg-primary"><?php echo $num_logs; ?></span>
+                              <?php echo $eme; ?>
+                            </td>
                             <td><?php echo $k['email']; ?></td>
                             <td><?php echo $k['salary']; ?> &euro;</td>
                             <td>
@@ -59,6 +65,43 @@
                               <button class="btn btn-sm btn-success rounded-5 shadow-0 px-2 py-2 text-white" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasActivities_<?php echo $k['id']; ?>" aria-controls="offcanvasActivities_<?php echo $k['id']; ?>">
                                 <i class="fi fi-rr-search-alt"></i>
                               </button>
+                              <button type="button" class="btn btn-sm btn-info rounded-5 shadow-0 px-2 py-2 text-white" data-bs-toggle="modal" data-bs-target="#dergoEmailModal<?php echo $k['id']; ?>">
+                                <i class="fi fi-rr-info"></i>
+                              </button>
+                              <div class="modal fade" id="dergoEmailModal<?php echo $k['id']; ?>" tabindex="-1" aria-labelledby="dergoEmailModalLabel" aria-hidden="true">
+                                <div class="modal-dialog">
+                                  <div class="modal-content">
+                                    <div class="modal-header">
+                                      <h1 class="modal-title fs-5" id="dergoEmailModalLabel">Dërgoni një email te stafi : <?php echo $k['firstName'] . " " . $k['last_name']; ?></h1>
+                                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                      <form method="post" action="send_email_stafi.php" enctype="multipart/form-data">
+                                        <!-- Subject -->
+                                        <div class="mb-3">
+                                          <label for="subject" class="form-label">Subjekti</label>
+                                          <input type="text" class="form-control border border-2 rounded-5" id="subject" name="subject" required>
+                                        </div>
+                                        <div class="mb-3">
+                                          <label for="email" class="form-label">Email</label>
+                                          <input type="email" class="form-control border border-2 rounded-5" id="email" name="email" required value="<?php echo $k['email']; ?>">
+                                        </div>
+                                        <div class="mb-3">
+                                          <label for="message" class="form-label">Message</label>
+                                          <textarea class="form-control border border-2 rounded-5" id="message" name="message" rows="3" required></textarea>
+                                        </div>
+                                        <div class="mb-3">
+                                          <label for="attachment" class="form-label">Attachment</label>
+                                          <input type="file" class="form-control border border-2 rounded-5" id="attachment" name="attachment">
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                      <button type="submit" class="input-custom-css px-3 py-2">Dërgo</button>
+                                      </form>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
                               <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasActivities_<?php echo $k['id']; ?>" aria-labelledby="offcanvasActivities_<?php echo $k['id']; ?>">
                                 <div class="offcanvas-header border-bottom">
                                   <h5 id="offcanvasRightEditLabel_<?php echo $k['id']; ?>">Aktiviteti ne sistem i puntorit <?php echo $eme; ?></h5>
@@ -152,7 +195,7 @@
                                     </div>
                                     <br>
                                     <label for="salary" class="form-label">Rroga:</label>
-                                    <input type="text" class="form-control rounded-5 border border-2 shadow-0" id="salary_<?php echo $k['id']; ?>" name="salary" value="<?php echo $k['salary']; ?>">
+                                    <input type="text" class="form-control border border-2 rounded-5 rounded-5 border border-2 shadow-0" id="salary_<?php echo $k['id']; ?>" name="salary" value="<?php echo $k['salary']; ?>">
                                     <br>
                                     <button type="button" class="input-custom-css px-3 py-2" onclick="saveEmployee(<?php echo $k['id']; ?>)">Ruaj ndryshimet e bëra</button>
                                   </form>
@@ -170,6 +213,41 @@
               </div>
             </div>
           </div>
+          <div class="d-block d-md-block d-lg-none">
+            <!-- List presentation for tablets and mobile -->
+            <ul class="list-group">
+              <!-- PHP loop for list content -->
+              <?php
+              $kueri = $conn->query("SELECT * FROM googleauth ORDER BY id DESC");
+              while ($k = mysqli_fetch_array($kueri)) {
+                // Your existing PHP code here
+              ?>
+                <!-- Display list items -->
+                <li class="list-group-item">
+                  <!-- Content for each list item -->
+                  <div class="row">
+                    <div class="col">
+                      <strong>Emri & Mbiemri:</strong> <?php echo $eme; ?>
+                    </div>
+                    <div class="col">
+                      <strong>Email:</strong> <?php echo $k['email']; ?>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col">
+                      <strong>Rroga:</strong> <?php echo $k['salary']; ?> &euro;
+                    </div>
+                    <div class="col">
+                      <!-- Actions for each list item (buttons, etc.) -->
+                      <!-- You can include your action buttons here if needed -->
+                    </div>
+                  </div>
+                </li>
+              <?php
+              }
+              ?>
+            </ul>
+          </div>
         </div>
         <script>
           $(document).ready(function() {
@@ -181,7 +259,7 @@
           });
         </script>
         <div class="tab-pane fade" id="pills-listaETentativave" role="tabpanel" aria-labelledby="pills-listaETentativave-tab" tabindex="0">
-          <div class="card rounded-5 shadow-sm">
+          <div class="card rounded-5 shadow-sm d-none d-md-none d-lg-block">
             <div class="card-body">
               <div class="row">
                 <div class="col-12">
@@ -209,7 +287,66 @@
                             </button>
                           </td>
                           <td><?php echo $k['email_attempted']; ?></td>
-                          <td><?php echo $k['user_agent']; ?></td>
+                          <td>
+                            <?php echo $k['user_agent']; ?> <br><br>
+                            <!-- Button trigger modal -->
+                            <button type="button" class="input-custom-css px-3 py-2" data-bs-toggle="modal" data-bs-target="#userAgentModal<?php echo $k['id']; ?>">
+                              <i class="fi fi-rr-info"></i>
+                            </button>
+                            <!-- Modal -->
+                            <div class="modal fade" id="userAgentModal<?php echo $k['id']; ?>" tabindex="-1" aria-labelledby="userAgentModalLabel<?php echo $k['id']; ?>" aria-hidden="true">
+                              <div class="modal-dialog">
+                                <div class="modal-content">
+                                  <div class="modal-header">
+                                    <h5 class="modal-title" id="userAgentModalLabel<?php echo $k['id']; ?>">Të dhënat e agjentit të përdoruesit</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                  </div>
+                                  <div class="modal-body">
+                                    <?php
+                                    $curl = curl_init();
+                                    // Encode the user agent string before appending it to the URL
+                                    $userAgent = urlencode($k['user_agent']);
+                                    $url = "https://user-agent-parser4.p.rapidapi.com/user-agent/useragent.php?ua={$userAgent}";
+                                    curl_setopt_array($curl, [
+                                      CURLOPT_URL => $url,
+                                      CURLOPT_RETURNTRANSFER => true,
+                                      CURLOPT_ENCODING => "",
+                                      CURLOPT_MAXREDIRS => 10,
+                                      CURLOPT_TIMEOUT => 30,
+                                      CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                                      CURLOPT_CUSTOMREQUEST => "GET",
+                                      CURLOPT_HTTPHEADER => [
+                                        "X-RapidAPI-Host: user-agent-parser4.p.rapidapi.com",
+                                        "X-RapidAPI-Key: 335200c4afmsh64cfbbf7fdf4cf2p1aae94jsn05a3bad585de"
+                                      ],
+                                    ]);
+                                    $response = curl_exec($curl);
+                                    $err = curl_error($curl);
+                                    curl_close($curl);
+                                    if ($err) {
+                                      echo "cURL Error #: " . $err;
+                                    } else {
+                                      $data = json_decode($response, true);
+                                      // Display user agent information
+                                      echo "User Agent: " . $data['user_agent'] . "<br>";
+                                      echo "Is Bot: " . ($data['isBot'] ? 'Yes' : 'No') . "<br>";
+                                      echo "Device: " . $data['device'] . "<br>";
+                                      echo "Browser Family: " . $data['browserFamily'] . "<br>";
+                                      echo "OS Family: " . $data['osFamily'] . "<br>";
+                                      echo "Browser: " . $data['clientInfo']['name'] . "<br>";
+                                      echo "Browser Version: " . $data['clientInfo']['version'] . "<br>";
+                                      echo "OS: " . $data['osInfo']['name'] . "<br>";
+                                      echo "OS Version: " . $data['osInfo']['version'] . "<br>";
+                                    }
+                                    ?>
+                                  </div>
+                                  <div class="modal-footer">
+                                    <button type="button" class="input-custom-css px-3 py-2" data-bs-dismiss="modal">Mbylle</button>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </td>
                           <td><?php echo $k['timestamp']; ?></td>
                         </tr>
                         <!-- Modal Structure -->
@@ -221,7 +358,51 @@
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                               </div>
                               <div class="modal-body">
-                                IP Address: <?php echo $k['ip_address']; ?>
+                                IP Address: <?php echo $k['ip_address']; ?> <br />
+                                <?php
+                                $curl = curl_init();
+                                curl_setopt_array($curl, [
+                                  CURLOPT_URL => "https://ip-location5.p.rapidapi.com/get_geo_info",
+                                  CURLOPT_RETURNTRANSFER => true,
+                                  CURLOPT_ENCODING => "",
+                                  CURLOPT_MAXREDIRS => 10,
+                                  CURLOPT_TIMEOUT => 30,
+                                  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                                  CURLOPT_CUSTOMREQUEST => "POST",
+                                  CURLOPT_POSTFIELDS => "ip=" . $k['ip_address'], // Use the IP address from your data
+                                  CURLOPT_HTTPHEADER => [
+                                    "X-RapidAPI-Host: ip-location5.p.rapidapi.com",
+                                    "X-RapidAPI-Key: 335200c4afmsh64cfbbf7fdf4cf2p1aae94jsn05a3bad585de",
+                                    "Content-Type: application/x-www-form-urlencoded"
+                                  ],
+                                ]);
+                                $response = curl_exec($curl);
+                                $err = curl_error($curl);
+                                curl_close($curl);
+                                if ($err) {
+                                  echo "cURL Error #:" . $err;
+                                } else {
+                                  // Decode the JSON response
+                                  $data = json_decode($response, true);
+                                  // Check if response contains data and is not an error
+                                  if (isset($data['country']) && !isset($data['error'])) {
+                                    // Output the desired IP address details
+                                    echo "Country: ";
+                                    if (is_array($data['country'])) {
+                                      echo implode(', ', $data['country']);
+                                    } else {
+                                      echo $data['country'];
+                                    }
+                                    echo "<br>";
+                                    // Output other details as needed
+                                    echo "City: " . $data['city'] . "<br>";
+                                    echo "ISP: " . $data['isp'] . "<br>";
+                                    // Add more details as needed
+                                  } else {
+                                    echo "Unable to retrieve IP address details.";
+                                  }
+                                }
+                                ?>
                               </div>
                             </div>
                           </div>
@@ -234,6 +415,41 @@
                 </div>
               </div>
             </div>
+          </div>
+          <div class="d-block d-md-block d-lg-none">
+            <!-- List presentation for tablets and mobile -->
+            <ul class="list-group">
+              <!-- PHP loop for list content -->
+              <?php
+              $kueri = $conn->query("SELECT * FROM access_denial_logs ORDER BY id DESC");
+              while ($k = mysqli_fetch_array($kueri)) {
+              ?>
+                <!-- Display list items -->
+                <li class="list-group-item">
+                  <div class="row">
+                    <div class="col-md-3">
+                      <strong>ID:</strong> <?php echo $k['id']; ?>
+                    </div>
+                    <div class="col-md-3">
+                      <strong>Ip Address:</strong> <?php echo $k['ip_address']; ?>
+                    </div>
+                    <div class="col-md-3">
+                      <strong>Email attempted:</strong> <?php echo $k['email_attempted']; ?>
+                    </div>
+                    <div class="col-md-3">
+                      <strong>User Agent:</strong> <?php echo $k['user_agent']; ?>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-12">
+                      <strong>Timestamp:</strong> <?php echo $k['timestamp']; ?>
+                    </div>
+                  </div>
+                </li>
+              <?php
+              }
+              ?>
+            </ul>
           </div>
         </div>
       </div>
