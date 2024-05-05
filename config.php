@@ -4,7 +4,7 @@ include('vendor/autoload.php');
 // Define constants for configuration
 define('CONFIG_FILE', 'client.json');
 define('LOCALHOST_URI', "http://localhost/BareshaNetwork_v3.2/kycu_1.php");
-define('ONLINE_URI', "https://paneli.bareshaoffice.com/kycu_1.php");
+define('ONLINE_URI', "https://panel.bareshaoffice.com/kycu_1.php");
 
 // Check if configuration file exists
 if (!file_exists(CONFIG_FILE) || !is_readable(CONFIG_FILE)) {

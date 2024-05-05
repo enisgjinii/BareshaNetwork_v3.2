@@ -11,6 +11,7 @@
                             Investimet e objektit
                         </a>
                     </li>
+                </ol>
             </nav>
             <!-- Button trigger modal -->
             <button type="button" class="input-custom-css px-3 py-2 mb-3" data-bs-toggle="modal" data-bs-target="#exampleModal">
@@ -87,7 +88,7 @@
                 </div>
             </div>
             <!-- Table for Displaying Investments -->
-            <div class="card p-3 d-none d-lg-block d-xl-block d-md-none ">
+            <div class="card p-3 d-none d-lg-block d-xl-block d-md-none rounded-5">
                 <table class='table table-bordered' id="investmentsTable">
                     <thead class="table-light">
                         <tr>
@@ -103,6 +104,46 @@
                     </thead>
                     <tbody></tbody>
                 </table>
+            </div>
+            <div class="card p-3 d-md-block d-lg-none d-xl-none rounded-5">
+                <ul class="list-group list-group-flush">
+                    <?php
+                    include 'conn-d.php';
+                    $sql = "SELECT * FROM investments ORDER BY id DESC";
+                    $result = $conn->query($sql);
+                    if ($result->num_rows > 0) {
+                        while ($row = $result->fetch_assoc()) {
+                    ?>
+                            <li class="list-group-item">
+                                <div class="row">
+                                    <div class="col-sm-6">
+                                        <strong>Emri i Furnizuesit:</strong> <?php echo $row['supplier_name']; ?>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <strong>Numri i Faturës:</strong> <?php echo $row['invoice_number']; ?>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <strong>Vlera e Faturës:</strong> <?php echo $row['invoice_amount']; ?>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <strong>Data e Faturës:</strong> <?php echo $row['invoice_date']; ?>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <strong>Statusi i Pagesës:</strong> <?php echo $row['payment_status']; ?>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <strong>Skaneri i Faturës:</strong> <?php echo $row['invoice_scan_path']; ?>
+                                    </div>
+                                    <!-- Add more fields as needed -->
+                                </div>
+                            </li>
+                    <?php
+                        }
+                    } else {
+                        echo "<li class='list-group-item'>Nuk ka të dhëna</li>";
+                    }
+                    ?>
+                </ul>
             </div>
         </div>
     </div>

@@ -8,7 +8,8 @@
         "client_secret": "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",
         "redirect_uris": [
             "http://localhost/BareshaNetwork_v3.2/kycu_1.php",
-            "https://paneli.bareshaoffice.com/kycu_1.php"
+            "https://panel.bareshaoffice.com/kycu_1.php",
+            "http://panel.bareshaoffice.com/kycu_1.php"
         ]
     }
 }

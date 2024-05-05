@@ -1,7 +1,7 @@
 <?php include 'partials/header.php';
 if (isset($_GET['import'])) {
     $linkuof = $_GET['import'];
-    $curl = curl_init('https://bareshamusic.sourceaudio.com/api/import/upload?token=6636-66f549fbe813b2087a8748f2b8243dbc&url=http://paneli.bareshaoffice.com/' . $linkuof);
+    $curl = curl_init('https://bareshamusic.sourceaudio.com/api/import/upload?token=6636-66f549fbe813b2087a8748f2b8243dbc&url=http://panel.bareshaoffice.com/' . $linkuof);
     curl_setopt_array($curl, array(CURLOPT_RETURNTRANSFER => true));
     $cdata = json_decode(curl_exec($curl), true);
     curl_close($curl);

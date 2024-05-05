@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <head>
     <meta name="google-site-verification" content="65Q9V_d_6p9mOYD05AFLNYLveEnM01AOs5cW2-qKrB0" />
 </head>
@@ -370,7 +371,7 @@ if (isset($_GET['code'])) {
                             <p class="font-weight-light">P&euml;rsh&euml;ndetje!</p>
                             <p class="text-muted">Identifikohu me llogarin&euml; t&euml;nde t&euml; Google.</p>
                             <!-- Display the reCAPTCHA widget -->
-                            <div class="g-recaptcha" data-sitekey="6LdT2w0pAAAAAJu92-zDVcDBinqaqT08sZhDbMfx" data-callback="enableLoginButton"></div>
+                            <div class="g-recaptcha" data-sitekey="6LfDuM8pAAAAAMkJTeKSVg0BBgqBw9LH8NBmeF4-" data-callback="enableLoginButton"></div>
                             <!-- Replace the button with an anchor tag -->
                             <a id="loginButton" href="<?= $login_url . '&session_id=' . session_id() ?>" style="text-transform: none; display: none;" class="btn btn-light border shadow btn-sm">
                                 <img src="https://tinyurl.com/46bvrw4s" alt="Google Logo" width="20" class="me-2">

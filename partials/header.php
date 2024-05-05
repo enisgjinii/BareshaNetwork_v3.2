@@ -3,6 +3,8 @@ header("X-Frame-Options: DENY");
 // Include necessary files and establish database connection
 include('./config.php');
 include('conn-d.php');
+error_reporting(1);
+ini_set('display_errors', 1);
 // Function to handle authentication errors
 function handleAuthenticationError()
 {
