@@ -25,7 +25,7 @@ $non_monetized_percentage = ($non_monetized_clients / $total_clients) * 100;
             </a>
           </li>
       </nav>
-      <div class="row mb-3">
+      <div class="row mb-3 d-none d-md-none d-lg-block">
         <div>
           <a style="text-transform: none;text-decoration:none;" class="input-custom-css px-3 py-2" href="shtok.php"><i class="fi fi-rr-add"></i>
             &nbsp;
@@ -42,12 +42,34 @@ $non_monetized_percentage = ($non_monetized_clients / $total_clients) * 100;
           </button>
         </div>
       </div>
-      <div class="progress mx-1" style="height: 20px">
-        <div class="progress-bar bg-success rounded-5" role="progressbar" style="width: <?php echo $monetized_percentage; ?>%" aria-valuenow="<?php echo $monetized_percentage; ?>" aria-valuemin="0" aria-valuemax="100">
-          Nr. i klientëve të monetizuar: <?php echo $monetized_clients ?>
+      <div class="row mb-3 d-block d-md-block d-lg-none">
+        <div>
+          <a style="text-transform: none;text-decoration:none;" class="input-custom-css px-3 py-2" href="shtok.php"><i class="fi fi-rr-add"></i>
+            &nbsp;
+            Shto klientë
+          </a>
+          <br><br>
+          <button type="button" class="input-custom-css px-3 py-2" style="text-transform: none" data-bs-toggle="modal" data-bs-target="#modal_of_monetized">
+            <i class="fi fi-rr-user-check"></i> &nbsp; Lista e klienteve te monetizuar
+          </button>
+          <br><br>
+          <button type="button" class="input-custom-css px-3 py-2" style="text-transform: none" data-bs-toggle="modal" data-bs-target="#modal_of_non_monetized">
+            <i class="fi fi-rr-user-time"></i> &nbsp; Lista e klienteve te pa-monetizuar
+          </button>
+          <br><br>
+          <button type="button" class="input-custom-css px-3 py-2" style="text-transform: none" data-bs-toggle="modal" data-bs-target="#list_of_passive">
+            <i class="fi fi-rr-user-lock"></i> &nbsp; Lista e klienteve pasiv
+          </button>
         </div>
-        <div class="progress-bar bg-danger rounded-5 ms-2" role="progressbar" style="width: <?php echo $non_monetized_percentage; ?>%" aria-valuenow="<?php echo $non_monetized_percentage; ?>" aria-valuemin="0" aria-valuemax="100">
-          Nr. i klientëve të pa-monetizuar: <?php echo $non_monetized_clients ?>
+      </div>
+      <div class="d-none d-md-none d-lg-block">
+        <div class="progress mx-1 " style="height: 20px">
+          <div class="progress-bar bg-success rounded-5" role="progressbar" style="width: <?php echo $monetized_percentage; ?>%" aria-valuenow="<?php echo $monetized_percentage; ?>" aria-valuemin="0" aria-valuemax="100">
+            Nr. i klientëve të monetizuar: <?php echo $monetized_clients ?>
+          </div>
+          <div class="progress-bar bg-danger rounded-5 ms-2" role="progressbar" style="width: <?php echo $non_monetized_percentage; ?>%" aria-valuenow="<?php echo $non_monetized_percentage; ?>" aria-valuemin="0" aria-valuemax="100">
+            Nr. i klientëve të pa-monetizuar: <?php echo $non_monetized_clients ?>
+          </div>
         </div>
       </div>
       <div class="row text-center mb-3">
@@ -125,7 +147,7 @@ $non_monetized_percentage = ($non_monetized_clients / $total_clients) * 100;
           </div>
         </div>
       </div>
-      <div class="card rounded-5 shadow-sm">
+      <div class="card rounded-5 shadow-sm d-none d-md-none d-lg-block">
         <div class="card-body">
           <div class="row">
             <div class="table-responsive">
@@ -146,6 +168,28 @@ $non_monetized_percentage = ($non_monetized_clients / $total_clients) * 100;
             </div>
           </div>
         </div>
+      </div>
+      <div class="d-block d-md-block d-lg-none">
+        <?php
+        $sql = "SELECT * FROM klientet";
+        $result = $conn->query($sql);
+        while ($row = $result->fetch_assoc()) {
+        ?>
+          <div class="col-md-4">
+            <div class="card rounded-5  my-3">
+              <div class="card-body">
+                <p class="card-title">Emri & Mbiemri: <span class="text-success"><?php echo isset($row['emri']) ? $row['emri'] : ''; ?></span></p>
+                <p class="card-text">Emri artistik: <span class="text-success"><?php echo isset($row['emriart']) ? $row['emriart'] : ''; ?></span></p>
+                <p class="card-text">Email: <span class="text-success"><?php echo isset($row['emailadd']) ? $row['emailadd'] : ''; ?></span></p>
+                <p class="card-text">Adresa: <span class="text-success"><?php echo isset($row['adresa']) ? $row['adresa'] : ''; ?></span></p>
+                <p class="card-text">Telefoni: <span class="text-success"><?php echo isset($row['telefoni']) ? $row['telefoni'] : ''; ?></span></p>
+                <p class="card-text">Data e kontrates: <span class="text-success"><?php echo isset($row['data_kontrates']) ? $row['data_kontrates'] : ''; ?></span></p>
+              </div>
+            </div>
+          </div>
+        <?php
+        }
+        ?>
       </div>
     </div>
   </div>
