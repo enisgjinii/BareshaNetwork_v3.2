@@ -418,8 +418,6 @@ $m6 = mysqli_fetch_array($mp6);
                 </div>
               </div>
             </div>
-
-
           </div>
           <div class="col-sm d-md-none">
             <div class="card rounded-5 bordered">

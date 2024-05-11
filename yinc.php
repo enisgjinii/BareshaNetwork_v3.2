@@ -1,9 +1,7 @@
 <?php
 include 'partials/header.php';
-
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
-
 require 'vendor/autoload.php';
 if (!isset($_SESSION['oauth_uid'])) {
   echo '<script>
@@ -54,41 +52,137 @@ if (isset($_POST['paguaj'])) {
 <div class="main-panel">
   <div class="content-wrapper">
     <div class="container-fluid">
-      <div class="container">
-        <nav class="bg-white px-2 rounded-5" style="width:fit-content;border-style:1px solid black;" aria-label="breadcrumb">
-          <ol class="breadcrumb">
-            <li class="breadcrumb-item "><a class="text-reset" style="text-decoration: none;">Financat</a>
-            </li>
-            <li class="breadcrumb-item active" aria-current="page">
-              <a href="<?php echo __FILE__; ?>" class="text-reset" style="text-decoration: none;">
-                Shpenzimet
-              </a>
-            </li>
-        </nav>
-        <div class="row mb-2">
-          <div>
-            <!-- Button trigger modal -->
-            <button type="button" class="input-custom-css px-3 py-2" data-bs-toggle="modal" data-bs-target="#exampleModal">
-              <i class="fi fi-rr-add"></i> &nbsp; Shto shpenzim
-            </button>
-            <button type="button" class="input-custom-css px-3 py-2" data-bs-toggle="modal" data-bs-target="#deletedExpenses">
-              <i class="fi fi-rr-trash"></i> &nbsp; Shpenzimet e fshira
-            </button>
+      <nav class="bg-white px-2 rounded-5" style="width:fit-content;border-style:1px solid black;" aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item "><a class="text-reset" style="text-decoration: none;">Financat</a>
+          </li>
+          <li class="breadcrumb-item active" aria-current="page">
+            <a href="<?php echo __FILE__; ?>" class="text-reset" style="text-decoration: none;">
+              Shpenzimet
+            </a>
+          </li>
+      </nav>
+      <div class="row mb-2">
+        <div>
+          <!-- Button trigger modal -->
+          <button type="button" class="input-custom-css px-3 py-2" data-bs-toggle="modal" data-bs-target="#exampleModal">
+            <i class="fi fi-rr-add"></i> &nbsp; Shto shpenzim
+          </button>
+          <button type="button" class="input-custom-css px-3 py-2" data-bs-toggle="modal" data-bs-target="#deletedExpenses">
+            <i class="fi fi-rr-trash"></i> &nbsp; Shpenzimet e fshira
+          </button>
+        </div>
+      </div>
+      <!-- Modal -->
+      <div class="modal fade" id="deletedExpenses" tabindex="-1" aria-labelledby="deletedExpenses" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="deletedExpensesLabel">Shpenzimet e fshira</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <table id="deletedExpensesTable" class="table table-bordered w-100">
+                <thead class="bg-light">
+                  <tr>
+                    <th>Klienti</th>
+                    <th>Shuma</th>
+                    <th>Pagoi</th>
+                    <th>Obligim</th>
+                    <th>Forma</th>
+                    <th>P&euml;rshkrimi</th>
+                    <th>Data</th>
+                    <th>Link</th>
+                  </tr>
+                </thead>
+                <tbody>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
-        <!-- Modal -->
-        <div class="modal fade" id="deletedExpenses" tabindex="-1" aria-labelledby="deletedExpenses" aria-hidden="true">
-          <div class="modal-dialog modal-xl">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title" id="deletedExpensesLabel">Shpenzimet e fshira</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-              </div>
-              <div class="modal-body">
-                <table id="deletedExpensesTable" class="table table-bordered w-100">
+      </div>
+      <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLabel">Shpenzimet e klient&euml;ve</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <form method="POST" action="process_form.php">
+                <div class="row">
+                  <div class="col-md-6">
+                    <label for="emri" class="form-label">Zgjidh nj&euml;rin nga klient&euml;t</label>
+                    <select name="stafi" id="stafi" class="form-select shadow-sm rounded-5" style="border: 1px solid #ced4da">
+                      <?php
+                      $gsta = $conn->query("SELECT * FROM klientet");
+                      while ($gst = mysqli_fetch_array($gsta)) {
+                      ?>
+                        <option value="<?php echo $gst['id']; ?>"><?php echo $gst['emri']; ?></option>
+                      <?php } ?>
+                    </select>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="datab" class="form-label">Shuma</label>
+                    <div class="input-group mb-2 rounded-5 me-2">
+                      <div class="input-group-prepend rounded-5 me-2" style="border: 1px solid #ced4da">
+                        <div class="input-group-text rounded-5">&euro;</div>
+                      </div>
+                      <input type="text" name="shuma" class="form-control shadow-sm rounded-5" style="border: 1px solid #ced4da" id="inlineFormInputGroup" value="0.00">
+                    </div>
+                  </div>
+                </div>
+                <!-- Row 2 -->
+                <div class="row">
+                  <div class="col-md-6">
+                    <label for="datas" class="form-label">Data e pages&euml;s</label>
+                    <input type="text" name="data" class="form-control shadow-sm rounded-5" style="border: 1px solid #ced4da" value="<?php echo date("d-m-Y"); ?>">
+                  </div>
+                  <div class="col-md-6">
+                    <label for="pershkrimi" class="form-label">P&euml;rshkrimi</label>
+                    <textarea name="pershkrimi" class="form-control shadow-sm rounded-5" style="border: 1px solid #ced4da"></textarea>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-12">
+                    <label for="youtubeLinks" class="form-label">Lidhjet e YouTube</label>
+                    <p class="text-muted" style="font-size: 12px;">Në këtë vend mund të shtoni lidhjet e këngëve nga platforma YouTube. Kur vendosni një lidhje dhe dëshironi të shtoni më shumë, duhet të shtoni një presje (",") në fund të çdo lidhjeje. <span class="badge bg-primary rounded-5 px-2">Kujdes, lejohen vetëm 6 lidhje.</span></p>
+                    <textarea style="height: 100px" rows="6" name="youtubeLinks" id="youtubeLinks" class="form-control shadow-sm rounded-5" style="border: 1px solid #ced4da"></textarea>
+                  </div>
+                </div>
+                <!-- Container for video details -->
+                <div id="videoDetailsContainer" class="mt-3" style="display: none;">
+                  <p class="mb-3">Detajet e videos</p>
+                  <div class="card">
+                    <div class="card-body">
+                      <p class="card-text"><strong>Titulli:</strong> <span id="videoTitle"></span></p>
+                      <p class="card-text"><strong>Përshkrim:</strong> <span id="videoDescription"></span></p>
+                      <p class="card-text"><strong>Publikuar në:</strong> <span id="publishedAt"></span></p>
+                    </div>
+                  </div>
+                </div>
+                <!-- Grid layout for embedded videos -->
+                <div class="row" id="embeddedVideosGrid"></div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="input-custom-css px-3 py-2" data-bs-dismiss="modal">Mbylle</button>
+              <input type="submit" class="input-custom-css px-3 py-2" name="ruaj" value="Ruaj">
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card shadow-sm rounded-5">
+        <div class="card-body">
+          <div class="row">
+            <div class="col-12">
+              <div class="table-responsive">
+                <table id="example" class="table">
                   <thead class="bg-light">
                     <tr>
-                      <th>Klienti</th>
+                      <th></th>
+                      <th width="2%">Klienti</th>
                       <th>Shuma</th>
                       <th>Pagoi</th>
                       <th>Obligim</th>
@@ -99,257 +193,159 @@ if (isset($_POST['paguaj'])) {
                     </tr>
                   </thead>
                   <tbody>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-          <div class="modal-dialog modal-lg" role="document">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Shpenzimet e klient&euml;ve</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-              </div>
-              <div class="modal-body">
-                <form method="POST" action="process_form.php">
-                  <div class="row">
-                    <div class="col-md-6">
-                      <label for="emri" class="form-label">Zgjidh nj&euml;rin nga klient&euml;t</label>
-                      <select name="stafi" id="stafi" class="form-select shadow-sm rounded-5" style="border: 1px solid #ced4da">
-                        <?php
-                        $gsta = $conn->query("SELECT * FROM klientet");
-                        while ($gst = mysqli_fetch_array($gsta)) {
-                        ?>
-                          <option value="<?php echo $gst['id']; ?>"><?php echo $gst['emri']; ?></option>
-                        <?php } ?>
-                      </select>
-                    </div>
-                    <div class="col-md-6">
-                      <label for="datab" class="form-label">Shuma</label>
-                      <div class="input-group mb-2 rounded-5 me-2">
-                        <div class="input-group-prepend rounded-5 me-2" style="border: 1px solid #ced4da">
-                          <div class="input-group-text rounded-5">&euro;</div>
-                        </div>
-                        <input type="text" name="shuma" class="form-control shadow-sm rounded-5" style="border: 1px solid #ced4da" id="inlineFormInputGroup" value="0.00">
-                      </div>
-                    </div>
-                  </div>
-                  <!-- Row 2 -->
-                  <div class="row">
-                    <div class="col-md-6">
-                      <label for="datas" class="form-label">Data e pages&euml;s</label>
-                      <input type="text" name="data" class="form-control shadow-sm rounded-5" style="border: 1px solid #ced4da" value="<?php echo date("d-m-Y"); ?>">
-                    </div>
-                    <div class="col-md-6">
-                      <label for="pershkrimi" class="form-label">P&euml;rshkrimi</label>
-                      <textarea name="pershkrimi" class="form-control shadow-sm rounded-5" style="border: 1px solid #ced4da"></textarea>
-                    </div>
-                  </div>
-                  <div class="row">
-                    <div class="col-12">
-                      <label for="youtubeLinks" class="form-label">Lidhjet e YouTube</label>
-                      <p class="text-muted" style="font-size: 12px;">Në këtë vend mund të shtoni lidhjet e këngëve nga platforma YouTube. Kur vendosni një lidhje dhe dëshironi të shtoni më shumë, duhet të shtoni një presje (",") në fund të çdo lidhjeje. <span class="badge bg-primary rounded-5 px-2">Kujdes, lejohen vetëm 6 lidhje.</span></p>
-                      <textarea style="height: 100px" rows="6" name="youtubeLinks" id="youtubeLinks" class="form-control shadow-sm rounded-5" style="border: 1px solid #ced4da"></textarea>
-                    </div>
-                  </div>
-                  <!-- Container for video details -->
-                  <div id="videoDetailsContainer" class="mt-3" style="display: none;">
-                    <p class="mb-3">Detajet e videos</p>
-                    <div class="card">
-                      <div class="card-body">
-                        <p class="card-text"><strong>Titulli:</strong> <span id="videoTitle"></span></p>
-                        <p class="card-text"><strong>Përshkrim:</strong> <span id="videoDescription"></span></p>
-                        <p class="card-text"><strong>Publikuar në:</strong> <span id="publishedAt"></span></p>
-                      </div>
-                    </div>
-                  </div>
-                  <!-- Grid layout for embedded videos -->
-                  <div class="row" id="embeddedVideosGrid"></div>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="input-custom-css px-3 py-2" data-bs-dismiss="modal">Mbylle</button>
-                <input type="submit" class="input-custom-css px-3 py-2" name="ruaj" value="Ruaj">
-                </form>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="card shadow-sm rounded-5">
-          <div class="card-body">
-            <div class="row">
-              <div class="col-12">
-                <div class="table-responsive">
-                  <table id="example" class="table">
-                    <thead class="bg-light">
+                    <?php
+                    $kueri = $conn->query("SELECT * FROM yinc ORDER BY id DESC");
+                    while ($k = mysqli_fetch_array($kueri)) {
+                    ?>
                       <tr>
-                        <th></th>
-                        <th width="2%">Klienti</th>
-                        <th>Shuma</th>
-                        <th>Pagoi</th>
-                        <th>Obligim</th>
-                        <th>Forma</th>
-                        <th>P&euml;rshkrimi</th>
-                        <th>Data</th>
-                        <th>Link</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <?php
-                      $kueri = $conn->query("SELECT * FROM yinc ORDER BY id DESC");
-                      while ($k = mysqli_fetch_array($kueri)) {
-                      ?>
-                        <tr>
-                          <?php
-                          $sid = $k['kanali'];
-                          $gstaf = $conn->query("SELECT * FROM klientet WHERE id='$sid'");
-                          $gstafi = mysqli_fetch_array($gstaf);
-                          $myNumber = $k['shuma'];
-                          $percentToGet = (float)$gstafi['perqindja'];
-                          $percentInDecimal = $percentToGet / 100;
-                          $percent = $percentInDecimal * $myNumber;
-                          ?>
-                          <td style="white-space: normal;">
-                            <a href="#" class="btn btn-danger px-2 m-2 btn-sm text-white rounded-5 shadow-sm delete-btn" data-id="<?php echo $k['id']; ?>"><i class="fi fi-rr-trash py-3"></i></a>
-                            <a data-bs-toggle="modal" data-bs-target="#pages<?php echo $k['id']; ?>" class="btn btn-primary btn-sm px-2 m-2 text-white rounded-5 shadow-sm" style="text-transform: none;"><i class="fi fi-rr-edit py-3"></i></a>
-                            <button class="btn btn-success px-2 m-2 btn-sm text-white rounded-5 shadow-sm" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight<?php echo $k['id']; ?>" aria-controls="offcanvasRight<?php echo $k['id']; ?>"><i class="fi fi-rr-time-past py-3"></i></button>
-                            <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight<?php echo $k['id']; ?>" aria-labelledby="offcanvasRightLabel<?php echo $k['id']; ?>">
-                              <div class="offcanvas-header bg-primary text-white d-flex justify-content-between align-items-center">
-                                <div>
-                                  <h5 class="offcanvas-title mb-0"><?php echo "Historia e shpenzime për klientin"; ?></h5>
-                                  <div><?php echo $gstafi['emri']; ?></div>
-                                </div>
-                                <button type="button" class="btn-close text-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                        <?php
+                        $sid = $k['kanali'];
+                        $gstaf = $conn->query("SELECT * FROM klientet WHERE id='$sid'");
+                        $gstafi = mysqli_fetch_array($gstaf);
+                        $myNumber = $k['shuma'];
+                        $percentToGet = (float)$gstafi['perqindja'];
+                        $percentInDecimal = $percentToGet / 100;
+                        $percent = $percentInDecimal * $myNumber;
+                        ?>
+                        <td style="white-space: normal;">
+                          <a href="#" class="btn btn-danger px-2 m-2 btn-sm text-white rounded-5 shadow-sm delete-btn" data-id="<?php echo $k['id']; ?>"><i class="fi fi-rr-trash py-3"></i></a>
+                          <a data-bs-toggle="modal" data-bs-target="#pages<?php echo $k['id']; ?>" class="btn btn-primary btn-sm px-2 m-2 text-white rounded-5 shadow-sm" style="text-transform: none;"><i class="fi fi-rr-edit py-3"></i></a>
+                          <button class="btn btn-success px-2 m-2 btn-sm text-white rounded-5 shadow-sm" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight<?php echo $k['id']; ?>" aria-controls="offcanvasRight<?php echo $k['id']; ?>"><i class="fi fi-rr-time-past py-3"></i></button>
+                          <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight<?php echo $k['id']; ?>" aria-labelledby="offcanvasRightLabel<?php echo $k['id']; ?>">
+                            <div class="offcanvas-header bg-primary text-white d-flex justify-content-between align-items-center">
+                              <div>
+                                <h5 class="offcanvas-title mb-0"><?php echo "Historia e shpenzime për klientin"; ?></h5>
+                                <div><?php echo $gstafi['emri']; ?></div>
                               </div>
-                              <div class="offcanvas-body">
-                                <div class="timeline">
-                                  <?php
-                                  // Fetch data from yinc for the corresponding kanali ID
-                                  $yinc_query = "SELECT * FROM yinc WHERE kanali = " . $k['kanali'] . " ORDER BY id DESC";
-                                  $yinc_result = mysqli_query($conn, $yinc_query);
-                                  while ($row = mysqli_fetch_assoc($yinc_result)) {
-                                  ?>
-                                    <div class="timeline-item border p-3 mb-3 rounded shadow">
-                                      <div class="timeline-content">
-                                        <h4 class="text-primary"><?php echo $row['data']; ?></h4>
-                                        <p><?php echo $row['pershkrimi']; ?></p>
-                                        <p><strong>Klienti:</strong> <?php echo $row['kanali']; ?></p>
-                                        <p><strong>Shuma:</strong> <?php echo $row['shuma']; ?></p>
-                                        <p><strong>Lloji:</strong> <?php echo $row['lloji']; ?></p>
-                                        <p><strong>Pagoi:</strong> <?php echo $row['pagoi']; ?></p>
-                                      </div>
-                                    </div>
-                                  <?php
-                                  }
-                                  ?>
-                                </div>
-                              </div>
+                              <button type="button" class="btn-close text-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
                             </div>
-                          </td>
-                          <td style="white-space: normal;"><?php echo $gstafi['emri']; ?></td>
-                          <td style="white-space: normal;"><?php echo $k['shuma']; ?>&euro;</td>
-                          <td style="white-space: normal;"><?php echo $k['pagoi']; ?>&euro;</td>
-                          <td style="color:red;"><?php echo $k['shuma'] - $k['pagoi']; ?>&euro; </td>
-                          <td style="white-space: normal;"><?php echo $k['lloji']; ?></td>
-                          <td style="white-space: normal;"><?php echo $k['pershkrimi']; ?></td>
-                          <td style="white-space: normal;"><?php echo $k['data']; ?></td>
-                          <td style="white-space: normal;">
-                            <?php
-                            $links = explode(',', $k['linku_i_kenges']);
-                            if (empty($links[0])) { ?>
-                              <span class="badge bg-warning text-dark px-3 py-2 rounded-5">Nuk ka link</span>
-                              <?php } else {
-                              foreach ($links as $link) { ?>
-                                <a class="input-custom-css px-3 py-2" style="text-transform: none; text-decoration: none;" href="<?php echo $link; ?>" target="_blank"><i class="fi fi-rr-globe"></i> Linku</a><br><br><br>
-                            <?php }
-                            }
-                            ?>
-                          </td>
-                        </tr>
-                        <div class="modal fade" id="pages<?php echo $k['id']; ?>" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                          <div class="modal-dialog modal-dialog-centered" role="document">
-                            <div class="modal-content">
-                              <div class="modal-header">
-                                <h5 class="modal-title" id="exampleModalLabel">Pagesë për klientin - <?php echo $gstafi['emri']; ?></h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                              </div>
-                              <div class="modal-body">
-                                <form method="POST" action="">
-                                  <input type="hidden" name="idp" value="<?php echo $k['id']; ?>">
-                                  <div class="mb-3">
-                                    <label for="pagoi" class="form-label">Shuma:</label>
-                                    <div class="input-group">
-                                      <span class="input-group-text">&euro;</span>
-                                      <input type="text" name="pagoi" class="form-control" id="pagoi" value="0.00">
+                            <div class="offcanvas-body">
+                              <div class="timeline">
+                                <?php
+                                // Fetch data from yinc for the corresponding kanali ID
+                                $yinc_query = "SELECT * FROM yinc WHERE kanali = " . $k['kanali'] . " ORDER BY id DESC";
+                                $yinc_result = mysqli_query($conn, $yinc_query);
+                                while ($row = mysqli_fetch_assoc($yinc_result)) {
+                                ?>
+                                  <div class="timeline-item border p-3 mb-3 rounded shadow">
+                                    <div class="timeline-content">
+                                      <h4 class="text-primary"><?php echo $row['data']; ?></h4>
+                                      <p><?php echo $row['pershkrimi']; ?></p>
+                                      <p><strong>Klienti:</strong> <?php echo $row['kanali']; ?></p>
+                                      <p><strong>Shuma:</strong> <?php echo $row['shuma']; ?></p>
+                                      <p><strong>Lloji:</strong> <?php echo $row['lloji']; ?></p>
+                                      <p><strong>Pagoi:</strong> <?php echo $row['pagoi']; ?></p>
                                     </div>
                                   </div>
-                                  <div class="mb-3">
-                                    <label for="lloji" class="form-label">Forma e pagesës:</label>
-                                    <select name="lloji" class="form-select" id="lloji">
-                                      <option value="Bank">Banka</option>
-                                      <option value="Cash">Cash</option>
-                                    </select>
-                                    <br>
-                                    <input type="text" id="customOption" class="form-control rounded-5" placeholder="Shtoni opsionin e personalizuar">
-                                    <br>
-                                    <button onclick="shtoOpcioninPersonalizuar()" class="input-custom-css px-3 py-2" type="button">Shto</button>
-                                    <br>
-                                    <div id="mesazhi-gabimit" class="text-danger mt-2" style="display: none;"></div>
-                                  </div>
-                                  <script>
-                                    function shtoOpcioninPersonalizuar() {
-                                      var elementiSelektuar = document.getElementById("lloji");
-                                      var inputiOpsionitPersonalizuar = document.getElementById("customOption");
-                                      var mesazhiGabimit = document.getElementById("mesazhi-gabimit");
-                                      var vleraOpsionitPersonalizuar = inputiOpsionitPersonalizuar.value.trim();
-                                      // Fshijeni mesazhin e gabimit e mëparshëm
-                                      mesazhiGabimit.style.display = "none";
-                                      if (vleraOpsionitPersonalizuar !== "") {
-                                        // Kontrollo nese opsioni personalizuar tashme ekziston
-                                        var ekziston = Array.from(elementiSelektuar.options).some(option => option.value === vleraOpsionitPersonalizuar);
-                                        if (!ekziston) {
-                                          var opsioni = document.createElement("option");
-                                          opsioni.text = vleraOpsionitPersonalizuar;
-                                          opsioni.value = vleraOpsionitPersonalizuar;
-                                          elementiSelektuar.appendChild(opsioni);
-                                          inputiOpsionitPersonalizuar.value = ""; // Pastrojeni fushën pas shtimit të opsionit personalizuar
-                                        } else {
-                                          mesazhiGabimit.textContent = "Opsioni ekziston";
-                                          mesazhiGabimit.style.display = "block";
-                                        }
-                                      } else {
-                                        mesazhiGabimit.textContent = "Ju lutem jepni një vlerë për opsionin personalizuar";
-                                        mesazhiGabimit.style.display = "block";
-                                      }
-                                    }
-                                  </script>
+                                <?php
+                                }
+                                ?>
                               </div>
-                              <div class="modal-footer">
-                                <button type="button" class="input-custom-css px-3 py-2" data-bs-dismiss="modal">Mbylle</button>
-                                <button type="submit" class="input-custom-css px-3 py-2" name="paguaj">Paguaj</button>
-                              </div>
-                              </form>
                             </div>
                           </div>
-                        </div>
-                      <?php } ?>
-                    </tbody>
-                    <tfoot class="bg-light">
-                      <tr>
-                        <th></th>
-                        <th>Klienti</th>
-                        <th>Shuma</th>
-                        <th>Pagoi</th>
-                        <th>Obligim</th>
-                        <th>Forma</th>
-                        <th>P&euml;rshkrimi</th>
-                        <th>Data</th>
-                        <th>Link</th>
+                        </td>
+                        <td style="white-space: normal;"><?php echo $gstafi['emri']; ?></td>
+                        <td style="white-space: normal;"><?php echo $k['shuma']; ?>&euro;</td>
+                        <td style="white-space: normal;"><?php echo $k['pagoi']; ?>&euro;</td>
+                        <td style="color:red;"><?php echo $k['shuma'] - $k['pagoi']; ?>&euro; </td>
+                        <td style="white-space: normal;"><?php echo $k['lloji']; ?></td>
+                        <td style="white-space: normal;"><?php echo $k['pershkrimi']; ?></td>
+                        <td style="white-space: normal;"><?php echo $k['data']; ?></td>
+                        <td style="white-space: normal;">
+                          <?php
+                          $links = explode(',', $k['linku_i_kenges']);
+                          if (empty($links[0])) { ?>
+                            <span class="badge bg-warning text-dark px-3 py-2 rounded-5">Nuk ka link</span>
+                            <?php } else {
+                            foreach ($links as $link) { ?>
+                              <a class="input-custom-css px-3 py-2" style="text-transform: none; text-decoration: none;" href="<?php echo $link; ?>" target="_blank"><i class="fi fi-rr-globe"></i> Linku</a><br><br><br>
+                          <?php }
+                          }
+                          ?>
+                        </td>
                       </tr>
-                    </tfoot>
-                  </table>
-                </div>
+                      <div class="modal fade" id="pages<?php echo $k['id']; ?>" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered" role="document">
+                          <div class="modal-content">
+                            <div class="modal-header">
+                              <h5 class="modal-title" id="exampleModalLabel">Pagesë për klientin - <?php echo $gstafi['emri']; ?></h5>
+                              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                              <form method="POST" action="">
+                                <input type="hidden" name="idp" value="<?php echo $k['id']; ?>">
+                                <div class="mb-3">
+                                  <label for="pagoi" class="form-label">Shuma:</label>
+                                  <div class="input-group">
+                                    <span class="input-group-text">&euro;</span>
+                                    <input type="text" name="pagoi" class="form-control" id="pagoi" value="0.00">
+                                  </div>
+                                </div>
+                                <div class="mb-3">
+                                  <label for="lloji" class="form-label">Forma e pagesës:</label>
+                                  <select name="lloji" class="form-select" id="lloji">
+                                    <option value="Bank">Banka</option>
+                                    <option value="Cash">Cash</option>
+                                  </select>
+                                  <br>
+                                  <input type="text" id="customOption" class="form-control rounded-5" placeholder="Shtoni opsionin e personalizuar">
+                                  <br>
+                                  <button onclick="shtoOpcioninPersonalizuar()" class="input-custom-css px-3 py-2" type="button">Shto</button>
+                                  <br>
+                                  <div id="mesazhi-gabimit" class="text-danger mt-2" style="display: none;"></div>
+                                </div>
+                                <script>
+                                  function shtoOpcioninPersonalizuar() {
+                                    var elementiSelektuar = document.getElementById("lloji");
+                                    var inputiOpsionitPersonalizuar = document.getElementById("customOption");
+                                    var mesazhiGabimit = document.getElementById("mesazhi-gabimit");
+                                    var vleraOpsionitPersonalizuar = inputiOpsionitPersonalizuar.value.trim();
+                                    // Fshijeni mesazhin e gabimit e mëparshëm
+                                    mesazhiGabimit.style.display = "none";
+                                    if (vleraOpsionitPersonalizuar !== "") {
+                                      // Kontrollo nese opsioni personalizuar tashme ekziston
+                                      var ekziston = Array.from(elementiSelektuar.options).some(option => option.value === vleraOpsionitPersonalizuar);
+                                      if (!ekziston) {
+                                        var opsioni = document.createElement("option");
+                                        opsioni.text = vleraOpsionitPersonalizuar;
+                                        opsioni.value = vleraOpsionitPersonalizuar;
+                                        elementiSelektuar.appendChild(opsioni);
+                                        inputiOpsionitPersonalizuar.value = ""; // Pastrojeni fushën pas shtimit të opsionit personalizuar
+                                      } else {
+                                        mesazhiGabimit.textContent = "Opsioni ekziston";
+                                        mesazhiGabimit.style.display = "block";
+                                      }
+                                    } else {
+                                      mesazhiGabimit.textContent = "Ju lutem jepni një vlerë për opsionin personalizuar";
+                                      mesazhiGabimit.style.display = "block";
+                                    }
+                                  }
+                                </script>
+                            </div>
+                            <div class="modal-footer">
+                              <button type="button" class="input-custom-css px-3 py-2" data-bs-dismiss="modal">Mbylle</button>
+                              <button type="submit" class="input-custom-css px-3 py-2" name="paguaj">Paguaj</button>
+                            </div>
+                            </form>
+                          </div>
+                        </div>
+                      </div>
+                    <?php } ?>
+                  </tbody>
+                  <tfoot class="bg-light">
+                    <tr>
+                      <th></th>
+                      <th>Klienti</th>
+                      <th>Shuma</th>
+                      <th>Pagoi</th>
+                      <th>Obligim</th>
+                      <th>Forma</th>
+                      <th>P&euml;rshkrimi</th>
+                      <th>Data</th>
+                      <th>Link</th>
+                    </tr>
+                  </tfoot>
+                </table>
               </div>
             </div>
           </div>
@@ -373,12 +369,10 @@ if (isset($_POST['paguaj'])) {
     const maxDisplayedVideos = 6;
     const maxDisplayedDetails = 6;
     const maxLinks = 6; // Maximum number of links allowed
-
     $youtubeLinksInput.on('input', function() {
       const youtubeLinks = $youtubeLinksInput.val().trim().split(',');
       $embeddedVideosGrid.empty();
       clearVideoDetails();
-
       if (youtubeLinks.length > maxLinks) {
         $feedbackMessage.text(`Maximum ${maxLinks} links allowed.`);
         $feedbackMessage.show();
@@ -387,13 +381,11 @@ if (isset($_POST['paguaj'])) {
       } else {
         $feedbackMessage.hide();
       }
-
       // Check if textarea is empty or contains only whitespace
       if (!youtubeLinks.some(link => link.trim() !== '')) {
         $videoDetailsContainer.hide();
         return;
       }
-
       $videoDetailsContainer.show();
       youtubeLinks.slice(0, maxDisplayedVideos).forEach(link => {
         const videoId = extractYouTubeVideoId(link);
@@ -412,7 +404,6 @@ if (isset($_POST['paguaj'])) {
         }
       });
     });
-
     // Clear button functionality
     $('#clearButton').click(function() {
       $youtubeLinksInput.val('');
@@ -421,13 +412,11 @@ if (isset($_POST['paguaj'])) {
       $videoDetailsContainer.hide();
       $feedbackMessage.hide();
     });
-
     function extractYouTubeVideoId(link) {
       const regex = /[?&]v=([^&]+)/;
       const match = link.match(regex) || link.match(/(?:\/|%3D|v=|vi=)([^"&\?\/\s]{11})/);
       return match && match[1] ? match[1] : null;
     }
-
     function displayVideoDetails(details) {
       if ($videoTitle.children().length < maxDisplayedDetails) {
         $videoTitle.append(`<p>${details.title}</p>`);
@@ -435,15 +424,12 @@ if (isset($_POST['paguaj'])) {
         $publishedAt.append(`<p>${details.publishedAt}</p>`);
       }
     }
-
     function clearVideoDetails() {
       $videoTitle.empty();
       $videoDescription.empty();
       $publishedAt.empty();
     }
   });
-
-
   new Selectr('#stafi', {
     searchable: true,
     width: 300

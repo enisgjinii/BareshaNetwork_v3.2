@@ -176,6 +176,7 @@ foreach ($backupFiles as $backupFile) {
         },
         stripeClasses: ['stripe-color']
     })
+
     function deleteBackup(backupFile) {
         Swal.fire({
             title: 'A jeni të sigurt?',

@@ -1,20 +1,15 @@
 <?php include 'partials/header.php';
 if (isset($_POST['ruaj'])) {
-
   $email = mysqli_real_escape_string($conn, $_POST['email']);
   $adsid = mysqli_real_escape_string($conn, $_POST['adsid']);
   $shteti = mysqli_real_escape_string($conn, $_POST['shteti']);
-
-
   if ($conn->query("INSERT INTO ads (email, adsid, shteti) VALUES ('$email', '$adsid', '$shteti')")) {
   }
 }
 if (isset($_GET['delete'])) {
   $delid = $_GET['delete'];
-
   $stmt = $conn->prepare("DELETE FROM ads WHERE id = ?");
   $stmt->bind_param("i", $delid);
-
   if ($stmt->execute()) {
     // Record deleted successfully
     echo "<script>
@@ -35,16 +30,13 @@ if (isset($_GET['delete'])) {
       </script>";
   }
 }
-
 if (isset($_POST['update'])) {
   $edit_id = $_POST['edit_id'];
   $email = mysqli_real_escape_string($conn, $_POST['email']);
   $adsid = mysqli_real_escape_string($conn, $_POST['adsid']);
   $shteti = mysqli_real_escape_string($conn, $_POST['shteti']);
-
   // Update the record in the database
   $result = $conn->query("UPDATE ads SET email='$email', adsid='$adsid', shteti='$shteti' WHERE id='$edit_id'");
-
   if ($result) {
     // Display a success message using SweetAlert2
     echo "<script>
@@ -65,9 +57,7 @@ if (isset($_POST['update'])) {
       </script>";
   }
 }
-
 ?>
-
 <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
@@ -79,15 +69,15 @@ if (isset($_POST['update'])) {
         <form method="POST" action="" enctype="multipart/form-data">
           <div class="form-group">
             <label>Email</label>
-            <input type="text" name="email" class="form-control rounded-5 border border-2" placeholder="Email">
+            <input type="text" name="email" class="form-control rounded-5 border border-2" placeholder="Email" required oninvalid="this.setCustomValidity('Ju lutem plotësoni këtë fushë')" oninput="this.setCustomValidity('')">
           </div>
           <div class="form-group">
             <label>ADS ID</label>
-            <input type="text" name="adsid" class="form-control rounded-5 border border-2" placeholder="ADS Id">
+            <input type="text" name="adsid" class="form-control rounded-5 border border-2" placeholder="ADS ID" required oninvalid="this.setCustomValidity('Ju lutem plotësoni këtë fushë')" oninput="this.setCustomValidity('')">
           </div>
           <div class="form-group">
             <label>Shteti</label>
-            <input type="text" name="shteti" class="form-control rounded-5 border border-2" placeholder="Shteti">
+            <input type="text" name="shteti" class="form-control rounded-5 border border-2" placeholder="Shteti" required oninvalid="this.setCustomValidity('Ju lutem plotësoni këtë fushë')" oninput="this.setCustomValidity('')">
           </div>
       </div>
       <div class="modal-footer">
@@ -98,7 +88,6 @@ if (isset($_POST['update'])) {
     </div>
   </div>
 </div>
-
 <?php
 $kueri = $conn->query("SELECT * FROM ads ORDER BY id ASC");
 while ($k = mysqli_fetch_array($kueri)) {
@@ -136,80 +125,103 @@ while ($k = mysqli_fetch_array($kueri)) {
     </div>
   </div>
 <?php } ?>
-
 <div class="main-panel">
   <div class="content-wrapper">
     <div class="container-fluid">
-      <div class="container">
-
-        <nav class="bg-white px-2 rounded-5" style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='currentColor'/%3E%3C/svg%3E&#34;);width:fit-content;border-style:1px solid black;" aria-label="breadcrumb">
-          <ol class="breadcrumb">
-            <li class="breadcrumb-item "><a class="text-reset" style="text-decoration: none;">Klientët</a>
-            </li>
-            <li class="breadcrumb-item active" aria-current="page">
-              <a href="ads.php" class="text-reset" style="text-decoration: none;">
-                Llogaritë e ADS
-              </a>
-            </li>
-        </nav>
-
-        <button type="button" class="input-custom-css px-3 py-2 mb-3" data-bs-toggle="modal" data-bs-target="#exampleModal">
-          <i class="fi fi-rr-add"></i> Shto kategori
-        </button>
-        <div class="card rounded-5 shadow-sm">
-          <div class="card-body">
-            <div class="row">
-              <div class="col-12">
-                <div class="table-responsive">
-                  <table id="example" class="table w-100 table-bordered">
-                    <thead class="bg-light">
+      <nav class="bg-white px-2 rounded-5" style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='currentColor'/%3E%3C/svg%3E&#34;);width:fit-content;border-style:1px solid black;" aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item "><a class="text-reset" style="text-decoration: none;">Klientët</a>
+          </li>
+          <li class="breadcrumb-item active" aria-current="page">
+            <a href="ads.php" class="text-reset" style="text-decoration: none;">
+              Llogaritë e ADS
+            </a>
+          </li>
+      </nav>
+      <button type="button" class="input-custom-css px-3 py-2 mb-3" data-bs-toggle="modal" data-bs-target="#exampleModal">
+        <i class="fi fi-rr-add"></i> Shto kategori
+      </button>
+      <div class="card rounded-5 shadow-sm d-none d-md-none d-lg-block">
+        <div class="card-body">
+          <div class="row">
+            <div class="col-12">
+              <div class="table-responsive">
+                <table id="example" class="table w-100 table-bordered">
+                  <thead class="bg-light">
+                    <tr>
+                      <th>Email</th>
+                      <th>ADS ID</th>
+                      <th>Shteti</th>
+                      <th>Klientet</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <?php
+                    $kueri = $conn->query("SELECT * FROM ads ORDER BY id ASC");
+                    while ($k = mysqli_fetch_array($kueri)) {
+                    ?>
                       <tr>
-                        <th>Email</th>
-                        <th>ADS ID</th>
-                        <th>Shteti</th>
-                        <th>Klientet</th>
-                        <th></th>
-
+                        <td>
+                          <?php echo $k['email']; ?>
+                        </td>
+                        <td>
+                          <?php echo $k['adsid']; ?>
+                        </td>
+                        <td>
+                          <?php echo $k['shteti']; ?>
+                        </td>
+                        <td><a class="input-custom-css px-3 py-2" style="text-decoration: none;text-transform:none;" href="adslist.php?id=<?php echo $k['id']; ?>"><i class="fi fi-rr-folder"></i> Hap Listen</a>
+                        </td>
+                        <td>
+                          <a class="btn btn-primary text-white rounded-5 px-2 py-2" href="#" data-bs-toggle="modal" data-bs-target="#editModal_<?php echo $k['id']; ?>"><i class="fi fi-rr-edit"></i></a>
+                          <button class="btn btn-danger text-white rounded-5 px-2 py-2" onclick="confirmDelete(<?php echo $k['id']; ?>)"><i class="fi fi-rr-trash"></i></button>
+                        </td>
                       </tr>
-                    </thead>
-
-                    <tbody>
-                      <?php
-                      $kueri = $conn->query("SELECT * FROM ads ORDER BY id ASC");
-                      while ($k = mysqli_fetch_array($kueri)) {
-
-                      ?>
-                        <tr>
-                          <td>
-                            <?php echo $k['email']; ?>
-                          </td>
-                          <td>
-                            <?php echo $k['adsid']; ?>
-                          </td>
-                          <td>
-                            <?php echo $k['shteti']; ?>
-                          </td>
-                          <td><a class="input-custom-css px-3 py-2" style="text-decoration: none;text-transform:none;" href="adslist.php?id=<?php echo $k['id']; ?>"><i class="fi fi-rr-folder"></i> Hap Listen</a>
-                          </td>
-                          <td>
-                            <a class="btn btn-primary text-white rounded-5 px-2 py-2" href="#" data-bs-toggle="modal" data-bs-target="#editModal_<?php echo $k['id']; ?>"><i class="fi fi-rr-edit"></i></a>
-                            <button class="btn btn-danger text-white rounded-5 px-2 py-2" onclick="confirmDelete(<?php echo $k['id']; ?>)"><i class="fi fi-rr-trash"></i></button>
-                          </td>
-                        </tr>
-                      <?php } ?>
-                    </tbody>
-                  </table>
-                </div>
+                    <?php } ?>
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
         </div>
       </div>
+      <div class="d-block d-md-block d-lg-none">
+        <!-- List presentation for tablets and mobile -->
+        <ul class="list-group">
+          <!-- PHP loop for list content -->
+          <?php
+          $kueri = $conn->query("SELECT * FROM ads ORDER BY id ASC");
+          while ($k = mysqli_fetch_array($kueri)) {
+          ?>
+          <br>
+            <!-- Display list items -->
+            <li class="list-group-item rounded-5">
+              <div class="row">
+                <div class="col-md-3">
+                  <strong>ID:</strong> <?php echo $k['id']; ?>
+                </div>
+                <div class="col-md-3">
+                  <strong>Email:</strong> <?php echo $k['email']; ?>
+                </div>
+                <div class="col-md-3">
+                  <strong>ADS ID:</strong> <?php echo $k['adsid']; ?>
+                </div>
+                <div class="col-md-3"><strong>Shteti:</strong> <?php echo $k['shteti']; ?></div>
+                <div class="col-md-3">
+                  <a class="input-custom-css px-3 py-2" style="text-decoration: none;text-transform:none;" href="#" data-bs-toggle="modal" data-bs-target="#editModal_<?php echo $k['id']; ?>"><i class="fi fi-rr-edit"></i></a>
+                  <button class="input-custom-css px-3 py-1" style="text-decoration: none;text-transform:none;" onclick="confirmDelete(<?php echo $k['id']; ?>)"><i class="fi fi-rr-trash"></i></button>
+                </div>
+              </div>
+            </li>
+          <?php
+          }
+          ?>
+        </ul>
+      </div>
     </div>
   </div>
 </div>
-
-
 <?php include 'partials/footer.php'; ?>
 <script>
   function confirmDelete(id) {
@@ -230,7 +242,6 @@ while ($k = mysqli_fetch_array($kueri)) {
     });
   }
 </script>
-
 <script>
   $('#example').DataTable({
     responsive: true,
@@ -245,7 +256,6 @@ while ($k = mysqli_fetch_array($kueri)) {
         text: '<i class="fi fi-rr-file-pdf fa-lg"></i>&nbsp;&nbsp; PDF',
         titleAttr: "Eksporto tabelen ne formatin PDF",
         className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
-
       },
       {
         extend: "copyHtml5",
