@@ -5,20 +5,16 @@ if (isset($_GET["id"])) {
     require_once "conn-d.php";
     $sql = "SELECT * FROM invoices WHERE id = $invoice_id";
     $result = mysqli_query($conn, $sql);
-
     $sql2 = "SELECT * FROM klientet WHERE id = (SELECT customer_id FROM invoices WHERE id = $invoice_id)";
     $result2 = mysqli_query($conn, $sql2);
-
     if (mysqli_num_rows($result) == 1) {
         $row = mysqli_fetch_assoc($result);
         $row2 = mysqli_fetch_assoc($result2);
-
         $invoice_number = $row["invoice_number"];
         $invouce_status = $row["status"];
         $customer_id = $row2["id"];
         $customer_name = $row2["emri"];
         $customer_precentage = $row2["perqindja"];
-
         if (isset($customer_id) && !empty($customer_id)) {
             $customerQuery = "SELECT id, emri, emriart,perqindja FROM klientet WHERE id = $customer_id";
             $customerResult = mysqli_query($conn, $customerQuery);
@@ -28,7 +24,6 @@ if (isset($_GET["id"])) {
 FROM yinc y 
 WHERE y.kanali = {$customerRow['id']}
 GROUP BY y.kanali";
-
                 $loanResult = mysqli_query($conn, $loanQuery);
                 if ($loanResult) {
                     $loanRow = mysqli_fetch_assoc($loanResult);
@@ -37,16 +32,12 @@ GROUP BY y.kanali";
             }
         }
     }
-
-
 ?>
 
     <body>
-
         <div class="main-panel">
             <div class="content-wrapper">
                 <div class="container-fluid">
-
                     <div class="container">
                         <a href="invoice.php" class="input-custom-css px-3 py-2 d-flex align-items-center " style="text-decoration: none;width: fit-content;">
                             <i class="fi fi-rr-arrow-small-left fa-lg"></i>
@@ -65,7 +56,6 @@ GROUP BY y.kanali";
                                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                 </div>
                                                 <div class="modal-body">
-
                                                     <div class="mb-3">
                                                         <label for="payment_amount" class="form-label">Shuma e pagesës:</label>
                                                         <input type="text" pattern="\d+(\.\d+)?" class="form-control rounded-5 border border-2 py-3" id="payment_amount" name="payment_amount" required>
@@ -90,12 +80,10 @@ GROUP BY y.kanali";
                                                             <option value="Western Union">Western Union</option>
                                                         </select>
                                                     </div>
-
                                                     <select id="type_of_pay" name="type_of_pay" class="form-select rounded-5 shadow-sm py-3">
                                                         <option value="Biznes">Biznes</option>
                                                         <option value="Personal">Personal</option>
                                                     </select>
-
                                                 </div>
                                                 <div class="modal-footer">
                                                     <button type="button" class="input-custom-css px-3 py-2" data-bs-dismiss="modal">Mbyll</button>
@@ -112,7 +100,6 @@ GROUP BY y.kanali";
                                 <li class="nav-item" role="presentation">
                                     <button class="nav-link active" id="pills-add_items-tab" data-bs-toggle="pill" data-bs-target="#pills-add_items" type="button" role="tab" aria-controls="pills-add_items" aria-selected="true"><i class="fi fi-rr-plus fa-lg"></i> &nbsp; Shto artikuj</button>
                                 </li>
-
                                 <li class="nav-item" role="presentation">
                                     <button class="nav-link" id="pills-historiku_i_pagesave-tab" data-bs-toggle="pill" data-bs-target="#pills-historiku_i_pagesave" type="button" role="tab" aria-controls="pills-historiku_i_pagesave" aria-selected="false">
                                         <i class="fi fi-rr-document fa-lg"></i> &nbsp; Historiku i pagesave
@@ -129,10 +116,7 @@ GROUP BY y.kanali";
                                             <div class="col-12">
                                                 <form action="add_item.php?id=<?php echo $invoice_id; ?>" method="POST">
                                                     <input type="text" hidden class="form-control rounded-5 border border-2 py-3" name="invoice_number" value="<?php echo $invoice_number ?>">
-
                                                     <div class="row">
-
-
                                                         <div class="col mb-3">
                                                             <input type="hidden" readonly class="form-control rounded-5 border border-2 py-3" name="customer_id" value="<?php echo $customer_id; ?>">
                                                         </div>
@@ -150,9 +134,6 @@ GROUP BY y.kanali";
                                                             <label for="total_amount_after_percentage" class="form-label">Shuma e përgjithshme pas përqindjes:</label>
                                                             <input type="text" class="form-control rounded-5 border border-2 py-3" id="total_amount_after_percentage" name="total_amount_after_percentage" required>
                                                         </div>
-
-
-
                                                         <div class="row">
                                                             <div class="mb-3 col" hidden>
                                                                 <label for="created_date" class="form-label">Data e krijimit te fatures:</label>
@@ -164,10 +145,14 @@ GROUP BY y.kanali";
                                                                     <option value="Rregullt" selected>Rregullt</option>
                                                                     <option value="Parregullt">Parregullt</option>
                                                                 </select>
+                                                                <script>
+                                                                    new Selectr('#invoice_status', {
+                                                                        searchable: true,
+                                                                    })
+                                                                </script>
                                                             </div>
                                                         </div>
                                                     </div>
-
                                                     <button type="submit" class="input-custom-css px-3 py-2">Shto</button>
                                                 </form>
                                             </div>
@@ -188,17 +173,14 @@ GROUP BY y.kanali";
                                                         // Assuming $invoice_number is already defined
                                                         $salesHistorySql = "SELECT * FROM invoices WHERE invoice_number = ?";
                                                         $salesHistoryStmt = mysqli_prepare($conn, $salesHistorySql);
-
                                                         // Check if the prepare statement was successful
                                                         if ($salesHistoryStmt) {
                                                             mysqli_stmt_bind_param($salesHistoryStmt, "s", $invoice_number);
                                                             mysqli_stmt_execute($salesHistoryStmt);
                                                             $salesHistoryResult = mysqli_stmt_get_result($salesHistoryStmt);
-
                                                             $rowIndex = 0; // Variable to track the row index
                                                             $totalSum = 0; // Variable to store the sum of total amounts
                                                             $totalSumAfterPrecentage = 0; // Variable to store the sum of total amounts
-
                                                             while ($sales = mysqli_fetch_assoc($salesHistoryResult)) {
                                                                 $sql_user = "SELECT * FROM klientet WHERE id = ?";
                                                                 $result_user = mysqli_prepare($conn, $sql_user);
@@ -214,62 +196,39 @@ GROUP BY y.kanali";
                                                                 echo "<td>" . $sales["item"] . "</td>";
                                                                 echo "<td>" . $sales["total_amount"] . "</td>";
                                                                 echo "<td>" . $sales["total_amount_after_percentage"] . "</td>";
-
                                                                 echo "<td>";
-
                                                                 // Display the delete button
                                                                 if ($rowIndex > 0) { ?>
                                                                     <form method='post' action='delete_item.php'>
                                                                         <button type='button' class='input-custom-css px-3 py-2 rounded-5 shadow-sm py-2' data-bs-toggle='offcanvas' data-bs-target='#editOffcanvas<?php echo $sales["id"]; ?>'>
                                                                             <i class='fi fi-rr-edit '></i> Redakto
                                                                         </button>
-
                                                                         <input type='hidden' name='invoice_number' value='<?php echo $sales["id"]; ?>'>
                                                                         <button type='submit' name='delete' class='input-custom-css px-3 py-2 rounded-5 shadow-sm py-2' style='text-transform: none;text-decoration: none'><i class='fi fi-rr-trash '></i> Fshij</button>
-
                                                                     </form>
-
-
-
                                                                     <div class='offcanvas offcanvas-end' tabindex='-1' id='editOffcanvas<?php echo $sales["id"]; ?>' aria-labelledby='editOffcanvasLabel<?php echo $sales["id"]; ?>'>
                                                                         <div class='offcanvas-header border-bottom'>
                                                                             <h5 class='offcanvas-title' id='editOffcanvasLabel$rowIndex'>Redakto shumën e përgjithshme</h5>
-
                                                                             <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-
                                                                         </div>
-
                                                                         <div class='offcanvas-body'>
-
                                                                             <form method='post' action='edit_item.php'>
                                                                                 <input type='text' hidden name='invoice_number' value='<?php echo $sales["id"]; ?>'>
-
                                                                                 <label for='editedTotalAmount<?php echo $rowIndex; ?>' class='form-label'>Shuma e re e përgjithshme:</label>
                                                                                 <input type='text' class='form-control rounded-5 border border-2 border' id='editedTotalAmount<?php echo $rowIndex; ?>' name='editedTotalAmount' oninput='calculateTotalWithPercentage(<?php echo $rowIndex; ?>)' required>
-
-
                                                                                 <br>
-
                                                                                 <label for='percentage' class='form-label'>Perqindja:</label>
                                                                                 <input type="text" class="form-control rounded-5 border border-2 py-3" id='percentage2_<?php echo $rowIndex; ?>' name='percentage2' value="<?php echo $customer_precentage; ?>" oninput='calculateTotalWithPercentage(<?php echo $rowIndex; ?>)' required>
                                                                                 <br>
-
-
                                                                                 <label for='totalAmountAfterPercentage<?php echo $rowIndex; ?>' class='form-label'>Shuma e re e përgjithshme me %:</label>
                                                                                 <input type='text' class='form-control rounded-5 border border-2 border' id='totalAmountAfterPercentage<?php echo $rowIndex; ?>' name='totalAmountAfterPercentage' readonly required>
-
-
                                                                                 <button type='submit' name='edit' class='input-custom-css px-3 py-2 mt-3 rounded-5 shadow'> <i class="fi fi-rr-edit"></i> Ruaj ndryshimet</button>
                                                                             </form>
                                                                         </div>
-
-
                                                                     </div>
                                                                 <?php                                } ?>
-
                                                                 </td>
                                                                 </tr>
-
                                                             <?php
                                                                 $rowIndex++;
                                                             } ?>
@@ -285,30 +244,20 @@ GROUP BY y.kanali";
                                                         var totalAmountInput = document.getElementById('editedTotalAmount' + row);
                                                         var percentageInput = document.getElementById('percentage2_' + row);
                                                         var totalAmountAfterPercentageInput = document.getElementById('totalAmountAfterPercentage' + row);
-
                                                         var totalAmount = parseFloat(totalAmountInput.value);
                                                         var percentage = parseFloat(percentageInput.value);
-
                                                         console.log('Total Amount:', totalAmount);
                                                         console.log('Percentage:', percentage);
-
                                                         var totalAmountAfterPercentage = totalAmount - (totalAmount * (percentage / 100));
                                                         totalAmountAfterPercentageInput.value = totalAmountAfterPercentage.toFixed(2);
-
                                                         console.log('Total Amount After Percentage:', totalAmountAfterPercentage);
                                                     }
                                                 </script>
-
                                             </div>
-
-
-
-
                                         </div>
                                     </div>
                                 </div>
                             </div>
-
                             <div class="tab-pane fade" id="pills-historiku_i_pagesave" role="tabpanel" aria-labelledby="pills-historiku_i_pagesave-tab">
                                 <div class="card mb-4 shadow-0 border rounded-5 p-4">
                                     <h4 class="mt-4">Historiku i pagesave</h4>
@@ -318,7 +267,6 @@ GROUP BY y.kanali";
                                     function getBankInfoWithLogo($bankInfo)
                                     {
                                         $bankLogosDirectory = "bank_logos/";
-
                                         switch ($bankInfo) {
                                             case "":
                                                 return "Ky rekord nuk permban nje metode pagese";
@@ -327,7 +275,6 @@ GROUP BY y.kanali";
                                         }
                                     }
                                     ?>
-
                                     <table id="paymentHistory" class="table table-bordered">
                                         <thead>
                                             <tr>
@@ -341,7 +288,6 @@ GROUP BY y.kanali";
                                             <?php
                                             $paymentHistorySql = "SELECT * FROM payments WHERE invoice_id = $invoice_id";
                                             $paymentHistoryResult = mysqli_query($conn, $paymentHistorySql);
-
                                             while ($payment = mysqli_fetch_assoc($paymentHistoryResult)) {
                                                 echo "<tr>";
                                                 echo "<td>" . $payment["payment_amount"] . "</td>";
@@ -353,18 +299,11 @@ GROUP BY y.kanali";
                                             ?>
                                         </tbody>
                                     </table>
-
-
-
-
                                 </div>
                             </div>
                         </div>
-
-
                     </div>
                 </div>
-
                 <script>
                     $(document).ready(function() {
                         $('#paymentHistory').DataTable({
@@ -383,7 +322,6 @@ GROUP BY y.kanali";
                                 });
                             },
                         });
-
                         $('#salesHistory').DataTable({
                             initComplete: function() {
                                 var btns = $(".dt-buttons");
@@ -400,31 +338,25 @@ GROUP BY y.kanali";
                                 });
                             },
                         });
-
                     });
                 </script>
             <?php
         } else {
             echo "Invoice not found.";
         }
-
         if (isset($_POST["payment_amount"])) {
             $payment_amount = $_POST["payment_amount"];
             $payment_date = date("Y-m-d"); // You can customize the date format
             $bank_info = $_POST["bank_info"];
             $type_of_pay = $_POST["type_of_pay"];
-
             // Insert a new payment record into the payments table
             $insert_sql = "INSERT INTO payments (invoice_id, payment_amount, payment_date, bank_info, type_of_pay) VALUES ($invoice_id, $payment_amount, '$payment_date', '$bank_info', '$type_of_pay')";
-
             if (mysqli_query($conn, $insert_sql)) {
                 // Update the paid amount and status in the invoices table
                 $new_paid_amount = $row["paid_amount"] + $payment_amount;
                 $total_amount = $row["total_amount_after_percentage"];
                 $status = ($new_paid_amount == $total_amount) ? 'I paguar' : 'I pjesshëm';
-
                 $update_sql = "UPDATE invoices SET paid_amount = $new_paid_amount, status = '$status' WHERE id = $invoice_id";
-
                 if (mysqli_query($conn, $update_sql)) {
                     // header("Location: complete_invoice.php?id=" . $invoice_id);
                     exit;
@@ -435,18 +367,12 @@ GROUP BY y.kanali";
                 echo "Error inserting payment: " . mysqli_error($conn);
             }
         }
-
-
             ?>
             </div>
-
             <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
-
     </body>
 
     </html>
-
-
     </body>
 
     </html>

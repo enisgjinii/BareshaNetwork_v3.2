@@ -1,30 +1,23 @@
 <?php
-
 // Include the database connection
 include 'conn-d.php';
-
 // Get the ID from the URL or any other source
 $invoiceId = $_GET['id']; // Assuming you pass the ID through the URL, e.g., print_invoice.php?id=1
-
 // Prepare and execute the SQL query
 $sql = "SELECT * FROM invoices WHERE invoice_number = '$invoiceId'";
 $result = $conn->query($sql);
-
 // Check if there is a result
 if ($result->num_rows > -1) {
     // Fetch data from the result set
     $row = $result->fetch_assoc();
     $customerID = $row['customer_id'];
     $sql2 = "SELECT * FROM klientet WHERE id = '$customerID'";
-
     $result2 = $conn->query($sql2);
     $clientRow = $result2->fetch_assoc();
     $customerName = $clientRow['emri'];
 ?>
-
     <!DOCTYPE html>
     <html lang="en">
-
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -46,14 +39,12 @@ if ($result->num_rows > -1) {
             * {
                 font-family: 'Inter', sans-serif;
             }
-
             body {
                 margin: 0;
                 padding: 0;
                 font-family: 'Roboto', sans-serif;
                 background-color: #f0f0f0;
             }
-
             .container {
                 max-width: 800px;
                 margin: 20px auto;
@@ -62,73 +53,57 @@ if ($result->num_rows > -1) {
                 border-radius: 5px;
                 box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             }
-
             .header {
                 text-align: left;
             }
-
             .header h1 {
                 margin-bottom: 10px;
             }
-
             .logo {
                 text-align: left;
                 margin-top: 20px;
             }
-
             .logo img {
                 width: 100px;
             }
-
             .address {
                 text-align: left;
-
             }
-
             .address p {
                 margin: 5px 0;
             }
-
             .customer-info {
                 margin-top: 20px;
             }
-
             .invoice-details {
                 margin-top: 20px;
             }
-
             .invoice-details .row {
                 justify-content: space-between;
             }
-
             .sales-table {
                 margin-top: 20px;
                 width: 100%;
                 border-collapse: collapse;
             }
-
             .sales-table th,
             .sales-table td {
                 border: 1px solid #ddd;
                 padding: 10px;
                 text-align: left;
             }
-
             .sales-table th {
                 background-color: #f2f2f2;
             }
-
             .total {
                 margin-top: 10px;
                 text-align: right;
                 font-weight: bold;
             }
-
             .btn-container {
                 text-align: right;
                 margin-top: 20px;
             }
-
             @media print {
                 .container {
                     max-width: 1900px;
@@ -138,7 +113,6 @@ if ($result->num_rows > -1) {
                     border-radius: 0px;
                     box-shadow: 0 0px 0px rgba(0, 0, 0, 0.2);
                 }
-
                 .btn-container {
                     display: none;
                 }
@@ -146,33 +120,21 @@ if ($result->num_rows > -1) {
         </style>
         <title>Fatura - <?php echo $_GET['id']; ?></title>
     </head>
-
     <body>
-
         <div class="btn-container fixed-top px-3 py-2 bg-light rounded-5 border ms-1" style="width: fit-content;">
             <a href="invoice.php" class="btn btn-sm btn-light border shadow-0 rounded-5" style="text-transform: none;"><i class="fa fa-angle-left me-2"></i>Kthehu</a>
             <a href="javascript:window.print()" style="text-transform: none;" class="btn btn-sm btn-success shadow-0 rounded-5"><i class="fa fa-print"></i> Printo</a>
-
-            <?php if (!empty($row['emailadd'])) { ?>
-                <button type="button" class="btn btn-sm btn-primary shadow-0 rounded-5" style="text-transform: none;" data-mdb-toggle="modal" data-mdb-target="#dergoFaturen">
-                    <i class="fi fi-rr-paper-plane"></i>
-                    D&euml;rgo</button>
-            <?php } else {  ?>
-
-                <a href="#" class="btn btn-sm btn-primary disabled shadow-0 rounded-5" style="text-transform: none;">
-                    <i class="fi fi-rr-paper-plane"></i>
-                    D&euml;rgo</a>
-            <?php } ?>
+            <button type="button" class="btn btn-sm btn-primary shadow-0 rounded-5" style="text-transform: none;" data-mdb-toggle="modal" data-mdb-target="#dergoFaturen">
+                <i class="fi fi-rr-paper-plane"></i>
+                D&euml;rgo</button>
         </div>
-
         <!-- Modal -->
         <div class="modal fade" id="dergoFaturen" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
                         <div>
-                            <h5 class="modal-title p-0 m-0" id="exampleModalLabel" style="font-size: 16px;">Dërgo faturën <?php echo $_GET['invoice']; ?></h5>
-                            <p class="text-muted p-0 m-0" style="font-size: 12px;">Ju po dërgoni një faturë te klienti - <?php echo $row['klient_emri']; ?></p>
+                            <h5 class="modal-title p-0 m-0" id="exampleModalLabel" style="font-size: 16px;">Dërgo faturën <?php echo $_GET['id']; ?></h5>
                         </div>
                         <button type="button" class="btn-close" data-mdb-dismiss="modal" aria-label="Close"></button>
                     </div>
@@ -204,18 +166,15 @@ if ($result->num_rows > -1) {
                 </div>
             </div>
         </div>
-
         <script>
             // JavaScript to copy the email into the input field and paragraph
             document.addEventListener('DOMContentLoaded', function() {
                 // Replace 'row.emailadd' with the actual PHP variable that holds the email address
                 var recipientEmail = "<?php echo $row['emailadd']; ?>";
                 var invoiceId = "<?php echo $_GET['invoice']; ?>";
-
                 // Update the paragraph and input field with the recipient's email
                 document.getElementById('recipient-email').textContent = recipientEmail;
                 document.getElementById('to').value = recipientEmail;
-
                 document.getElementById('subject').textContent = invoiceId;
                 document.getElementById('subject').value = 'Fatura juaj nga Baresha Network , #' + invoiceId;
             });
@@ -244,7 +203,6 @@ if ($result->num_rows > -1) {
             <div class="row">
                 <div class="col">
                     <div>
-
                         <!-- <h1>Invoice Details</h1>
                         <p>Invoice ID: <?php echo $row['id']; ?></p>
                         <p>Customer Name: <?php echo $row['customer_id']; ?></p> -->
@@ -266,31 +224,19 @@ if ($result->num_rows > -1) {
                         <?php endif; ?>
                     </div>
                 </div>
-
                 <div class="col text-end">
-
-
                     <p class="text-muted m-0 p-0" style="font-size: 12px;">Numri i fatur&euml;s :</p>
                     <h6 class="text-dark"><?php echo $row['invoice_number']; ?></h6>
-
-
                     <p class="text-muted m-0 p-0" style="font-size: 12px;">Data e fatur&euml;s :</p>
                     <h6 class="text-dark"><?php echo $row['created_date']; ?></h6>
-
-
                     <p class="text-muted m-0 p-0" style="font-size: 12px;">Numri rendit&euml;s :</p>
                     <h6 class="text-dark"><?php echo $row['id']; ?></h6>
-
-
-
                 </div>
             </div>
-
             <?php
             // Reset the data seek pointer to the beginning of the result set
             $result->data_seek(0);
             ?>
-
             <table class="sales-table">
                 <thead>
                     <tr>
@@ -312,7 +258,6 @@ if ($result->num_rows > -1) {
                         $percentageResult = $conn->query($percentageQuery);
                         $percentageRow = $percentageResult->fetch_assoc();
                         $percentage = $percentageRow['perqindja'];
-
                         // Calculate the total amount after percentage
                         $remains = $row['total_amount']  - $row['total_amount_after_percentage'];
                         // Display data in table rows
@@ -325,36 +270,24 @@ if ($result->num_rows > -1) {
                         echo "<td>{$row['total_amount_after_percentage']}</td>";
                         echo "<td>{$row['total_amount']}</td>";
                         echo "</tr>";
-
                         $totalAmount += $row['total_amount_after_percentage'];
                     }
                     ?>
                 </tbody>
             </table>
-
-
-
             <hr style="border: 1px dashed red;">
             <div class="total">
                 <h4>Totali : <?php echo $totalAmount ?> €</h4>
             </div>
-
-
         </div>
         <!-- MDB -->
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.4.1/mdb.min.js"></script>
-
-
-
     </body>
-
     </html>
 <?php
-
 } else {
     echo "Invoice not found";
 }
-
 // Close the database connection
 $conn->close();
 ?>

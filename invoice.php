@@ -178,6 +178,7 @@ function getChannelDetails($channelId, $apiKey)
       white-space: normal;
       cursor: pointer;
     }
+
     .custom-dot {
       width: 10px;
       height: 10px;
@@ -188,6 +189,7 @@ function getChannelDetails($channelId, $apiKey)
       white-space: normal;
       cursor: pointer;
     }
+
     .custom-tooltiptext {
       visibility: hidden;
       width: 80px;
@@ -206,17 +208,20 @@ function getChannelDetails($channelId, $apiKey)
       white-space: normal;
       cursor: pointer;
     }
+
     .custom-tooltip:hover .custom-tooltiptext {
       cursor: pointer;
       visibility: visible;
       white-space: normal;
       opacity: 0.9;
     }
+
     @media (max-width: 767px) {
       .breadcrumb-item a {
         font-size: 14px;
         /* Adjust the font size as needed */
       }
+
       .input-custom-css {
         font-size: 12px;
         /* Adjust the font size as needed */
@@ -229,24 +234,29 @@ function getChannelDetails($channelId, $apiKey)
         text-align: center;
         /* Center text within buttons */
       }
+
       .input-custom-css i {
         display: none;
         /* Hide icons on mobile */
       }
+
       .nav-pills {
         display: flex;
         justify-content: center;
         flex-wrap: wrap;
       }
+
       .nav-item {
         text-align: center;
         margin: 0 5px;
         /* Adjust margin as needed */
       }
+
       .table-sm th,
       .table-sm td {
         padding: 0.25rem;
       }
+
       .text-sm {
         font-size: 12px;
       }
@@ -716,7 +726,7 @@ function getChannelDetails($channelId, $apiKey)
                 </div>
                 <hr>
                 <div class="table-responsive">
-                  <table id="paymentsTable" class="table table-bordered table-hover w-100">
+                  <table id="paymentsTable" class="table table-bordered w-100">
                     <thead class="table-light">
                       <tr>
                         <th style="white-space: normal;font-size: 12px;">Emri i klientit</th>
@@ -760,7 +770,7 @@ function getChannelDetails($channelId, $apiKey)
                 </div>
                 <hr>
                 <div class="table-responsive">
-                  <table id="paymentsTableBiznes" class="table table-bordered table-hover w-100">
+                  <table id="paymentsTableBiznes" class="table table-bordered w-100">
                     <thead class="table-light">
                       <tr>
                         <th style="white-space: normal;font-size: 12px;">Emri i klientit</th>
@@ -807,6 +817,7 @@ function getChannelDetails($channelId, $apiKey)
     var totalAmountAfterPercentage = totalAmount - (totalAmount * (percentage / 100));
     document.getElementById('total_amount_after_percentage').value = totalAmountAfterPercentage.toFixed(2);
   });
+
   function getCustomerName(customerId) {
     var customerName = '';
     $.ajax({
@@ -1283,8 +1294,11 @@ function getChannelDetails($channelId, $apiKey)
       $('#paidAmount').text(paidAmount);
       $('#remainingAmount').text(remainingAmount.toFixed(2));
       $('#paymentAmount').val(remainingAmount.toFixed(2));
+      $('#differenceInModal').text(difference); // Update difference in the modal
       $('#paymentModal').modal('show');
+      $("#customerId").text(customerId);
     });
+
     $('#paymentAmount').on('input', function() {
       var paymentAmount = parseFloat($(this).val());
       var remainingAmount = parseFloat($('#remainingAmount').text());
@@ -1452,6 +1466,7 @@ function getChannelDetails($channelId, $apiKey)
       },
       stripeClasses: ['stripe-color']
     });
+
     function getCurrentDate() {
       var today = new Date();
       var dd = String(today.getDate()).padStart(2, '0');
@@ -1509,4 +1524,5 @@ function getChannelDetails($channelId, $apiKey)
 <script src="states.js"></script>
 <?php include 'partials/footer.php' ?>
 </body>
+
 </html>

@@ -1,4 +1,5 @@
 <?php
+
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
@@ -9,14 +10,14 @@ $mail = new PHPMailer(true);
 
 try {
     // Server settings
-    $mail->SMTPDebug = SMTP::DEBUG_SERVER;
+    // $mail->SMTPDebug = SMTP::DEBUG_SERVER;
     $mail->isSMTP();
     $mail->Host       = 'smtp.gmail.com';
     $mail->SMTPAuth   = true;
-    $mail->Username   = 'baresha.invoices@gmail.com';
-    $mail->Password   = 'vxoslstpmasxhvrq';
-    $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
-    $mail->Port       = 465;
+    $mail->Username   = 'egjini17@gmail.com';
+    $mail->Password   = 'rhydniijtqzijjdy';
+    $mail->SMTPSecure = 'tls'; // Enable TLS encryption, `ssl` also accepted
+    $mail->Port = 587; // TCP port to connect to
 
     // Recipients
     $recipientEmail = $_POST['to_email'];
@@ -29,7 +30,7 @@ try {
     // Content
     $mail->isHTML(true);
     $mail->Subject = $_POST['subject'];
-    
+
     // Check if the message body is empty
     if (!empty($_POST['message'])) {
         $mail->Body = $_POST['message'];
@@ -42,7 +43,7 @@ try {
     if (isset($_FILES['pdf_attachment']) && $_FILES['pdf_attachment']['error'] === UPLOAD_ERR_OK) {
         $file_tmp_name = $_FILES['pdf_attachment']['tmp_name'];
         $file_name = $_FILES['pdf_attachment']['name'];
-        
+
         // Attach the uploaded PDF file to the email
         $mail->addAttachment($file_tmp_name, $file_name);
     }
@@ -52,4 +53,3 @@ try {
 } catch (Exception $e) {
     echo 'Message could not be sent. Mailer Error: ' . $mail->ErrorInfo;
 }
-?>
