@@ -1,43 +1,11 @@
 <div class="modal fade" id="paymentModal" tabindex="-1" role="dialog" aria-labelledby="paymentModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="paymentModalLabel">Detajet e faturës dhe pagesa <br> <span class="text-muted" style="font-size: 12px;">Klikoni në butonin "Bëj pagesën" për të kryer pagesën </h5>
+                <h1 class="modal-title fs-5" id="exampleModalToggleLabel">Kryej pagesën</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <button type="button" class="input-custom-css px-3 py-2 mb-3" id="toggleTableBtn">Shiko detajet e faturës</button>
-                <table class="table table-bordered" id="invoiceTable">
-                    <tr>
-                        <th>Numri i faturës:</th>
-                        <td><span id="invoiceNumber"></span></td>
-                    </tr>
-                    <tr>
-                        <th>Emri i klientit:</th>
-                        <td><span id="customerName"></span></td>
-                    </tr>
-                    <tr>
-                        <th>ID klientit</th>
-                        <td><span id="customerId"></span></td>
-                    </tr>
-                    <tr>
-                        <th>Përshkrimi:</th>
-                        <td><span id="item"></span></td>
-                    </tr>
-                    <tr>
-                        <th>Shuma e përgjithshme:</th>
-                        <td><span id="totalAmount"></span></td>
-                    </tr>
-                    <tr>
-                        <th>Shuma e paguar:</th>
-                        <td><span id="paidAmount"></span></td>
-                    </tr>
-                    <tr>
-                        <th>Obligim:</th>
-                        <td><span id="remainingAmount"></span></td>
-                    </tr>
-                </table>
-                <br>
                 <div class="mb-3">
                     <label for="bankInfo" class="form-label">Menyra e pagesës</label>
                     <select id="bankInfo" name="bankInfo" class="form-select rounded-5 shadow-sm py-3">
@@ -75,24 +43,54 @@
                 </div>
                 <p id="paymentAmountError" class="badge bg-danger px-2 rounded-5 py-2"></p>
                 <input type="hidden" id="invoiceId" name="invoiceId">
-                <button type="button" class="btn btn-primary rounded-5 shadow # text-white" id="submitPayment">Bëj pagesën</button>
+                <button type="button" class="input-custom-css px-3 py-2" id="submitPayment">Bëj pagesën</button>
+                <button class="input-custom-css px-3 py-2" data-bs-target="#exampleModalToggle2" data-bs-toggle="modal">Shfaq detajet e faturës</button>
             </div>
         </div>
     </div>
 </div>
-<script>
-    $(document).ready(function() {
-        // Hide the table by default
-        $("#invoiceTable").addClass("d-none");
-        // Initialize button state
-        var isTableVisible = false;
-        // Toggle the table visibility with Bootstrap collapse class and fade class
-        $("#toggleTableBtn").click(function() {
-            $("#invoiceTable").toggleClass("d-none");
-            // Update button text based on the table visibility state
-            isTableVisible = !isTableVisible;
-            $("#toggleTableBtn").text(isTableVisible ? "Mbyll detajet e faturës" : "Shiko detajet e faturës");
-        });
-        // Add your existing JavaScript code here
-    });
-</script>
+<div class="modal fade" id="exampleModalToggle2" aria-hidden="true" aria-labelledby="exampleModalToggleLabel2" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="titleOfInvoice"></h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-bordered" id="invoiceTable">
+                    <tr>
+                        <th>Numri i faturës:</th>
+                        <td><span id="invoiceNumber"></span></td>
+                    </tr>
+                    <tr>
+                        <th>Emri i klientit:</th>
+                        <td><span id="customerName"></span></td>
+                    </tr>
+                    <tr>
+                        <th>ID klientit</th>
+                        <td><span id="customerId"></span></td>
+                    </tr>
+                    <tr>
+                        <th>Përshkrimi:</th>
+                        <td><span id="item"></span></td>
+                    </tr>
+                    <tr>
+                        <th>Shuma e përgjithshme:</th>
+                        <td><span id="totalAmount"></span></td>
+                    </tr>
+                    <tr>
+                        <th>Shuma e paguar:</th>
+                        <td><span id="paidAmount"></span></td>
+                    </tr>
+                    <tr>
+                        <th>Obligim:</th>
+                        <td><span id="remainingAmount"></span></td>
+                    </tr>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button class="input-custom-css px-3 py-2" data-bs-target="#paymentModal" data-bs-toggle="modal">Kthehu</button>
+            </div>
+        </div>
+    </div>
+</div>

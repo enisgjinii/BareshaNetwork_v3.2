@@ -1286,6 +1286,7 @@ function getChannelDetails($channelId, $apiKey)
       var paidAmount = $(this).data('paid-amount');
       var remainingAmount = $(this).data('remaining-amount');
       var customerName = getCustomerName(customerId);
+      var titleOfInvoice = $(this).data('invoice-number');
       $('#invoiceId').val(id);
       $('#invoiceNumber').text(invoiceNumber);
       $('#customerName').text(customerName);
@@ -1294,11 +1295,10 @@ function getChannelDetails($channelId, $apiKey)
       $('#paidAmount').text(paidAmount);
       $('#remainingAmount').text(remainingAmount.toFixed(2));
       $('#paymentAmount').val(remainingAmount.toFixed(2));
-      $('#differenceInModal').text(difference); // Update difference in the modal
       $('#paymentModal').modal('show');
       $("#customerId").text(customerId);
+      $('#titleOfInvoice').text('Fatura: ' + titleOfInvoice);
     });
-
     $('#paymentAmount').on('input', function() {
       var paymentAmount = parseFloat($(this).val());
       var remainingAmount = parseFloat($('#remainingAmount').text());
@@ -1317,6 +1317,22 @@ function getChannelDetails($channelId, $apiKey)
       var bankInfo = $('#bankInfo').val();
       var type_of_pay = $('#type_of_pay').val();
       var description = $('#description').val();
+
+      // Check if any of the required fields are empty
+      if (!invoiceId || !paymentAmount || !bankInfo || !type_of_pay) {
+        // Display a message indicating that all fields are required
+        Swal.fire({
+          title: 'Plotësoni të gjitha fushat',
+          text: 'Ju lutemi plotësoni të gjitha fushat për të kryer pagesën.',
+          icon: 'error',
+          toast: true,
+          position: 'top-end',
+          showConfirmButton: false,
+          timer: 5000
+        });
+        return; // Exit the function early
+      }
+      // All fields are filled, proceed with the AJAX request
       $.ajax({
         url: 'make_payment.php',
         method: 'POST',
