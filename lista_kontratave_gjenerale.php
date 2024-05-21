@@ -14,6 +14,7 @@ include('partials/header.php');
                             <?php echo $filename ?>
                         </a>
                     </li>
+                </ol>
             </nav>
             <div class="card shadow-sm rounded-5">
                 <div class="card-body">
@@ -167,19 +168,10 @@ include('partials/header.php');
                                                 </tr>
                                             <?php } ?>
                                         </tbody>
-                                        <tfoot class="bg-light">
-                                            <tr>
-                                                <th>#</th>
-                                                <th>Emri dhe mbiemri</th>
-                                                <th>Data e krijimit</th>
-                                                <th>Data e skadimit</th>
-                                                <th>Përqindja</th>
-                                                <th></th>
-                                                <th></th>
-                                            </tr>
-                                        </tfoot>
                                     </table>
                                 </div>
+                            </div>
+                        </div>
                     </form>
                 </div>
             </div>
@@ -293,7 +285,7 @@ include('partials/footer.php');
             title: 'Konfirmoni fshirjen',
             text: 'Jeni i sigurt që dëshironi ta fshini këtë rekord?',
             icon: 'warning',
-            showCancelButton: false,
+            showCancelButton: true,
             confirmButtonText: 'Po, fshijeni',
             cancelButtonText: 'Anulo',
             allowOutsideClick: false,
@@ -375,7 +367,6 @@ include('partials/footer.php');
         dom: "<'row'<'col-md-3'l><'col-md-6'B><'col-md-3'f>>" +
             "<'row'<'col-md-12'tr>>" +
             "<'row'<'col-md-6'><'col-md-6'p>>",
-        
         buttons: [{
             extend: 'pdfHtml5',
             text: '<i class="fi fi-rr-file-pdf fa-lg"></i>&nbsp;&nbsp; PDF',

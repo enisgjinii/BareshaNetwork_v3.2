@@ -1,42 +1,14 @@
 <?php
 ob_start();
-include 'partials/header.php'; ?>
-<?php
+include 'partials/header.php';
 // Include your database connection file
 include 'conn-d.php';
-// Start output buffering
 // Get the ID from the URL
 $id = $_GET['id'];
 // Fetch the record from the database
 $query = "SELECT * FROM kontrata_gjenerale WHERE id = $id";
 $result = mysqli_query($conn, $query);
 $row = mysqli_fetch_assoc($result);
-// Check if the form is submitted
-if (isset($_POST['submit'])) {
-    // Get the updated values from the form
-    $emri = $_POST['emri'];
-    $mbiemri = $_POST['mbiemri'];
-    $tvsh = $_POST['tvsh'];
-    $numri_personal = $_POST['numri_personal'];
-    $pronari_xhirollogarise = $_POST['pronari_xhirollogarise'];
-    $numri_xhirollogarise = $_POST['numri_xhirollogarise'];
-    $kodi_swift = $_POST['kodi_swift'];
-    $iban = $_POST['iban'];
-    $emri_bankes = $_POST['emri_bankes'];
-    $adresa_bankes = $_POST['adresa_bankes'];
-    $kohezgjatja = $_POST['kohezgjatja'];
-    // Update the record in the database
-    $query = "UPDATE kontrata_gjenerale SET emri = '$emri', mbiemri = '$mbiemri', tvsh = '$tvsh', numri_personal = '$numri_personal', pronari_xhirollogarise = '$pronari_xhirollogarise', numri_xhirollogarise = '$numri_xhirollogarise', kodi_swift = '$kodi_swift', iban = '$iban', emri_bankes = '$emri_bankes', adresa_bankes = '$adresa_bankes' , kohezgjatja = '$kohezgjatja' WHERE id = $id";
-    mysqli_query($conn, $query);
-    // Disable caching
-    header("Cache-Control: no-store, no-cache, must-revalidate");
-    header("Pragma: no-cache");
-    header("Expires: 0");
-    // Redirect to the same page to reflect the updated values
-    header("Location: " . $_SERVER['PHP_SELF'] . "?id=" . $id);
-    exit;
-}
-// Flush the output buffer and turn off output buffering
 ob_flush();
 ob_end_clean();
 ?>
@@ -44,7 +16,7 @@ ob_end_clean();
     <div class="content-wrapper">
         <div class="container-fluid">
             <div class="p-5 mb-4 card shadow-sm rounded-5">
-                <form action="" method="post">
+                <form id="updateForm">
                     <div class="row">
                         <div class="col">
                             <label for="emri" class="form-label">Emri</label>
@@ -72,17 +44,17 @@ ob_end_clean();
                         </div>
                         <div class="col">
                             <label for="numri_xhirollogarise" class="form-label">Numri i xhirollogaris&euml; bankare</label>
-                            <input type="text" class="form-control border border-2 rounded-5" name="numri_xhirollogarise" id="numri_xhirollogarise" value="<?php echo $row['numri_xhirollogarise']; ?>">
+                            <input type="text" class="form-control border border-2 rounded-5 blurred-input" name="numri_xhirollogarise" id="numri_xhirollogarise" value="<?php echo $row['numri_xhirollogarise']; ?>" >
                         </div>
                     </div>
                     <div class="row mt-3">
                         <div class="col">
                             <label for="kodi_swift" class="form-label">Kodi SWIFT</label>
-                            <input type="text" class="form-control border border-2 rounded-5" name="kodi_swift" id="kodi_swift" value="<?php echo $row['kodi_swift']; ?>">
+                            <input type="text" class="form-control border border-2 rounded-5 blurred-input" name="kodi_swift" id="kodi_swift" value="<?php echo $row['kodi_swift']; ?>" >
                         </div>
                         <div class="col">
                             <label for="iban" class="form-label">IBAN</label>
-                            <input type="text" class="form-control border border-2 rounded-5" name="iban" id="iban" value="<?php echo $row['iban']; ?>">
+                            <input type="text" class="form-control border border-2 rounded-5 blurred-input" name="iban" id="iban" value="<?php echo $row['iban']; ?>">
                         </div>
                     </div>
                     <div class="row mt-3">
@@ -104,18 +76,95 @@ ob_end_clean();
                     </div>
                     <hr>
                     <?php
-                    // Assuming $k is your array containing data_e_krijimit and kohezgjatja
                     $data_e_krijimit = $row['data_e_krijimit'];
                     $kohezgjatja = $row['kohezgjatja'];
-                    // Calculate expiration date
                     $expiration_date = date('Y-m-d', strtotime($data_e_krijimit . ' + ' . $kohezgjatja . ' months'));
-                    echo $expiration_date;
+                    $expiration_date_formatted = date('d F Y', strtotime($expiration_date));
                     ?>
-                    <p>Kjo kontratë është valide deri me : </p>
-                    <input type="submit" class="btn btn-primary text-white shadow-sm rounded-5 mt-4" name="submit" style="text-transform:none;" value="P&euml;rditso">
+                    <div class="mt-4">
+                        <p class="fw-bold text-primary">Kjo kontratë është valide deri me:</p>
+                        <p class="bg-light p-3 rounded border border-primary">
+                            <i class="bi bi-calendar-check-fill"></i> <?php echo $expiration_date_formatted; ?>
+                        </p>
+                    </div>
+                    <div class="mt-4">
+                        <label for="verify_email" class="form-label">Verifiko Email-in</label>
+                        <input type="email" class="form-control border border-2 rounded-5" name="verify_email" id="verify_email">
+                        <button type="button" class="input-custom-css px-3 py-2 mt-3" onclick="verifyEmail()">Verifiko</button>
+                        <button type="submit" class="input-custom-css px-3 py-2 mt-3" name="submit" style="text-transform:none;">P&euml;rditso</button>
+                    </div>
                 </form>
             </div>
         </div>
     </div>
 </div>
+<script>
+    function verifyEmail() {
+        var email = document.getElementById('verify_email').value;
+        var correctEmail = "<?php echo $user_info['email']; ?>"; // Assumes the email is stored in the session
+        if (email === correctEmail) {
+            document.querySelectorAll('.blurred-input').forEach(function(input) {
+                input.classList.remove('blurred-input');
+            });
+            Swal.fire({
+                title: 'Sukses!',
+                text: 'Email-i është verifikuar me sukses!',
+                icon: 'success',
+                confirmButtonText: 'OK'
+            });
+        } else {
+            Swal.fire({
+                title: 'Gabim!',
+                text: 'Email-i është i pasaktë!',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+            document.getElementById('verify_email').value = '';
+        }
+    }
+    document.getElementById('updateForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        var formData = new FormData(this);
+        formData.append('id', '<?php echo $id; ?>');
+        fetch('update_contract.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    Swal.fire({
+                        title: 'Sukses!',
+                        text: 'Kontrata është përditësuar me sukses!',
+                        icon: 'success',
+                        confirmButtonText: 'OK'
+                    });
+                    setTimeout(function() {
+                        location.reload();
+                    }, 2000);
+                } else {
+                    Swal.fire({
+                        title: 'Gabim!',
+                        text: 'Diçka shkoi keq!',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            })
+            .catch(error => {
+                Swal.fire({
+                    title: 'Gabim!',
+                    text: 'Diçka shkoi keq!',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            });
+    });
+</script>
+<style>
+    .blurred-input {
+        filter: blur(5px);
+        pointer-events: none;
+    }
+</style>
 <?php include('partials/footer.php') ?>
