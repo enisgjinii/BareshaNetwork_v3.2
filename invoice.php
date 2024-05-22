@@ -142,18 +142,6 @@ $_SESSION['startDate'] = $startDate;
 $_SESSION['endDate'] = $endDate;
 $refreshTokens = getRefreshTokensFromDatabase();
 ?>
-<?php
-function getChannelDetails($channelId, $apiKey)
-{
-  $url = "https://www.googleapis.com/youtube/v3/channels?part=snippet&id=$channelId&key=$apiKey";
-  $response = file_get_contents($url);
-  $data = json_decode($response, true);
-  if (isset($data['items'][0]['snippet']['thumbnails']['high']['url'])) {
-    return $data['items'][0]['snippet']['thumbnails']['high']['url'];
-  }
-  return null;
-}
-?>
 <?php if (!isset($_SESSION['oauth_uid'])) {
   echo "
   <script>
@@ -529,63 +517,35 @@ function getChannelDetails($channelId, $apiKey)
                               <th style="font-size: 12px">Input Check</th>
                             </tr>
                           </thead>
-                          <tbody>
-                            <?php
-                            // Counter variable
-                            $counter = 1;
-                            // Prepare a query to fetch data
-                            $query = "SELECT id, emri, perqindja FROM klientet WHERE youtube = ?";
-                            $stmt = mysqli_prepare($conn, $query);
-                            foreach ($refreshTokens as $tokenInfo) {
-                              // Bind the channel_id parameter
-                              mysqli_stmt_bind_param($stmt, "s", $tokenInfo['channel_id']);
-                              // Execute the query
-                              if (mysqli_stmt_execute($stmt)) {
-                                $result = mysqli_stmt_get_result($stmt);
-                                while ($row = mysqli_fetch_assoc($result)) {
-                                  $id = $row['id'];
-                                  $emri = $row['emri'];
-                                  $perqindja = $row['perqindja'];
-                                }
+                          <?php
+                          // Counter variable
+                          $counter = 1;
+                          // Prepare a query to fetch data
+                          $query = "SELECT id, emri, perqindja FROM klientet WHERE youtube = ?";
+                          $stmt = mysqli_prepare($conn, $query);
+                          // Get the count of refreshTokens array to use in for loop
+                          $tokenCount = count($refreshTokens);
+                          for ($i = 0; $i < $tokenCount; $i++) {
+                            $tokenInfo = $refreshTokens[$i];
+                            // Bind the channel_id parameter
+                            mysqli_stmt_bind_param($stmt, "s", $tokenInfo['channel_id']);
+                            // Execute the query
+                            if (mysqli_stmt_execute($stmt)) {
+                              $result = mysqli_stmt_get_result($stmt);
+                              while ($row = mysqli_fetch_assoc($result)) {
+                                $id = $row['id'];
+                                $emri = $row['emri'];
+                                $perqindja = $row['perqindja'];
                               }
-                            ?>
+                          ?>
                               <tr>
-                                <td>
-                                  <?php echo $counter++; ?>
-                                </td>
-                                <td>
-                                  <?php
-                                  /**
-                                   * Gjeneron një numër fature unik për t'u shfaqur në qelizën e tabelës.
-                                   * 
-                                   * Ky fragment i kodit gjeneron dinamikisht një numër fature unik duke kombinuar elemente të ndryshme:
-                                   * 
-                                   * - `$invoiceNumber`: Një identifikues unik i gjeneruar nga funksioni `uniqid()`.
-                                   *   Parametri `more_entropy` e vendosur në `true` siguron unicitet.
-                                   * 
-                                   * - `$counter - 1`: Variabla e numëruesit e shtuar për çdo rresht, tregon pozicionin e faturës.
-                                   * 
-                                   * - `strtoupper(preg_replace('/[^A-Z]/', '', $tokenInfo['channel_name']))`:
-                                   *   Konverton emrin e kanalit në shkronja të mëdha dhe heq karakteret jo alfabetike, siguruar konsistencën.
-                                   * 
-                                   * Numri fature rezultues shfaqet brenda qelizës së tabelës për të identifikuar në mënyrë unike çdo rresht.
-                                   * 
-                                   * Për shembull, nëse `$invoiceNumber` është "230420241158481SR", kjo do të rezultonte në një string të tillë për shfaqje: 
-                                   * "230420241158481SR" në qelizën e tabelës.
-                                   */
-                                  echo $invoiceNumber . ($counter - 1) . strtoupper(preg_replace('/[^A-Z]/', '', $tokenInfo['channel_name']));
-                                  ?>
-                                </td>
-                                <td>
-                                  <?php
-                                  // Put in the session the  id
-                                  $_SESSION['id'] = $id;
-                                  echo $id ?>
-                                </td>
-                                <td>
-                                  <?php echo $_SESSION['selectedDate'] ?>
-                                </td>
+                                <td><?php echo $counter++; ?></td>
+                                <td><?php echo $invoiceNumber . ($counter - 1) . strtoupper(preg_replace('/[^A-Z]/', '', $tokenInfo['channel_name'])); ?></td>
+                                <td><?php $_SESSION['id'] = $id;
+                                    echo $id; ?></td>
+                                <td><?php echo $_SESSION['selectedDate']; ?></td>
                                 <?php
+                                // Google API code
                                 $client = new Google_Client();
                                 $client->setClientId('84339742200-g674o1df674m94a09tppcufciavp0bo1.apps.googleusercontent.com');
                                 $client->setClientSecret('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');
@@ -598,7 +558,6 @@ function getChannelDetails($channelId, $apiKey)
                                   'https://www.googleapis.com/auth/yt-analytics.readonly'
                                 ]);
                                 $youtubeAnalytics = new Google\Service\YoutubeAnalytics($client);
-                                // Get the created date for that channel in YouTube using tokenInfo channel id
                                 $params = [
                                   'ids' => 'channel==' . $tokenInfo['channel_id'],
                                   'currency' => 'EUR',
@@ -608,52 +567,30 @@ function getChannelDetails($channelId, $apiKey)
                                 ];
                                 $response = $youtubeAnalytics->reports->query($params);
                                 $row = $response->getRows()[0];
-                                // Initialize a variable to store the value
                                 $storedValue = '';
-                                // Display only the numeric values (without column headers)
                                 foreach ($row as $index => $value) {
-                                  // Append the value to the storedValue variable
                                   $storedValue .= $value . '<br>';
                                 }
-                                // Echo the storedValue outside of the loop
                                 echo '<td>' . $storedValue . '</td>';
                                 ?>
+                                <td><?php echo number_format($difference, 2); ?></td>
+                                <td><?php echo date('Y-m-d'); ?></td>
                                 <td>
                                   <?php
-                                  $difference = $value - ($value * ($perqindja / 100));
-                                  echo number_format($difference, 2);
+                                  echo $tokenInfo['channel_name'];
                                   ?>
                                 </td>
                                 <td>
                                   <?php
-                                  // Get the actual date
-                                  echo date('Y-m-d'); ?>
-                                </td>
-                                <td>
-                                  <?php // Get the cover art URL
-                                  $coverArtUrl = getChannelDetails($tokenInfo['channel_id'], 'AIzaSyD56A1QU67vIkP1CYSDX2sYona2nxOJ9R0');
-                                  // Display cover art image
-                                  if ($coverArtUrl) {
-                                    echo '<img src="' . $coverArtUrl . '" class="figure-img img-fluid rounded" alt="Channel Cover">';
-                                    echo '<br>';
-                                    echo $tokenInfo['channel_name'];
-                                  }
-                                  ?>
-                                </td>
-                                <td>
-                                  <?php
-                                  $selectedDate = $_SESSION['selectedDate']; // Store the session variable in a separate variable
+                                  $selectedDate = $_SESSION['selectedDate'];
                                   $difference = $value - ($value * ($perqindja / 100));
                                   $sql = "SELECT * FROM invoices WHERE customer_id = '$_SESSION[id]' AND item = '$selectedDate'";
                                   $result = mysqli_query($conn, $sql);
                                   if ($row = mysqli_fetch_assoc($result)) {
                                     $item = $row['item'];
-                                    // echo $item . '<br>';
-                                    // Display an icon about like check
                                     echo '<p> Kjo faturë ekziston</p><br>';
                                     echo '<i class="fi fi-rr-check text-success"></i>';
                                   } else {
-                                    // Display an icon about like x
                                     echo '<p> Kjo faturë nuk ekziston</p><br>';
                                     echo '<i class="fa-solid fa-x"></i>';
                                   }
@@ -668,7 +605,10 @@ function getChannelDetails($channelId, $apiKey)
                                   <input type="checkbox" name="selected_channels[]" value="<?php echo $tokenInfo['channel_id'] ?>">
                                 </td>
                               </tr>
-                            <?php } ?>
+                          <?php
+                            }
+                          }
+                          ?>
                           </tbody>
                         </table>
                       </div>
@@ -1318,7 +1258,6 @@ function getChannelDetails($channelId, $apiKey)
       var bankInfo = $('#bankInfo').val();
       var type_of_pay = $('#type_of_pay').val();
       var description = $('#description').val();
-
       // Check if any of the required fields are empty
       if (!invoiceId || !paymentAmount || !bankInfo || !type_of_pay) {
         // Display a message indicating that all fields are required
