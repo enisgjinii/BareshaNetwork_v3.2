@@ -10,6 +10,7 @@ $artisti = isset($_POST['artisti']) ? $_POST['artisti'] : '';
 $adresa_emailit = isset($_POST['emailadresa']) ? $_POST['emailadresa'] : '';
 $youtube_id = isset($_POST['youtube_id']) ? $_POST['youtube_id'] : '';
 
+// $vat = isset($_POST['vat']) ? $_POST['vat'] : '';
 $tvsh = isset($_POST['tvsh']) ? $_POST['tvsh'] : '';
 $pronari_xhiroBanka = isset($_POST['pronari_xhiroBanka']) ? $_POST['pronari_xhiroBanka'] : '';
 $numri_xhiroBanka = isset($_POST['numri_xhiroBanka']) ? $_POST['numri_xhiroBanka'] : '';
@@ -36,7 +37,7 @@ $albanianMonths = [
     'Aug' => 'Gsh',
     'Sep' => 'Sht',
     'Oct' => 'Tet',
-    'Nov' => 'Nën',
+    'Nov' => 'N&euml;n',
     'Dec' => 'Dhj'
 ];
 $currentMonth = date('M');
@@ -63,13 +64,13 @@ while ($count > 0) {
 // Generate the invoice number with leading zeros and uppercase "BAR"
 $invoiceNumber = sprintf('BAR%s – %s-%04d', strtoupper($albanianMonthAbbreviation), $currentYear, $nextInvoiceNumber);
 
+
 // Get the current date in the 'd/m/Y' format
 $currentDate = date('d/m/Y');
 
 // Rearrange the date format to 'Y-m-d' for database insertion
 list($day, $month, $year) = explode('/', $currentDate);
 $currentDateFormatted = $year . '-' . $month . '-' . $day;
-
 $sql = "INSERT INTO kontrata_gjenerale (
     emri, 
     mbiemri, 
@@ -89,48 +90,13 @@ $sql = "INSERT INTO kontrata_gjenerale (
     email,
     shteti,
     kohezgjatja
-) VALUES (
-    '$emri', 
-    '$mbiemri', 
-    '$invoiceNumber', 
-    '$currentDateFormatted',
-    '$youtube_id', 
-    '$artisti', 
-    '$tvsh',
-    '$pronari_xhiroBanka',
-    '$numri_xhiroBanka',
-    '$kodi_swift',
-    '$iban',
-    '$emri_bankes',
-    '$adresa_bankes',
-    '$numri_tel',
-    '$numri_personal',
-    '$email',
-    '$selectedCountry',
-    '$kohezgjatja'
-)";
+    ) VALUES ('$emri', '$mbiemri', '$invoiceNumber', '$currentDateFormatted','$youtube_id', '$artisti', '$tvsh','$pronari_xhiroBanka','$numri_xhiroBanka','$kodi_swift','$iban','$emri_bankes','$adresa_bankes','$numri_tel','$numri_personal','$email','$selectedCountry','$kohezgjatja')";
 
 $result = mysqli_query($conn, $sql);
-
 if ($result) {
-    echo '<script>
-        Swal.fire({
-            icon: "success",
-            title: "Sukses",
-            text: "Kontrata është krijuar me sukses!",
-            onClose: () => {
-                window.location.href = "lista_kontratave_gjenerale.php";
-            }
-        });
-    </script>';
+    echo '<script>window.location.href = "lista_kontratave_gjenerale.php"</script>';
 } else {
-    echo '<script>
-        Swal.fire({
-            icon: "error",
-            title: "Gabim",
-            text: "Ndodhi një gabim gjatë krijimit të kontratës. Ju lutem provoni përsëri."
-        });
-    </script>';
+    echo '<script>alert("There was an error submitting the signature");</script>';
 }
 
 ob_end_flush(); // Flush the output buffer and turn off output buffering

@@ -1,5 +1,6 @@
 <?php
 ob_start();
+ini_set('max_execution_time', 150);
 include 'partials/header.php';
 include 'modalPayment.php';
 include 'loan_modal.php';
