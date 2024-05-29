@@ -142,6 +142,18 @@ $_SESSION['startDate'] = $startDate;
 $_SESSION['endDate'] = $endDate;
 $refreshTokens = getRefreshTokensFromDatabase();
 ?>
+<?php
+function getChannelDetails($channelId, $apiKey)
+{
+  $url = "https://www.googleapis.com/youtube/v3/channels?part=snippet&id=$channelId&key=$apiKey";
+  $response = file_get_contents($url);
+  $data = json_decode($response, true);
+  if (isset($data['items'][0]['snippet']['thumbnails']['high']['url'])) {
+    return $data['items'][0]['snippet']['thumbnails']['high']['url'];
+  }
+  return null;
+}
+?>
 <?php if (!isset($_SESSION['oauth_uid'])) {
   echo "
   <script>
@@ -167,7 +179,6 @@ $refreshTokens = getRefreshTokensFromDatabase();
       white-space: normal;
       cursor: pointer;
     }
-
     .custom-dot {
       width: 10px;
       height: 10px;
@@ -178,7 +189,6 @@ $refreshTokens = getRefreshTokensFromDatabase();
       white-space: normal;
       cursor: pointer;
     }
-
     .custom-tooltiptext {
       visibility: hidden;
       width: 80px;
@@ -197,20 +207,17 @@ $refreshTokens = getRefreshTokensFromDatabase();
       white-space: normal;
       cursor: pointer;
     }
-
     .custom-tooltip:hover .custom-tooltiptext {
       cursor: pointer;
       visibility: visible;
       white-space: normal;
       opacity: 0.9;
     }
-
     @media (max-width: 767px) {
       .breadcrumb-item a {
         font-size: 14px;
         /* Adjust the font size as needed */
       }
-
       .input-custom-css {
         font-size: 12px;
         /* Adjust the font size as needed */
@@ -223,29 +230,24 @@ $refreshTokens = getRefreshTokensFromDatabase();
         text-align: center;
         /* Center text within buttons */
       }
-
       .input-custom-css i {
         display: none;
         /* Hide icons on mobile */
       }
-
       .nav-pills {
         display: flex;
         justify-content: center;
         flex-wrap: wrap;
       }
-
       .nav-item {
         text-align: center;
         margin: 0 5px;
         /* Adjust margin as needed */
       }
-
       .table-sm th,
       .table-sm td {
         padding: 0.25rem;
       }
-
       .text-sm {
         font-size: 12px;
       }
@@ -485,7 +487,7 @@ $refreshTokens = getRefreshTokensFromDatabase();
                       });
                     </script>
                     <!-- SQL Commands Display Section -->
-                    <div class="sql-commands-container" style="display: none;">
+                    <div class="sql-commands-container">
                       <p>Komandat SQL për shtimin e të dhënave në tabelën e faturave. Këto përfshijnë "INSERT INTO" për
                         shtimin e rreshtave të reja në një tabelë.</p>
                       <code id="sqlCommands" class="sql-commands"></code>
@@ -508,44 +510,74 @@ $refreshTokens = getRefreshTokensFromDatabase();
                               <th style="font-size: 12px">Numri i fatures</th>
                               <th style="font-size: 12px">ID e klientit</th>
                               <th style="font-size: 12px">Data</th>
-                              <th style="font-size: 12px">Fitimi</th>
-                              <th style="font-size: 12px">Fitimi pas perqindjes</th>
+                              <th style="font-size: 12px">Fitimi në dollar ( USD )</th>
+                              <th style="font-size: 12px">Fitimi pas perqindjes ( USD )</th>
                               <th style="font-size: 12px">Data e krijimit</th>
                               <th style="font-size: 12px">Të dhenat e kanalit</th>
                               <th style="font-size: 12px">Statusi i faturës</th>
                               <th style="font-size: 12px">Veprim</th>
                               <th style="font-size: 12px">Input Check</th>
+                              <th style="font-size: 12px">Fitimi i konvertuar ( EUR )</th>
+                              <th style="font-size: 12px">Fitimi pas perqindjes ( EUR ) i konvertuar </th>
                             </tr>
                           </thead>
-                          <?php
-                          // Counter variable
-                          $counter = 1;
-                          // Prepare a query to fetch data
-                          $query = "SELECT id, emri, perqindja FROM klientet WHERE youtube = ?";
-                          $stmt = mysqli_prepare($conn, $query);
-                          // Get the count of refreshTokens array to use in for loop
-                          $tokenCount = count($refreshTokens);
-                          for ($i = 0; $i < $tokenCount; $i++) {
-                            $tokenInfo = $refreshTokens[$i];
-                            // Bind the channel_id parameter
-                            mysqli_stmt_bind_param($stmt, "s", $tokenInfo['channel_id']);
-                            // Execute the query
-                            if (mysqli_stmt_execute($stmt)) {
-                              $result = mysqli_stmt_get_result($stmt);
-                              while ($row = mysqli_fetch_assoc($result)) {
-                                $id = $row['id'];
-                                $emri = $row['emri'];
-                                $perqindja = $row['perqindja'];
+                          <tbody>
+                            <?php
+                            // Counter variable
+                            $counter = 1;
+                            // Prepare a query to fetch data
+                            $query = "SELECT id, emri, perqindja FROM klientet WHERE youtube = ?";
+                            $stmt = mysqli_prepare($conn, $query);
+                            foreach ($refreshTokens as $tokenInfo) {
+                              // Bind the channel_id parameter
+                              mysqli_stmt_bind_param($stmt, "s", $tokenInfo['channel_id']);
+                              // Execute the query
+                              if (mysqli_stmt_execute($stmt)) {
+                                $result = mysqli_stmt_get_result($stmt);
+                                while ($row = mysqli_fetch_assoc($result)) {
+                                  $id = $row['id'];
+                                  $emri = $row['emri'];
+                                  $perqindja = $row['perqindja'];
+                                }
                               }
-                          ?>
+                            ?>
                               <tr>
-                                <td><?php echo $counter++; ?></td>
-                                <td><?php echo $invoiceNumber . ($counter - 1) . strtoupper(preg_replace('/[^A-Z]/', '', $tokenInfo['channel_name'])); ?></td>
-                                <td><?php $_SESSION['id'] = $id;
-                                    echo $id; ?></td>
-                                <td><?php echo $_SESSION['selectedDate']; ?></td>
+                                <td>
+                                  <?php echo $counter++; ?>
+                                </td>
+                                <td>
+                                  <?php
+                                  /**
+                                   * Gjeneron një numër fature unik për t'u shfaqur në qelizën e tabelës.
+                                   * 
+                                   * Ky fragment i kodit gjeneron dinamikisht një numër fature unik duke kombinuar elemente të ndryshme:
+                                   * 
+                                   * - `$invoiceNumber`: Një identifikues unik i gjeneruar nga funksioni `uniqid()`.
+                                   *   Parametri `more_entropy` e vendosur në `true` siguron unicitet.
+                                   * 
+                                   * - `$counter - 1`: Variabla e numëruesit e shtuar për çdo rresht, tregon pozicionin e faturës.
+                                   * 
+                                   * - `strtoupper(preg_replace('/[^A-Z]/', '', $tokenInfo['channel_name']))`:
+                                   *   Konverton emrin e kanalit në shkronja të mëdha dhe heq karakteret jo alfabetike, siguruar konsistencën.
+                                   * 
+                                   * Numri fature rezultues shfaqet brenda qelizës së tabelës për të identifikuar në mënyrë unike çdo rresht.
+                                   * 
+                                   * Për shembull, nëse `$invoiceNumber` është "230420241158481SR", kjo do të rezultonte në një string të tillë për shfaqje: 
+                                   * "230420241158481SR" në qelizën e tabelës.
+                                   */
+                                  echo $invoiceNumber . ($counter - 1) . strtoupper(preg_replace('/[^A-Z]/', '', $tokenInfo['channel_name']));
+                                  ?>
+                                </td>
+                                <td>
+                                  <?php
+                                  // Put in the session the  id
+                                  $_SESSION['id'] = $id;
+                                  echo $id ?>
+                                </td>
+                                <td>
+                                  <?php echo $_SESSION['selectedDate'] ?>
+                                </td>
                                 <?php
-                                // Google API code
                                 $client = new Google_Client();
                                 $client->setClientId('84339742200-g674o1df674m94a09tppcufciavp0bo1.apps.googleusercontent.com');
                                 $client->setClientSecret('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');
@@ -558,39 +590,62 @@ $refreshTokens = getRefreshTokensFromDatabase();
                                   'https://www.googleapis.com/auth/yt-analytics.readonly'
                                 ]);
                                 $youtubeAnalytics = new Google\Service\YoutubeAnalytics($client);
+                                // Get the created date for that channel in YouTube using tokenInfo channel id
                                 $params = [
                                   'ids' => 'channel==' . $tokenInfo['channel_id'],
-                                  'currency' => 'EUR',
+                                  'currency' => 'USD',
                                   'startDate' => $startDate,
                                   'endDate' => $endDate,
                                   'metrics' => 'estimatedRevenue'
                                 ];
                                 $response = $youtubeAnalytics->reports->query($params);
                                 $row = $response->getRows()[0];
+                                // Initialize a variable to store the value
                                 $storedValue = '';
+                                // Display only the numeric values (without column headers)
                                 foreach ($row as $index => $value) {
+                                  // Append the value to the storedValue variable
                                   $storedValue .= $value . '<br>';
                                 }
+                                // Echo the storedValue outside of the loop
                                 echo '<td>' . $storedValue . '</td>';
                                 ?>
-                                <td><?php echo number_format($difference, 2); ?></td>
-                                <td><?php echo date('Y-m-d'); ?></td>
                                 <td>
                                   <?php
-                                  echo $tokenInfo['channel_name'];
+                                  $difference = $value - ($value * ($perqindja / 100));
+                                  echo number_format($difference, 2);
                                   ?>
                                 </td>
                                 <td>
                                   <?php
-                                  $selectedDate = $_SESSION['selectedDate'];
+                                  // Get the actual date
+                                  echo date('Y-m-d'); ?>
+                                </td>
+                                <td>
+                                  <?php // Get the cover art URL
+                                  $coverArtUrl = getChannelDetails($tokenInfo['channel_id'], 'AIzaSyD56A1QU67vIkP1CYSDX2sYona2nxOJ9R0');
+                                  // Display cover art image
+                                  if ($coverArtUrl) {
+                                    echo '<img src="' . $coverArtUrl . '" class="figure-img img-fluid rounded" alt="Channel Cover">';
+                                    echo '<br>';
+                                    echo $tokenInfo['channel_name'];
+                                  }
+                                  ?>
+                                </td>
+                                <td>
+                                  <?php
+                                  $selectedDate = $_SESSION['selectedDate']; // Store the session variable in a separate variable
                                   $difference = $value - ($value * ($perqindja / 100));
                                   $sql = "SELECT * FROM invoices WHERE customer_id = '$_SESSION[id]' AND item = '$selectedDate'";
                                   $result = mysqli_query($conn, $sql);
                                   if ($row = mysqli_fetch_assoc($result)) {
                                     $item = $row['item'];
+                                    // echo $item . '<br>';
+                                    // Display an icon about like check
                                     echo '<p> Kjo faturë ekziston</p><br>';
                                     echo '<i class="fi fi-rr-check text-success"></i>';
                                   } else {
+                                    // Display an icon about like x
                                     echo '<p> Kjo faturë nuk ekziston</p><br>';
                                     echo '<i class="fa-solid fa-x"></i>';
                                   }
@@ -604,18 +659,100 @@ $refreshTokens = getRefreshTokensFromDatabase();
                                 <td>
                                   <input type="checkbox" name="selected_channels[]" value="<?php echo $tokenInfo['channel_id'] ?>">
                                 </td>
+                                <td>
+                                  <?php
+                                  // Initialize cURL
+                                  $curl = curl_init();
+                                  // Set cURL options
+                                  curl_setopt_array($curl, [
+                                    CURLOPT_URL => "https://currency-conversion-and-exchange-rates.p.rapidapi.com/convert?from=USD&to=EUR&amount=" . $value,
+                                    CURLOPT_RETURNTRANSFER => true,
+                                    CURLOPT_ENCODING => "",
+                                    CURLOPT_MAXREDIRS => 10,
+                                    CURLOPT_TIMEOUT => 30,
+                                    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                                    CURLOPT_CUSTOMREQUEST => "GET",
+                                    CURLOPT_HTTPHEADER => [
+                                      "x-rapidapi-host: currency-conversion-and-exchange-rates.p.rapidapi.com",
+                                      "x-rapidapi-key: 335200c4afmsh64cfbbf7fdf4cf2p1aae94jsn05a3bad585de"
+                                    ],
+                                  ]);
+                                  // Execute the cURL request
+                                  $response = curl_exec($curl);
+                                  $err = curl_error($curl);
+                                  // Close the cURL session
+                                  curl_close($curl);
+                                  // Handle errors and response
+                                  if ($err) {
+                                    echo "cURL Error #:" . $err;
+                                  } else {
+                                    // Decode the JSON response
+                                    $response_data = json_decode($response, true);
+                                    // Check if the response contains the expected data
+                                    if (isset($response_data['result'])) {
+                                      // Extract and display the conversion result
+                                      $converted_amount = $response_data['result'];
+                                      echo $converted_amount;
+                                    } else {
+                                      // Handle error in response
+                                      echo "Error: Unable to get the conversion result.";
+                                    }
+                                  }
+                                  ?>
+                                </td>
+                                <td>
+                                  <?php
+                                  // Converto now in euro 
+                                  // Initialize cURL
+                                  $curl = curl_init();
+                                  // Set cURL options
+                                  curl_setopt_array($curl, [
+                                    CURLOPT_URL => "https://currency-conversion-and-exchange-rates.p.rapidapi.com/convert?from=USD&to=EUR&amount=" . $difference,
+                                    CURLOPT_RETURNTRANSFER => true,
+                                    CURLOPT_ENCODING => "",
+                                    CURLOPT_MAXREDIRS => 10,
+                                    CURLOPT_TIMEOUT => 30,
+                                    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                                    CURLOPT_CUSTOMREQUEST => "GET",
+                                    CURLOPT_HTTPHEADER => [
+                                      "x-rapidapi-host: currency-conversion-and-exchange-rates.p.rapidapi.com",
+                                      "x-rapidapi-key: 335200c4afmsh64cfbbf7fdf4cf2p1aae94jsn05a3bad585de"
+                                    ],
+                                  ]);
+                                  // Execute the cURL request
+                                  $response = curl_exec($curl);
+                                  $err = curl_error($curl);
+                                  // Close the cURL session
+                                  curl_close($curl);
+                                  // Handle errors and response
+                                  if ($err) {
+                                    echo "cURL Error #:" . $err;
+                                  } else {
+                                    // Decode the JSON response
+                                    $response_data = json_decode($response, true);
+                                    // Check if the response contains the expected data
+                                    if (isset($response_data['result'])) {
+                                      // Extract and display the conversion result
+                                      $converted_amount = $response_data['result'];
+                                      // echo $converted_amount;
+                                      // Display 2 decimal places
+                                      echo number_format($converted_amount, 2);
+                                    } else {
+                                      // Handle error in response
+                                      echo "Error: Unable to get the conversion result.";
+                                    }
+                                  }
+                                  ?>
+                                </td>
                               </tr>
-                          <?php
-                            }
-                          }
-                          ?>
+                            <?php } ?>
                           </tbody>
                         </table>
                       </div>
                     <?php } ?>
                   </div>
                 <?php } else { ?>
-                  <p>Nuk u gjetën argumente rifreskimi në bazën e të dhënave.</p>
+                  <p>Nuk u gjetën gumente rifreskimi në bazën e të dhënave.</p>
                 <?php } ?>
                 <script>
                   document.addEventListener("DOMContentLoaded", function() {
@@ -758,7 +895,6 @@ $refreshTokens = getRefreshTokensFromDatabase();
     var totalAmountAfterPercentage = totalAmount - (totalAmount * (percentage / 100));
     document.getElementById('total_amount_after_percentage').value = totalAmountAfterPercentage.toFixed(2);
   });
-
   function getCustomerName(customerId) {
     var customerName = '';
     $.ajax({
@@ -1422,7 +1558,6 @@ $refreshTokens = getRefreshTokensFromDatabase();
       },
       stripeClasses: ['stripe-color']
     });
-
     function getCurrentDate() {
       var today = new Date();
       var dd = String(today.getDate()).padStart(2, '0');
@@ -1480,5 +1615,4 @@ $refreshTokens = getRefreshTokensFromDatabase();
 <script src="states.js"></script>
 <?php include 'partials/footer.php' ?>
 </body>
-
 </html>

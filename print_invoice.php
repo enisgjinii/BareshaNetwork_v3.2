@@ -18,6 +18,7 @@ if ($result->num_rows > -1) {
 ?>
     <!DOCTYPE html>
     <html lang="en">
+
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -39,12 +40,14 @@ if ($result->num_rows > -1) {
             * {
                 font-family: 'Inter', sans-serif;
             }
+
             body {
                 margin: 0;
                 padding: 0;
                 font-family: 'Roboto', sans-serif;
                 background-color: #f0f0f0;
             }
+
             .container {
                 max-width: 800px;
                 margin: 20px auto;
@@ -53,57 +56,72 @@ if ($result->num_rows > -1) {
                 border-radius: 5px;
                 box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             }
+
             .header {
                 text-align: left;
             }
+
             .header h1 {
                 margin-bottom: 10px;
             }
+
             .logo {
                 text-align: left;
                 margin-top: 20px;
             }
+
             .logo img {
                 width: 100px;
             }
+
             .address {
                 text-align: left;
             }
+
             .address p {
                 margin: 5px 0;
             }
+
             .customer-info {
                 margin-top: 20px;
             }
+
             .invoice-details {
                 margin-top: 20px;
             }
+
             .invoice-details .row {
                 justify-content: space-between;
             }
+
             .sales-table {
                 margin-top: 20px;
                 width: 100%;
                 border-collapse: collapse;
             }
+
             .sales-table th,
             .sales-table td {
                 border: 1px solid #ddd;
                 padding: 10px;
                 text-align: left;
             }
+
             .sales-table th {
                 background-color: #f2f2f2;
             }
+
             .total {
                 margin-top: 10px;
                 text-align: right;
                 font-weight: bold;
             }
+
             .btn-container {
                 text-align: right;
                 margin-top: 20px;
             }
+
             @media print {
                 .container {
                     max-width: 1900px;
@@ -113,6 +131,7 @@ if ($result->num_rows > -1) {
                     border-radius: 0px;
                     box-shadow: 0 0px 0px rgba(0, 0, 0, 0.2);
                 }
+
                 .btn-container {
                     display: none;
                 }
@@ -120,6 +139,7 @@ if ($result->num_rows > -1) {
         </style>
         <title>Fatura - <?php echo $_GET['id']; ?></title>
     </head>
+
     <body>
         <div class="btn-container fixed-top px-3 py-2 bg-light rounded-5 border ms-1" style="width: fit-content;">
             <a href="invoice.php" class="btn btn-sm btn-light border shadow-0 rounded-5" style="text-transform: none;"><i class="fa fa-angle-left me-2"></i>Kthehu</a>
@@ -243,7 +263,7 @@ if ($result->num_rows > -1) {
                         <th>ID</th>
                         <th>Emërtimi</th>
                         <th>Çmimi</th>
-                        <th>Perqindja</th>
+                        <th>Totali pas konvertimit</th>
                         <th>Shuma</th>
                         <th>Mbetja</th>
                         <th>Totali</th>
@@ -254,35 +274,96 @@ if ($result->num_rows > -1) {
                     // Loop through the result set
                     $totalAmount = 0;
                     while ($row = $result->fetch_assoc()) {
-                        $percentageQuery = "SELECT * FROM klientet WHERE id = " . $row['customer_id'];
+                        // Get percentage from klientet table
+                        $percentageQuery = "SELECT perqindja FROM klientet WHERE id = " . $row['customer_id'];
                         $percentageResult = $conn->query($percentageQuery);
                         $percentageRow = $percentageResult->fetch_assoc();
                         $percentage = $percentageRow['perqindja'];
-                        // Calculate the total amount after percentage
-                        $remains = $row['total_amount']  - $row['total_amount_after_percentage'];
+                        $totalInUsd = $row['total_amount'];
+
+                        // Initialize cURL for currency conversion
+                        $curl = curl_init();
+                        curl_setopt_array($curl, [
+                            CURLOPT_URL => "https://currency-conversion-and-exchange-rates.p.rapidapi.com/convert?from=USD&to=EUR&amount=" . $totalInUsd,
+                            CURLOPT_RETURNTRANSFER => true,
+                            CURLOPT_ENCODING => "",
+                            CURLOPT_MAXREDIRS => 10,
+                            CURLOPT_TIMEOUT => 30,
+                            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                            CURLOPT_CUSTOMREQUEST => "GET",
+                            CURLOPT_HTTPHEADER => [
+                                "x-rapidapi-host: currency-conversion-and-exchange-rates.p.rapidapi.com",
+                                "x-rapidapi-key: 335200c4afmsh64cfbbf7fdf4cf2p1aae94jsn05a3bad585de"
+                            ],
+                        ]);
+                        $response = curl_exec($curl);
+                        $err = curl_error($curl);
+                        curl_close($curl);
+
+                        // Handle cURL response
+                        if ($err) {
+                            echo "cURL Error #:" . $err;
+                            $converted_amount = "Error";
+                        } else {
+                            $response_data = json_decode($response, true);
+                            $converted_amount = isset($response_data['result']) ? $response_data['result'] : "Error";
+                        }
+
+                        // Calculate remaining amount after percentage
+                        $remains = $row['total_amount'] - $row['total_amount_after_percentage'];
+
                         // Display data in table rows
                         echo "<tr>";
                         echo "<td>{$row['id']}</td>";
                         echo "<td>{$row['item']}</td>";
                         echo "<td>{$row['total_amount']}</td>";
-                        echo "<td>{$percentage}%</td>"; // Corrected variable name and added %
+                        echo "<td>{$converted_amount}</td>";
                         echo "<td>{$remains}</td>";
-                        echo "<td>{$row['total_amount_after_percentage']}</td>";
-                        echo "<td>{$row['total_amount']}</td>";
-                        echo "</tr>";
+
+                        // Accumulate the total amount for another conversion
                         $totalAmount += $row['total_amount_after_percentage'];
                     }
+
+                    // Final conversion for the accumulated total amount
+                    $curl = curl_init();
+                    curl_setopt_array($curl, [
+                        CURLOPT_URL => "https://currency-conversion-and-exchange-rates.p.rapidapi.com/convert?from=USD&to=EUR&amount=" . $totalAmount,
+                        CURLOPT_RETURNTRANSFER => true,
+                        CURLOPT_ENCODING => "",
+                        CURLOPT_MAXREDIRS => 10,
+                        CURLOPT_TIMEOUT => 30,
+                        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                        CURLOPT_CUSTOMREQUEST => "GET",
+                        CURLOPT_HTTPHEADER => [
+                            "x-rapidapi-host: currency-conversion-and-exchange-rates.p.rapidapi.com",
+                            "x-rapidapi-key: 335200c4afmsh64cfbbf7fdf4cf2p1aae94jsn05a3bad585de"
+                        ],
+                    ]);
+                    $response = curl_exec($curl);
+                    $err = curl_error($curl);
+                    curl_close($curl);
+
+                    // Handle cURL response for total amount
+                    if ($err) {
+                        echo "cURL Error #:" . $err;
+                        $converted_total_amount = "Error";
+                    } else {
+                        $response_data = json_decode($response, true);
+                        $converted_total_amount = isset($response_data['result']) ? $response_data['result'] : "Error";
+                    }
+
+                    echo "<td>{$converted_total_amount}</td><td>{$converted_total_amount}</td></tr>";
                     ?>
                 </tbody>
+
             </table>
             <hr style="border: 1px dashed red;">
-            <div class="total">
-                <h4>Totali : <?php echo $totalAmount ?> €</h4>
-            </div>
+            
         </div>
         <!-- MDB -->
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.4.1/mdb.min.js"></script>
     </body>
+
     </html>
 <?php
 } else {

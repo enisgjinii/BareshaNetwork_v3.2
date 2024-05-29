@@ -10,7 +10,7 @@ if ($env == "local") {
   $db_pass = "";
   $db_name = "bareshao_f";
 } else {
-  $db_host = "198.38.83.75";
+  $db_host = "192.250.231.19";
   $db_user = "bareshao_f";
   $db_pass = "prishtin134?";
   $db_name = "bareshao_f";

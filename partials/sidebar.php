@@ -57,6 +57,9 @@
               case "lista_kopjeve_rezerve.php":
                 generateMenuItem($page, 'fi fi-rr-database', 'Lista e kopjeve rezerve');
                 break;
+              case "strike-platform.php":
+                generateMenuItem($page, 'fi fi-rr-megaphone', 'Strikes');
+                break;
               case "investime.php":
                 generateMenuItem($page, 'fi fi-rr-money-check-edit', 'Investime');
                 break;

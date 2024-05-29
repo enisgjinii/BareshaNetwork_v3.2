@@ -6,6 +6,9 @@ function format_page_name($page)
     if ($page == 'index.php') {
         return 'Shtepia';
     }
+    if ($page == 'strike-platform.php') {
+        return 'Strikes';
+    }
     if ($page == 'roles.php') {
         return 'Rolet';
     }
@@ -225,7 +228,8 @@ $pages = array(
     'currency.php' => format_page_name('currency.php'),
     'rating_list.php' => format_page_name('rating_list.php'),
     'invoice_list_2.php' => format_page_name('invoice_list_2.php'),
-    'authenticated_channels.php' => format_page_name('authenticated_channels.php')
+    'authenticated_channels.php' => format_page_name('authenticated_channels.php'),
+    'strike-platform.php' => format_page_name('strike-platform.php'),
 );
 // Check if the role ID is present in the URL
 if (isset($_GET['role_id'])) {

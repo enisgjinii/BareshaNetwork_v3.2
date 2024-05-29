@@ -33,7 +33,6 @@ GROUP BY y.kanali";
         }
     }
 ?>
-
     <body>
         <div class="main-panel">
             <div class="content-wrapper">
@@ -198,35 +197,37 @@ GROUP BY y.kanali";
                                                                 echo "<td>" . $sales["total_amount_after_percentage"] . "</td>";
                                                                 echo "<td>";
                                                                 // Display the delete button
-                                                                if ($rowIndex > 0) { ?>
-                                                                    <form method='post' action='delete_item.php'>
-                                                                        <button type='button' class='input-custom-css px-3 py-2 rounded-5 shadow-sm py-2' data-bs-toggle='offcanvas' data-bs-target='#editOffcanvas<?php echo $sales["id"]; ?>'>
-                                                                            <i class='fi fi-rr-edit '></i> Redakto
-                                                                        </button>
-                                                                        <input type='hidden' name='invoice_number' value='<?php echo $sales["id"]; ?>'>
-                                                                        <button type='submit' name='delete' class='input-custom-css px-3 py-2 rounded-5 shadow-sm py-2' style='text-transform: none;text-decoration: none'><i class='fi fi-rr-trash '></i> Fshij</button>
-                                                                    </form>
-                                                                    <div class='offcanvas offcanvas-end' tabindex='-1' id='editOffcanvas<?php echo $sales["id"]; ?>' aria-labelledby='editOffcanvasLabel<?php echo $sales["id"]; ?>'>
-                                                                        <div class='offcanvas-header border-bottom'>
-                                                                            <h5 class='offcanvas-title' id='editOffcanvasLabel$rowIndex'>Redakto shumën e përgjithshme</h5>
-                                                                            <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-                                                                        </div>
-                                                                        <div class='offcanvas-body'>
-                                                                            <form method='post' action='edit_item.php'>
-                                                                                <input type='text' hidden name='invoice_number' value='<?php echo $sales["id"]; ?>'>
-                                                                                <label for='editedTotalAmount<?php echo $rowIndex; ?>' class='form-label'>Shuma e re e përgjithshme:</label>
-                                                                                <input type='text' class='form-control rounded-5 border border-2 border' id='editedTotalAmount<?php echo $rowIndex; ?>' name='editedTotalAmount' oninput='calculateTotalWithPercentage(<?php echo $rowIndex; ?>)' required>
-                                                                                <br>
-                                                                                <label for='percentage' class='form-label'>Perqindja:</label>
-                                                                                <input type="text" class="form-control rounded-5 border border-2 py-3" id='percentage2_<?php echo $rowIndex; ?>' name='percentage2' value="<?php echo $customer_precentage; ?>" oninput='calculateTotalWithPercentage(<?php echo $rowIndex; ?>)' required>
-                                                                                <br>
-                                                                                <label for='totalAmountAfterPercentage<?php echo $rowIndex; ?>' class='form-label'>Shuma e re e përgjithshme me %:</label>
-                                                                                <input type='text' class='form-control rounded-5 border border-2 border' id='totalAmountAfterPercentage<?php echo $rowIndex; ?>' name='totalAmountAfterPercentage' readonly required>
-                                                                                <button type='submit' name='edit' class='input-custom-css px-3 py-2 mt-3 rounded-5 shadow'> <i class="fi fi-rr-edit"></i> Ruaj ndryshimet</button>
-                                                                            </form>
-                                                                        </div>
+                                                                // if ($rowIndex > 0) { 
+                                                        ?>
+                                                                <form method='post' action='delete_item.php'>
+                                                                    <button type='button' class='input-custom-css px-3 py-2 rounded-5 shadow-sm py-2' data-bs-toggle='offcanvas' data-bs-target='#editOffcanvas<?php echo $sales["id"]; ?>'>
+                                                                        <i class='fi fi-rr-edit '></i> Redakto
+                                                                    </button>
+                                                                    <input type='hidden' name='invoice_number' value='<?php echo $sales["id"]; ?>'>
+                                                                    <button type='submit' name='delete' class='input-custom-css px-3 py-2 rounded-5 shadow-sm py-2' style='text-transform: none;text-decoration: none'><i class='fi fi-rr-trash '></i> Fshij</button>
+                                                                </form>
+                                                                <div class='offcanvas offcanvas-end' tabindex='-1' id='editOffcanvas<?php echo $sales["id"]; ?>' aria-labelledby='editOffcanvasLabel<?php echo $sales["id"]; ?>'>
+                                                                    <div class='offcanvas-header border-bottom'>
+                                                                        <h5 class='offcanvas-title' id='editOffcanvasLabel$rowIndex'>Redakto shumën e përgjithshme</h5>
+                                                                        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
                                                                     </div>
-                                                                <?php                                } ?>
+                                                                    <div class='offcanvas-body'>
+                                                                        <form method='post' action='edit_item.php'>
+                                                                            <input type='text' hidden name='invoice_number' value='<?php echo $sales["id"]; ?>'>
+                                                                            <label for='editedTotalAmount<?php echo $rowIndex; ?>' class='form-label'>Shuma e re e përgjithshme:</label>
+                                                                            <input type='text' class='form-control rounded-5 border border-2 border' id='editedTotalAmount<?php echo $rowIndex; ?>' name='editedTotalAmount' oninput='calculateTotalWithPercentage(<?php echo $rowIndex; ?>)' required>
+                                                                            <br>
+                                                                            <label for='percentage' class='form-label'>Perqindja:</label>
+                                                                            <input type="text" class="form-control rounded-5 border border-2 py-3" id='percentage2_<?php echo $rowIndex; ?>' name='percentage2' value="<?php echo $customer_precentage; ?>" oninput='calculateTotalWithPercentage(<?php echo $rowIndex; ?>)' required>
+                                                                            <br>
+                                                                            <label for='totalAmountAfterPercentage<?php echo $rowIndex; ?>' class='form-label'>Shuma e re e përgjithshme me %:</label>
+                                                                            <input type='text' class='form-control rounded-5 border border-2 border' id='totalAmountAfterPercentage<?php echo $rowIndex; ?>' name='totalAmountAfterPercentage' readonly required>
+                                                                            <button type='submit' name='edit' class='input-custom-css px-3 py-2 mt-3 rounded-5 shadow'> <i class="fi fi-rr-edit"></i> Ruaj ndryshimet</button>
+                                                                        </form>
+                                                                    </div>
+                                                                </div>
+                                                                <?php                         //       } 
+                                                                ?>
                                                                 </td>
                                                                 </tr>
                                                             <?php
@@ -371,10 +372,8 @@ GROUP BY y.kanali";
             </div>
             <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
     </body>
-
     </html>
     </body>
-
     </html>
     <script>
         document.getElementById('total_amount').addEventListener('input', function() {
