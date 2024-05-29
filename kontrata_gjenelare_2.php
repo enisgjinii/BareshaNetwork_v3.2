@@ -39,7 +39,7 @@ include 'page_access_controller.php'
                                         <input type="tel" name="numri_tel" id="numri_tel" class="form-control rounded-5 border border-2" placeholder="Shëno numrin e telefonit" required oninvalid="this.setCustomValidity('Numri i telefonit duhet te plotesohet')" oninput="this.setCustomValidity('')">
                                         <br>
                                         <label for="numri_personal" class="form-label">Numri personal</label>
-                                        <input type="number" name="numri_personal" id="numri_personal" class="form-control rounded-5 border border-2" placeholder="Shëno numrin personal" required oninvalid="this.setCustomValidity('Numri personal duhet te plotesohet')" oninput="this.setCustomValidity('')">
+                                        <input type="text" name="numri_personal" id="numri_personal" class="form-control rounded-5 border border-2" placeholder="Shëno numrin personal" required oninvalid="this.setCustomValidity('Numri personal duhet te plotesohet')" oninput="this.setCustomValidity('')">
                                     </div>
                                 </div>
                             </div>
