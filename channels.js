@@ -3,7 +3,6 @@ try {
   const tbody = table.getElementsByTagName("tbody")[0];
   const rows = tbody.getElementsByTagName("tr");
   let sqlCommands = "";
-
   function updateSqlCommands() {
     sqlCommands = "";
     for (let i = 0; i < rows.length; i++) {
@@ -11,7 +10,7 @@ try {
       const checkbox = row.querySelector("input[type='checkbox']");
       if (!checkbox.checked) {
         const columns = row.getElementsByTagName("td");
-        if (columns.length >= 6) {
+        if (columns.length >= 9) {
           const column1Value = columns[1].textContent.trim();
           const column2Value = columns[2].textContent.trim();
           const column3Value = columns[3].textContent.trim();
@@ -19,7 +18,9 @@ try {
           const column5Value = columns[5].textContent.trim();
           const column5ValueWithoutCommas = column5Value.replace(/,/g, "");
           const column6Value = columns[6].textContent.trim();
-          const sqlInsert = `INSERT INTO invoices (invoice_number, customer_id, item, total_amount, total_amount_after_percentage, created_date) VALUES ('${column1Value}', '${column2Value}', '${column3Value}', '${column4Value}', '${column5ValueWithoutCommas}', '${column6Value}');`;
+          const column7Value = columns[7].textContent.trim();
+          const column8Value = columns[8].textContent.trim();
+          const sqlInsert = `INSERT INTO invoices (invoice_number, customer_id, item, total_amount, total_amount_after_percentage,total_amount_in_eur,total_amount_in_eur_after_percentage,created_date) VALUES ('${column1Value}', '${column2Value}', '${column3Value}', '${column4Value}', '${column5ValueWithoutCommas}', '${column6Value}', '${column7Value}', '${column8Value}');`;
           sqlCommands += sqlInsert + "\n";
         }
       }

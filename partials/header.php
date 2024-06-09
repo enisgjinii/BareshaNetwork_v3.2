@@ -41,7 +41,7 @@ try {
   handleAuthenticationError();
 }
 // Validate user email
-$allowedGmailEmails = array('afrimkolgeci@gmail.com', 'besmirakolgeci1@gmail.com', 'egjini17@gmail.com', 'bareshafinance@gmail.com', 'gjinienis148@gmail.com');
+$allowedGmailEmails = array('afrimkolgeci@gmail.com', 'besmirakolgeci1@gmail.com', 'egjini17@gmail.com', 'bareshafinance@gmail.com', 'gjinienis148@gmail.com','emrushavdyli9@gmail.com');
 if (empty($user_info['email']) || !isValidEmailDomain($user_info['email'], $allowedGmailEmails)) {
   handleAuthenticationError();
 }

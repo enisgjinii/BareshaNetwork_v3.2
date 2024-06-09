@@ -41,16 +41,17 @@ $non_monetized_percentage = ($non_monetized_clients / $total_clients) * 100;
           <button type="button" class="input-custom-css px-3 py-2" style="text-transform: none" data-bs-toggle="modal" data-bs-target="#list_of_passive">
             <i class="fi fi-rr-user-lock"></i> &nbsp; Lista e klienteve pasiv
           </button>
-          <br>
           <!-- Button trigger modal -->
           <button type="button" class="input-custom-css px-3 py-2" style="text-transform: none" data-bs-toggle="modal" data-bs-target="#exampleModal">
             Shiko kanalet e pa-autenifikuara
           </button>
-
-
+          <br> <br>
+          <button type="button" class="input-custom-css px-3 py-2" style="text-transform: none" data-bs-toggle="modal" data-bs-target="#exampleModal2">
+            Shiko kanalet e monetizuar por te pa-autenifikuara
+          </button>
           <!-- Modal -->
           <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-lg">
+            <div class="modal-dialog modal-xl">
               <div class="modal-content">
                 <div class="modal-header">
                   <h1 class="modal-title fs-5" id="exampleModalLabel">Kanalet e pa-autenifikuara</h1>
@@ -84,7 +85,7 @@ $non_monetized_percentage = ($non_monetized_clients / $total_clients) * 100;
                             </td>
                             <td>
                               <?php echo $row['youtube']; ?>
-                            
+
                             </td>
                             <td><?php echo $row['emri']; ?></td>
                             <td>
@@ -103,6 +104,60 @@ $non_monetized_percentage = ($non_monetized_clients / $total_clients) * 100;
                 <div class="modal-footer">
                   <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                   <button type="button" class="btn btn-primary">Save changes</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal fade" id="exampleModal2" tabindex="-1" aria-labelledby="exampleModalLabel2" aria-hidden="true">
+            <div class="modal-dialog modal-xl">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h1 class="modal-title fs-5" id="exampleModalLabel2">Kanalet e pa-autenifikuara</h1>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  <div class="table-responsive">
+                    <table class="table w-full" id="paauthenticated_channels2">
+                      <thead class="table-light">
+                        <tr>
+                          <th>ID</th>
+                          <th>ID-ja kanalit</th>
+                          <th>Emri i kanalit</th>
+                          <th>Emri i regjistruar si klient</th>
+                          <th>Statusi i monetizimit</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <?php
+                        // Modified SQL query to select channels in 'klientet' that do not have a corresponding 'channel_id' in 'refresh_tokens'
+                        $sql = "SELECT k.* 
+            FROM klientet k
+            LEFT JOIN refresh_tokens rt ON k.youtube = rt.channel_id
+            WHERE rt.channel_id IS NULL AND k.monetizuar = 'PO'
+            ORDER BY k.id DESC";
+                        $result = $conn->query($sql);
+                        while ($row = $result->fetch_assoc()) {
+                        ?>
+                          <tr>
+                            <td><?php echo $row['id']; ?></td>
+                            <td><?php echo $row['youtube']; ?></td>
+                            <td><?php echo $row['emri']; ?></td>
+                            <td>
+                              <span class="badge bg-warning rounded-pill">
+                                Klienti nuk ka regjistrim për kanalin e YouTube. Kontrolloni.
+                              </span>
+                            </td>
+                            <td>
+                              <?php echo $row['monetizuar']; ?>
+                            </td>
+                          </tr>
+                        <?php
+                        }
+                        ?>
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               </div>
             </div>
@@ -269,6 +324,53 @@ $non_monetized_percentage = ($non_monetized_clients / $total_clients) * 100;
       dom: "<'row'<'col-md-3'l><'col-md-6'B><'col-md-3'f>>" +
         "<'row'<'col-md-12'tr>>" +
         "<'row'<'col-md-6'i><'col-md-6'p>>",
+      buttons: [{
+        extend: 'pdfHtml5',
+        text: '<i class="fi fi-rr-file-pdf fa-lg"></i>&nbsp;&nbsp; PDF',
+        titleAttr: 'Eksporto tabelen ne formatin PDF',
+        className: 'btn btn-light btn-sm bg-light border me-2 rounded-5',
+      }, {
+        extend: 'excelHtml5',
+        text: '<i class="fi fi-rr-file-excel fa-lg"></i>&nbsp;&nbsp; Excel',
+        titleAttr: 'Eksporto tabelen ne formatin CSV',
+        className: 'btn btn-light btn-sm bg-light border me-2 rounded-5'
+      }, {
+        extend: "copyHtml5",
+        text: '<i class="fi fi-rr-copy fa-lg"></i>&nbsp;&nbsp; Kopjo',
+        titleAttr: "Kopjo tabelen ne formatin Clipboard",
+        className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
+      }, {
+        extend: 'print',
+        text: '<i class="fi fi-rr-print fa-lg"></i>&nbsp;&nbsp; Printo',
+        titleAttr: 'Printo tabelën',
+        className: 'btn btn-light btn-sm bg-light border me-2 rounded-5'
+      }, ],
+      initComplete: function() {
+        var btns = $(".dt-buttons");
+        btns.addClass("").removeClass("dt-buttons btn-group");
+        var lengthSelect = $("div.dataTables_length select");
+        lengthSelect.addClass("form-select");
+        lengthSelect.css({
+          width: "auto",
+          margin: "0 8px",
+          padding: "0.375rem 1.75rem 0.375rem 0.75rem",
+          lineHeight: "1.5",
+          border: "1px solid #ced4da",
+          borderRadius: "0.25rem",
+        });
+      },
+      fixedHeader: true,
+      language: {
+        url: "https://cdn.datatables.net/plug-ins/1.13.1/i18n/sq.json",
+      },
+      stripeClasses: ['stripe-color'],
+      "ordering": false
+    });
+    $('#paauthenticated_channels2').DataTable({
+      dom: "<'row'<'col-md-3'l><'col-md-6'B><'col-md-3'f>>" +
+        "<'row'<'col-md-12'tr>>" +
+        "<'row'<'col-md-6'i><'col-md-6'p>>",    lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
+
       buttons: [{
         extend: 'pdfHtml5',
         text: '<i class="fi fi-rr-file-pdf fa-lg"></i>&nbsp;&nbsp; PDF',
@@ -706,6 +808,7 @@ $non_monetized_percentage = ($non_monetized_clients / $total_clients) * 100;
       stripeClasses: ['stripe-color'],
     });
   });
+
   function confirmActivation(clientId) {
     Swal.fire({
       title: 'A jeni i sigurt?',
@@ -741,6 +844,7 @@ $non_monetized_percentage = ($non_monetized_clients / $total_clients) * 100;
       }
     });
   }
+
   function konfirmoDeaktivizimin(clientId) {
     Swal.fire({
       title: 'A jeni i sigurt?',

@@ -465,6 +465,9 @@ $contractStartDate = mysqli_fetch_array($conn->query("SELECT * FROM kontrata_gje
                       <label class="form-label"><i class="ti-instagram"></i> Instagram URL:</label>
                       <input type="url" name="ig" class="form-control rounded-5 border border-2" placeholder="https://instagram.com/...." value="<?php echo $editcl['ig']; ?>">
                     </div>
+                    <div class="col">
+                      <a href="perqindjet_klient.php?id=<?php echo $editcl['id']; ?>" class="btn btn-primary mt-4">Ndrysho përqindjet</a>
+                    </div>
                   </div>
                 </div>
               </div>

@@ -1,6 +1,6 @@
 <?php
 ob_start();
-ini_set('max_execution_time', 150);
+ini_set('max_execution_time', 800);
 include 'partials/header.php';
 include 'modalPayment.php';
 include 'loan_modal.php';
@@ -148,8 +148,8 @@ function getChannelDetails($channelId, $apiKey)
   $url = "https://www.googleapis.com/youtube/v3/channels?part=snippet&id=$channelId&key=$apiKey";
   $response = file_get_contents($url);
   $data = json_decode($response, true);
-  if (isset($data['items'][0]['snippet']['thumbnails']['high']['url'])) {
-    return $data['items'][0]['snippet']['thumbnails']['high']['url'];
+  if (isset($data['items'][0]['snippet']['thumbnails']['default']['url'])) {
+    return $data['items'][0]['snippet']['thumbnails']['default']['url'];
   }
   return null;
 }
@@ -179,6 +179,7 @@ function getChannelDetails($channelId, $apiKey)
       white-space: normal;
       cursor: pointer;
     }
+
     .custom-dot {
       width: 10px;
       height: 10px;
@@ -189,6 +190,7 @@ function getChannelDetails($channelId, $apiKey)
       white-space: normal;
       cursor: pointer;
     }
+
     .custom-tooltiptext {
       visibility: hidden;
       width: 80px;
@@ -207,17 +209,20 @@ function getChannelDetails($channelId, $apiKey)
       white-space: normal;
       cursor: pointer;
     }
+
     .custom-tooltip:hover .custom-tooltiptext {
       cursor: pointer;
       visibility: visible;
       white-space: normal;
       opacity: 0.9;
     }
+
     @media (max-width: 767px) {
       .breadcrumb-item a {
         font-size: 14px;
         /* Adjust the font size as needed */
       }
+
       .input-custom-css {
         font-size: 12px;
         /* Adjust the font size as needed */
@@ -230,24 +235,29 @@ function getChannelDetails($channelId, $apiKey)
         text-align: center;
         /* Center text within buttons */
       }
+
       .input-custom-css i {
         display: none;
         /* Hide icons on mobile */
       }
+
       .nav-pills {
         display: flex;
         justify-content: center;
         flex-wrap: wrap;
       }
+
       .nav-item {
         text-align: center;
         margin: 0 5px;
         /* Adjust margin as needed */
       }
+
       .table-sm th,
       .table-sm td {
         padding: 0.25rem;
       }
+
       .text-sm {
         font-size: 12px;
       }
@@ -350,19 +360,84 @@ function getChannelDetails($channelId, $apiKey)
                       </div>
                       <div class="mb-3">
                         <label for="percentage" class="form-label">Përqindja:</label>
-                        <input type="text" class="form-control rounded-5 shadow-sm py-3" id="percentage" name="percentage" value="" required>
+                        <input type="text" class="form-control rounded-5 shadow-none py-3" id="percentage" name="percentage" value="" required>
                       </div>
                       <div class="mb-3 row">
                         <div class="col">
                           <label for="total_amount" class="form-label">Shuma e përgjithshme:</label>
+                          <div class="input-group mb-3" style="border-radius: 15px;">
+                            <span class="input-group-text bg-white border-1 me-2" style="border-radius: 10px;">$</span>
+                            <input type="text" class="form-control rounded-5 shadow-none py-3" aria-label="Amount (to the nearest dollar)" id="total_amount" name="total_amount" required>
+                          </div>
+                        </div>
+                        <!-- <div class="col">
+                          <label for="total_amount" class="form-label">Shuma e përgjithshme:</label>
                           <input type="text" class="form-control rounded-5 shadow-sm py-3" id="total_amount" name="total_amount" required>
+                        </div> -->
+                        <div class="col">
+                          <label for="total_amount_after_percentage" class="form-label">Shuma e përgjithshme pas përqindjes:</label>
+                          <div class="input-group mb-3" style="border-radius: 15px;">
+                            <span class="input-group-text bg-white border-1 me-2" style="border-radius: 10px;">$</span>
+                            <input type="text" class="form-control rounded-5 shadow-none py-3" aria-label="Amount (to the nearest dollar)" id="total_amount_after_percentage" name="total_amount_after_percentage" required>
+                          </div>
+                        </div>
+                        <!-- <div class="col">
+                          <label for="total_amount_after_percentage" class="form-label">Shuma e përgjithshme pas përqindjes:</label>
+                          <input type="text" class="form-control rounded-5 shadow-sm py-3" id="total_amount_after_percentage" name="total_amount_after_percentage" required>
+                        </div> -->
+                      </div>
+                      <div class="mb-3 row">
+                        <div class="col">
+                          <label for="total_amount_in_eur" class="form-label">Shuma e përgjithshme - EUR:</label>
+                          <div class="input-group mb-3" style="border-radius: 15px;">
+                            <span class="input-group-text bg-white border-1 me-2" style="border-radius: 10px;">€</span>
+                            <input type="text" class="form-control rounded-5 shadow-none py-3" aria-label="Amount (to the nearest dollar)" id="total_amount_in_eur" name="total_amount_in_eur" required>
+                          </div>
                         </div>
                         <div class="col">
-                          <label for="total_amount_after_percentage" class="form-label">Shuma e përgjithshme pas
-                            përqindjes:</label>
-                          <input type="text" class="form-control rounded-5 shadow-sm py-3" id="total_amount_after_percentage" name="total_amount_after_percentage" required>
+                          <label for="total_amount_after_percentage_in_eur" class="form-label">Shuma e përgjithshme pas përqindjes - EUR:</label>
+                          <div class="input-group mb-3" style="border-radius: 15px;">
+                            <span class="input-group-text bg-white border-1 me-2" style="border-radius: 10px;">€</span>
+                            <input type="text" class="form-control rounded-5 shadow-none py-3" aria-label="Amount (to the nearest dollar)" id="total_amount_after_percentage_in_eur" name="total_amount_after_percentage_in_eur" required>
+                          </div>
                         </div>
                       </div>
+                      <script>
+                        // Function to fetch conversion rate from API and update the input field
+                        function convertToEUR(amount, outputId) {
+                          fetch("https://api.exconvert.com/convert?from=USD&to=EUR&amount=" + amount + "&access_key=7ac9d0d8-2c2a1729-0a51382b-b85cd112")
+                            .then(response => response.json())
+                            .then(data => {
+                              if (data.result && data.result.EUR) {
+                                document.getElementById(outputId).value = data.result.EUR.toFixed(2);
+                              } else {
+                                console.error('Invalid API response:', data);
+                              }
+                            })
+                            .catch(error => console.error('Error:', error));
+                        }
+                        // Function to calculate total amount after percentage
+                        function calculateAmountAfterPercentage() {
+                          var totalAmount = parseFloat(document.getElementById("total_amount").value);
+                          var percentage = parseFloat(document.getElementById("percentage").value);
+                          if (isNaN(totalAmount)) {
+                            alert("Please enter a valid total amount.");
+                            return;
+                          }
+                          if (isNaN(percentage)) {
+                            alert("Please enter a valid percentage.");
+                            return;
+                          }
+                          var amountAfterPercentage = totalAmount - percentage * totalAmount / 100;
+                          document.getElementById("total_amount_after_percentage").value = amountAfterPercentage.toFixed(2);
+                          // Convert both amounts to EUR
+                          convertToEUR(totalAmount, "total_amount_in_eur");
+                          convertToEUR(amountAfterPercentage, "total_amount_after_percentage_in_eur");
+                        }
+                        // Event listeners for input change
+                        document.getElementById("total_amount").addEventListener("input", calculateAmountAfterPercentage);
+                        document.getElementById("percentage").addEventListener("input", calculateAmountAfterPercentage);
+                      </script>
                       <div class="mb-3">
                         <label for="created_date" class="form-label">Data e krijimit të faturës:</label>
                         <input type="date" class="form-control rounded-5 shadow-sm py-3" id="created_date" name="created_date" value="<?php echo date('Y-m-d'); ?>" required>
@@ -512,13 +587,13 @@ function getChannelDetails($channelId, $apiKey)
                               <th style="font-size: 12px">Data</th>
                               <th style="font-size: 12px">Fitimi në dollar ( USD )</th>
                               <th style="font-size: 12px">Fitimi pas perqindjes ( USD )</th>
+                              <th style="font-size: 12px">Fitimi i konvertuar ( EUR )</th>
+                              <th style="font-size: 12px">Fitimi pas perqindjes ( EUR ) i konvertuar</th>
                               <th style="font-size: 12px">Data e krijimit</th>
                               <th style="font-size: 12px">Të dhenat e kanalit</th>
                               <th style="font-size: 12px">Statusi i faturës</th>
                               <th style="font-size: 12px">Veprim</th>
                               <th style="font-size: 12px">Input Check</th>
-                              <th style="font-size: 12px">Fitimi i konvertuar ( EUR )</th>
-                              <th style="font-size: 12px">Fitimi pas perqindjes ( EUR ) i konvertuar </th>
                             </tr>
                           </thead>
                           <tbody>
@@ -539,213 +614,124 @@ function getChannelDetails($channelId, $apiKey)
                                   $emri = $row['emri'];
                                   $perqindja = $row['perqindja'];
                                 }
-                              }
                             ?>
-                              <tr>
-                                <td>
-                                  <?php echo $counter++; ?>
-                                </td>
-                                <td>
-                                  <?php
-                                  /**
-                                   * Gjeneron një numër fature unik për t'u shfaqur në qelizën e tabelës.
-                                   * 
-                                   * Ky fragment i kodit gjeneron dinamikisht një numër fature unik duke kombinuar elemente të ndryshme:
-                                   * 
-                                   * - `$invoiceNumber`: Një identifikues unik i gjeneruar nga funksioni `uniqid()`.
-                                   *   Parametri `more_entropy` e vendosur në `true` siguron unicitet.
-                                   * 
-                                   * - `$counter - 1`: Variabla e numëruesit e shtuar për çdo rresht, tregon pozicionin e faturës.
-                                   * 
-                                   * - `strtoupper(preg_replace('/[^A-Z]/', '', $tokenInfo['channel_name']))`:
-                                   *   Konverton emrin e kanalit në shkronja të mëdha dhe heq karakteret jo alfabetike, siguruar konsistencën.
-                                   * 
-                                   * Numri fature rezultues shfaqet brenda qelizës së tabelës për të identifikuar në mënyrë unike çdo rresht.
-                                   * 
-                                   * Për shembull, nëse `$invoiceNumber` është "230420241158481SR", kjo do të rezultonte në një string të tillë për shfaqje: 
-                                   * "230420241158481SR" në qelizën e tabelës.
-                                   */
-                                  echo $invoiceNumber . ($counter - 1) . strtoupper(preg_replace('/[^A-Z]/', '', $tokenInfo['channel_name']));
-                                  ?>
-                                </td>
-                                <td>
-                                  <?php
-                                  // Put in the session the  id
-                                  $_SESSION['id'] = $id;
-                                  echo $id ?>
-                                </td>
-                                <td>
-                                  <?php echo $_SESSION['selectedDate'] ?>
-                                </td>
-                                <?php
-                                $client = new Google_Client();
-                                $client->setClientId('84339742200-g674o1df674m94a09tppcufciavp0bo1.apps.googleusercontent.com');
-                                $client->setClientSecret('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');
-                                $client->refreshToken($tokenInfo['token']);
-                                $client->addScope([
-                                  'https://www.googleapis.com/auth/youtube',
-                                  'https://www.googleapis.com/auth/youtube.readonly',
-                                  'https://www.googleapis.com/auth/youtubepartner',
-                                  'https://www.googleapis.com/auth/yt-analytics-monetary.readonly',
-                                  'https://www.googleapis.com/auth/yt-analytics.readonly'
-                                ]);
-                                $youtubeAnalytics = new Google\Service\YoutubeAnalytics($client);
-                                // Get the created date for that channel in YouTube using tokenInfo channel id
-                                $params = [
-                                  'ids' => 'channel==' . $tokenInfo['channel_id'],
-                                  'currency' => 'USD',
-                                  'startDate' => $startDate,
-                                  'endDate' => $endDate,
-                                  'metrics' => 'estimatedRevenue'
-                                ];
-                                $response = $youtubeAnalytics->reports->query($params);
-                                $row = $response->getRows()[0];
-                                // Initialize a variable to store the value
-                                $storedValue = '';
-                                // Display only the numeric values (without column headers)
-                                foreach ($row as $index => $value) {
-                                  // Append the value to the storedValue variable
-                                  $storedValue .= $value . '<br>';
-                                }
-                                // Echo the storedValue outside of the loop
-                                echo '<td>' . $storedValue . '</td>';
-                                ?>
-                                <td>
-                                  <?php
-                                  $difference = $value - ($value * ($perqindja / 100));
-                                  echo number_format($difference, 2);
-                                  ?>
-                                </td>
-                                <td>
-                                  <?php
-                                  // Get the actual date
-                                  echo date('Y-m-d'); ?>
-                                </td>
-                                <td>
-                                  <?php // Get the cover art URL
-                                  $coverArtUrl = getChannelDetails($tokenInfo['channel_id'], 'AIzaSyD56A1QU67vIkP1CYSDX2sYona2nxOJ9R0');
-                                  // Display cover art image
-                                  if ($coverArtUrl) {
-                                    echo '<img src="' . $coverArtUrl . '" class="figure-img img-fluid rounded" alt="Channel Cover">';
-                                    echo '<br>';
-                                    echo $tokenInfo['channel_name'];
-                                  }
-                                  ?>
-                                </td>
-                                <td>
-                                  <?php
-                                  $selectedDate = $_SESSION['selectedDate']; // Store the session variable in a separate variable
-                                  $difference = $value - ($value * ($perqindja / 100));
-                                  $sql = "SELECT * FROM invoices WHERE customer_id = '$_SESSION[id]' AND item = '$selectedDate'";
-                                  $result = mysqli_query($conn, $sql);
-                                  if ($row = mysqli_fetch_assoc($result)) {
-                                    $item = $row['item'];
-                                    // echo $item . '<br>';
-                                    // Display an icon about like check
-                                    echo '<p> Kjo faturë ekziston</p><br>';
-                                    echo '<i class="fi fi-rr-check text-success"></i>';
-                                  } else {
-                                    // Display an icon about like x
-                                    echo '<p> Kjo faturë nuk ekziston</p><br>';
-                                    echo '<i class="fa-solid fa-x"></i>';
-                                  }
-                                  ?>
-                                </td>
-                                <td>
-                                  <a class="btn btn-danger text-white btn-sm rounded-5 px-2 py-1 delete-button" data-channelid="<?php echo $tokenInfo['channel_id'] ?>">
-                                    <i class="fi fi-rr-trash"></i>
-                                  </a>
-                                </td>
-                                <td>
-                                  <input type="checkbox" name="selected_channels[]" value="<?php echo $tokenInfo['channel_id'] ?>">
-                                </td>
-                                <td>
-                                  <?php
-                                  // Initialize cURL
-                                  $curl = curl_init();
-                                  // Set cURL options
-                                  curl_setopt_array($curl, [
-                                    CURLOPT_URL => "https://currency-conversion-and-exchange-rates.p.rapidapi.com/convert?from=USD&to=EUR&amount=" . $value,
-                                    CURLOPT_RETURNTRANSFER => true,
-                                    CURLOPT_ENCODING => "",
-                                    CURLOPT_MAXREDIRS => 10,
-                                    CURLOPT_TIMEOUT => 30,
-                                    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                                    CURLOPT_CUSTOMREQUEST => "GET",
-                                    CURLOPT_HTTPHEADER => [
-                                      "x-rapidapi-host: currency-conversion-and-exchange-rates.p.rapidapi.com",
-                                      "x-rapidapi-key: 335200c4afmsh64cfbbf7fdf4cf2p1aae94jsn05a3bad585de"
-                                    ],
-                                  ]);
-                                  // Execute the cURL request
-                                  $response = curl_exec($curl);
-                                  $err = curl_error($curl);
-                                  // Close the cURL session
-                                  curl_close($curl);
-                                  // Handle errors and response
-                                  if ($err) {
-                                    echo "cURL Error #:" . $err;
-                                  } else {
-                                    // Decode the JSON response
-                                    $response_data = json_decode($response, true);
-                                    // Check if the response contains the expected data
-                                    if (isset($response_data['result'])) {
-                                      // Extract and display the conversion result
-                                      $converted_amount = $response_data['result'];
-                                      echo $converted_amount;
+                                <tr>
+                                  <td><?php echo $counter++; ?></td>
+                                  <td><?php echo $invoiceNumber . ($counter - 1) . strtoupper(preg_replace('/[^A-Z]/', '', $tokenInfo['channel_name'])); ?></td>
+                                  <td><?php $_SESSION['id'] = $id;
+                                      echo $id; ?></td>
+                                  <td><?php echo $_SESSION['selectedDate']; ?></td>
+                                  <td>
+                                    <?php
+                                    $client = new Google_Client();
+                                    $client->setClientId('84339742200-g674o1df674m94a09tppcufciavp0bo1.apps.googleusercontent.com');
+                                    $client->setClientSecret('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');
+                                    $client->refreshToken($tokenInfo['token']);
+                                    $client->addScope([
+                                      'https://www.googleapis.com/auth/youtube',
+                                      'https://www.googleapis.com/auth/youtube.readonly',
+                                      'https://www.googleapis.com/auth/youtubepartner',
+                                      'https://www.googleapis.com/auth/yt-analytics-monetary.readonly',
+                                      'https://www.googleapis.com/auth/yt-analytics.readonly'
+                                    ]);
+                                    $youtubeAnalytics = new Google\Service\YouTubeAnalytics($client);
+                                    $params = [
+                                      'ids' => 'channel==' . $tokenInfo['channel_id'],
+                                      'currency' => 'USD',
+                                      'startDate' => $startDate,
+                                      'endDate' => $endDate,
+                                      'metrics' => 'estimatedRevenue'
+                                    ];
+                                    $response = $youtubeAnalytics->reports->query($params);
+                                    $row = $response->getRows()[0];
+                                    $storedValue = $row[0];
+                                    echo number_format($storedValue, 2);
+                                    ?>
+                                  </td>
+                                  <td>
+                                    <?php
+                                    $difference = $storedValue - ($storedValue * ($perqindja / 100));
+                                    echo number_format($difference, 2);
+                                    ?>
+                                  </td>
+                                  <td>
+                                    <?php
+                                    if (isset($storedValue) && is_numeric($storedValue)) {
+                                      $apiUrlForConversion = "https://api.exconvert.com/convert?from=USD&to=EUR&amount=" . $storedValue . "&access_key=7ac9d0d8-2c2a1729-0a51382b-b85cd112";
+                                      $response = @file_get_contents($apiUrlForConversion);
+                                      if ($response === FALSE) {
+                                        echo "API request failed";
+                                      } else {
+                                        $data = json_decode($response, true);
+                                        if (json_last_error() === JSON_ERROR_NONE && isset($data['result']['EUR'])) {
+                                          $convertedAmount = $data['result']['EUR'];
+                                          echo htmlspecialchars(number_format($convertedAmount, 2));
+                                        } else {
+                                          echo "Failed to retrieve conversion rate";
+                                        }
+                                      }
                                     } else {
-                                      // Handle error in response
-                                      echo "Error: Unable to get the conversion result.";
+                                      echo "Invalid stored value";
                                     }
-                                  }
-                                  ?>
-                                </td>
-                                <td>
-                                  <?php
-                                  // Converto now in euro 
-                                  // Initialize cURL
-                                  $curl = curl_init();
-                                  // Set cURL options
-                                  curl_setopt_array($curl, [
-                                    CURLOPT_URL => "https://currency-conversion-and-exchange-rates.p.rapidapi.com/convert?from=USD&to=EUR&amount=" . $difference,
-                                    CURLOPT_RETURNTRANSFER => true,
-                                    CURLOPT_ENCODING => "",
-                                    CURLOPT_MAXREDIRS => 10,
-                                    CURLOPT_TIMEOUT => 30,
-                                    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                                    CURLOPT_CUSTOMREQUEST => "GET",
-                                    CURLOPT_HTTPHEADER => [
-                                      "x-rapidapi-host: currency-conversion-and-exchange-rates.p.rapidapi.com",
-                                      "x-rapidapi-key: 335200c4afmsh64cfbbf7fdf4cf2p1aae94jsn05a3bad585de"
-                                    ],
-                                  ]);
-                                  // Execute the cURL request
-                                  $response = curl_exec($curl);
-                                  $err = curl_error($curl);
-                                  // Close the cURL session
-                                  curl_close($curl);
-                                  // Handle errors and response
-                                  if ($err) {
-                                    echo "cURL Error #:" . $err;
-                                  } else {
-                                    // Decode the JSON response
-                                    $response_data = json_decode($response, true);
-                                    // Check if the response contains the expected data
-                                    if (isset($response_data['result'])) {
-                                      // Extract and display the conversion result
-                                      $converted_amount = $response_data['result'];
-                                      // echo $converted_amount;
-                                      // Display 2 decimal places
-                                      echo number_format($converted_amount, 2);
+                                    ?>
+                                  </td>
+                                  <td>
+                                    <?php
+                                    if (isset($difference) && is_numeric($difference)) {
+                                      $apiUrlForConversion = "https://api.exconvert.com/convert?from=USD&to=EUR&amount=" . $difference . "&access_key=7ac9d0d8-2c2a1729-0a51382b-b85cd112";
+                                      $response = @file_get_contents($apiUrlForConversion);
+                                      if ($response === FALSE) {
+                                        echo "API request failed";
+                                      } else {
+                                        $data = json_decode($response, true);
+                                        if (json_last_error() === JSON_ERROR_NONE && isset($data['result']['EUR'])) {
+                                          $convertedAmount = $data['result']['EUR'];
+                                          echo htmlspecialchars(number_format($convertedAmount, 2));
+                                        } else {
+                                          echo "Failed to retrieve conversion rate";
+                                        }
+                                      }
                                     } else {
-                                      // Handle error in response
-                                      echo "Error: Unable to get the conversion result.";
+                                      echo "Invalid stored value";
                                     }
-                                  }
-                                  ?>
-                                </td>
-                              </tr>
-                            <?php } ?>
+                                    ?>
+                                  </td>
+                                  <td><?php echo date('Y-m-d'); ?></td>
+                                  <td>
+                                    <?php
+                                    $coverArtUrl = getChannelDetails($tokenInfo['channel_id'], 'AIzaSyD56A1QU67vIkP1CYSDX2sYona2nxOJ9R0');
+                                    if ($coverArtUrl) {
+                                      echo '<img src="' . $coverArtUrl . '" class="figure-img img-fluid rounded" alt="Channel Cover"><br>';
+                                      echo $tokenInfo['channel_name'];
+                                    }
+                                    ?>
+                                  </td>
+                                  <td>
+                                    <?php
+                                    $selectedDate = $_SESSION['selectedDate'];
+                                    $sql = "SELECT * FROM invoices WHERE customer_id = '$_SESSION[id]' AND item = '$selectedDate'";
+                                    $result = mysqli_query($conn, $sql);
+                                    if ($row = mysqli_fetch_assoc($result)) {
+                                      echo '<p> Kjo faturë ekziston</p><br><i class="fi fi-rr-check text-success"></i>';
+                                    } else {
+                                      echo '<p> Kjo faturë nuk ekziston</p><br><i class="fa-solid fa-x"></i>';
+                                    }
+                                    ?>
+                                  </td>
+                                  <td>
+                                    <a class="btn btn-danger text-white btn-sm rounded-5 px-2 py-1 delete-button" data-channelid="<?php echo $tokenInfo['channel_id']; ?>">
+                                      <i class="fi fi-rr-trash"></i>
+                                    </a>
+                                  </td>
+                                  <td>
+                                    <input type="checkbox" name="selected_channels[]" value="<?php echo $tokenInfo['channel_id']; ?>">
+                                  </td>
+
+                                </tr>
+                            <?php
+                              }
+                            }
+                            ?>
                           </tbody>
                         </table>
                       </div>
@@ -895,6 +881,7 @@ function getChannelDetails($channelId, $apiKey)
     var totalAmountAfterPercentage = totalAmount - (totalAmount * (percentage / 100));
     document.getElementById('total_amount_after_percentage').value = totalAmountAfterPercentage.toFixed(2);
   });
+
   function getCustomerName(customerId) {
     var customerName = '';
     $.ajax({
@@ -928,13 +915,9 @@ function getChannelDetails($channelId, $apiKey)
       dom: "<'row'<'col-md-3'l><'col-md-6'B><'col-md-3'f>>" +
         "<'row'<'col-md-12'tr>>" +
         "<'row'<'col-md-6'><'col-md-6'p>>",
-      ajax: {
-        url: 'get_invoices.php',
-        type: 'POST',
-        "dataFilter": function(data) {
-          console.log('DataTables Data:', data);
-          return data;
-        }
+      "ajax": {
+        "url": "get_invoices.php",
+        "type": "POST",
       },
       initComplete: function() {
         var btns = $(".dt-buttons");
@@ -1049,7 +1032,7 @@ function getChannelDetails($channelId, $apiKey)
           }
         },
         {
-          data: 'id',
+          data: 'id'
         },
         {
           data: 'customer_name',
@@ -1066,11 +1049,11 @@ function getChannelDetails($channelId, $apiKey)
             } else {
               return '<p style="white-space: normal;">' + data + '</p>';
             }
-          },
+          }
         },
         {
           data: 'item',
-          render: function(data, type, row, meta) {
+          render: function(data, type, row) {
             var stateOfInvoice = row.state_of_invoice;
             var badgeClass = '';
             if (stateOfInvoice === 'Parregullt') {
@@ -1088,42 +1071,97 @@ function getChannelDetails($channelId, $apiKey)
           }
         },
         {
-          "data": null,
-          "render": function(data, type, row) {
-            return '<table style="width:100%; font-size:12px;">' +
+          data: null,
+          render: function(data, type, row) {
+            // Generate unique IDs based on the row ID
+            const conversionCellId = 'converted-amount-' + row.id;
+            // Base HTML for the table with placeholders
+            let tableHTML = '<table style="width:100%; font-size:12px;">' +
               '<tr>' +
               '<td style="text-align:left;">Shuma e përgjitshme:</td>' +
-              '<td style="text-align:right;">' + row.total_amount + '</td>' +
+              '<td style="text-align:right;">' + row.total_amount + ' USD</td>' +
               '</tr>' +
               '<tr>' +
               '<td style="text-align:left;">Shuma e për. % :</td>' +
-              '<td style="text-align:right;">' + row.total_amount_after_percentage + '</td>' +
-              '</tr>' +
-              '</table>';
+              '<td style="text-align:right;">' + row.total_amount_after_percentage + ' USD</td>' +
+              '</tr>';
+            if (row.total_amount_in_eur) {
+              tableHTML += '<tr>' +
+                '<td style="text-align:left;">Shuma e përgjitshme :</td>' +
+                '<td style="text-align:right;">' + row.total_amount_in_eur + ' EUR</td>' +
+                '</tr>';
+            }
+            if (row.total_amount_in_eur_after_percentage) {
+              tableHTML += '<tr>' +
+                '<td style="text-align:left;">Shuma e për. % :</td>' +
+                '<td style="text-align:right;">' + row.total_amount_in_eur_after_percentage + ' EUR</td>' +
+                '</tr>';
+            }
+            // Fetch the converted amount asynchronously
+            const url = 'convert_currency.php?amount=' + row.total_amount_after_percentage;
+            fetch(url)
+              .then(response => response.json())
+              .then(result => {
+                if (result.error) {
+                  document.getElementById(conversionCellId).innerText = 'Error: ' + result.error;
+                } else if (result.result && result.result.EUR) {
+                  document.getElementById(conversionCellId).innerText = result.result.EUR.toFixed(2);
+                } else {
+                  document.getElementById(conversionCellId).innerText = 'Error fetching rate';
+                }
+              })
+              .catch(error => {
+                // console.error('Fetch error:', error);
+                // document.getElementById(conversionCellId).innerText = 'Error fetching rate';
+              });
+            return tableHTML;
           }
         },
         {
-          data: 'paid_amount'
+          // HERE is paided amount
+          data: 'paid_amount',
+          render: function(data, type, row) {
+            return data.toLocaleString(undefined, {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2
+            }) + ' €';
+          }
         },
         {
           data: 'remaining_amount',
           render: function(data, type, row) {
-            const remainingAmount = row.total_amount_after_percentage - row.paid_amount;
-            return remainingAmount.toFixed(2);
+            var remainingAmount;
+            if (row.total_amount_in_eur_after_percentage !== null && row.total_amount_in_eur_after_percentage !== undefined) {
+              remainingAmount = row.total_amount_in_eur_after_percentage - row.paid_amount;
+              remainingAmount = remainingAmount.toFixed(2) + ' €';
+            } else {
+              remainingAmount = row.total_amount_after_percentage - row.paid_amount;
+              remainingAmount = remainingAmount.toFixed(2) + ' $';
+            }
+            return remainingAmount.toLocaleString(undefined, {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2
+            });
           }
         },
         {
           data: 'actions',
           render: function(data, type, row) {
+            // Determine the total amount to use
+            var totalAmount = row.total_amount_in_eur_after_percentage !== null && row.total_amount_in_eur_after_percentage !== undefined ?
+              row.total_amount_in_eur_after_percentage :
+              row.total_amount_after_percentage;
+            // Calculate the remaining amount
+            var remainingAmount = totalAmount - row.paid_amount;
             return '<div>' +
               '<a href="#" style="text-decoration:none;" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark open-payment-modal" ' +
               'data-id="' + row.id + '" ' +
               'data-invoice-number="' + row.invoice_number + '" ' +
               'data-customer-id="' + row.customer_id + '" ' +
               'data-item="' + row.item + '" ' +
-              'data-total-amount="' + row.total_amount_after_percentage + '" ' +
+              'data-total-amount="' + totalAmount + '" ' +
               'data-paid-amount="' + row.paid_amount + '" ' +
-              'data-remaining-amount="' + (row.total_amount_after_percentage - row.paid_amount) + '">' +
+              'data-remaining-amount="' + remainingAmount + '">' +
               '<i class="fi fi-rr-euro"></i> Paguaj</a>  ' +
               '<a target="_blank" style="text-decoration:none;" href="complete_invoice.php?id=' + row.id + '" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark">' +
               '<i class="fi fi-rr-edit"></i> Edito</a>' +
@@ -1147,9 +1185,6 @@ function getChannelDetails($channelId, $apiKey)
       ajax: {
         url: 'get_invoices_biznes.php',
         type: 'POST',
-        "dataFilter": function(data) {
-          return data;
-        }
       },
       initComplete: function() {
         var btns = $(".dt-buttons");
@@ -1264,7 +1299,7 @@ function getChannelDetails($channelId, $apiKey)
           }
         },
         {
-          data: 'id',
+          data: 'id'
         },
         {
           data: 'customer_name',
@@ -1281,23 +1316,20 @@ function getChannelDetails($channelId, $apiKey)
             } else {
               return '<p style="white-space: normal;">' + data + '</p>';
             }
-          },
+          }
         },
         {
           data: 'item',
-          render: function(data, type, row, meta) {
-            // Combine item and state_of_invoice information
+          render: function(data, type, row) {
             var stateOfInvoice = row.state_of_invoice;
             var badgeClass = '';
-            // Check the value and apply Bootstrap badge accordingly
             if (stateOfInvoice === 'Parregullt') {
               badgeClass = 'bg-danger';
             } else if (stateOfInvoice === 'Rregullt') {
               badgeClass = 'bg-success';
             }
-            // Combine item with state_of_invoice information
             var combinedData = '<div class="item-column">';
-            combinedData += data; // Append the original item data
+            combinedData += data;
             combinedData += '</div><br>';
             combinedData += '<div class="badge-column">';
             combinedData += '<span class="badge ' + badgeClass + ' mx-1 rounded-5">' + stateOfInvoice + '</span>';
@@ -1306,43 +1338,97 @@ function getChannelDetails($channelId, $apiKey)
           }
         },
         {
-          "data": null,
-          "render": function(data, type, row) {
-            // Concatenate 'total_amount' and 'total_amount_after_percentage' with HTML table formatting
-            return '<table style="width:100%; font-size:12px;">' +
+          data: null,
+          render: function(data, type, row) {
+            // Generate unique IDs based on the row ID
+            const conversionCellId = 'converted-amount-' + row.id;
+            // Base HTML for the table with placeholders
+            let tableHTML = '<table style="width:100%; font-size:12px;">' +
               '<tr>' +
               '<td style="text-align:left;">Shuma e përgjitshme:</td>' +
-              '<td style="text-align:right;">' + row.total_amount + '</td>' +
+              '<td style="text-align:right;">' + row.total_amount + ' USD</td>' +
               '</tr>' +
               '<tr>' +
               '<td style="text-align:left;">Shuma e për. % :</td>' +
-              '<td style="text-align:right;">' + row.total_amount_after_percentage + '</td>' +
-              '</tr>' +
-              '</table>';
+              '<td style="text-align:right;">' + row.total_amount_after_percentage + ' USD</td>' +
+              '</tr>';
+            if (row.total_amount_in_eur) {
+              tableHTML += '<tr>' +
+                '<td style="text-align:left;">Shuma e përgjitshme :</td>' +
+                '<td style="text-align:right;">' + row.total_amount_in_eur + ' EUR</td>' +
+                '</tr>';
+            }
+            if (row.total_amount_in_eur_after_percentage) {
+              tableHTML += '<tr>' +
+                '<td style="text-align:left;">Shuma e për. % :</td>' +
+                '<td style="text-align:right;">' + row.total_amount_in_eur_after_percentage + ' EUR</td>' +
+                '</tr>';
+            }
+            // Fetch the converted amount asynchronously
+            const url = 'convert_currency.php?amount=' + row.total_amount_after_percentage;
+            fetch(url)
+              .then(response => response.json())
+              .then(result => {
+                if (result.error) {
+                  document.getElementById(conversionCellId).innerText = 'Error: ' + result.error;
+                } else if (result.result && result.result.EUR) {
+                  document.getElementById(conversionCellId).innerText = result.result.EUR.toFixed(2);
+                } else {
+                  document.getElementById(conversionCellId).innerText = 'Error fetching rate';
+                }
+              })
+              .catch(error => {
+                // console.error('Fetch error:', error);
+                // document.getElementById(conversionCellId).innerText = 'Error fetching rate';
+              });
+            return tableHTML;
           }
         },
         {
-          data: 'paid_amount'
+          // HERE is paided amount
+          data: 'paid_amount',
+          render: function(data, type, row) {
+            return data.toLocaleString(undefined, {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2
+            }) + ' €';
+          }
         },
         {
           data: 'remaining_amount',
           render: function(data, type, row) {
-            const remainingAmount = row.total_amount_after_percentage - row.paid_amount;
-            return remainingAmount.toFixed(2);
+            var remainingAmount;
+            if (row.total_amount_in_eur_after_percentage !== null && row.total_amount_in_eur_after_percentage !== undefined) {
+              remainingAmount = row.total_amount_in_eur_after_percentage - row.paid_amount;
+              remainingAmount = remainingAmount.toFixed(2) + ' €';
+            } else {
+              remainingAmount = row.total_amount_after_percentage - row.paid_amount;
+              remainingAmount = remainingAmount.toFixed(2) + ' $';
+            }
+            return remainingAmount.toLocaleString(undefined, {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2
+            });
           }
         },
         {
           data: 'actions',
           render: function(data, type, row) {
+            // Determine the total amount to use
+            var totalAmount = row.total_amount_in_eur_after_percentage !== null && row.total_amount_in_eur_after_percentage !== undefined ?
+              row.total_amount_in_eur_after_percentage :
+              row.total_amount_after_percentage;
+            // Calculate the remaining amount
+            var remainingAmount = totalAmount - row.paid_amount;
             return '<div>' +
               '<a href="#" style="text-decoration:none;" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark open-payment-modal" ' +
               'data-id="' + row.id + '" ' +
               'data-invoice-number="' + row.invoice_number + '" ' +
               'data-customer-id="' + row.customer_id + '" ' +
               'data-item="' + row.item + '" ' +
-              'data-total-amount="' + row.total_amount_after_percentage + '" ' +
+              'data-total-amount="' + totalAmount + '" ' +
               'data-paid-amount="' + row.paid_amount + '" ' +
-              'data-remaining-amount="' + (row.total_amount_after_percentage - row.paid_amount) + '">' +
+              'data-remaining-amount="' + remainingAmount + '">' +
               '<i class="fi fi-rr-euro"></i> Paguaj</a>  ' +
               '<a target="_blank" style="text-decoration:none;" href="complete_invoice.php?id=' + row.id + '" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark">' +
               '<i class="fi fi-rr-edit"></i> Edito</a>' +
@@ -1364,6 +1450,8 @@ function getChannelDetails($channelId, $apiKey)
       var remainingAmount = $(this).data('remaining-amount');
       var customerName = getCustomerName(customerId);
       var titleOfInvoice = $(this).data('invoice-number');
+      // Clear any previous error messages
+      $('.error-message').text('');
       $('#invoiceId').val(id);
       $('#invoiceNumber').text(invoiceNumber);
       $('#customerName').text(customerName);
@@ -1371,10 +1459,10 @@ function getChannelDetails($channelId, $apiKey)
       $('#totalAmount').text(totalAmount);
       $('#paidAmount').text(paidAmount);
       $('#remainingAmount').text(remainingAmount.toFixed(2));
-      $('#paymentAmount').val(remainingAmount.toFixed(2));
       $('#paymentModal').modal('show');
       $("#customerId").text(customerId);
       $('#titleOfInvoice').text('Fatura: ' + titleOfInvoice);
+      $('#paymentAmount').val(remainingAmount); // Update paymentAmount with converted amoun
     });
     $('#paymentAmount').on('input', function() {
       var paymentAmount = parseFloat($(this).val());
@@ -1468,6 +1556,29 @@ function getChannelDetails($channelId, $apiKey)
         }
       });
     });
+
+    function createButtonConfig(extend, icon, text, titleAttr) {
+      return {
+        extend: extend,
+        text: '<i class="' + icon + ' fa-lg"></i>&nbsp;&nbsp; ' + text,
+        titleAttr: titleAttr,
+        className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
+        filename: "faturat_e_fshira_" + getCurrentDate(),
+        exportOptions: extend === 'excelHtml5' ? {
+          modifier: {
+            search: "applied",
+            order: "applied",
+            page: "all"
+          }
+        } : {}
+      };
+    }
+    var buttonsConfig = [
+      createButtonConfig("pdfHtml5", "fi fi-rr-file-pdf", "PDF", "Eksporto tabelen ne formatin PDF"),
+      createButtonConfig("copyHtml5", "fi fi-rr-copy", "Kopjo", "Kopjo tabelen ne formatin Clipboard"),
+      createButtonConfig("excelHtml5", "fi fi-rr-file-excel", "Excel", "Eksporto tabelen ne formatin Excel"),
+      createButtonConfig("print", "fi fi-rr-print", "Printo", "Printo tabel&euml;n")
+    ];
     var invoice_trash = $('#invoices_trash').DataTable({
       responsive: true,
       processing: true,
@@ -1475,42 +1586,7 @@ function getChannelDetails($channelId, $apiKey)
       dom: "<'row'<'col-md-3'l><'col-md-6'B><'col-md-3'f>>" +
         "<'row'<'col-md-12'tr>>" +
         "<'row'<'col-md-6'><'col-md-6'p>>",
-      buttons: [{
-          extend: "pdfHtml5",
-          text: '<i class="fi fi-rr-file-pdf fa-lg"></i>&nbsp;&nbsp; PDF',
-          titleAttr: "Eksporto tabelen ne formatin PDF",
-          className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
-          filename: "faturat_e_fshira_" + getCurrentDate() + ""
-        },
-        {
-          extend: "copyHtml5",
-          text: '<i class="fi fi-rr-copy fa-lg"></i>&nbsp;&nbsp; Kopjo',
-          titleAttr: "Kopjo tabelen ne formatin Clipboard",
-          className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
-          filename: "faturat_e_fshira_" + getCurrentDate() + ""
-        },
-        {
-          extend: "excelHtml5",
-          text: '<i class="fi fi-rr-file-excel fa-lg"></i>&nbsp;&nbsp; Excel',
-          titleAttr: "Eksporto tabelen ne formatin Excel",
-          className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
-          exportOptions: {
-            modifier: {
-              search: "applied",
-              order: "applied",
-              page: "all",
-            },
-          },
-          filename: "faturat_e_fshira_" + getCurrentDate() + ""
-        },
-        {
-          extend: "print",
-          text: '<i class="fi fi-rr-print fa-lg"></i>&nbsp;&nbsp; Printo',
-          titleAttr: "Printo tabel&euml;n",
-          className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
-          filename: "faturat_e_fshira_" + getCurrentDate() + ""
-        },
-      ],
+      buttons: buttonsConfig,
       ajax: {
         url: 'invoices_trash_server.php',
         type: 'POST',
@@ -1519,7 +1595,7 @@ function getChannelDetails($channelId, $apiKey)
           data: 'invoice_number'
         },
         {
-          data: 'client_name',
+          data: 'client_name'
         },
         {
           data: 'item'
@@ -1535,29 +1611,29 @@ function getChannelDetails($channelId, $apiKey)
         },
         {
           data: 'created_date'
-        },
+        }
       ],
       order: [],
       initComplete: function() {
         var btns = $(".dt-buttons");
         btns.addClass("").removeClass("dt-buttons btn-group");
         var lengthSelect = $("div.dataTables_length select");
-        lengthSelect.addClass("form-select");
-        lengthSelect.css({
+        lengthSelect.addClass("form-select").css({
           width: "auto",
           margin: "0 8px",
           padding: "0.375rem 1.75rem 0.375rem 0.75rem",
           lineHeight: "1.5",
           border: "1px solid #ced4da",
-          borderRadius: "0.25rem",
+          borderRadius: "0.25rem"
         });
       },
       fixedHeader: true,
       language: {
-        url: "https://cdn.datatables.net/plug-ins/1.13.1/i18n/sq.json",
+        url: "https://cdn.datatables.net/plug-ins/1.13.1/i18n/sq.json"
       },
       stripeClasses: ['stripe-color']
     });
+
     function getCurrentDate() {
       var today = new Date();
       var dd = String(today.getDate()).padStart(2, '0');
@@ -1615,4 +1691,5 @@ function getChannelDetails($channelId, $apiKey)
 <script src="states.js"></script>
 <?php include 'partials/footer.php' ?>
 </body>
+
 </html>

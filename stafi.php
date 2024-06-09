@@ -145,7 +145,8 @@
                                           'besmirakolgeci1@gmail.com',
                                           'egjini17@gmail.com',
                                           'bareshafinance@gmail.com',
-                                          'gjinienis148@gmail.com'
+                                          'gjinienis148@gmail.com',
+                                          'emrushavdyli9@gmail.com',
                                         );
                                         // Check if user's email exists in the allowed list
                                         if (isset($user_info['email']) && in_array($user_info['email'], $allowedGmailEmails)) {

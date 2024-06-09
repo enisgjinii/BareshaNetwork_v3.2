@@ -22,7 +22,7 @@ foreach ($valuesArray as $valueString) {
     $date = $values[5];
 
     // Perform the database insertion (replace with your actual database table and columns)
-    $sql = "INSERT INTO invoices (invoice_number, customer_id, item, total_amount, total_amount_after_percentage,created_date) VALUES ('$invoiceNumber', '$customerId', '$item', '$totalAmount', '$totalAmountAfterPercentage', '$date')";
+    $sql = "INSERT INTO invoices (invoice_number, customer_id, item, total_amount, total_amount_after_percentage,created_date,total_amount_in_eur,total_amount_in_eur_after_percentage) VALUES ('$invoiceNumber', '$customerId', '$item', '$totalAmount', '$totalAmountAfterPercentage', '$date', '$totalAmountAfterPercentage', '$totalAmountAfterPercentage')";
 
     if ($conn->query($sql) !== TRUE) {
         echo "Error inserting data: " . $conn->error;

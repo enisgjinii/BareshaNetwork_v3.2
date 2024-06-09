@@ -279,36 +279,7 @@ if ($result->num_rows > -1) {
                         $percentageResult = $conn->query($percentageQuery);
                         $percentageRow = $percentageResult->fetch_assoc();
                         $percentage = $percentageRow['perqindja'];
-                        $totalInUsd = $row['total_amount'];
-
-                        // Initialize cURL for currency conversion
-                        $curl = curl_init();
-                        curl_setopt_array($curl, [
-                            CURLOPT_URL => "https://currency-conversion-and-exchange-rates.p.rapidapi.com/convert?from=USD&to=EUR&amount=" . $totalInUsd,
-                            CURLOPT_RETURNTRANSFER => true,
-                            CURLOPT_ENCODING => "",
-                            CURLOPT_MAXREDIRS => 10,
-                            CURLOPT_TIMEOUT => 30,
-                            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                            CURLOPT_CUSTOMREQUEST => "GET",
-                            CURLOPT_HTTPHEADER => [
-                                "x-rapidapi-host: currency-conversion-and-exchange-rates.p.rapidapi.com",
-                                "x-rapidapi-key: 335200c4afmsh64cfbbf7fdf4cf2p1aae94jsn05a3bad585de"
-                            ],
-                        ]);
-                        $response = curl_exec($curl);
-                        $err = curl_error($curl);
-                        curl_close($curl);
-
-                        // Handle cURL response
-                        if ($err) {
-                            echo "cURL Error #:" . $err;
-                            $converted_amount = "Error";
-                        } else {
-                            $response_data = json_decode($response, true);
-                            $converted_amount = isset($response_data['result']) ? $response_data['result'] : "Error";
-                        }
-
+                        $totalInUsd = number_format($row['total_amount'], 2, '.', '');
                         // Calculate remaining amount after percentage
                         $remains = $row['total_amount'] - $row['total_amount_after_percentage'];
 
@@ -316,49 +287,19 @@ if ($result->num_rows > -1) {
                         echo "<tr>";
                         echo "<td>{$row['id']}</td>";
                         echo "<td>{$row['item']}</td>";
-                        echo "<td>{$row['total_amount']}</td>";
-                        echo "<td>{$converted_amount}</td>";
-                        echo "<td>{$remains}</td>";
-
-                        // Accumulate the total amount for another conversion
-                        $totalAmount += $row['total_amount_after_percentage'];
+                        echo "<td>" . number_format($row['total_amount'], 2) . "</td>";
+                        echo "<td>{$row['total_amount_in_eur']}</td>";
+                        echo "<td>" . number_format($remains, 2) . "</td>";
+                        echo "<td>{$row['total_amount_in_eur_after_percentage']}</td><td>{$row['total_amount_in_eur_after_percentage']}</td></tr>";
                     }
 
-                    // Final conversion for the accumulated total amount
-                    $curl = curl_init();
-                    curl_setopt_array($curl, [
-                        CURLOPT_URL => "https://currency-conversion-and-exchange-rates.p.rapidapi.com/convert?from=USD&to=EUR&amount=" . $totalAmount,
-                        CURLOPT_RETURNTRANSFER => true,
-                        CURLOPT_ENCODING => "",
-                        CURLOPT_MAXREDIRS => 10,
-                        CURLOPT_TIMEOUT => 30,
-                        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                        CURLOPT_CUSTOMREQUEST => "GET",
-                        CURLOPT_HTTPHEADER => [
-                            "x-rapidapi-host: currency-conversion-and-exchange-rates.p.rapidapi.com",
-                            "x-rapidapi-key: 335200c4afmsh64cfbbf7fdf4cf2p1aae94jsn05a3bad585de"
-                        ],
-                    ]);
-                    $response = curl_exec($curl);
-                    $err = curl_error($curl);
-                    curl_close($curl);
+                    // Display the total converted amount
 
-                    // Handle cURL response for total amount
-                    if ($err) {
-                        echo "cURL Error #:" . $err;
-                        $converted_total_amount = "Error";
-                    } else {
-                        $response_data = json_decode($response, true);
-                        $converted_total_amount = isset($response_data['result']) ? $response_data['result'] : "Error";
-                    }
-
-                    echo "<td>{$converted_total_amount}</td><td>{$converted_total_amount}</td></tr>";
                     ?>
                 </tbody>
-
+            </table>
             </table>
             <hr style="border: 1px dashed red;">
-            
         </div>
         <!-- MDB -->
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.4.1/mdb.min.js"></script>

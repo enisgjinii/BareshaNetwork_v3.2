@@ -1,15 +1,10 @@
 <?php
 
-// Include your database connection here
 include 'conn-d.php';
 
-// Define your database table
 $table = 'invoices';
-
-// Define your primary key column
 $primaryKey = 'id';
 
-// Map your DataTables columns to your database columns
 $columns = array(
     array('db' => 'id', 'dt' => 'id', 'searchable' => false),
     array('db' => 'invoice_number', 'dt' => 'invoice_number', 'searchable' => true),
@@ -21,17 +16,18 @@ $columns = array(
     array('db' => 'y.shuma AS customer_loan', 'dt' => 'customer_loan', 'searchable' => false)
 );
 
-// Start building the SQL query
 $sql = "SELECT i.id, i.invoice_number, i.item, i.customer_id, i.state_of_invoice,
                 i_agg.total_amount,
                 i_agg.total_amount_after_percentage,
+                i.total_amount_in_eur,
+                i.total_amount_in_eur_after_percentage,     
                 i_agg.paid_amount,
                 k.emri AS customer_name,
                 y.customer_loan_amount,
                 y.customer_loan_paid
         FROM (
             SELECT id, invoice_number, item, customer_id, state_of_invoice,
-                   total_amount_after_percentage, paid_amount
+                   total_amount_after_percentage, paid_amount, total_amount_in_eur, total_amount_in_eur_after_percentage
             FROM invoices
             GROUP BY invoice_number
         ) AS i
@@ -45,20 +41,25 @@ $sql = "SELECT i.id, i.invoice_number, i.item, i.customer_id, i.state_of_invoice
         ) AS y ON i.customer_id = y.kanali
         LEFT JOIN (
             SELECT invoice_number,  
-                SUM(total_amount) as total_amount,
-                SUM(total_amount_after_percentage) as total_amount_after_percentage,
-                SUM(paid_amount) as paid_amount
+                SUM(total_amount) AS total_amount,
+                SUM(total_amount_after_percentage) AS total_amount_after_percentage,
+                SUM(paid_amount) AS paid_amount
             FROM invoices
             GROUP BY invoice_number
         ) AS i_agg ON i.invoice_number = i_agg.invoice_number";
 
-// Append WHERE clause for filtering
-$sql .= " WHERE (i.total_amount_after_percentage - i.paid_amount) > 1
-          AND (k.lloji_klientit = 'Personal' OR k.lloji_klientit IS NULL)";
+$sql .= " WHERE (
+    (i.total_amount_in_eur_after_percentage IS NOT NULL 
+     AND (i.total_amount_in_eur_after_percentage - i.paid_amount) > 1)
+    OR 
+    (COALESCE(i.total_amount_in_eur_after_percentage, i.total_amount_after_percentage) - i.paid_amount) > 1
+  )
+  AND (k.lloji_klientit = 'Personal' OR k.lloji_klientit IS NULL)";
 
 
 
-// Apply filtering (search)
+
+
 if (!empty($_REQUEST['search']['value'])) {
     $sql .= " AND (";
     $searchConditions = array();
@@ -75,27 +76,22 @@ if (!empty($_REQUEST['search']['value'])) {
     $sql .= ")";
 }
 
-// Get the total number of records after filtering
 $sqlCount = "SELECT COUNT(*) as count FROM ($sql) AS countTable";
 $totalRecords = mysqli_fetch_assoc(mysqli_query($conn, $sqlCount))['count'];
 
-// Apply ordering and pagination
 $start = $_REQUEST['start'];
 $length = $_REQUEST['length'];
 $orderColumn = $columns[$_REQUEST['order'][0]['column']]['db'];
 $orderDirection = $_REQUEST['order'][0]['dir'];
 $sql .= " ORDER BY id DESC LIMIT $start, $length";
 
-// Execute the modified SQL query
 $query = mysqli_query($conn, $sql);
 
-// Prepare the response data
 $data = array();
 while ($row = mysqli_fetch_assoc($query)) {
     $data[] = $row;
 }
 
-// Return the JSON response
 $response = array(
     "draw" => intval($_REQUEST['draw']),
     "recordsTotal" => $totalRecords,
@@ -103,5 +99,6 @@ $response = array(
     "data" => $data
 );
 
-// Return the JSON response
 echo json_encode($response);
+
+$conn->close();
