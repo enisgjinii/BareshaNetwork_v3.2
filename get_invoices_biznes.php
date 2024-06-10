@@ -1,10 +1,7 @@
 <?php
-
 include 'conn-d.php';
-
 $table = 'invoices';
 $primaryKey = 'id';
-
 $columns = array(
     array('db' => 'id', 'dt' => 'id', 'searchable' => false),
     array('db' => 'invoice_number', 'dt' => 'invoice_number', 'searchable' => true),
@@ -15,7 +12,7 @@ $columns = array(
     array('db' => 'k.emri AS customer_name', 'dt' => 'customer_name', 'searchable' => true),
     array('db' => 'y.shuma AS customer_loan', 'dt' => 'customer_loan', 'searchable' => false)
 );
-
+//  
 $sql = "SELECT i.id, i.invoice_number, i.item, i.customer_id, i.state_of_invoice,
                 i_agg.total_amount,
                 i_agg.total_amount_after_percentage,
@@ -47,19 +44,14 @@ $sql = "SELECT i.id, i.invoice_number, i.item, i.customer_id, i.state_of_invoice
             FROM invoices
             GROUP BY invoice_number
         ) AS i_agg ON i.invoice_number = i_agg.invoice_number";
-
+// add custom filter
 $sql .= " WHERE (
     (i.total_amount_in_eur_after_percentage IS NOT NULL 
      AND (i.total_amount_in_eur_after_percentage - i.paid_amount) > 1)
     OR 
     (COALESCE(i.total_amount_in_eur_after_percentage, i.total_amount_after_percentage) - i.paid_amount) > 1
-  )
-  AND (k.lloji_klientit = 'Biznes' OR k.lloji_klientit IS NULL)";
-
-
-
-
-
+  ) 
+  AND (k.lloji_klientit = 'Biznes')";
 if (!empty($_REQUEST['search']['value'])) {
     $sql .= " AND (";
     $searchConditions = array();
@@ -75,30 +67,23 @@ if (!empty($_REQUEST['search']['value'])) {
     $sql .= implode(" OR ", $searchConditions);
     $sql .= ")";
 }
-
 $sqlCount = "SELECT COUNT(*) as count FROM ($sql) AS countTable";
 $totalRecords = mysqli_fetch_assoc(mysqli_query($conn, $sqlCount))['count'];
-
 $start = $_REQUEST['start'];
 $length = $_REQUEST['length'];
 $orderColumn = $columns[$_REQUEST['order'][0]['column']]['db'];
 $orderDirection = $_REQUEST['order'][0]['dir'];
 $sql .= " ORDER BY id DESC LIMIT $start, $length";
-
 $query = mysqli_query($conn, $sql);
-
 $data = array();
 while ($row = mysqli_fetch_assoc($query)) {
     $data[] = $row;
 }
-
 $response = array(
     "draw" => intval($_REQUEST['draw']),
     "recordsTotal" => $totalRecords,
     "recordsFiltered" => $totalRecords,
     "data" => $data
 );
-
 echo json_encode($response);
-
 $conn->close();
