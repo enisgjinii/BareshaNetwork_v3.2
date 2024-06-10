@@ -17,6 +17,7 @@ $columns = array(
 
 // Define the main query
 $sql = "SELECT 
+            invoices.id,
             invoices.customer_id,
             invoices.invoice_number,
             klientet.emri AS customer_name,
@@ -95,9 +96,14 @@ while ($row = $result->fetch_assoc()) {
     }
 
     // Add custom action link
-    $dataRow['action'] = '<a target="_blank" class="btn btn-primary btn-sm rounded-5 shadow-sm px-2 text-white" style="padding: 0.3rem 0.25rem; font-size: 0.7rem; text-decoration: none; text-transform: none;" href="print_invoice.php?id=' . $row['invoice_number'] . '"><i class="fi fi-rr-print"></i></a><br><br>
-    <button class="btn btn-danger btn-sm delete-btn text-white rounded-5 px-2" data-invoice-id="' . $row['invoice_id'] . '"><i class="fi fi-rr-trash"></i></button>
-    ';
+    // Add custom action link
+    $dataRow['action'] = '<a target="_blank" class="btn btn-primary btn-sm rounded-5 shadow-sm px-2 text-white" style="padding: 0.3rem 0.25rem; font-size: 0.7rem; text-decoration: none; text-transform: none;" href="print_invoice.php?id=' . $row['invoice_number'] . '"><i class="fi fi-rr-print"></i></a><br><br>' .
+        '<button class="btn btn-danger btn-sm delete-btn text-white rounded-5 px-2" data-invoice-id="' . $row['invoice_id'] . '"><i class="fi fi-rr-trash"></i></button>';
+
+    $dataRow['action'] .= '<a href="#" style="text-decoration:none;" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark send-invoice" ' .
+        'data-id="' . $row['id'] . '">' .
+        '<i class="fi fi-rr-file-export"></i> Dergo faturen</a>';
+
 
     $data[] = $dataRow;
 }

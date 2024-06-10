@@ -49,14 +49,14 @@
                                     </td>
                                     <td><?php echo $row['created_at']; ?></td>
                                     <td>
-                                        <button style="text-transform:none;" class="input-custom-css px-3 py-2 delete-btn" data-id="<?php echo $row['id']; ?>">
+                                        <button class="input-custom-css px-3 py-2 delete-btn" data-id="<?php echo $row['id']; ?>">
                                             <i class="fi fi-rr-trash"></i> Fshij
                                         </button>
                                         <button class="input-custom-css px-3 py-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvas_<?php echo $row['id']; ?>" aria-controls="offcanvas_<?php echo $row['id']; ?>">
                                             <i class="fi fi-rr-eye"></i> Trego
                                         </button>
                                         <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvas_<?php echo $row['id']; ?>" aria-labelledby="offcanvas_<?php echo $row['id']; ?>_label">
-                                            <div class="offcanvas-header">
+                                            <div class="offcanvas-header" style="background-color: #008CBA; color: white;">
                                                 <h5 class="offcanvas-title" id="offcanvas_<?php echo $row['id']; ?>_label">
                                                     Të dhënat për <?php echo $row['channel_name']; ?>
                                                 </h5>
@@ -64,26 +64,25 @@
                                             </div>
                                             <div class="offcanvas-body">
                                                 <ul class="list-group">
+                                                    <!-- List items styled with some spacing and borders -->
                                                     <?php
                                                     $get_client_infos = "SELECT * FROM klientet WHERE youtube = '" . $row['channel_id'] . "'";
-                                                    $client_result = $conn->query($get_client_infos); // Use a different variable for the inner query result
+                                                    $client_result = $conn->query($get_client_infos);
                                                     while ($client_row = $client_result->fetch_assoc()) {
                                                     ?>
-                                                        <li class="list-group-item">
-                                                            <strong>ID:</strong> <?php echo $client_row['id']; ?>
-                                                            <strong>Emri:</strong> <?php echo $client_row['emri']; ?>
-                                                            <strong>Monetizuar:</strong> <?php echo $client_row['monetizuar']; ?>
-                                                            <strong>YouTube:</strong> <?php echo $client_row['youtube']; ?>
-                                                            <strong>Perqindja:</strong> <?php echo $client_row['perqindja']; ?>
-                                                            <strong>Ads:</strong> <?php echo $client_row['ads']; ?>
-                                                            <strong>FB:</strong> <?php echo $client_row['fb']; ?>
-                                                            <strong>IG:</strong> <?php echo $client_row['ig']; ?>
-                                                            <strong>Adresa:</strong> <?php echo $client_row['adresa']; ?>
-                                                            <strong>Kategoria:</strong> <?php echo $client_row['kategoria']; ?>
-                                                        </li>
-                                                        <!-- Displaying 'Shiko të dhënat e përgjithshme' link after each list item -->
-                                                        <li>
-                                                            <a href="editk.php?id=<?php echo $client_row['id']; ?>" class="input-custom-css px-3 py-2 mt-3" style="text-transform:none;text-decoration:none">Shiko të dhënat e përgjithshme</a>
+                                                        <li class="list-group-item" style="padding: 10px; border-bottom: 1px solid #ddd;">
+                                                            <strong>ID:</strong> <?php echo $client_row['id']; ?><br>
+                                                            <strong>Emri:</strong> <?php echo $client_row['emri']; ?><br>
+                                                            <strong>Monetizuar:</strong> <?php echo $client_row['monetizuar']; ?><br>
+                                                            <strong>YouTube:</strong> <?php echo $client_row['youtube']; ?><br>
+                                                            <strong>Perqindja:</strong> <?php echo $client_row['perqindja']; ?><br>
+                                                            <strong>Ads:</strong> <?php echo $client_row['ads']; ?><br>
+                                                            <strong>FB:</strong> <?php echo $client_row['fb']; ?><br>
+                                                            <strong>IG:</strong> <?php echo $client_row['ig']; ?><br>
+                                                            <strong>Adresa:</strong> <?php echo $client_row['adresa']; ?><br>
+                                                            <strong>Kategoria:</strong> <?php echo $client_row['kategoria']; ?><br>
+                                                            <!-- Link styled with different color and underline on hover -->
+                                                            <a href="editk.php?id=<?php echo $client_row['id']; ?>" class="input-custom-css px-3 py-2 mt-3" style="text-transform:none;text-decoration: none; color: #4CAF50;">Shiko të dhënat e përgjithshme</a>
                                                         </li>
                                                     <?php
                                                     }
@@ -92,6 +91,7 @@
                                             </div>
                                         </div>
                                     </td>
+
                                 </tr>
                             <?php
                             }
@@ -206,14 +206,42 @@
                 text: 'Jeni të sigurtë që dëshironi të fshini këtë regjistrim?',
                 icon: 'warning',
                 showCancelButton: true,
+                showDenyButton: true,
                 confirmButtonColor: '#3085d6',
                 cancelButtonColor: '#d33',
-                confirmButtonText: 'Po, fshije!',
-                cancelButtonText: 'Anulo'
+                denyButtonColor: '#f6c23e', // Custom color for the new button
+                confirmButtonText: 'Po, fshije kanalin!',
+                cancelButtonText: 'Anulo',
+                denyButtonText: 'Fshij edhe si klient' // Text for the new button
             }).then((result) => {
                 if (result.isConfirmed) {
                     $.ajax({
                         url: 'delete_auth_channel.php',
+                        type: 'POST',
+                        data: {
+                            id: rowId
+                        },
+                        success: function(response) {
+                            // Remove the row from the table or list
+                            deleteButton.closest('tr, .card').remove();
+                            Swal.fire(
+                                'Fshirë!',
+                                'Regjistrimi është fshirë me sukses.',
+                                'success'
+                            );
+                        },
+                        error: function(xhr, status, error) {
+                            console.error(xhr.responseText);
+                            Swal.fire(
+                                'Gabim!',
+                                'Diçka shkoi gabim. Ju lutemi, provoni përsëri më vonë.',
+                                'error'
+                            );
+                        }
+                    });
+                } else if (result.isDenied) {
+                    $.ajax({
+                        url: 'delete_auth_channel_and_client.php',
                         type: 'POST',
                         data: {
                             id: rowId

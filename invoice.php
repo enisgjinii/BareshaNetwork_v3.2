@@ -179,7 +179,6 @@ function getChannelDetails($channelId, $apiKey)
       white-space: normal;
       cursor: pointer;
     }
-
     .custom-dot {
       width: 10px;
       height: 10px;
@@ -190,7 +189,6 @@ function getChannelDetails($channelId, $apiKey)
       white-space: normal;
       cursor: pointer;
     }
-
     .custom-tooltiptext {
       visibility: hidden;
       width: 80px;
@@ -209,20 +207,17 @@ function getChannelDetails($channelId, $apiKey)
       white-space: normal;
       cursor: pointer;
     }
-
     .custom-tooltip:hover .custom-tooltiptext {
       cursor: pointer;
       visibility: visible;
       white-space: normal;
       opacity: 0.9;
     }
-
     @media (max-width: 767px) {
       .breadcrumb-item a {
         font-size: 14px;
         /* Adjust the font size as needed */
       }
-
       .input-custom-css {
         font-size: 12px;
         /* Adjust the font size as needed */
@@ -235,29 +230,24 @@ function getChannelDetails($channelId, $apiKey)
         text-align: center;
         /* Center text within buttons */
       }
-
       .input-custom-css i {
         display: none;
         /* Hide icons on mobile */
       }
-
       .nav-pills {
         display: flex;
         justify-content: center;
         flex-wrap: wrap;
       }
-
       .nav-item {
         text-align: center;
         margin: 0 5px;
         /* Adjust margin as needed */
       }
-
       .table-sm th,
       .table-sm td {
         padding: 0.25rem;
       }
-
       .text-sm {
         font-size: 12px;
       }
@@ -726,7 +716,6 @@ function getChannelDetails($channelId, $apiKey)
                                   <td>
                                     <input type="checkbox" name="selected_channels[]" value="<?php echo $tokenInfo['channel_id']; ?>">
                                   </td>
-
                                 </tr>
                             <?php
                               }
@@ -881,7 +870,6 @@ function getChannelDetails($channelId, $apiKey)
     var totalAmountAfterPercentage = totalAmount - (totalAmount * (percentage / 100));
     document.getElementById('total_amount_after_percentage').value = totalAmountAfterPercentage.toFixed(2);
   });
-
   function getCustomerName(customerId) {
     var customerName = '';
     $.ajax({
@@ -1153,7 +1141,7 @@ function getChannelDetails($channelId, $apiKey)
               row.total_amount_after_percentage;
             // Calculate the remaining amount
             var remainingAmount = totalAmount - row.paid_amount;
-            return '<div>' +
+            var html = '<div>' +
               '<a href="#" style="text-decoration:none;" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark open-payment-modal" ' +
               'data-id="' + row.id + '" ' +
               'data-invoice-number="' + row.invoice_number + '" ' +
@@ -1166,7 +1154,18 @@ function getChannelDetails($channelId, $apiKey)
               '<a target="_blank" style="text-decoration:none;" href="complete_invoice.php?id=' + row.id + '" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark">' +
               '<i class="fi fi-rr-edit"></i> Edito</a>' +
               '<a target="_blank" style="text-decoration:none;" href="print_invoice.php?id=' + row.invoice_number + '" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark">' +
-              '<i class="fi fi-rr-print"></i> Printo v1.0</a></div>';
+              '<i class="fi fi-rr-print"></i> Printo v1.0</a></div><br>';
+            if (row.customer_email) {
+              html += '<br><a href="#" style="text-decoration:none;" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark send-invoice" ' +
+                'data-id="' + row.id + '">' +
+                '<i class="fi fi-rr-file-export"></i> Dergo faturen</a>';
+            } else {
+              const dotHTML1 = '<p style="white-space: normal;"><div class="custom-tooltip"><div class="custom-dot"></div><span class="custom-tooltiptext">Nuk posedon email</span></div></p>';
+              html += '<button style="text-decoration:none;" class="bg-light border border-1 px-3 py-2 rounded-5 mx-1 text-dark" disabled>' +
+                '<i class="fi fi-rr-file-export"></i> Dergo faturen</button><p style="white-space: normal;">' + dotHTML1 + '</p>';
+            }
+            html += '</div>';
+            return html;
           }
         }
       ],
@@ -1420,7 +1419,7 @@ function getChannelDetails($channelId, $apiKey)
               row.total_amount_after_percentage;
             // Calculate the remaining amount
             var remainingAmount = totalAmount - row.paid_amount;
-            return '<div>' +
+            var html = '<div>' +
               '<a href="#" style="text-decoration:none;" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark open-payment-modal" ' +
               'data-id="' + row.id + '" ' +
               'data-invoice-number="' + row.invoice_number + '" ' +
@@ -1433,7 +1432,18 @@ function getChannelDetails($channelId, $apiKey)
               '<a target="_blank" style="text-decoration:none;" href="complete_invoice.php?id=' + row.id + '" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark">' +
               '<i class="fi fi-rr-edit"></i> Edito</a>' +
               '<a target="_blank" style="text-decoration:none;" href="print_invoice.php?id=' + row.invoice_number + '" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark">' +
-              '<i class="fi fi-rr-print"></i> Printo v1.0</a></div>';
+              '<i class="fi fi-rr-print"></i> Printo v1.0</a></div><br>';
+            if (row.customer_email) {
+              html += '<br><a href="#" style="text-decoration:none;" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark send-invoice" ' +
+                'data-id="' + row.id + '">' +
+                '<i class="fi fi-rr-file-export"></i> Dergo faturen</a>';
+            } else {
+              const dotHTML3 = '<p style="white-space: normal;"><div class="custom-tooltip"><div class="custom-dot"></div><span class="custom-tooltiptext">Nuk posedon email</span></div></p>';
+              html += '<button style="text-decoration:none;" class="bg-light border border-1 px-3 py-2 rounded-5 mx-1 text-dark" disabled>' +
+                '<i class="fi fi-rr-file-export"></i> Dergo faturen</button><p style="white-space: normal;">' + dotHTML3 + '</p>';
+            }
+            html += '</div>';
+            return html;
           }
         }
       ],
@@ -1556,7 +1566,6 @@ function getChannelDetails($channelId, $apiKey)
         }
       });
     });
-
     function createButtonConfig(extend, icon, text, titleAttr) {
       return {
         extend: extend,
@@ -1633,7 +1642,6 @@ function getChannelDetails($channelId, $apiKey)
       },
       stripeClasses: ['stripe-color']
     });
-
     function getCurrentDate() {
       var today = new Date();
       var dd = String(today.getDate()).padStart(2, '0');
@@ -1681,6 +1689,66 @@ function getChannelDetails($channelId, $apiKey)
     });
   });
 </script>
+<script>
+  $(document).ready(function() {
+    $(document).on('click', '.send-invoice', function(e) {
+      e.preventDefault();
+      var invoiceId = $(this).data('id');
+      $.ajax({
+        url: 'dergofakturen.php?id=' + invoiceId,
+        type: 'GET',
+        success: function(response) {
+          if (response.includes('Email sent successfully')) {
+            // Email sent successfully
+            Swal.fire({
+              icon: 'success',
+              title: 'Emaili u dërgua me sukses',
+              showConfirmButton: false,
+              timer: 1500
+            }).then(function() {
+              window.location.href = 'invoice.php?success=sent';
+            });
+          } else {
+            // Ndodhi një gabim
+            Swal.fire({
+              icon: 'error',
+              title: 'Ndodhi një gabim',
+              text: 'Dështoi dërgimi i faturës.'
+            }).then(function() {
+              window.location.href = 'invoice.php?success=error';
+            });
+          }
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+          // Kërkesa AJAX dështoi
+          var errorMessage = "Dështoi dërgimi i faturës. Gabimi: " + textStatus + ", " + errorThrown;
+          Swal.fire({
+            icon: 'error',
+            title: 'Ndodhi një gabim',
+            text: errorMessage
+          }).then(function() {
+            // Ruaj mesazhin e gabimit në skedar JSON
+            $.ajax({
+              url: 'save-error.php',
+              type: 'POST',
+              data: {
+                error: errorMessage
+              },
+              success: function(response) {
+                console.log('Gabimi u ruajt me sukses.');
+              },
+              error: function() {
+                console.log('Dështoi ruajtja e gabimit.');
+              }
+            });
+            // Ridrejto në invoice.php me mesazhin e gabimit
+            window.location.href = 'invoice.php?success=error&message=' + encodeURIComponent(errorMessage);
+          });
+        }
+      });
+    });
+  });
+</script>
 <script src="percentage_calculations.js"></script>
 <script src="create_manual_invoice.js"></script>
 <script src="completed_invoice_personal.js"> </script>
@@ -1691,5 +1759,4 @@ function getChannelDetails($channelId, $apiKey)
 <script src="states.js"></script>
 <?php include 'partials/footer.php' ?>
 </body>
-
 </html>

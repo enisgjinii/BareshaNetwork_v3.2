@@ -13,7 +13,8 @@ $columns = array(
     array('db' => 'total_amount_after_percentage', 'dt' => 'total_amount_after_percentage', 'searchable' => false),
     array('db' => 'paid_amount', 'dt' => 'paid_amount', 'searchable' => false),
     array('db' => 'k.emri AS customer_name', 'dt' => 'customer_name', 'searchable' => true),
-    array('db' => 'y.shuma AS customer_loan', 'dt' => 'customer_loan', 'searchable' => false)
+    array('db' => 'y.shuma AS customer_loan', 'dt' => 'customer_loan', 'searchable' => false),
+    array('db' => 'k.emailadd as customer_email', 'dt' => 'customer_email', 'searchable' => true)
 );
 
 $sql = "SELECT i.id, i.invoice_number, i.item, i.customer_id, i.state_of_invoice,
@@ -23,6 +24,7 @@ $sql = "SELECT i.id, i.invoice_number, i.item, i.customer_id, i.state_of_invoice
                 i.total_amount_in_eur_after_percentage,     
                 i_agg.paid_amount,
                 k.emri AS customer_name,
+                k.emailadd as customer_email,
                 y.customer_loan_amount,
                 y.customer_loan_paid
         FROM (
