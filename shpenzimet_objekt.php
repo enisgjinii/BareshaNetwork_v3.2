@@ -1,55 +1,22 @@
 <?php
 include 'partials/header.php';
 include 'conn-d.php';
-// Fetch options for the dropdown
-$sql = "SELECT * FROM googleauth";
-$result = mysqli_query($conn, $sql);
-$options = "";
-while ($row = mysqli_fetch_array($result)) {
-    $options .= "<option value='" . $row["id"] . "'>" . $row["firstName"] . " " . $row["last_name"] . "</option>";
-}
-$message = "";
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $employee_id = $_POST['employee_id'];
-    $payment = $_POST['payment'];
-    if ($_POST['action'] == 'edit') {
-        $payment_id = $_POST['payment_id'];
-        $update_sql = "UPDATE employee_payments SET employee_id='$employee_id', payment_amount='$payment' WHERE id='$payment_id'";
-        if (mysqli_query($conn, $update_sql)) {
-            $message = "success";
-        } else {
-            $message = "error";
-        }
-    } elseif ($_POST['action'] == 'delete') {
-        $payment_id = $_POST['payment_id'];
-        $delete_sql = "DELETE FROM employee_payments WHERE id='$payment_id'";
-        if (mysqli_query($conn, $delete_sql)) {
-            $message = "success";
-        } else {
-            $message = "error";
-        }
-    } else {
-        // Create new table query
-        $create_table_sql = "CREATE TABLE IF NOT EXISTS employee_payments (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            employee_id INT NOT NULL,
-            payment_amount DECIMAL(10, 2) NOT NULL,
-            payment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (employee_id) REFERENCES googleauth(id)
-        )";
-        if (mysqli_query($conn, $create_table_sql)) {
-            $insert_sql = "INSERT INTO employee_payments (employee_id, payment_amount) VALUES ('$employee_id', '$payment')";
-            if (mysqli_query($conn, $insert_sql)) {
-                $message = "success";
-            } else {
-                $message = "error";
-            }
-        } else {
-            $message = "error";
-        }
+// Fetch data
+$sql = "SELECT pershkrimi, shuma, created_at FROM expenses";
+$result = $conn->query($sql);
+$expenses = [];
+$total = 0;
+if ($result->num_rows > 0) {
+    // output data of each row
+    while ($row = $result->fetch_assoc()) {
+        $expenses[] = $row;
+        $total += $row['shuma'];
     }
+} else {
+    echo "0 results";
 }
 ?>
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <div class="main-panel">
     <div class="content-wrapper">
         <div class="container-fluid">
@@ -65,37 +32,40 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <button type="button" class="input-custom-css px-3 py-2" data-bs-toggle="modal" data-bs-target="#pagesmodal">
                         Shto shpenzim
                     </button>
-                    <!-- Create Modal -->
+                    <!-- Modal -->
                     <div class="modal fade" id="pagesmodal" tabindex="-1" aria-labelledby="pagesmodalLabel" aria-hidden="true">
                         <div class="modal-dialog">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h1 class="modal-title fs-5" id="pagesmodalLabel">Krijo pagesën</h1>
+                                    <h5 class="modal-title" id="pagesmodalLabel">Shto shpenzim</h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
-                                <form method="POST" action="">
-                                    <div class="modal-body">
-                                        <input type="hidden" name="action" value="create">
+                                <div class="modal-body">
+                                    <form id="expense-form" method="post" action="save_expense.php" enctype="multipart/form-data">
                                         <div class="mb-3">
-                                            <label for="employee" class="col-form-label">Puntori:</label>
-                                            <select class="form-select" aria-label="Zgjedhi puntorin" id="employee" name="employee">
-                                                <?php echo $options; ?>
-                                            </select>
-                                            <script>
-                                                new Selectr('#employee', {
-                                                    searchable: true
-                                                });
-                                            </script>
+                                            <label for="recipient-name" class="col-form-label">Emri i regjistruesit:</label>
+                                            <input type="text" class="form-control rounded-5 border border-2" id="recipient-name" name="recipient-name" value="<?php echo $user_info['givenName'] . ' ' . $user_info['familyName']; ?>">
                                         </div>
                                         <div class="mb-3">
-                                            <label for="recipient-name" class="col-form-label">Pagesa:</label>
-                                            <input type="text" class="form-control rounded-5 border border-2" id="recipient-name" name="payment">
+                                            <label for="message-text" class="col-form-label">Pershkrimi:</label>
+                                            <textarea class="form-control rounded-5 border border-2" id="message-text" name="message"></textarea>
                                         </div>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="input-custom-css px-3 py-2" data-bs-dismiss="modal">Mbylle</button><button type="submit" class="input-custom-css px-3 py-2">Ruaj</button>
-                                    </div>
-                                </form>
+                                        <!-- Add input for amount -->
+                                        <div class="mb-3">
+                                            <label for="amount" class="col-form-label">Shuma e shpenzimit:</label>
+                                            <input type="number" class="form-control rounded-5 border border-2" id="amount" name="amount">
+                                        </div>
+                                        <!-- Add input for adding a file -->
+                                        <div class="mb-3">
+                                            <label for="expense-file" class="col-form-label">Dokumenti i shpenzimit:</label>
+                                            <input type="file" class="form-control rounded-5 border border-2" id="expense-file" name="file">
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="input-custom-css px-3 py-2" data-bs-dismiss="modal">Mbyll</button>
+                                            <button type="submit" class="input-custom-css px-3 py-2">Ruaj</button>
+                                        </div>
+                                    </form>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -103,143 +73,192 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </div>
             <div class="p-3 shadow-sm rounded-5 mb-4 card">
                 <div class="table-responsive">
-                    <table class="table table-bordered" id="table">
+                    <table class="table table-bordered" id="expenses-table">
                         <thead class="bg-light">
                             <tr>
-                                <th>Puntori</th>
-                                <th>Pagesa</th>
-                                <th>Data</th>
-                                <th>Veprimet</th>
+                                <th>Registruesi</th>
+                                <th>Pershkrimi</th>
+                                <th>Shuma</th>
+                                <th>Dokumenti</th>
+                                <th>Data e krijuar</th>
+                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php
-                            $sql = "SELECT ep.*, ga.firstName, ga.last_name FROM employee_payments ep INNER JOIN googleauth ga ON ep.employee_id = ga.id";
-                            $result = mysqli_query($conn, $sql);
-                            while ($row = mysqli_fetch_assoc($result)) {
-                                echo "<tr>";
-                                echo "<td>" . $row["firstName"] . " " . $row["last_name"] . "</td>";
-                                echo "<td>" . $row["payment_amount"] . "</td>";
-                                echo "<td>" . $row["payment_date"] . "</td>";
-                                echo '<td>
-                <button class="input-custom-css px-3 py-2 edit-btn" 
-                        data-id="' . $row["id"] . '" 
-                        data-employee_id="' . $row["employee_id"] . '" 
-                        data-employee_name="' . $row["firstName"] . ' ' . $row["last_name"] . '" 
-                        data-payment_amount="' . $row["payment_amount"] . '" 
-                        data-bs-toggle="modal" data-bs-target="#editModal"><i class="fi fi-rr-edit"></i></button>
-                <button class="input-custom-css px-3 py-2 delete-btn" 
-                        data-id="' . $row["id"] . '" 
-                        data-bs-toggle="modal" data-bs-target="#deleteModal"><i class="fi fi-rr-trash"></i></button>
-              </td>';
-                                echo "</tr>";
+                            // Fetch data from the database
+                            $query = "SELECT * FROM expenses";
+                            $result = $conn->query($query);
+                            // Check if there are any rows returned
+                            if ($result->num_rows > 0) {
+                                // Iterate over the fetched data and display it in table rows
+                                while ($row = $result->fetch_assoc()) {
+                                    echo "<tr>";
+                                    echo "<td>" . $row['registruesi'] . "</td>";
+                                    echo "<td>" . $row['pershkrimi'] . "</td>";
+                                    echo "<td>" . $row['shuma'] . "</td>";
+                                    echo "<td>" . $row['dokumenti'] . "</td>";
+                                    echo "<td>" . $row['created_at'] . "</td>";
+                                    echo "<td>";
+                                    echo '<button type="button" class="input-custom-css px-3 py-2 edit-btn" data-bs-toggle="modal" data-bs-target="#editModal" data-id="' . $row['id'] . '" data-registruesi="' . $row['registruesi'] . '" data-pershkrimi="' . $row['pershkrimi'] . '" data-shuma="' . $row['shuma'] . '"><i class="fi fi-rr-edit"></i></button>';
+                                    echo '<button type="button" class="input-custom-css px-3 py-2 ms-2 delete-btn" data-id="' . $row['id'] . '"><i class="fi fi-rr-trash"></i></button>';
+                                    // Check if there is a document before displaying the download button
+                                    if (!empty($row['dokumenti'])) {
+                                        echo '<a style="text-decoration: none;" href="uploads/' . $row['dokumenti'] . '" download="' . $row['dokumenti'] . '" class="input-custom-css px-3 py-2 ms-2"><i class="fi fi-rr-download"></i></a>';
+                                    }
+                                    echo "</td>";
+                                    echo "</tr>";
+                                }
+                            } else {
+                                // If no rows are returned, display a message
+                                echo "<tr><td colspan='6'>No expenses found</td></tr>";
                             }
                             ?>
                         </tbody>
                     </table>
                 </div>
             </div>
+            <div class="row mb-3 text-center">
+                <div class="col-12 my-3">
+                    <div class="rounded-5 border border-1 bg-white px-3 d-inline-block">
+                        <h2 class="display-4 text-primary">Shpenzimet totale: $<?php echo number_format($total, 2); ?></h2>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="card p-5 w-100 mb-2 rounded-5 shadow-sm">
+                        <div class="card-body">
+                            <div id="chart"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-</div><!-- Edit Modal -->
-<!-- Edit Modal -->
+</div>
+<!-- Edit Expense Modal -->
 <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5" id="editModalLabel">Edito pagesën</h1>
+                <h5 class="modal-title" id="editModalLabel">Edit Expense</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form method="POST" action="">
-                    <input type="hidden" name="action" value="edit">
-                    <input type="hidden" name="payment_id" id="edit-payment-id">
+                <form id="edit-expense-form" method="post" action="update_expense.php">
+                    <input type="hidden" id="edit-expense-id" name="id">
                     <div class="mb-3">
-                        <label for="edit-employee-id" class="col-form-label">Puntori ID:</label>
-                        <input type="text" class="form-control rounded-5 border border-2" id="edit-employee-id" name="employee_id" readonly>
+                        <label for="edit-recipient-name" class="col-form-label">Emri i regjistruesit:</label>
+                        <input type="text" class="form-control rounded-5 border border-2" id="edit-recipient-name" name="recipient-name">
                     </div>
                     <div class="mb-3">
-                        <label for="edit-employee-name" class="col-form-label">Puntori:</label>
-                        <input type="text" class="form-control rounded-5 border border-2" id="edit-employee-name" name="employee_name" readonly>
+                        <label for="edit-message-text" class="col-form-label">Pershkrimi:</label>
+                        <textarea class="form-control rounded-5 border border-2" id="edit-message-text" name="message"></textarea>
                     </div>
                     <div class="mb-3">
-                        <label for="edit-payment-amount" class="col-form-label">Pagesa:</label>
-                        <input type="text" class="form-control rounded-5 border border-2" id="edit-payment-amount" name="payment">
+                        <label for="edit-amount" class="col-form-label">Shuma e shpenzimit:</label>
+                        <input type="number" class="form-control rounded-5 border border-2" id="edit-amount" name="amount">
                     </div>
-
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="input-custom-css px-3 py-2" data-bs-dismiss="modal">Mbylle</button>
-                <button type="submit" class="input-custom-css px-3 py-2">Ruaj</button>
+                    <div class="modal-footer">
+                        <button type="button" class="input-custom-css px-3 py-2" data-bs-dismiss="modal">Mbylle</button>
+                        <button type="submit" class="input-custom-css px-3 py-2">Ruaj</button>
+                    </div>
                 </form>
             </div>
         </div>
     </div>
 </div>
-<!-- Delete Modal -->
-<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h1 class="modal-title fs-5" id="deleteModalLabel">Fshi pagesën</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                A jeni i sigurt që dëshironi të fshini këtë pagesë?
-                <form method="POST" action="">
-                    <input type="hidden" name="action" value="delete">
-                    <input type="hidden" name="payment_id" id="delete-payment-id">
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="input-custom-css px-3 py-2" data-bs-dismiss="modal">Mbylle</button> <button type="submit" class="input-custom-css px-3 py-2">Fshije</button>
-            </div>
-            </form>
-        </div>
-    </div>
-</div>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        let message = "<?php echo $message; ?>";
-        if (message === "success") {
-            Swal.fire({
-                icon: 'success',
-                title: 'Success!',
-                text: 'The action was completed successfully.'
-            });
-        } else if (message === "error") {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error!',
-                text: 'There was an error processing your request. Please try again.'
-            });
-        }
-        // Attach data to edit modal
-        document.querySelectorAll('.edit-btn').forEach(button => {
-            button.addEventListener('click', function() {
-                document.getElementById('edit-payment-id').value = this.getAttribute('data-id');
-                document.getElementById('edit-employee-id').value = this.getAttribute('data-employee_id');
-                document.getElementById('edit-employee-name').value = this.getAttribute('data-employee_name');
-                document.getElementById('edit-payment-amount').value = this.getAttribute('data-payment_amount');
-            });
-        });
-        // Attach data to delete modal
-        document.querySelectorAll('.delete-btn').forEach(button => {
-            button.addEventListener('click', function() {
-                document.getElementById('delete-payment-id').value = this.getAttribute('data-id');
-            });
-        });
-    });
-    // Add datatable 
-    $(document).ready(function() {
-        $('#table').DataTable({
-            "searching": {
-                "regex": true
+    var options = {
+        chart: {
+            type: 'bar',
+            height: 350,
+            toolbar: {
+                show: true
+            }
+        },
+        plotOptions: {
+            bar: {
+                borderRadius: 10,
+                horizontal: false,
+                columnWidth: '55%',
+                endingShape: 'rounded',
             },
-            "paging": true,
-            "pageLength": 10,
+        },
+        dataLabels: {
+            enabled: true,
+            formatter: function(val) {
+                return val + " €";
+            },
+            offsetY: -20,
+            style: {
+                fontSize: '12px',
+                colors: ["#fff"]
+            }
+        },
+        stroke: {
+            show: true,
+            width: 2,
+            colors: ['transparent']
+        },
+        series: [{
+            name: 'Shpenzimet',
+            data: [
+                <?php
+                foreach ($expenses as $expense) {
+                    echo $expense['shuma'] . ', ';
+                }
+                ?>
+            ]
+        }],
+        xaxis: {
+            categories: [
+                <?php
+                foreach ($expenses as $expense) {
+                    echo "'" . $expense['pershkrimi'] . "', ";
+                }
+                ?>
+            ],
+            title: {
+                text: 'Përshkrimet'
+            }
+        },
+        yaxis: {
+            title: {
+                text: 'Shuma (€)'
+            }
+        },
+        fill: {
+            opacity: 1
+        },
+        tooltip: {
+            y: {
+                formatter: function(val) {
+                    return "€ " + val.toFixed(2);
+                }
+            }
+        },
+        title: {
+            text: 'Përmbledhje e shpenzimeve',
+            align: 'center',
+            style: {
+                fontSize: '20px',
+                fontWeight: 'bold',
+                color: '#263238'
+            }
+        }
+    }
+    var chart = new ApexCharts(document.querySelector("#chart"), options);
+    chart.render();
+</script>
+<?php include 'partials/footer.php'; ?>
+<script>
+    // data table
+    $(document).ready(function() {
+        $('#expenses-table').DataTable({
             dom: "<'row'<'col-md-3'l><'col-md-6'B><'col-md-3'f>>" +
                 "<'row'<'col-md-12'tr>>" +
                 "<'row'<'col-md-6'><'col-md-6'p>>",
+            stripeClasses: ["stripe-color"],
             initComplete: function() {
                 var btns = $(".dt-buttons");
                 btns.addClass("").removeClass("dt-buttons btn-group");
@@ -283,10 +302,68 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
                 },
             ],
-            stripeClasses: ["stripe-color"],
+        });
+    });
+    document.addEventListener('DOMContentLoaded', function() {
+        // Handle edit button click
+        document.querySelectorAll('.edit-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const id = this.dataset.id;
+                const registruesi = this.dataset.registruesi;
+                const pershkrimi = this.dataset.pershkrimi;
+                const shuma = this.dataset.shuma;
+                document.getElementById('edit-expense-id').value = id;
+                document.getElementById('edit-recipient-name').value = registruesi;
+                document.getElementById('edit-message-text').value = pershkrimi;
+                document.getElementById('edit-amount').value = shuma;
+            });
+        });
+        // Handle delete button click
+        document.querySelectorAll('.delete-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const id = this.dataset.id;
+                Swal.fire({
+                    title: 'A jeni i sigurt?',
+                    text: "Nuk mund ta ktheni atë që fshini!",
+                    icon: 'Kujdes',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    cancelButtonText: 'Anulo',
+                    confirmButtonText: 'Po, fshije!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        fetch(`delete_expense_k.php?id=${id}`, {
+                                method: 'GET',
+                            })
+                            .then(response => response.text())
+                            .then(data => {
+                                if (data === 'success') {
+                                    Swal.fire(
+                                        'Deleted!',
+                                        'Your file has been deleted.',
+                                        'success'
+                                    ).then(() => {
+                                        location.reload();
+                                    });
+                                } else {
+                                    Swal.fire(
+                                        'Error!',
+                                        'There was a problem deleting the expense.',
+                                        'error'
+                                    );
+                                }
+                            })
+                            .catch(error => {
+                                Swal.fire(
+                                    'Error!',
+                                    'There was a problem deleting the expense.',
+                                    'error'
+                                );
+                            });
+                    }
+                });
+            });
         });
     });
 </script>
-<?php
-include 'partials/footer.php';
-?>

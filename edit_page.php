@@ -171,6 +171,18 @@ function format_page_name($page)
     if ($page == 'authenticated_channels.php') {
         return 'Kanalet e autentifikuara';
     }
+    if ($page == 'pagesat_punetor.php') {
+        return 'Pagesat e punetorit';
+    }
+    if ($page == 'shpenzimet_objekt.php') {
+        return 'Shpenzimet e objektit';
+    }
+    if ($page == 'ttatimi.php') {
+        return 'Tatimi';
+    }
+    if ($page == 'pasqyrat.php') {
+        return 'Pasqyrat';
+    }
 }
 $pages = array(
     'stafi.php' => format_page_name('stafi.php'),
@@ -230,6 +242,10 @@ $pages = array(
     'invoice_list_2.php' => format_page_name('invoice_list_2.php'),
     'authenticated_channels.php' => format_page_name('authenticated_channels.php'),
     'strike-platform.php' => format_page_name('strike-platform.php'),
+    'pagesat_punetor.php' => format_page_name('pagesat_punetor.php'),
+    'shpenzimet_objekt.php' => format_page_name('shpenzimet_objekt.php'),
+    'ttatimi.php' => format_page_name('ttatimi.php'),
+    'pasqyrat.php' => format_page_name('pasqyrat.php'),
 );
 // Check if the role ID is present in the URL
 if (isset($_GET['role_id'])) {
