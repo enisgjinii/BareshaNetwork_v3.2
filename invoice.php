@@ -179,6 +179,7 @@ function getChannelDetails($channelId, $apiKey)
       white-space: normal;
       cursor: pointer;
     }
+
     .custom-dot {
       width: 10px;
       height: 10px;
@@ -189,6 +190,7 @@ function getChannelDetails($channelId, $apiKey)
       white-space: normal;
       cursor: pointer;
     }
+
     .custom-tooltiptext {
       visibility: hidden;
       width: 80px;
@@ -207,17 +209,20 @@ function getChannelDetails($channelId, $apiKey)
       white-space: normal;
       cursor: pointer;
     }
+
     .custom-tooltip:hover .custom-tooltiptext {
       cursor: pointer;
       visibility: visible;
       white-space: normal;
       opacity: 0.9;
     }
+
     @media (max-width: 767px) {
       .breadcrumb-item a {
         font-size: 14px;
         /* Adjust the font size as needed */
       }
+
       .input-custom-css {
         font-size: 12px;
         /* Adjust the font size as needed */
@@ -230,24 +235,29 @@ function getChannelDetails($channelId, $apiKey)
         text-align: center;
         /* Center text within buttons */
       }
+
       .input-custom-css i {
         display: none;
         /* Hide icons on mobile */
       }
+
       .nav-pills {
         display: flex;
         justify-content: center;
         flex-wrap: wrap;
       }
+
       .nav-item {
         text-align: center;
         margin: 0 5px;
         /* Adjust margin as needed */
       }
+
       .table-sm th,
       .table-sm td {
         padding: 0.25rem;
       }
+
       .text-sm {
         font-size: 12px;
       }
@@ -458,6 +468,7 @@ function getChannelDetails($channelId, $apiKey)
                         <th class="text-sm">Pershkrimi</th>
                         <th class="text-sm">Detajet</th>
                         <th class="text-sm">Shuma e paguar</th>
+                        <th class="text-sm">F. EUR</th>
                         <th class="text-sm">Obligim</th>
                         <th class="text-sm">Veprimi</th>
                       </tr>
@@ -477,6 +488,7 @@ function getChannelDetails($channelId, $apiKey)
                         <th style="font-size: 12px">Pershkrimi</th>
                         <th style="font-size: 12px">Detajet</th>
                         <th style="font-size: 12px">Shuma e paguar</th>
+                        <th style="font-size: 12px">F. EUR</th>
                         <th style="font-size: 12px">Obligim</th>
                         <th style="font-size: 12px">Veprimi</th>
                       </tr>
@@ -870,6 +882,7 @@ function getChannelDetails($channelId, $apiKey)
     var totalAmountAfterPercentage = totalAmount - (totalAmount * (percentage / 100));
     document.getElementById('total_amount_after_percentage').value = totalAmountAfterPercentage.toFixed(2);
   });
+
   function getCustomerName(customerId) {
     var customerName = '';
     $.ajax({
@@ -1116,6 +1129,16 @@ function getChannelDetails($channelId, $apiKey)
           }
         },
         {
+          data: null,
+          render: function(data, type, row) {
+            var fitimiIBareshes = row.total_amount_in_eur - row.total_amount_in_eur_after_percentage;
+            return fitimiIBareshes.toLocaleString(undefined, {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2
+            }) + ' €';
+          }
+        },
+        {
           data: 'remaining_amount',
           render: function(data, type, row) {
             var remainingAmount;
@@ -1150,19 +1173,19 @@ function getChannelDetails($channelId, $apiKey)
               'data-total-amount="' + totalAmount + '" ' +
               'data-paid-amount="' + row.paid_amount + '" ' +
               'data-remaining-amount="' + remainingAmount + '">' +
-              '<i class="fi fi-rr-euro"></i> Paguaj</a>  ' +
+              '<i class="fi fi-rr-euro"></i></a>  ' +
               '<a target="_blank" style="text-decoration:none;" href="complete_invoice.php?id=' + row.id + '" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark">' +
-              '<i class="fi fi-rr-edit"></i> Edito</a>' +
+              '<i class="fi fi-rr-edit"></i></a>' +
               '<a target="_blank" style="text-decoration:none;" href="print_invoice.php?id=' + row.invoice_number + '" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark">' +
-              '<i class="fi fi-rr-print"></i> Printo v1.0</a></div><br>';
+              '<i class="fi fi-rr-print"></i></a></div><br>';
             if (row.customer_email) {
               html += '<br><a href="#" style="text-decoration:none;" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark send-invoice" ' +
                 'data-id="' + row.id + '">' +
-                '<i class="fi fi-rr-file-export"></i> Dergo faturen</a>';
+                '<i class="fi fi-rr-file-export"></i></a>';
             } else {
               const dotHTML1 = '<p style="white-space: normal;"><div class="custom-tooltip"><div class="custom-dot"></div><span class="custom-tooltiptext">Nuk posedon email</span></div></p>';
               html += '<button style="text-decoration:none;" class="bg-light border border-1 px-3 py-2 rounded-5 mx-1 text-dark" disabled>' +
-                '<i class="fi fi-rr-file-export"></i> Dergo faturen</button><p style="white-space: normal;">' + dotHTML1 + '</p>';
+                '<i class="fi fi-rr-file-export"></i></button><p style="white-space: normal;">' + dotHTML1 + '</p>';
             }
             html += '</div>';
             return html;
@@ -1392,6 +1415,15 @@ function getChannelDetails($channelId, $apiKey)
               maximumFractionDigits: 2
             }) + ' €';
           }
+        }, {
+          data: null,
+          render: function(data, type, row) {
+            var fitimiIBareshes = row.total_amount_in_eur - row.total_amount_in_eur_after_percentage;
+            return fitimiIBareshes.toLocaleString(undefined, {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2
+            }) + ' €';
+          }
         },
         {
           data: 'remaining_amount',
@@ -1428,19 +1460,19 @@ function getChannelDetails($channelId, $apiKey)
               'data-total-amount="' + totalAmount + '" ' +
               'data-paid-amount="' + row.paid_amount + '" ' +
               'data-remaining-amount="' + remainingAmount + '">' +
-              '<i class="fi fi-rr-euro"></i> Paguaj</a>  ' +
+              '<i class="fi fi-rr-euro"></i></a>  ' +
               '<a target="_blank" style="text-decoration:none;" href="complete_invoice.php?id=' + row.id + '" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark">' +
-              '<i class="fi fi-rr-edit"></i> Edito</a>' +
+              '<i class="fi fi-rr-edit"></i> </a>' +
               '<a target="_blank" style="text-decoration:none;" href="print_invoice.php?id=' + row.invoice_number + '" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark">' +
-              '<i class="fi fi-rr-print"></i> Printo v1.0</a></div><br>';
+              '<i class="fi fi-rr-print"></i> </a></div><br>';
             if (row.customer_email) {
               html += '<br><a href="#" style="text-decoration:none;" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark send-invoice" ' +
                 'data-id="' + row.id + '">' +
-                '<i class="fi fi-rr-file-export"></i> Dergo faturen</a>';
+                '<i class="fi fi-rr-file-export"></i></a>';
             } else {
               const dotHTML3 = '<p style="white-space: normal;"><div class="custom-tooltip"><div class="custom-dot"></div><span class="custom-tooltiptext">Nuk posedon email</span></div></p>';
               html += '<button style="text-decoration:none;" class="bg-light border border-1 px-3 py-2 rounded-5 mx-1 text-dark" disabled>' +
-                '<i class="fi fi-rr-file-export"></i> Dergo faturen</button><p style="white-space: normal;">' + dotHTML3 + '</p>';
+                '<i class="fi fi-rr-file-export"></i></button><p style="white-space: normal;">' + dotHTML3 + '</p>';
             }
             html += '</div>';
             return html;
@@ -1566,6 +1598,7 @@ function getChannelDetails($channelId, $apiKey)
         }
       });
     });
+
     function createButtonConfig(extend, icon, text, titleAttr) {
       return {
         extend: extend,
@@ -1642,6 +1675,7 @@ function getChannelDetails($channelId, $apiKey)
       },
       stripeClasses: ['stripe-color']
     });
+
     function getCurrentDate() {
       var today = new Date();
       var dd = String(today.getDate()).padStart(2, '0');
@@ -1759,4 +1793,5 @@ function getChannelDetails($channelId, $apiKey)
 <script src="states.js"></script>
 <?php include 'partials/footer.php' ?>
 </body>
+
 </html>

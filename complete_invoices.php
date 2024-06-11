@@ -102,7 +102,7 @@ while ($row = $result->fetch_assoc()) {
 
     $dataRow['action'] .= '<a href="#" style="text-decoration:none;" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark send-invoice" ' .
         'data-id="' . $row['id'] . '">' .
-        '<i class="fi fi-rr-file-export"></i> Dergo faturen</a>';
+        '<i class="fi fi-rr-file-export"></i></a>';
 
 
     $data[] = $dataRow;
