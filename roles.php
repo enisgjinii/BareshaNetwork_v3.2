@@ -234,6 +234,19 @@ include 'partials/header.php'; ?>
                                     if ($page == 'authenticated_channels.php') {
                                         return 'Kanalet e autentifikuara <br><br>' . $button_html;
                                     }
+                                    if ($page == 'pagesat_punetor.php') {
+                                        return 'Pagesat e punetorit <br><br>' . $button_html;
+                                    }
+                                    if ($page == 'shpenzimet_objekt.php') {
+                                        return 'Shpenzimet e objektit <br><br>' . $button_html;
+                                    }
+                                    if ($page == 'ttatimi.php') {
+                                        return 'Tatimi <br><br>' . $button_html;
+                                    }
+                                    if ($page == 'pasqyrat.php') {
+                                        return 'Pasqyrat <br><br>' . $button_html;
+                                    }
+                                    
                                 }
                                 $pages = array(
                                     'stafi.php',
@@ -283,7 +296,9 @@ include 'partials/header.php'; ?>
                                     'currency.php',
                                     'rating_list.php',
                                     'invoice_list_2.php',
-                                    'authenticated_channels.php'
+                                    'authenticated_channels.php',
+                                    'pagesat_punetor.php',
+                                    'shpenzimet_objekt.php'
                                 );
                                 echo '<table id="tabelaEFaqeve" class="table table-bordered table-hover">';
                                 echo '<thead class="bg-light"><tr><th>Emri i faqes</th><th>Zgjedhe</th></tr></thead>';
@@ -313,6 +328,7 @@ include 'partials/header.php'; ?>
                             </script>
                             <script>
                                 var lastClickedCheckbox = null;
+
                                 function toggleCheckbox(event, checkbox) {
                                     // Check if Shift key is pressed
                                     if (event.shiftKey && lastClickedCheckbox !== null) {

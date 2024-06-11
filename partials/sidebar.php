@@ -145,15 +145,17 @@
           "yinc.php" => "Shpenzimet",
           "shpenzimep.php" => "Shpenzimet personale",
         ],
-      ],[
+      ], [
         "title" => "Kontabiliteti",
         "icon" => "fi fi-rr-calculator-money menu-icon pe-3",
         "collapseId" => "kontabiliteti",
         "menuItems" => [
-          "pagesat_punetor.php" => "Pagesat e punëtorëve <span class='badge bg-success rounded'>New</span>",
+          "pasqyrat.php" => "Pasqyrat",
+          "pagesat_punetor.php" => "Pagesat e punëtorëve ",
           "shpenzimet_objekt.php" => "Shpenzimet e objektit",
           "ttatimi.php" => "Tatimet",
           "fitimi_pergjithshem.php" => "Fitimi i përgjithshëm",
+          
         ],
       ],
       [

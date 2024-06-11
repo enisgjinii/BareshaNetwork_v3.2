@@ -1,6 +1,7 @@
 <?php
 include 'partials/header.php';
 include 'conn-d.php';
+
 // Fetch options for the dropdown
 $sql = "SELECT * FROM googleauth";
 $result = mysqli_query($conn, $sql);
@@ -9,9 +10,11 @@ while ($row = mysqli_fetch_array($result)) {
     $options .= "<option value='" . $row["id"] . "'>" . $row["firstName"] . " " . $row["last_name"] . "</option>";
 }
 $message = "";
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $employee_id = $_POST['employee_id'];
+    $employee_id = $_POST['employee'];
     $payment = $_POST['payment'];
+
     if ($_POST['action'] == 'edit') {
         $payment_id = $_POST['payment_id'];
         $update_sql = "UPDATE employee_payments SET employee_id='$employee_id', payment_amount='$payment' WHERE id='$payment_id'";
@@ -19,6 +22,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $message = "success";
         } else {
             $message = "error";
+            error_log(mysqli_error($conn));
         }
     } elseif ($_POST['action'] == 'delete') {
         $payment_id = $_POST['payment_id'];
@@ -27,9 +31,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $message = "success";
         } else {
             $message = "error";
+            error_log(mysqli_error($conn));
         }
     } else {
-        // Create new table query
+        // Create new table if not exists
         $create_table_sql = "CREATE TABLE IF NOT EXISTS employee_payments (
             id INT AUTO_INCREMENT PRIMARY KEY,
             employee_id INT NOT NULL,
@@ -43,9 +48,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $message = "success";
             } else {
                 $message = "error";
+                error_log(mysqli_error($conn));
             }
         } else {
             $message = "error";
+            error_log(mysqli_error($conn));
         }
     }
 }
@@ -89,7 +96,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                         </div>
                                         <div class="mb-3">
                                             <label for="recipient-name" class="col-form-label">Pagesa:</label>
-                                            <input type="text" class="form-control rounded-5 border border-2" id="recipient-name" name="payment">
+                                            <input type="number" class="form-control rounded-5 border border-2" id="recipient-name" name="payment">
                                         </div>
                                     </div>
                                     <div class="modal-footer">
