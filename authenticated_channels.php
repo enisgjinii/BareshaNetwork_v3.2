@@ -33,9 +33,8 @@
                                     <td>
                                         <?php echo $row['id']; ?>
                                     </td>
-                                    <td>
-                                        <?php echo $row['channel_id']; ?>
-                                        <a href="kanali.php?id=<?php echo $row['channel_id']; ?>" class="input-custom-css px-3 py-2 mt-3" style="text-transform:none;text-decoration:none"><i class="fi fi-rr-user"></i> Shiko kanalin</a>
+                                    <td><a href="kanali.php?id=<?php echo $row['channel_id']; ?>" class="input-custom-css px-3 py-2 mt-3" style="text-transform:none;text-decoration:none">
+                                        <?php echo $row['channel_id']; ?></a>
                                     </td>
                                     <td><?php echo $row['channel_name']; ?></td>
                                     <td>
@@ -91,7 +90,6 @@
                                             </div>
                                         </div>
                                     </td>
-
                                 </tr>
                             <?php
                             }
@@ -206,42 +204,14 @@
                 text: 'Jeni të sigurtë që dëshironi të fshini këtë regjistrim?',
                 icon: 'warning',
                 showCancelButton: true,
-                showDenyButton: true,
                 confirmButtonColor: '#3085d6',
                 cancelButtonColor: '#d33',
-                denyButtonColor: '#f6c23e', // Custom color for the new button
                 confirmButtonText: 'Po, fshije kanalin!',
                 cancelButtonText: 'Anulo',
-                denyButtonText: 'Fshij edhe si klient' // Text for the new button
             }).then((result) => {
                 if (result.isConfirmed) {
                     $.ajax({
                         url: 'delete_auth_channel.php',
-                        type: 'POST',
-                        data: {
-                            id: rowId
-                        },
-                        success: function(response) {
-                            // Remove the row from the table or list
-                            deleteButton.closest('tr, .card').remove();
-                            Swal.fire(
-                                'Fshirë!',
-                                'Regjistrimi është fshirë me sukses.',
-                                'success'
-                            );
-                        },
-                        error: function(xhr, status, error) {
-                            console.error(xhr.responseText);
-                            Swal.fire(
-                                'Gabim!',
-                                'Diçka shkoi gabim. Ju lutemi, provoni përsëri më vonë.',
-                                'error'
-                            );
-                        }
-                    });
-                } else if (result.isDenied) {
-                    $.ajax({
-                        url: 'delete_auth_channel_and_client.php',
                         type: 'POST',
                         data: {
                             id: rowId

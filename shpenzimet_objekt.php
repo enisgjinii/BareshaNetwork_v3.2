@@ -2,7 +2,7 @@
 include 'partials/header.php';
 include 'conn-d.php';
 // Fetch data
-$sql = "SELECT pershkrimi, shuma, created_at FROM expenses";
+$sql = "SELECT DATE(created_at) AS date, SUM(shuma) AS total_shuma FROM expenses GROUP BY DATE(created_at)";
 $result = $conn->query($sql);
 $expenses = [];
 $total = 0;
@@ -10,7 +10,7 @@ if ($result->num_rows > 0) {
     // output data of each row
     while ($row = $result->fetch_assoc()) {
         $expenses[] = $row;
-        $total += $row['shuma'];
+        $total += $row['total_shuma'];
     }
 } else {
     echo "0 results";
@@ -205,7 +205,7 @@ if ($result->num_rows > 0) {
             data: [
                 <?php
                 foreach ($expenses as $expense) {
-                    echo $expense['shuma'] . ', ';
+                    echo $expense['total_shuma'] . ', ';
                 }
                 ?>
             ]
@@ -214,12 +214,12 @@ if ($result->num_rows > 0) {
             categories: [
                 <?php
                 foreach ($expenses as $expense) {
-                    echo "'" . $expense['pershkrimi'] . "', ";
+                    echo "'" . $expense['date'] . "', ";
                 }
                 ?>
             ],
             title: {
-                text: 'Përshkrimet'
+                text: 'Data'
             }
         },
         yaxis: {
@@ -238,7 +238,7 @@ if ($result->num_rows > 0) {
             }
         },
         title: {
-            text: 'Përmbledhje e shpenzimeve',
+            text: 'Përmbledhje e shpenzimeve sipas datës',
             align: 'center',
             style: {
                 fontSize: '20px',

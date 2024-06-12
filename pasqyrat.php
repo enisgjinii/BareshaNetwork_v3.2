@@ -42,11 +42,41 @@ if ($resultForShpenzimet2) {
     echo "Error: " . $conn->error; // Echo any database errors
     $total_sum_for_shpenzimet = 0; // Set default sum if there's an error
 }
+
+
+$sqlForIncomeInYoutubeInvoices = "
+    SELECT 
+        SUM(total_amount) AS total_cash,
+        SUM(total_amount_in_eur) AS total_cash2,
+        SUM(total_amount_in_eur_after_percentage) AS total_cash3,
+        SUM(total_amount_after_percentage) AS total_cash4,
+        SUM(paid_amount) AS total_cash5,
+        (SUM(total_amount_after_percentage) - SUM(paid_amount)) AS total_cash_difference
+    FROM 
+        invoices AS i;
+";
+
+
+
+$resultForIncomeInYoutubeInvoices = $conn->query($sqlForIncomeInYoutubeInvoices);
+if ($resultForIncomeInYoutubeInvoices) {
+    $rowForIncomeInYoutubeInvoices = $resultForIncomeInYoutubeInvoices->fetch_assoc();
+    $total_sum_for_income_in_youtube_invoices = $rowForIncomeInYoutubeInvoices['total_cash_difference'];
+}
+
+$sql_getting_cinc = "SELECT SUM(total_amount) AS total_cash4, SUM(total_amount_after_percentage) AS total_cash5, (SUM(total_amount) - SUM(total_amount_after_percentage)) AS fitimi FROM invoices";
+$result_getting_citimi = $conn->query($sql_getting_cinc);
+if ($result_getting_citimi) {
+    $row_getting_citimi = $result_getting_citimi->fetch_assoc();
+    $fitimi = $row_getting_citimi['fitimi'];
+}
 // Encode data to JSON format
 $jsonTotalCount = json_encode((int)$total_count);
 $jsonTotalSum = json_encode((int)$total_sum);
 $jsonTotalCountForShpenzimet = json_encode((int)$total_count_for_shpenzimet);
 $jsonTotalSumForShpenzimet = json_encode((int)$total_sum_for_shpenzimet);
+$jsonTotalSumForIncome = json_encode((int)$total_sum_for_income_in_youtube_invoices);
+$jsonTotalSumForSell = json_encode((int)$fitimi);
 ?>
 <div class="main-panel">
     <div class="content-wrapper">
@@ -70,7 +100,9 @@ $jsonTotalSumForShpenzimet = json_encode((int)$total_sum_for_shpenzimet);
                 <li class="nav-item" role="presentation">
                     <button class="nav-link" id="contact-tab" data-bs-toggle="tab" data-bs-target="#contact-tab-pane" type="button" role="tab" aria-controls="contact-tab-pane" aria-selected="false">Tatimet</button>
                 </li>
-
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="pagesatYoutube-tab" data-bs-toggle="tab" data-bs-target="#pagesatYoutube-tab-pane" type="button" role="tab" aria-controls="pagesatYoutube-tab-pane" aria-selected="false">Pagesat e Youtubes</button>
+                </li>
             </ul>
             <br /><br />
             <div class="tab-content bg-white p-3 border border-1 rounded-5" id="myTabContent">
@@ -92,6 +124,16 @@ $jsonTotalSumForShpenzimet = json_encode((int)$total_sum_for_shpenzimet);
                 </div>
                 <div class="tab-pane fade" id="contact-tab-pane" role="tabpanel" aria-labelledby="contact-tab" tabindex="0">...</div>
                 <div class="tab-pane fade" id="disabled-tab-pane" role="tabpanel" aria-labelledby="disabled-tab" tabindex="0">...</div>
+                <div class="tab-pane fade" id="pagesatYoutube-tab-pane" role="tabpanel" aria-labelledby="contact-tab" tabindex="0">
+                    <div id="chart3" class="w-100"></div>
+                    <br /><br />
+                    <div id="chart4" class="w-100"></div>
+                    <hr />
+                    
+                    <div class="text-center">
+                        <a href="invoice.php" style="text-decoration: none;" class="input-custom-css px-3 py-2">Kalo tek faturat</a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -104,6 +146,8 @@ $jsonTotalSumForShpenzimet = json_encode((int)$total_sum_for_shpenzimet);
         var total_sum = <?php echo $jsonTotalSum; ?>;
         var total_count_for_shpenzimet = <?php echo $jsonTotalCountForShpenzimet; ?>;
         var total_sum_for_shpenzimet = <?php echo $jsonTotalSumForShpenzimet; ?>;
+        var total_sum_for_income = <?php echo $jsonTotalSumForIncome; ?>;
+        var total_sum_for_sell = <?php echo $jsonTotalSumForSell; ?>;
         // Highcharts options
         Highcharts.chart('chart', {
             chart: {
@@ -169,6 +213,68 @@ $jsonTotalSumForShpenzimet = json_encode((int)$total_sum_for_shpenzimet);
                     name: 'Shuma totale',
                     // add euro symbol
                     y: total_sum_for_shpenzimet
+                }]
+            }]
+        });
+
+        Highcharts.chart('chart3', {
+            chart: {
+                type: 'pie'
+            },
+            title: {
+                text: 'Totali i cili duhet te paguhet ne te gjitha faturat pa valuten EUR'
+            },
+            tooltip: {
+                pointFormat: '{series.name}'
+            },
+            plotOptions: {
+                pie: {
+                    allowPointSelect: true,
+                    cursor: 'pointer',
+                    dataLabels: {
+                        enabled: true,
+                        format: '<b>{point.name}</b>: {point.y} €'
+                    }
+                }
+            },
+            series: [{
+                name: 'Shuma e cila duhet te realizohet ne kuader te faturave pa valuten EUR',
+                colorByPoint: true,
+                data: [{
+                    name: 'Shuma totale',
+                    // add euro symbol
+                    y: total_sum_for_income
+                }]
+            }]
+        });
+
+        Highcharts.chart('chart4', {
+            chart: {
+                type: 'pie'
+            },
+            title: {
+                text: 'Totali i fitimit nga faturat pa valuten EUR'
+            },
+            tooltip: {
+                pointFormat: '{series.name}'
+            },
+            plotOptions: {
+                pie: {
+                    allowPointSelect: true,
+                    cursor: 'pointer',
+                    dataLabels: {
+                        enabled: true,
+                        format: '<b>{point.name}</b>: {point.y} €'
+                    }
+                }
+            },
+            series: [{
+                name: 'Shuma e fitimit nga faturat pa valuten EUR',
+                colorByPoint: true,
+                data: [{
+                    name: 'Shuma totale',
+                    // add euro symbol
+                    y: total_sum_for_sell
                 }]
             }]
         });
