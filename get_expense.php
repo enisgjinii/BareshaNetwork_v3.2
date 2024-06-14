@@ -34,16 +34,23 @@ if (isset($_GET['expense_id'])) {
             // Fetch expense data
             $expense = $result->fetch_assoc();
 
+            // Close the statement to release associated memory resources
+            $stmt->close();
+
             // Return JSON response
+            http_response_code(200); // OK
             echo json_encode($expense);
         } else {
+            http_response_code(404); // Not Found
             throw new Exception("Expense with the provided ID does not exist.");
         }
     } catch (Exception $e) {
         // Return error message
+        http_response_code(500); // Internal Server Error
         echo json_encode(array("error" => $e->getMessage()));
     }
 } else {
     // If expense ID is not provided, return error message
+    http_response_code(400); // Bad Request
     echo json_encode(array("error" => "Expense ID is not provided"));
 }
