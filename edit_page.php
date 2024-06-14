@@ -1,6 +1,7 @@
 <?php include 'partials/header.php' ?>
 <?php
 include 'conn-d.php';
+#aaa
 function format_page_name($page)
 {
     switch ($page) {
