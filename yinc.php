@@ -58,7 +58,7 @@ if (isset($_POST['paguaj'])) {
           </li>
           <li class="breadcrumb-item active" aria-current="page">
             <a href="<?php echo __FILE__; ?>" class="text-reset" style="text-decoration: none;">
-              Shpenzimet
+              Borxhet
             </a>
           </li>
       </nav>
@@ -66,10 +66,10 @@ if (isset($_POST['paguaj'])) {
         <div>
           <!-- Button trigger modal -->
           <button type="button" class="input-custom-css px-3 py-2" data-bs-toggle="modal" data-bs-target="#exampleModal">
-            <i class="fi fi-rr-add"></i> &nbsp; Shto shpenzim
+            <i class="fi fi-rr-add"></i> &nbsp; Shto borxh
           </button>
           <button type="button" class="input-custom-css px-3 py-2" data-bs-toggle="modal" data-bs-target="#deletedExpenses">
-            <i class="fi fi-rr-trash"></i> &nbsp; Shpenzimet e fshira
+            <i class="fi fi-rr-trash"></i> &nbsp; Borxhet e fshira
           </button>
         </div>
       </div>
@@ -78,7 +78,7 @@ if (isset($_POST['paguaj'])) {
         <div class="modal-dialog modal-xl">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title" id="deletedExpensesLabel">Shpenzimet e fshira</h5>
+              <h5 class="modal-title" id="deletedExpensesLabel">Borxhet e fshira</h5>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -106,7 +106,7 @@ if (isset($_POST['paguaj'])) {
         <div class="modal-dialog modal-lg" role="document">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title" id="exampleModalLabel">Shpenzimet e klient&euml;ve</h5>
+              <h5 class="modal-title" id="exampleModalLabel">Borxhet e klient&euml;ve</h5>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -214,7 +214,7 @@ if (isset($_POST['paguaj'])) {
                           <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight<?php echo $k['id']; ?>" aria-labelledby="offcanvasRightLabel<?php echo $k['id']; ?>">
                             <div class="offcanvas-header bg-primary text-white d-flex justify-content-between align-items-center">
                               <div>
-                                <h5 class="offcanvas-title mb-0"><?php echo "Historia e shpenzime për klientin"; ?></h5>
+                                <h5 class="offcanvas-title mb-0"><?php echo "Historia e borxheve për klientin"; ?></h5>
                                 <div><?php echo $gstafi['emri']; ?></div>
                               </div>
                               <button type="button" class="btn-close text-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>

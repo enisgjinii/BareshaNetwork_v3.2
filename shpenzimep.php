@@ -76,7 +76,7 @@ $text = 'Madhësia e dosjes: ' . $fileSize;
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">Shto shpenzim personal</h5>
+          <h5 class="modal-title" id="exampleModalLabel">Shto borxh personal</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
@@ -138,7 +138,7 @@ $text = 'Madhësia e dosjes: ' . $fileSize;
             </li>
             <li class="breadcrumb-item active" aria-current="page">
               <a href="<?php echo __FILE__; ?>" class="text-reset" style="text-decoration: none;">
-                Shpenzimet personale
+                Borxhet personale
               </a>
             </li>
         </nav>
@@ -147,7 +147,7 @@ $text = 'Madhësia e dosjes: ' . $fileSize;
           <div>
             <!-- Button trigger modal -->
             <button type="button" class="input-custom-css px-3 py-2" data-bs-toggle="modal" data-bs-target="#exampleModal">
-              <i class="fi fi-rr-add"></i> &nbsp; Shto shpenzim
+              <i class="fi fi-rr-add"></i> &nbsp; Shto borxh
             </button>
             <button id="deleteRowsBtn" class="input-custom-css px-3 py-2">
               <i class="fi fi-rr-trash"></i> &nbsp; Fshij
