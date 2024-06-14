@@ -183,6 +183,8 @@ function format_page_name($page)
     if ($page == 'pasqyrat.php') {
         return 'Pasqyrat';
     }
+    // Kthe vlerën paracaktuar nëse nuk përputhet asnjë nga kushtet e mëparshme
+    return 'Faqja nuk ekziston';
 }
 $pages = array(
     'stafi.php' => format_page_name('stafi.php'),
