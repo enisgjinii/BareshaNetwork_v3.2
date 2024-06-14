@@ -1,5 +1,13 @@
 <?php
 include 'partials/header.php';
+require 'vendor/autoload.php';
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+use Dompdf\Dompdf;
+use Dompdf\Options;
+
+$mail = new PHPMailer(true); // Passing `true` enables exceptions
 if (isset($_POST['ruaj'])) {
   $emri = $_POST['emri'];
   if (empty($_POST['min'])) {
@@ -96,6 +104,34 @@ if (isset($_POST['ruaj'])) {
      }
    });
    </script>';
+    try {
+      // Cilësimet e serverit
+      $mail->isSMTP(); // Vendos mailer-in për të përdorur SMTP
+      $mail->Host = 'smtp.gmail.com'; // Specifikoni serverët kryesor dhe rezervë SMTP
+      $mail->SMTPAuth = true; // Aktivizoni autentikimin SMTP
+      $mail->Username = 'egjini17@gmail.com'; // Emri i përdoruesit SMTP
+      $mail->Password = 'nzlnbougxyeijlci'; // Fjalëkalimi SMTP
+      $mail->SMTPSecure = 'tls'; // Aktivizoni kodimin TLS, pranohet edhe `ssl`
+      $mail->Port = 587; // Porti TCP për tu lidhur me të
+      $mail->setFrom('egjini17@gmail.com', 'Dërguesi');
+      $mail->addAddress('egjini17@gmail.com', 'Dërguesi');
+      $mail->addAddress('kastriot@bareshamusic.com', 'Kastrioti');
+      $mail->CharSet = 'UTF-8';
+      $mail->isHTML(true);
+      // Bashkangjitje
+      $mail->Subject = 'Mirë se erdhët';
+      // Përgatitni trupin e emailit me informacionin e përdoruesit
+      $mail->Body = "
+    <div style='background-color: #f5f5f5; border-radius: 10px; padding: 20px; margin: 20px;'>
+        <h2 style='color: #333;'>Ju mire se erdhet </h2>
+        <hr>
+    </div>
+";
+      // Dërgoni emailin
+      $mail->send();
+    } catch (Exception $e) {
+      // Trajtoni ndonjë gabim nëse ekziston
+    }
   }
 }
 ?>
