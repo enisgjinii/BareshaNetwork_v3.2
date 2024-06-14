@@ -3,187 +3,132 @@
 include 'conn-d.php';
 function format_page_name($page)
 {
-    if ($page == 'index.php') {
-        return 'Shtepia';
-    }
-    if ($page == 'strike-platform.php') {
-        return 'Strikes';
-    }
-    if ($page == 'roles.php') {
-        return 'Rolet';
-    }
-    if ($page == 'stafi.php') {
-        return 'Stafi';
-    }
-    if ($page == 'ads.php') {
-        return 'Llogarit&euml; e ADS';
-    }
-    if ($page == 'emails.php') {
-        return 'Lista e email-eve';
-    }
-    if ($page == 'klient.php') {
-        return 'Lista e klient&euml;ve';
-    }
-    if ($page == 'kategorit.php') {
-        return 'Lista e kategorive';
-    }
-    if ($page == 'claim.php') {
-        return 'Recent Claim';
-    }
-    if ($page == 'tiketa.php') {
-        return 'Lista e tiketave';
-    }
-    if ($page == 'listang.php') {
-        return 'Lista e k&euml;ng&euml;ve';
-    }
-    if ($page == 'shtoy.php') {
-        return 'Regjistro k&euml;ng&euml;';
-    }
-    if ($page == 'listat.php') {
-        return 'Lista e tiketave';
-    }
-    if ($page == 'tiketa.php') {
-        return 'Tiket e re';
-    }
-    if ($page == 'whitelist.php') {
-        return 'Whitelist';
-    }
-    if ($page == 'faturat.php') {
-        return 'Pagesat Youtube';
-    }
-    if ($page == 'invoice.php') {
-        return 'Faturat ( New )';
-    }
-    if ($page == 'pagesat.php') {
-        return 'Pagesat e kryera';
-    }
-    if ($page == 'rrogat.php') {
-        return 'Pagat';
-    }
-    if ($page == 'shpenzimep.php') {
-        return 'Shpenzimet personale';
-    }
-    if ($page == 'tatimi.php') {
-        return 'Tatimi';
-    }
-    if ($page == 'yinc.php') {
-        return 'Shpenzimet';
-    }
-    if ($page == 'filet.php') {
-        return 'Dokumente tjera';
-    }
-    if ($page == 'github_logs.php') {
-        return 'Aktiviteti ne Github';
-    }
-    if ($page == 'klient_CSV.php') {
-        return 'Klient CSV';
-    }
-    if ($page == 'logs.php') {
-        return 'Logs';
-    }
-    if ($page == 'notes.php') {
-        return 'Shenime';
-    }
-    if ($page == 'takimet.php') {
-        return 'Takimet';
-    }
-    if ($page == 'todo_list.php') {
-        return 'To Do';
-    }
-    if ($page == 'kontrata_2.php') {
-        return 'Kontrata e re';
-    }
-    if ($page == 'lista_kontratave.php') {
-        return 'Lista e kontratave';
-    }
-    if ($page == 'csvFiles.php') {
-        return 'Inserto CSV';
-    }
-    if ($page == 'filtroCSV.php') {
-        return 'Filtro CSV';
-    }
-    if ($page == 'listaEFaturaveTePlatformave.php') {
-        return 'Lista e faturave';
-    }
-    if ($page == 'pagesatEKryera.php') {
-        return 'Pagesat e perfunduara';
-    }
-    if ($page == 'dataYT.php') {
-        return 'Statistikat nga Youtube';
-    }
-    if ($page == 'ofertat.php') {
-        return 'Ofertat';
-    }
-    if ($page == 'kontrata_gjenelare_2.php') {
-        return 'Kontrate e re ( Gjenerale )';
-    }
-    if ($page == 'lista_kontratave_gjenerale.php') {
-        return 'Lista e kontratave ( Gjenerale )';
-    }
-    if ($page == 'vegla_facebook.php') {
-        return 'Vegla Facebook';
-    }
-    if ($page == 'lista_faturave_facebook.php') {
-        return 'Lista e faturave (Facebook)';
-    }
-    if ($page == 'autor.php') {
-        return 'Autor';
-    }
-    if ($page == 'lista_kopjeve_rezerve.php') {
-        return 'Lista e kopjeve rezerve';
-    }
-    if ($page == 'investime.php') {
-        return 'Investime';
-    }
-    if ($page == 'faturaFacebook.php') {
-        return 'Krijo fatur&euml; ( Facebook )';
-    }
-    if ($page == 'ascap.php') {
-        return 'Ascap';
-    }
-    if ($page == 'klient-avanc.php') {
-        return 'Lista e avanceve te klienteve';
-    }
-    if ($page == 'list_of_invoices.php') {
-        return 'Pagesat YouTube ( New )';
-    }
-    if ($page == 'office_investments.php') {
-        return 'Investimet e objektit';
-    }
-    if ($page == 'office_damages.php') {
-        return 'Prishjet';
-    }
-    if ($page == 'office_requirements.php') {
-        return 'Kerkesat';
-    }
-    if ($page == 'platform_invoices.php') {
-        return 'Fature e shpejte e platformave';
-    }
-    if ($page == 'currency.php') {
-        return 'Valutimi';
-    }
-    if ($page == 'rating_list.php') {
-        return 'Lista e vlersimeve';
-    }
-    if ($page == 'invoice_list_2.php') {
-        return 'Faturë e shpejtë';
-    }
-    if ($page == 'authenticated_channels.php') {
-        return 'Kanalet e autentifikuara';
-    }
-    if ($page == 'pagesat_punetor.php') {
-        return 'Pagesat e punetorit';
-    }
-    if ($page == 'shpenzimet_objekt.php') {
-        return 'Shpenzimet e objektit';
-    }
-    if ($page == 'ttatimi.php') {
-        return 'Tatimi';
-    }
-    if ($page == 'pasqyrat.php') {
-        return 'Pasqyrat';
+    switch ($page) {
+        case 'index.php':
+            return 'Shtepia';
+        case 'strike-platform.php':
+            return 'Strikes';
+        case 'roles.php':
+            return 'Rolet';
+        case 'stafi.php':
+            return 'Stafi';
+        case 'ads.php':
+            return 'Llogarit&euml; e ADS';
+        case 'emails.php':
+            return 'Lista e email-eve';
+        case 'klient.php':
+            return 'Lista e klient&euml;ve';
+        case 'kategorit.php':
+            return 'Lista e kategorive';
+        case 'claim.php':
+            return 'Recent Claim';
+        case 'tiketa.php':
+            return 'Lista e tiketave';
+        case 'listang.php':
+            return 'Lista e k&euml;ng&euml;ve';
+        case 'shtoy.php':
+            return 'Regjistro k&euml;ng&euml;';
+        case 'listat.php':
+            return 'Lista e tiketave';
+        case 'tiketa.php':
+            return 'Tiket e re';
+        case 'whitelist.php':
+            return 'Whitelist';
+        case 'faturat.php':
+            return 'Pagesat Youtube';
+        case 'invoice.php':
+            return 'Faturat ( New )';
+        case 'pagesat.php':
+            return 'Pagesat e kryera';
+        case 'rrogat.php':
+            return 'Pagat';
+        case 'shpenzimep.php':
+            return 'Shpenzimet personale';
+        case 'tatimi.php':
+            return 'Tatimi';
+        case 'yinc.php':
+            return 'Shpenzimet';
+        case 'filet.php':
+            return 'Dokumente tjera';
+        case 'github_logs.php':
+            return 'Aktiviteti ne Github';
+        case 'klient_CSV.php':
+            return 'Klient CSV';
+        case 'logs.php':
+            return 'Logs';
+        case 'notes.php':
+            return 'Shenime';
+        case 'takimet.php':
+            return 'Takimet';
+        case 'todo_list.php':
+            return 'To Do';
+        case 'kontrata_2.php':
+            return 'Kontrata e re';
+        case 'lista_kontratave.php':
+            return 'Lista e kontratave';
+        case 'csvFiles.php':
+            return 'Inserto CSV';
+        case 'filtroCSV.php':
+            return 'Filtro CSV';
+        case 'listaEFaturaveTePlatformave.php':
+            return 'Lista e faturave';
+        case 'pagesatEKryera.php':
+            return 'Pagesat e perfunduara';
+        case 'dataYT.php':
+            return 'Statistikat nga Youtube';
+        case 'ofertat.php':
+            return 'Ofertat';
+        case 'kontrata_gjenelare_2.php':
+            return 'Kontrate e re ( Gjenerale )';
+        case 'lista_kontratave_gjenerale.php':
+            return 'Lista e kontratave ( Gjenerale )';
+        case 'vegla_facebook.php':
+            return 'Vegla Facebook';
+        case 'lista_faturave_facebook.php':
+            return 'Lista e faturave (Facebook)';
+        case 'autor.php':
+            return 'Autor';
+        case 'lista_kopjeve_rezerve.php':
+            return 'Lista e kopjeve rezerve';
+        case 'investime.php':
+            return 'Investime';
+        case 'faturaFacebook.php':
+            return 'Krijo fatur&euml; ( Facebook )';
+        case 'ascap.php':
+            return 'Ascap';
+        case 'klient-avanc.php':
+            return 'Lista e avanceve te klienteve';
+        case 'list_of_invoices.php':
+            return 'Pagesat YouTube ( New )';
+        case 'office_investments.php':
+            return 'Investimet e objektit';
+        case 'office_damages.php':
+            return 'Prishjet';
+        case 'office_requirements.php':
+            return 'Kerkesat';
+        case 'platform_invoices.php':
+            return 'Fature e shpejte e platformave';
+        case 'currency.php':
+            return 'Valutimi';
+        case 'rating_list.php':
+            return 'Lista e vlersimeve';
+        case 'invoice_list_2.php':
+            return 'Faturë e shpejtë';
+        case 'authenticated_channels.php':
+            return 'Kanalet e autentifikuara';
+        case 'pagesat_punetor.php':
+            return 'Pagesat e punetorit';
+        case 'shpenzimet_objekt.php':
+            return 'Shpenzimet e objektit';
+        case 'ttatimi.php':
+            return 'Tatimi';
+        case 'pasqyrat.php':
+            return 'Pasqyrat';
+        default:
+            return 'Faqja nuk ekziston';
     }
 }
+
 $pages = array(
     'stafi.php' => format_page_name('stafi.php'),
     'roles.php' => format_page_name('roles.php'),
