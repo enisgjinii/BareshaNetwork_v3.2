@@ -1,7 +1,6 @@
 <?php
 include 'partials/header.php';
 include 'conn-d.php';
-
 // Fetch options for the dropdown
 $sql = "SELECT * FROM googleauth";
 $result = mysqli_query($conn, $sql);
@@ -10,14 +9,12 @@ while ($row = mysqli_fetch_array($result)) {
     $options .= "<option value='" . $row["id"] . "'>" . $row["firstName"] . " " . $row["last_name"] . "</option>";
 }
 $message = "";
-
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $employee_id = $_POST['employee'];
     $payment = $_POST['payment'];
-
     if ($_POST['action'] == 'edit') {
         $payment_id = $_POST['payment_id'];
-        $update_sql = "UPDATE employee_payments SET employee_id='$employee_id', payment_amount='$payment' WHERE id='$payment_id'";
+        $update_sql = "UPDATE employee_payments SET payment_amount='$payment' WHERE id='$payment_id' ";
         if (mysqli_query($conn, $update_sql)) {
             $message = "success";
         } else {
@@ -26,9 +23,28 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     } elseif ($_POST['action'] == 'delete') {
         $payment_id = $_POST['payment_id'];
-        $delete_sql = "DELETE FROM employee_payments WHERE id='$payment_id'";
-        if (mysqli_query($conn, $delete_sql)) {
-            $message = "success";
+        // Create backup table if not exists
+        $create_backup_table_sql = "CREATE TABLE IF NOT EXISTS employee_payments_backup (
+            id INT,
+            employee_id INT NOT NULL,
+            payment_amount DECIMAL(10, 2) NOT NULL,
+            payment_date TIMESTAMP,
+            backup_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )";
+        mysqli_query($conn, $create_backup_table_sql);
+        // Insert row into backup table before deleting
+        $backup_sql = "INSERT INTO employee_payments_backup (id, employee_id, payment_amount, payment_date)
+                       SELECT id, employee_id, payment_amount, payment_date
+                       FROM employee_payments
+                       WHERE id='$payment_id'";
+        if (mysqli_query($conn, $backup_sql)) {
+            $delete_sql = "DELETE FROM employee_payments WHERE id='$payment_id'";
+            if (mysqli_query($conn, $delete_sql)) {
+                $message = "success";
+            } else {
+                $message = "error";
+                error_log(mysqli_error($conn));
+            }
         } else {
             $message = "error";
             error_log(mysqli_error($conn));
@@ -72,6 +88,57 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <button type="button" class="input-custom-css px-3 py-2" data-bs-toggle="modal" data-bs-target="#pagesmodal">
                         Pagesë e re
                     </button>
+                    <!-- Button trigger modal -->
+                    <button type="button" class="input-custom-css px-3 py-2" data-bs-toggle="modal" data-bs-target="#deletedRows">
+                        Shiko listen e pagesave te fshira
+                    </button>
+                    <!-- Modal -->
+                    <div class="modal fade" id="deletedRows" tabindex="-1" aria-labelledby="deletedRowsLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-xl">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h1 class="modal-title fs-5" id="deletedRowsLabel">Lista e pagesave të fshira</h1>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered w-100" id="deletedTableData">
+                                            <thead class="bg-light">
+                                                <tr>
+                                                    <th>ID e rreshtit</th>
+                                                    <th>Puntori</th>
+                                                    <th>Shuma e paguar</th>
+                                                    <th>Data</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <?php
+                                                $sql = "SELECT * FROM employee_payments_backup ORDER by id DESC";
+                                                $result = mysqli_query($conn, $sql);
+                                                while ($row = mysqli_fetch_assoc($result)) {
+                                                    $sql_client = "SELECT * FROM googleauth WHERE id = " . $row["employee_id"];
+                                                    $result_client = mysqli_query($conn, $sql_client);
+                                                    $row_client = mysqli_fetch_assoc($result_client);
+
+                                                    echo "<tr>";
+                                                    echo "<td>" . $row["id"] . "</td>";
+                                                    echo "<td>" . $row_client["email"] . "</td>";
+                                                    echo "<td>" . $row["payment_amount"] . "</td>";
+                                                    echo "<td>" . $row["payment_date"] . "</td>";
+                                                    echo "</tr>";
+                                                }
+                                                ?>
+                                            </tbody>
+                                            <tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="input-custom-css px-3 py-2" data-bs-dismiss="modal">Mbylle</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <!-- Create Modal -->
                     <div class="modal fade" id="pagesmodal" tabindex="-1" aria-labelledby="pagesmodalLabel" aria-hidden="true">
                         <div class="modal-dialog">
@@ -96,7 +163,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                         </div>
                                         <div class="mb-3">
                                             <label for="recipient-name" class="col-form-label">Pagesa:</label>
-                                            <input type="number" class="form-control rounded-5 border border-2" id="recipient-name" name="payment">
+                                            <input type="text" class="form-control rounded-5 border border-2" id="recipient-name" name="payment">
                                         </div>
                                     </div>
                                     <div class="modal-footer">
@@ -173,7 +240,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         <label for="edit-payment-amount" class="col-form-label">Pagesa:</label>
                         <input type="text" class="form-control rounded-5 border border-2" id="edit-payment-amount" name="payment">
                     </div>
-
             </div>
             <div class="modal-footer">
                 <button type="button" class="input-custom-css px-3 py-2" data-bs-dismiss="modal">Mbylle</button>
@@ -210,14 +276,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if (message === "success") {
             Swal.fire({
                 icon: 'success',
-                title: 'Success!',
-                text: 'The action was completed successfully.'
+                title: 'Sukses!',
+                text: 'Aksioni përfundoi me sukses.'
             });
         } else if (message === "error") {
             Swal.fire({
                 icon: 'error',
-                title: 'Error!',
-                text: 'There was an error processing your request. Please try again.'
+                title: 'Gabim!',
+                text: 'Pati një gabim gjatë përpunimit të kërkesës suaj. Ju lutemi provoni përsëri.'
             });
         }
         // Attach data to edit modal
@@ -242,6 +308,61 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             "searching": {
                 "regex": true
             },
+            "paging": true,
+            "pageLength": 10,
+            dom: "<'row'<'col-md-3'l><'col-md-6'B><'col-md-3'f>>" +
+                "<'row'<'col-md-12'tr>>" +
+                "<'row'<'col-md-6'><'col-md-6'p>>",
+            initComplete: function() {
+                var btns = $(".dt-buttons");
+                btns.addClass("").removeClass("dt-buttons btn-group");
+                var lengthSelect = $("div.dataTables_length select");
+                lengthSelect.addClass("form-select");
+                lengthSelect.css({
+                    width: "auto",
+                    margin: "0 8px",
+                    padding: "0.375rem 1.75rem 0.375rem 0.75rem",
+                    lineHeight: "1.5",
+                    border: "1px solid #ced4da",
+                    borderRadius: "0.25rem",
+                });
+            },
+            language: {
+                url: "https://cdn.datatables.net/plug-ins/1.13.1/i18n/sq.json",
+            },
+            buttons: [{
+                    extend: "pdf",
+                    text: '<i class="fi fi-rr-file-pdf fa-lg"></i>&nbsp;&nbsp; PDF',
+                    titleAttr: "Eksporto tabelen ne formatin PDF",
+                    className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
+                },
+                {
+                    extend: "excelHtml5",
+                    text: '<i class="fi fi-rr-file-excel fa-lg"></i>&nbsp;&nbsp; Excel',
+                    titleAttr: "Eksporto tabelen ne formatin Excel",
+                    className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
+                    exportOptions: {
+                        modifier: {
+                            search: "applied",
+                            order: "applied",
+                            page: "all",
+                        },
+                    },
+                },
+                {
+                    extend: "print",
+                    text: '<i class="fi fi-rr-print fa-lg"></i>&nbsp;&nbsp; Printo',
+                    titleAttr: "Printo tabel&euml;n",
+                    className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
+                },
+            ],
+            stripeClasses: ["stripe-color"],
+        });
+        $('#deletedTableData').DataTable({
+            "searching": {
+                "regex": true
+            },
+            responsive: true,
             "paging": true,
             "pageLength": 10,
             dom: "<'row'<'col-md-3'l><'col-md-6'B><'col-md-3'f>>" +
