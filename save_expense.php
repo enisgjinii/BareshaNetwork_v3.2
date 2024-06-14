@@ -11,58 +11,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $uploadOk = 1;
     $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
 
-    // Kontrolloni nëse është skedar i vërtetë
-    if (isset($_POST["submit"])) {
-        $check = getimagesize($_FILES["file"]["tmp_name"]);
-        if ($check !== false) {
-            echo "Skedari është një imazh - " . $check["mime"] . ".";
-            $uploadOk = 1;
-        } else {
-            echo "Skedari nuk është një imazh.";
-            $uploadOk = 0;
-        }
-    }
-
-    // Kontrolloni nëse skedari ekziston
-    if (file_exists($target_file)) {
-        echo "Sorry, skedari ekziston tashmë.";
-        $uploadOk = 0;
-    }
-
-    // Kontrolloni madhësinë e skedarit
+    // Centralized file upload validations
     if ($_FILES["file"]["size"] > 500000) {
         echo "Sorry, skedari juaj është shumë i madh.";
         $uploadOk = 0;
     }
 
-    // Lejoni vetëm formatet e caktuara të skedarit
-    if (
-        $imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg"
-        && $imageFileType != "gif"
-    ) {
-        echo "Sorry, vetëm formatet JPG, JPEG, PNG & GIF janë të lejuara.";
+    if (file_exists($target_file)) {
+        echo "Sorry, skedari ekziston tashmë.";
         $uploadOk = 0;
     }
 
-    // Kontrolloni $uploadOk për gabime
-    if ($uploadOk == 0) {
-        echo "Sorry, skedari juaj nuk u ngarkua.";
-        // Ngarko skedarin nëse nuk ka gabime
-    } else {
-        if (move_uploaded_file($_FILES["file"]["tmp_name"], $target_file)) {
-            echo "Skedari " . basename($_FILES["file"]["name"]) . " është ngarkuar me sukses.";
-        } else {
-            echo "Sorry, ndodhi një problem gjatë ngarkimit të skedarit.";
-        }
+    // Whitelist approach for allowed file types
+    $allowed_file_types = array("jpg", "jpeg", "png", "gif", "bmp", "svg");
+    if (!in_array($imageFileType, $allowed_file_types)) {
+        echo "Sorry, vetëm formatet JPG, JPEG, PNG, GIF, BMP dhe SVG janë të lejuara.";
+        $uploadOk = 0;
     }
 
-    // Shto informacionin në bazën e të dhënave nëse nuk ka gabime
-    if ($uploadOk != 0) {
-        $query = "INSERT INTO expenses (registruesi, pershkrimi, shuma, dokumenti) VALUES ('$registruesi', '$pershkrimi', '$shuma', '$dokumenti')";
-        if ($conn->query($query) === TRUE) {
-            header('Location: ' . $_SERVER['HTTP_REFERER']);
+    // More specific error messages
+    if ($uploadOk == 0) {
+        echo "Skedari juaj nuk u ngarkua. Ju lutem korrigjoni gabimet.";
+    } else {
+        // Move the uploaded file after all checks pass
+        if (move_uploaded_file($_FILES["file"]["tmp_name"], $target_file)) {
+            echo "Skedari " . basename($_FILES["file"]["name"]) . " është ngarkuar me sukses.";
+
+            // Insert data into the database only when upload is successful
+            $query = "INSERT INTO expenses (registruesi, pershkrimi, shuma, dokumenti) VALUES ('$registruesi', '$pershkrimi', '$shuma', '$dokumenti')";
+            if ($conn->query($query) === TRUE) {
+                header('Location: ' . $_SERVER['HTTP_REFERER']);
+            } else {
+                echo "Error: " . $query . "<br>" . $conn->error;
+            }
         } else {
-            echo "Error: " . $query . "<br>" . $conn->error;
+            echo "Sorry, ndodhi një problem gjatë ngarkimit të skedarit.";
         }
     }
 }
