@@ -1,7 +1,13 @@
 <?php include 'partials/header.php' ?>
 <?php
 include 'conn-d.php';
-#aaa
+/**
+ * Formats page name based on the provided page filename.
+ *
+ * @param string $page The filename of the page.
+ *
+ * @return string The formatted page name.
+ */
 function format_page_name($page)
 {
     switch ($page) {
