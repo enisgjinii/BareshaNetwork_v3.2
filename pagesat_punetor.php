@@ -308,11 +308,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             "searching": {
                 "regex": true
             },
+
+            responsive: {
+                details: {
+                    display: $.fn.dataTable.Responsive.display.childRowImmediate,
+                    type: ''
+                }
+            },
             "paging": true,
             "pageLength": 10,
             dom: "<'row'<'col-md-3'l><'col-md-6'B><'col-md-3'f>>" +
                 "<'row'<'col-md-12'tr>>" +
-                "<'row'<'col-md-6'><'col-md-6'p>>",
+                "<'row'<'col-md-6'i><'col-md-6'p>>",
             initComplete: function() {
                 var btns = $(".dt-buttons");
                 btns.addClass("").removeClass("dt-buttons btn-group");
@@ -327,6 +334,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     borderRadius: "0.25rem",
                 });
             },
+            lengthMenu: [
+                [10, 25, 50, 100, -1],
+                [10, 25, 50, 100, "All"],
+            ],
             language: {
                 url: "https://cdn.datatables.net/plug-ins/1.13.1/i18n/sq.json",
             },

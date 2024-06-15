@@ -89,24 +89,28 @@ $jsonTotalSumForSell = json_encode((int)$fitimi);
                     </li>
                 </ol>
             </nav>
-            <ul class="nav nav-underline" id="myTab" role="tablist">
+            <ul class="nav nav-pills bg-white my-3 mx-0 rounded-5" style="width: fit-content; border: 1px solid lightgrey;" id="myTab" role="tablist">
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link active" id="pagesat_e_punetoreve-tab" data-bs-toggle="tab" data-bs-target="#pagesat_e_punetoreve-tab-pane" type="button" role="tab" aria-controls="pagesat_e_punetoreve-tab-pane" aria-selected="true">
+                    <button class="nav-link rounded-5 active" style="text-decoration: none;text-transform: none;" id="pagesat_e_punetoreve-tab" data-bs-toggle="tab" data-bs-target="#pagesat_e_punetoreve-tab-pane" type="button" role="tab" aria-controls="pagesat_e_punetoreve-tab-pane" aria-selected="true">
                         Pagesat e punetoreve</button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile-tab-pane" type="button" role="tab" aria-controls="profile-tab-pane" aria-selected="false">Shpenzimet e objektit</button>
+                    <button class="nav-link rounded-5" style="text-decoration: none;text-transform: none;" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile-tab-pane" type="button" role="tab" aria-controls="profile-tab-pane" aria-selected="false">Shpenzimet e objektit</button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="contact-tab" data-bs-toggle="tab" data-bs-target="#contact-tab-pane" type="button" role="tab" aria-controls="contact-tab-pane" aria-selected="false">Tatimet</button>
+                    <button class="nav-link rounded-5" style="text-decoration: none;text-transform: none;" id="contact-tab" data-bs-toggle="tab" data-bs-target="#contact-tab-pane" type="button" role="tab" aria-controls="contact-tab-pane" aria-selected="false">Tatimet</button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="pagesatYoutube-tab" data-bs-toggle="tab" data-bs-target="#pagesatYoutube-tab-pane" type="button" role="tab" aria-controls="pagesatYoutube-tab-pane" aria-selected="false">Pagesat e Youtubes</button>
+                    <button class="nav-link rounded-5" style="text-decoration: none;text-transform: none;" id="pagesatYoutube-tab" data-bs-toggle="tab" data-bs-target="#pagesatYoutube-tab-pane" type="button" role="tab" aria-controls="pagesatYoutube-tab-pane" aria-selected="false">Pagesat e Youtubes</button>
                 </li>
             </ul>
-            <br /><br />
             <div class="tab-content bg-white p-3 border border-1 rounded-5" id="myTabContent">
                 <div class="tab-pane fade show active" id="pagesat_e_punetoreve-tab-pane" role="tabpanel" aria-labelledby="pagesat_e_punetoreve-tab" tabindex="0">
+                    <div class="text-left mb-3">
+                        <label for="month-selector" class="form-label">Zgjedh muajin:</label>
+                        <select id="month-selector" class="form-select w-25 rounded-5"></select>
+                    </div>
+                    <hr>
                     <div id="chart" class="w-100"></div>
                     <br /><br />
                     <hr />
@@ -129,7 +133,7 @@ $jsonTotalSumForSell = json_encode((int)$fitimi);
                     <br /><br />
                     <div id="chart4" class="w-100"></div>
                     <hr />
-                    
+
                     <div class="text-center">
                         <a href="invoice.php" style="text-decoration: none;" class="input-custom-css px-3 py-2">Kalo tek faturat</a>
                     </div>
@@ -138,17 +142,62 @@ $jsonTotalSumForSell = json_encode((int)$fitimi);
         </div>
     </div>
 </div>
-<?php include 'partials/footer.php' ?><script src="https://code.highcharts.com/highcharts.js"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Pass PHP data to JavaScript
-        var total_count = <?php echo $jsonTotalCount; ?>;
-        var total_sum = <?php echo $jsonTotalSum; ?>;
-        var total_count_for_shpenzimet = <?php echo $jsonTotalCountForShpenzimet; ?>;
-        var total_sum_for_shpenzimet = <?php echo $jsonTotalSumForShpenzimet; ?>;
-        var total_sum_for_income = <?php echo $jsonTotalSumForIncome; ?>;
-        var total_sum_for_sell = <?php echo $jsonTotalSumForSell; ?>;
-        // Highcharts options
+    // Function to populate the month selector
+    function populateMonthSelector() {
+        const monthSelector = document.getElementById('month-selector');
+        const currentDate = new Date();
+        const currentYear = currentDate.getFullYear();
+        const currentMonth = currentDate.getMonth(); // 0-11 (January is 0)
+
+        // Array of month names
+        const monthNames = [
+            'Janar', 'Shkurt', 'Mars', 'Prill', 'Maj', 'Qershor',
+            'Korrik', 'Gusht', 'Shtator', 'Tetor', 'Nëntor', 'Dhjetor'
+        ];
+
+        // Generate options up to the current month
+        for (let year = 2024; year <= currentYear; year++) {
+            const maxMonth = (year === currentYear) ? currentMonth : 11;
+            for (let month = 0; month <= maxMonth; month++) {
+                const monthValue = `${year}-${String(month + 1).padStart(2, '0')}`;
+                const monthText = `${monthNames[month]} ${year}`;
+                const option = document.createElement('option');
+                option.value = monthValue;
+                option.text = monthText;
+                monthSelector.appendChild(option);
+            }
+        }
+    }
+
+    // Call the function to populate the month selector
+    populateMonthSelector();
+
+    // Function to fetch data from the database based on the selected month
+    function fetchDataForMonth(month) {
+        return new Promise((resolve, reject) => {
+            // Replace this with your actual AJAX call to fetch data from the server
+            // Here, it's assumed that the server returns data in the format:
+            // { total_count: number, total_sum: string }
+            $.ajax({
+                url: 'fetch_data.php',
+                method: 'POST',
+                data: {
+                    month: month
+                },
+                success: function(data) {
+                    data = JSON.parse(data); // Ensure data is parsed
+                    resolve(data);
+                },
+                error: function(error) {
+                    reject(error);
+                }
+            });
+        });
+    }
+
+    // Function to update the chart with new data
+    function updateChart(total_count, total_sum) {
         Highcharts.chart('chart', {
             chart: {
                 type: 'pie'
@@ -177,11 +226,44 @@ $jsonTotalSumForSell = json_encode((int)$fitimi);
                     y: total_count
                 }, {
                     name: 'Shuma totale',
-                    // add euro symbol
-                    y: total_sum
+                    y: parseFloat(total_sum) // Ensure total_sum is a number
                 }]
             }]
         });
+    }
+
+    // Event listener for the month selector
+    document.getElementById('month-selector').addEventListener('change', function() {
+        var selectedMonth = this.value;
+
+        fetchDataForMonth(selectedMonth).then(function(data) {
+            updateChart(data.total_count, parseFloat(data.total_sum)); // Ensure total_sum is a number
+        }).catch(function(error) {
+            console.error('Error fetching data:', error);
+        });
+    });
+
+    // Initialize the chart with data for the current month
+    var currentMonth = new Date().toISOString().slice(0, 7);
+    document.getElementById('month-selector').value = currentMonth;
+    fetchDataForMonth(currentMonth).then(function(data) {
+        updateChart(data.total_count, parseFloat(data.total_sum)); // Ensure total_sum is a number
+    }).catch(function(error) {
+        console.error('Error fetching data:', error);
+    });
+</script>
+
+<?php include 'partials/footer.php' ?><script src="https://code.highcharts.com/highcharts.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Pass PHP data to JavaScript
+        var total_count = <?php echo $jsonTotalCount; ?>;
+        var total_sum = <?php echo $jsonTotalSum; ?>;
+        var total_count_for_shpenzimet = <?php echo $jsonTotalCountForShpenzimet; ?>;
+        var total_sum_for_shpenzimet = <?php echo $jsonTotalSumForShpenzimet; ?>;
+        var total_sum_for_income = <?php echo $jsonTotalSumForIncome; ?>;
+        var total_sum_for_sell = <?php echo $jsonTotalSumForSell; ?>;
+        // Highcharts options
 
         Highcharts.chart('chart2', {
             chart: {
