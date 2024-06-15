@@ -142,8 +142,8 @@
           "pagesat.php" => "Pagesat e kryera",
           "rrogat.php" => "Pagat",
           "tatimi.php" => "Tatimi",
-          "yinc.php" => "Shpenzimet",
-          "shpenzimep.php" => "Shpenzimet personale",
+          "yinc.php" => "Borxhi",
+          "shpenzimep.php" => "Borxhet personale",
         ],
       ], [
         "title" => "Kontabiliteti",

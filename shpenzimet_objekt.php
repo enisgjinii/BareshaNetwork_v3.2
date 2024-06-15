@@ -1,11 +1,15 @@
 <?php
 include 'partials/header.php';
 include 'conn-d.php';
+
 // Fetch data
 $sql = "SELECT DATE(created_at) AS date, SUM(shuma) AS total_shuma FROM expenses GROUP BY DATE(created_at)";
-$result = $conn->query($sql);
+$stmt = $conn->prepare($sql);
+$stmt->execute();
+$result = $stmt->get_result();
 $expenses = [];
 $total = 0;
+
 if ($result->num_rows > 0) {
     // output data of each row
     while ($row = $result->fetch_assoc()) {
@@ -15,6 +19,7 @@ if ($result->num_rows > 0) {
 } else {
     echo "0 results";
 }
+
 ?>
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <div class="main-panel">
@@ -88,23 +93,26 @@ if ($result->num_rows > 0) {
                             <?php
                             // Fetch data from the database
                             $query = "SELECT * FROM expenses";
-                            $result = $conn->query($query);
+                            $stmt = $conn->prepare($query);
+                            $stmt->execute();
+                            $result = $stmt->get_result();
+
                             // Check if there are any rows returned
                             if ($result->num_rows > 0) {
                                 // Iterate over the fetched data and display it in table rows
                                 while ($row = $result->fetch_assoc()) {
                                     echo "<tr>";
-                                    echo "<td>" . $row['registruesi'] . "</td>";
-                                    echo "<td>" . $row['pershkrimi'] . "</td>";
-                                    echo "<td>" . $row['shuma'] . "</td>";
-                                    echo "<td>" . $row['dokumenti'] . "</td>";
-                                    echo "<td>" . $row['created_at'] . "</td>";
+                                    echo "<td>" . htmlspecialchars($row['registruesi']) . "</td>";
+                                    echo "<td>" . htmlspecialchars($row['pershkrimi']) . "</td>";
+                                    echo "<td>" . htmlspecialchars($row['shuma']) . "</td>";
+                                    echo "<td>" . htmlspecialchars($row['dokumenti']) . "</td>";
+                                    echo "<td>" . htmlspecialchars($row['created_at']) . "</td>";
                                     echo "<td>";
-                                    echo '<button type="button" class="input-custom-css px-3 py-2 edit-btn" data-bs-toggle="modal" data-bs-target="#editModal" data-id="' . $row['id'] . '" data-registruesi="' . $row['registruesi'] . '" data-pershkrimi="' . $row['pershkrimi'] . '" data-shuma="' . $row['shuma'] . '"><i class="fi fi-rr-edit"></i></button>';
+                                    echo '<button type="button" class="input-custom-css px-3 py-2 edit-btn" data-bs-toggle="modal" data-bs-target="#editModal" data-id="' . $row['id'] . '" data-registruesi="' . htmlspecialchars($row['registruesi']) . '" data-pershkrimi="' . htmlspecialchars($row['pershkrimi']) . '" data-shuma="' . htmlspecialchars($row['shuma']) . '"><i class="fi fi-rr-edit"></i></button>';
                                     echo '<button type="button" class="input-custom-css px-3 py-2 ms-2 delete-btn" data-id="' . $row['id'] . '"><i class="fi fi-rr-trash"></i></button>';
                                     // Check if there is a document before displaying the download button
                                     if (!empty($row['dokumenti'])) {
-                                        echo '<a style="text-decoration: none;" href="uploads/' . $row['dokumenti'] . '" download="' . $row['dokumenti'] . '" class="input-custom-css px-3 py-2 ms-2"><i class="fi fi-rr-download"></i></a>';
+                                        echo '<a style="text-decoration: none;" href="uploads/' . htmlspecialchars($row['dokumenti']) . '" download="' . htmlspecialchars($row['dokumenti']) . '" class="input-custom-css px-3 py-2 ms-2"><i class="fi fi-rr-download"></i></a>';
                                     }
                                     echo "</td>";
                                     echo "</tr>";
