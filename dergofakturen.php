@@ -32,10 +32,12 @@ try {
     $row = $result->fetch_assoc();
     $titulliemailit = $row["item"];
     $numriFatura = $row["invoice_number"];
-    $sql_for_getting_channel_id = "SELECT youtube FROM klientet WHERE id = " . $row["customer_id"] . "";
+    $sql_for_getting_channel_id = "SELECT youtube,emailadd,emri FROM klientet WHERE id = " . $row["customer_id"] . "";
     $result_for_getting_channel_id = mysqli_query($conn, $sql_for_getting_channel_id);
     $row_for_getting_channel_id = mysqli_fetch_assoc($result_for_getting_channel_id);
     $channel_id = $row_for_getting_channel_id["youtube"];
+    $email_of_finance = $row_for_getting_channel_id["emailadd"];
+    $name = $row_for_getting_channel_id["emri"];
     $htmlContent = '<div style="text-align:center; margin-bottom: 20px;">';
     $htmlContent .= '<h1 style="font-size: 24px; font-weight: bold; margin-bottom: 10px;">Fatura: ' . $row["invoice_number"] . '</h1>';
     $htmlContent .= '<p style="font-size: 16px; color: #555;">Detajet e faturës</p>';
@@ -167,18 +169,17 @@ try {
     $mail->isSMTP();
     $mail->Host = 'smtp.gmail.com';
     $mail->SMTPAuth = true;
-    $mail->Username = 'kastriot@bareshamusic.com';
-    $mail->Password = 'xpuurhlkncbzhdyg';
+    $mail->Username = 'finance@bareshamusic.com';
+    $mail->Password = 'hocrbvnxzoteynup';
     $mail->SMTPSecure = 'tls';
     $mail->Port = 587;
-    $mail->setFrom('kastriot@bareshamusic.com', 'Your Name');
-    $mail->addAddress('kastriot@bareshamusic.com', 'Recipient Name');
-    $mail->addAddress('egjini@bareshamusic.com', 'Recipient Name');
+    $mail->setFrom('finance@bareshamusic.com', 'Baresha Finance');
+    $mail->addAddress($email_of_finance, $name);
     $mail->Subject = 'Fatura - ' . $numriFatura . ' | ' . $titulliemailit;
     $mail->addAttachment($pdfFilePath);
     $mail->isHTML(true);
     $mail->Body = '
-        <!DOCTYPE html>
+        <!DOCTYPE html> 
         <html>
         <head>
         </head>

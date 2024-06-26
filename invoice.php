@@ -1159,35 +1159,68 @@ function getChannelDetails($channelId, $apiKey)
           data: 'actions',
           render: function(data, type, row) {
             // Determine the total amount to use
-            var totalAmount = row.total_amount_in_eur_after_percentage !== null && row.total_amount_in_eur_after_percentage !== undefined ?
+            var totalAmount = (row.total_amount_in_eur_after_percentage !== null && row.total_amount_in_eur_after_percentage !== undefined) ?
               row.total_amount_in_eur_after_percentage :
               row.total_amount_after_percentage;
+
             // Calculate the remaining amount
             var remainingAmount = totalAmount - row.paid_amount;
-            var html = '<div>' +
-              '<a href="#" style="text-decoration:none;" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark open-payment-modal" ' +
+
+            var html = '<div>';
+
+            // Payment modal link
+            html += '<a href="#" style="text-decoration:none;" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark open-payment-modal" ' +
               'data-id="' + row.id + '" ' +
               'data-invoice-number="' + row.invoice_number + '" ' +
-              'data-customer-id="' + row.customer_id + '" ' +
+              'data-customer-id="' + row.customer_id + '" ' + 
               'data-item="' + row.item + '" ' +
               'data-total-amount="' + totalAmount + '" ' +
               'data-paid-amount="' + row.paid_amount + '" ' +
               'data-remaining-amount="' + remainingAmount + '">' +
-              '<i class="fi fi-rr-euro"></i></a>  ' +
-              '<a target="_blank" style="text-decoration:none;" href="complete_invoice.php?id=' + row.id + '" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark">' +
-              '<i class="fi fi-rr-edit"></i></a>' +
-              '<a target="_blank" style="text-decoration:none;" href="print_invoice.php?id=' + row.invoice_number + '" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark">' +
-              '<i class="fi fi-rr-print"></i></a></div><br>';
+              '<i class="fi fi-rr-euro"></i></a>';
+
+            // Complete invoice link
+            html += '<a target="_blank" style="text-decoration:none;" href="complete_invoice.php?id=' + row.id + '" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark">' +
+              '<i class="fi fi-rr-edit"></i></a>';
+
+            // Print invoice link
+            html += '<a target="_blank" style="text-decoration:none;" href="print_invoice.php?id=' + row.invoice_number + '" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark">' +
+              '<i class="fi fi-rr-print"></i></a>';
+
+            // Check if customer email exists and add the send invoice button or a disabled button with tooltip
             if (row.customer_email) {
-              html += '<br><a href="#" style="text-decoration:none;" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark send-invoice" ' +
+              html += '<a href="#" style="text-decoration:none;" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark send-invoice" ' +
                 'data-id="' + row.id + '">' +
-                '<i class="fi fi-rr-file-export"></i></a>';
+                'Dergo faktur tek kengtari</a>';
             } else {
-              const dotHTML1 = '<p style="white-space: normal;"><div class="custom-tooltip"><div class="custom-dot"></div><span class="custom-tooltiptext">Nuk posedon email</span></div></p>';
               html += '<button style="text-decoration:none;" class="bg-light border border-1 px-3 py-2 rounded-5 mx-1 text-dark" disabled>' +
-                '<i class="fi fi-rr-file-export"></i></button><p style="white-space: normal;">' + dotHTML1 + '</p>';
+                '<i class="fi fi-rr-file-export"></i></button>' +
+                '<p style="white-space: normal;">' +
+                '<div class="custom-tooltip">' +
+                '<div class="custom-dot"></div>' +
+                '<span class="custom-tooltiptext">Nuk posedon email</span>' +
+                '</div>' +
+                '</p>';
             }
+
+            // Check if contablist email exists and add the send invoice button or a disabled button with tooltip
+            if (row.email_of_contablist) {
+              html += '<a href="#" style="text-decoration:none;" class="bg-white border border-1 px-3 border-danger py-2 rounded-5 mx-1 text-dark send-invoices" ' +
+                'data-id="' + row.id + '">' +
+                'Dergo faktur tek kontabilisti</a>';
+            } else {
+              html += '<button style="text-decoration:none;" class="bg-light border border-1 px-3 py-2 rounded-5 mx-1 text-dark" disabled>' +
+                '<i class="fi fi-rr-file-export"></i></button>' +
+                '<p style="white-space: normal;">' +
+                '<div class="custom-tooltip">' +
+                '<div class="custom-dot"></div>' +
+                '<span class="custom-tooltiptext">Nuk posedon email</span>' +
+                '</div>' +
+                '</p>';
+            }
+
             html += '</div>';
+
             return html;
           }
         }
@@ -1446,13 +1479,17 @@ function getChannelDetails($channelId, $apiKey)
           data: 'actions',
           render: function(data, type, row) {
             // Determine the total amount to use
-            var totalAmount = row.total_amount_in_eur_after_percentage !== null && row.total_amount_in_eur_after_percentage !== undefined ?
+            var totalAmount = (row.total_amount_in_eur_after_percentage !== null && row.total_amount_in_eur_after_percentage !== undefined) ?
               row.total_amount_in_eur_after_percentage :
               row.total_amount_after_percentage;
+
             // Calculate the remaining amount
             var remainingAmount = totalAmount - row.paid_amount;
-            var html = '<div>' +
-              '<a href="#" style="text-decoration:none;" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark open-payment-modal" ' +
+
+            var html = '<div>';
+
+            // Payment modal link
+            html += '<a href="#" style="text-decoration:none;" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark open-payment-modal" ' +
               'data-id="' + row.id + '" ' +
               'data-invoice-number="' + row.invoice_number + '" ' +
               'data-customer-id="' + row.customer_id + '" ' +
@@ -1460,21 +1497,44 @@ function getChannelDetails($channelId, $apiKey)
               'data-total-amount="' + totalAmount + '" ' +
               'data-paid-amount="' + row.paid_amount + '" ' +
               'data-remaining-amount="' + remainingAmount + '">' +
-              '<i class="fi fi-rr-euro"></i></a>  ' +
-              '<a target="_blank" style="text-decoration:none;" href="complete_invoice.php?id=' + row.id + '" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark">' +
-              '<i class="fi fi-rr-edit"></i> </a>' +
-              '<a target="_blank" style="text-decoration:none;" href="print_invoice.php?id=' + row.invoice_number + '" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark">' +
-              '<i class="fi fi-rr-print"></i> </a></div><br>';
+              '<i class="fi fi-rr-euro"></i></a>';
+
+            // Complete invoice link
+            html += '<a target="_blank" style="text-decoration:none;" href="complete_invoice.php?id=' + row.id + '" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark">' +
+              '<i class="fi fi-rr-edit"></i></a>';
+
+            // Print invoice link
+            html += '<a target="_blank" style="text-decoration:none;" href="print_invoice.php?id=' + row.invoice_number + '" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark">' +
+              '<i class="fi fi-rr-print"></i></a>';
+
+            // Check if customer email exists and add the send invoice button or a disabled button with tooltip
             if (row.customer_email) {
-              html += '<br><a href="#" style="text-decoration:none;" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark send-invoice" ' +
+              html += '<a href="#" style="text-decoration:none;" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark send-invoice" ' +
                 'data-id="' + row.id + '">' +
-                '<i class="fi fi-rr-file-export"></i></a>';
+                'Dergo faktur tek kengtari</a>';
             } else {
-              const dotHTML3 = '<p style="white-space: normal;"><div class="custom-tooltip"><div class="custom-dot"></div><span class="custom-tooltiptext">Nuk posedon email</span></div></p>';
               html += '<button style="text-decoration:none;" class="bg-light border border-1 px-3 py-2 rounded-5 mx-1 text-dark" disabled>' +
-                '<i class="fi fi-rr-file-export"></i></button><p style="white-space: normal;">' + dotHTML3 + '</p>';
+                '<i class="fi fi-rr-file-export"></i></button>' +
+                '<p style="white-space: normal;">' +
+                '<div class="custom-tooltip">' +
+                '<div class="custom-dot"></div>' +
+                '<span class="custom-tooltiptext">Nuk posedon email</span>' +
+                '</div>' +
+                '</p>';
             }
+
+            // Check if contablist email exists and add the send invoice button or a disabled button with tooltip
+            if (row.email_of_contablist) {
+              html += '<a href="#" style="text-decoration:none;" class="bg-white border border-1 px-3 border-danger py-2 rounded-5 mx-1 text-dark send-invoices" ' +
+                'data-id="' + row.id + '">' +
+                'Dergo faktur tek kontabilisti</a>';
+            } else {
+              html += '<button style="text-decoration:none;" class="bg-light border border-1 px-3 py-2 rounded-5 mx-1 text-dark" disabled>' +
+                '<i class="fi fi-rr-file-export"></i></button>' 
+            }
+
             html += '</div>';
+
             return html;
           }
         }
@@ -1730,6 +1790,62 @@ function getChannelDetails($channelId, $apiKey)
       var invoiceId = $(this).data('id');
       $.ajax({
         url: 'dergofakturen.php?id=' + invoiceId,
+        type: 'GET',
+        success: function(response) {
+          if (response.includes('Email sent successfully')) {
+            // Email sent successfully
+            Swal.fire({
+              icon: 'success',
+              title: 'Emaili u dërgua me sukses',
+              showConfirmButton: false,
+              timer: 1500
+            }).then(function() {
+              window.location.href = 'invoice.php?success=sent';
+            });
+          } else {
+            // Ndodhi një gabim
+            Swal.fire({
+              icon: 'error',
+              title: 'Ndodhi një gabim',
+              text: 'Dështoi dërgimi i faturës.'
+            }).then(function() {
+              window.location.href = 'invoice.php?success=error';
+            });
+          }
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+          // Kërkesa AJAX dështoi
+          var errorMessage = "Dështoi dërgimi i faturës. Gabimi: " + textStatus + ", " + errorThrown;
+          Swal.fire({
+            icon: 'error',
+            title: 'Ndodhi një gabim',
+            text: errorMessage
+          }).then(function() {
+            // Ruaj mesazhin e gabimit në skedar JSON
+            $.ajax({
+              url: 'save-error.php',
+              type: 'POST',
+              data: {
+                error: errorMessage
+              },
+              success: function(response) {
+                console.log('Gabimi u ruajt me sukses.');
+              },
+              error: function() {
+                console.log('Dështoi ruajtja e gabimit.');
+              }
+            });
+            // Ridrejto në invoice.php me mesazhin e gabimit
+            window.location.href = 'invoice.php?success=error&message=' + encodeURIComponent(errorMessage);
+          });
+        }
+      });
+    });
+    $(document).on('click', '.send-invoices', function(e) {
+      e.preventDefault();
+      var invoiceId = $(this).data('id');
+      $.ajax({
+        url: 'dergofakturenTekKontabilisti.php?id=' + invoiceId,
         type: 'GET',
         success: function(response) {
           if (response.includes('Email sent successfully')) {

@@ -1,22 +1,33 @@
 <?php
+
 // Connect to database (assuming 'conn-d.php' contains database connection code)
 include 'conn-d.php';
 
 // Handle form submission
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Initialize variables to store form data
-    $date = $description = $document_path = '';
+    $date = $description = $period = $document_path = $forma = NULL;
+    $value = 0;
 
     // Retrieve and sanitize data from POST request
-    if (isset($_POST['date'])) {
+    if (!empty($_POST['date'])) {
         $date = $_POST['date'];
     }
-    if (isset($_POST['text'])) {
+    if (!empty($_POST['text'])) {
         $description = $_POST['text'];
+    }
+    if (!empty($_POST['periodk'])) {
+        $period = $_POST['periodk'];
+    }
+    if (!empty($_POST['value'])) {
+        $value = $_POST['value'];
+    }
+    if (!empty($_POST['formak'])) {
+        $forma = $_POST['formak'];
     }
 
     // Check if file was uploaded
-    if (isset($_FILES['file'])) {
+    if (isset($_FILES['file']) && $_FILES['file']['error'] !== UPLOAD_ERR_NO_FILE) {
         if ($_FILES['file']['error'] === UPLOAD_ERR_OK) {
             $temp_file = $_FILES['file']['tmp_name'];
             $upload_dir = 'contributions/'; // Directory to store uploaded files
@@ -31,44 +42,32 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 echo "Error uploading file.";
                 // Handle error - file upload failed
             }
-        } elseif ($_FILES['file']['error'] !== UPLOAD_ERR_NO_FILE) {
+        } else {
             echo "Error uploading file: " . $_FILES['file']['error'];
             // Handle error - file upload error other than UPLOAD_ERR_NO_FILE
         }
-    } else {
-        echo "No file uploaded.";
-        // Handle case where no file was uploaded
     }
 
-    // Insert data into database if all required fields are valid
-    if (!empty($date) && !empty($description)) {
-        if ($document_path === '') {
-            $document_path = NULL; // Set to NULL if no file was uploaded
-        }
+    // Insert data into database
+    $sql = "INSERT INTO contributions (date, description, period, value, document_path, payment_method ) VALUES (?, ?, ?, ?, ?, ?)";
 
-        $sql = "INSERT INTO contributions (date, description, document_path) VALUES (?, ?, ?)";
-
-        $stmt = $conn->prepare($sql);
-        if ($stmt === false) {
-            die('Prepare failed: ' . htmlspecialchars($conn->error));
-        }
-
-        $stmt->bind_param("sss", $date, $description, $document_path);
-
-        if ($stmt->execute()) {
-            echo "New contribution added successfully.";
-            // Handle success
-            header("Location: ttatimi.php");
-            exit();
-        } else {
-            echo "Error: " . $sql . "<br>" . $conn->error;
-        }
-
-        $stmt->close();
-    } else {
-        echo "Please fill in all required fields.";
-        // Handle error - required fields not filled
+    $stmt = $conn->prepare($sql);
+    if ($stmt === false) {
+        die('Prepare failed: ' . htmlspecialchars($conn->error));
     }
+
+    $stmt->bind_param("sssdss", $date, $description, $period, $value, $document_path, $forma);
+
+    if ($stmt->execute()) {
+        echo "New contribution added successfully.";
+        // Handle success
+        header("Location: ttatimi.php");
+        exit();
+    } else {
+        echo "Error: " . $sql . "<br>" . $conn->error;
+    }
+
+    $stmt->close();
 }
 
 // Close database connection

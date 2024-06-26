@@ -88,7 +88,7 @@ $m6 = mysqli_fetch_array($mp6);
     <div class="container-fluid">
       <?php include 'format_page.php' ?>
       <?php
-      if ($email == "endrit@bareshamusic.com" || $email == "egjini@bareshamusic.com" || $email == "lirie@bareshamusic.com" || $email == "yllzona@bareshamusic.com" || $email == "lyon@bareshamusic.com") { ?>
+      if ($email == "endrit@bareshamusic.com" || $email == "egjini@bareshamusic.com" || $email == "lirie@bareshamusic.com" || $email == "yllzona@bareshamusic.com" || $email == "lyon@bareshamusic.com" || $email == "e.muqa@bareshamusic.com") { ?>
         <div class="card p-5 rounded-5 my-5">
           <h6 class="text-muted mb-3">Lista e faqeve në të cilat ju, si <p class="badge bg-primary rounded-5">
               <?php echo $email ?>

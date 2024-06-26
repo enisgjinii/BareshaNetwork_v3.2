@@ -1,13 +1,11 @@
 <?php
 include 'partials/header.php';
 require 'vendor/autoload.php';
-
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
-use Dompdf\Dompdf;
-use Dompdf\Options;
-
-$mail = new PHPMailer(true); // Passing `true` enables exceptions
+// use PHPMailer\PHPMailer\PHPMailer;
+// use PHPMailer\PHPMailer\Exception;
+// use Dompdf\Dompdf;
+// use Dompdf\Options;
+// $mail = new PHPMailer(true); // Passing `true` enables exceptions
 if (isset($_POST['ruaj'])) {
   $emri = $_POST['emri'];
   if (empty($_POST['min'])) {
@@ -29,6 +27,7 @@ if (isset($_POST['ruaj'])) {
   $kategoria = mysqli_real_escape_string($conn, $_POST['kategoria']);
   $nrtel = mysqli_real_escape_string($conn, $_POST['nrtel']);
   $emailadd = mysqli_real_escape_string($conn, $_POST['emailadd']);
+  $email_kontablist = mysqli_real_escape_string($conn, $_POST['email_kontablist']);
   $emailp = mysqli_real_escape_string($conn, $_POST['emailp']);
   $emriart = mysqli_real_escape_string($conn, $_POST['emriart']);
   $nrllog = mysqli_real_escape_string($conn, $_POST['nrllog']);
@@ -56,7 +55,7 @@ if (isset($_POST['ruaj'])) {
   $type__of_client = $_POST['type_of_client'];
   if ($conn->query(
     "INSERT INTO klientet 
-    (emri, np, monetizuar, dk, dks, youtube, info, perqindja, perqindja2, kontrata, ads, fb, ig, adresa, kategoria, nrtel, emailadd, emailp, emriart, nrllog, bank_name ,fjalkalimi, perdoruesi, emails, blocked, perqindja_check, perqindja_platformave_check,lloji_klientit) VALUES ('$emri', '$np','$mon', '$dk', '$dks', '$yt', '$info', '$perq', '$perq2', '$targetfolder', '$ads', '$fb', '$ig', '$adresa', '$kategoria', '$nrtel', '$emailadd', '$emailp', '$emriart', '$nrllog', '$bank_info', '$password', '$perdoruesi', '$emails', '0', '$perqindja_check', '$perqindja_e_platformave_check','$type__of_client')"
+    (emri, np, monetizuar, dk, dks, youtube, info, perqindja, perqindja2, kontrata, ads, fb, ig, adresa, kategoria, nrtel, emailadd, emailp, emriart, nrllog, bank_name ,fjalkalimi, perdoruesi, emails, blocked, perqindja_check, perqindja_platformave_check,lloji_klientit,email_kontablist) VALUES ('$emri', '$np','$mon', '$dk', '$dks', '$yt', '$info', '$perq', '$perq2', '$targetfolder', '$ads', '$fb', '$ig', '$adresa', '$kategoria', '$nrtel', '$emailadd', '$emailp', '$emriart', '$nrllog', '$bank_info', '$password', '$perdoruesi', '$emails', '0', '$perqindja_check', '$perqindja_e_platformave_check','$type__of_client','$email_kontablist')"
   )) {
     $kueri = $conn->query("SELECT * FROM klientet ORDER BY id DESC");
     $k = mysqli_fetch_array($kueri);
@@ -104,34 +103,34 @@ if (isset($_POST['ruaj'])) {
      }
    });
    </script>';
-    try {
-      // Cilësimet e serverit
-      $mail->isSMTP(); // Vendos mailer-in për të përdorur SMTP
-      $mail->Host = 'smtp.gmail.com'; // Specifikoni serverët kryesor dhe rezervë SMTP
-      $mail->SMTPAuth = true; // Aktivizoni autentikimin SMTP
-      $mail->Username = 'egjini17@gmail.com'; // Emri i përdoruesit SMTP
-      $mail->Password = 'nzlnbougxyeijlci'; // Fjalëkalimi SMTP
-      $mail->SMTPSecure = 'tls'; // Aktivizoni kodimin TLS, pranohet edhe `ssl`
-      $mail->Port = 587; // Porti TCP për tu lidhur me të
-      $mail->setFrom('egjini17@gmail.com', 'Dërguesi');
-      $mail->addAddress('egjini17@gmail.com', 'Dërguesi');
-      $mail->addAddress('kastriot@bareshamusic.com', 'Kastrioti');
-      $mail->CharSet = 'UTF-8';
-      $mail->isHTML(true);
-      // Bashkangjitje
-      $mail->Subject = 'Mirë se erdhët';
-      // Përgatitni trupin e emailit me informacionin e përdoruesit
-      $mail->Body = "
-    <div style='background-color: #f5f5f5; border-radius: 10px; padding: 20px; margin: 20px;'>
-        <h2 style='color: #333;'>Ju mire se erdhet </h2>
-        <hr>
-    </div>
-";
-      // Dërgoni emailin
-      $mail->send();
-    } catch (Exception $e) {
-      // Trajtoni ndonjë gabim nëse ekziston
-    }
+    //     try {
+    //       // Cilësimet e serverit
+    //       $mail->isSMTP(); // Vendos mailer-in për të përdorur SMTP
+    //       $mail->Host = 'smtp.gmail.com'; // Specifikoni serverët kryesor dhe rezervë SMTP
+    //       $mail->SMTPAuth = true; // Aktivizoni autentikimin SMTP
+    //       $mail->Username = 'egjini17@gmail.com'; // Emri i përdoruesit SMTP
+    //       $mail->Password = 'nzlnbougxyeijlci'; // Fjalëkalimi SMTP
+    //       $mail->SMTPSecure = 'tls'; // Aktivizoni kodimin TLS, pranohet edhe `ssl`
+    //       $mail->Port = 587; // Porti TCP për tu lidhur me të
+    //       $mail->setFrom('egjini17@gmail.com', 'Dërguesi');
+    //       $mail->addAddress('egjini17@gmail.com', 'Dërguesi');
+    //       $mail->addAddress('kastriot@bareshamusic.com', 'Kastrioti');
+    //       $mail->CharSet = 'UTF-8';
+    //       $mail->isHTML(true);
+    //       // Bashkangjitje
+    //       $mail->Subject = 'Mirë se erdhët';
+    //       // Përgatitni trupin e emailit me informacionin e përdoruesit
+    //       $mail->Body = "
+    //     <div style='background-color: #f5f5f5; border-radius: 10px; padding: 20px; margin: 20px;'>
+    //         <h2 style='color: #333;'>Ju mire se erdhet </h2>
+    //         <hr>
+    //     </div>
+    // ";
+    //       // Dërgoni emailin
+    //       $mail->send();
+    //     } catch (Exception $e) {
+    //       // Trajtoni ndonjë gabim nëse ekziston
+    //     }
   }
 }
 ?>
@@ -181,6 +180,11 @@ if (isset($_POST['ruaj'])) {
                     <div class="col">
                       <label class="form-label" for="yt">Adresa elektronike ( Email )</label>
                       <input type="text" name="emailadd" id="emailadd" class="form-control border border-2 rounded-5" placeholder="Shëno email-in e klientit" autocomplete="off">
+                    </div>
+                    <br>
+                    <div class="col">
+                      <label class="form-label" for="email_kontablist">Adresa elektronike e kontablistit ( Email )</label>
+                      <input type="text" name="email_kontablist" id="email_kontablist" class="form-control border border-2 rounded-5" placeholder="Shëno email-in e kontablistit" autocomplete="off">
                     </div>
                     <br>
                     <div class="col">

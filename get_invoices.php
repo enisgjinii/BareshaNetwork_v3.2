@@ -24,6 +24,7 @@ $sql = "SELECT i.id, i.invoice_number, i.item, i.customer_id, i.state_of_invoice
                 i_agg.paid_amount,
                 k.emri AS customer_name,
                 k.emailadd AS customer_email,
+                k.email_kontablist AS email_of_contablist,
                 y.customer_loan_amount,
                 y.customer_loan_paid
         FROM (

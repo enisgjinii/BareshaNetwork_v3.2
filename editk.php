@@ -18,6 +18,7 @@ if (isset($_POST['ndrysho'])) {
   $adsa = mysqli_real_escape_string($conn, $_POST['ads']);
   $fb = mysqli_real_escape_string($conn, $_POST['fb']);
   $emailadd = mysqli_real_escape_string($conn, $_POST['emailadd']);
+  $email_kontablist = mysqli_real_escape_string($conn, $_POST['email_kontablist']);
   $emailp = mysqli_real_escape_string($conn, $_POST['emailp']);
   $ig = mysqli_real_escape_string($conn, $_POST['ig']);
   $adresa = mysqli_real_escape_string($conn, $_POST['adresa']);
@@ -60,7 +61,7 @@ if (isset($_POST['ndrysho'])) {
   $nrtel = mysqli_real_escape_string($conn, $_POST['nrtel']);
   $type__of_client = mysqli_real_escape_string($conn, $_POST['type_of_client']);
   // Update the database with the new data
-  if ($conn->query("UPDATE klientet SET emri='$emri', np='$np', monetizuar='$mon', emails='$emails', dk='$dk', dks='$dks', youtube='$yt', info='$info', perqindja='$perq', perqindja2='$perq2', fb='$fb', ig='$ig', adresa='$adresa', kategoria='$kategoria', nrtel='$nrtel', emailp='$emailp', emailadd='$emailadd', emriart='$emriart', nrllog='$nrllog',  bank_name='$bank_info', ads='$adsa', perdoruesi='$perdoruesi', perqindja_check='$perqindja_check', perqindja_platformave_check='$perqindja_e_platformave_check', fjalkalimi='$fjalekalimi', lloji_klientit='$type__of_client' WHERE id='$editid'")) {
+  if ($conn->query("UPDATE klientet SET emri='$emri', np='$np', monetizuar='$mon', emails='$emails', dk='$dk', dks='$dks', youtube='$yt', info='$info', perqindja='$perq', perqindja2='$perq2', fb='$fb', ig='$ig', adresa='$adresa', kategoria='$kategoria', nrtel='$nrtel', emailp='$emailp', emailadd='$emailadd', emriart='$emriart', nrllog='$nrllog',  bank_name='$bank_info', ads='$adsa', perdoruesi='$perdoruesi', perqindja_check='$perqindja_check', perqindja_platformave_check='$perqindja_e_platformave_check', fjalkalimi='$fjalekalimi', lloji_klientit='$type__of_client', email_kontablist = '$email_kontablist' WHERE id='$editid'")) {
     echo '<script>
             Swal.fire({
               icon: "success",
@@ -160,6 +161,11 @@ $contractStartDate = mysqli_fetch_array($conn->query("SELECT * FROM kontrata_gje
                     <div class="col">
                       <label class="form-label" for="yt">Adresa elektronike ( Email )</label>
                       <input type="text" name="emailadd" class="form-control rounded-5 border border-2" value="<?php echo $editcl['emailadd']; ?>" placeholder="Shëno emailin e klientit">
+                    </div>
+                    <br>
+                    <div class="col">
+                      <label class="form-label" for="yt">Adresa elektronike e kontablistit ( Email )</label>
+                      <input type="text" name="email_kontablist" class="form-control rounded-5 border border-2" id="email_kontablist" value="<?php echo $editcl['email_kontablist']; ?>" placeholder="Shëno email-in e platformave te klientit">
                     </div>
                     <br>
                     <div class="col">
@@ -393,6 +399,7 @@ $contractStartDate = mysqli_fetch_array($conn->query("SELECT * FROM kontrata_gje
                       <input type="text" name="emailp" class="form-control rounded-5 border border-2" value="<?php echo $editcl['emailp']; ?>" placeholder="Shëno email-in e platformave te klientit">
                     </div>
                     <br>
+                   
                     <div class="col">
                       <label for="perqindja" class="form-label">Përqindja ( Baresha )</label>
                       <input type="text" name="perqindja" class="form-control rounded-5 border border-2" value="<?php echo $editcl['perqindja']; ?>" placeholder="0.00%">
