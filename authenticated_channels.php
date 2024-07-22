@@ -7,6 +7,7 @@
                     <li class="breadcrumb-item active" aria-current="page"><a href="authenticated_channels.php" class="text-reset" style="text-decoration: none;">Kanalet e autentifikuara</a></li>
                 </ol>
             </nav>
+            <?php include 'deleted_refresh_tokens.php'; ?>
             <div class="card p-3">
                 <div class="table-responsive d-none d-lg-block"> <!-- Hide on XS, SM, MD, show on LG, XL -->
                     <table class="table w-full" id="authenticated_channels">
@@ -34,7 +35,7 @@
                                         <?php echo $row['id']; ?>
                                     </td>
                                     <td><a href="kanali.php?id=<?php echo $row['channel_id']; ?>" class="input-custom-css px-3 py-2 mt-3" style="text-transform:none;text-decoration:none">
-                                        <?php echo $row['channel_id']; ?></a>
+                                            <?php echo $row['channel_id']; ?></a>
                                     </td>
                                     <td><?php echo $row['channel_name']; ?></td>
                                     <td>
@@ -195,7 +196,80 @@
                 }
             }],
         });
-        // Add event listener for delete button click (for both table and list)
+
+
+        $('#backupTokensTable').DataTable({
+            responsive: false,
+            searching: true,
+            lengthMenu: [
+                [10, 25, 50, -1],
+                [10, 25, 50, "Të gjitha"]
+            ],
+            initComplete: function() {
+                var btns = $('.dt-buttons');
+                btns.addClass('').removeClass('dt-buttons btn-group');
+                var lengthSelect = $('div.dataTables_length select');
+                lengthSelect.addClass('form-select').css({
+                    'width': 'auto',
+                    'margin': '0 8px',
+                    'padding': '0.375rem 1.75rem 0.375rem 0.75rem',
+                    'line-height': '1.5',
+                    'border': '1px solid #ced4da',
+                    'border-radius': '0.25rem'
+                });
+            },
+            dom: "<'row'<'col-md-3'l><'col-md-6'B><'col-md-3'f>><'row'<'col-md-12'tr>><'row'<'col-md-6'><'col-md-6'p>>",
+            buttons: [{
+                    extend: "pdfHtml5",
+                    text: '<i class="fi fi-rr-file-pdf fa-lg"></i>&nbsp;&nbsp; PDF',
+                    titleAttr: "Eksporto tabelen ne formatin PDF",
+                    className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
+                    filename: "lista_e_kanaleve_te_lidhura",
+                },
+                {
+                    extend: "copyHtml5",
+                    text: '<i class="fi fi-rr-copy fa-lg"></i>&nbsp;&nbsp; Kopjo',
+                    titleAttr: "Kopjo tabelen ne formatin Clipboard",
+                    className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
+                    filename: "lista_e_kanaleve_te_lidhura",
+                },
+                {
+                    extend: "excelHtml5",
+                    text: '<i class="fi fi-rr-file-excel fa-lg"></i>&nbsp;&nbsp; Excel',
+                    titleAttr: "Eksporto tabelen ne formatin Excel",
+                    className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
+                    exportOptions: {
+                        modifier: {
+                            search: "applied",
+                            order: "applied",
+                            page: "all"
+                        }
+                    },
+                    filename: "lista_e_kanaleve_te_lidhura",
+                },
+                {
+                    extend: "print",
+                    text: '<i class="fi fi-rr-print fa-lg"></i>&nbsp;&nbsp; Printo',
+                    titleAttr: "Printo tabel&euml;n",
+                    className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
+                    filename: "lista_e_kanaleve_te_lidhura",
+                },
+            ],
+            fixedHeader: true,
+            language: {
+                url: "https://cdn.datatables.net/plug-ins/1.13.1/i18n/sq.json"
+            },
+            stripeClasses: ['stripe-color'],
+            columnDefs: [{
+                "targets": [0, 1, 2],
+                "render": function(data, type, row) {
+                    return type === 'display' && data !== null ? '<div style="white-space: normal;">' + data + '</div>' : data;
+                }
+            }],
+        });
+
+
+
         $(document).on('click', '.delete-btn', function() {
             var rowId = $(this).data('id');
             var deleteButton = $(this); // Store reference to the button
@@ -217,6 +291,7 @@
                             id: rowId
                         },
                         success: function(response) {
+                            console.log(response); // Debugging
                             // Remove the row from the table or list
                             deleteButton.closest('tr, .card').remove();
                             Swal.fire(
@@ -226,7 +301,7 @@
                             );
                         },
                         error: function(xhr, status, error) {
-                            console.error(xhr.responseText);
+                            console.error(xhr.responseText); // Debugging
                             Swal.fire(
                                 'Gabim!',
                                 'Diçka shkoi gabim. Ju lutemi, provoni përsëri më vonë.',

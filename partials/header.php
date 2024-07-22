@@ -41,7 +41,7 @@ try {
   handleAuthenticationError();
 }
 // Validate user email
-$allowedGmailEmails = array('afrimkolgeci@gmail.com', 'besmirakolgeci1@gmail.com', 'egjini17@gmail.com', 'bareshafinance@gmail.com', 'gjinienis148@gmail.com','emrushavdyli9@gmail.com');
+$allowedGmailEmails = array('afrimkolgeci@gmail.com', 'besmirakolgeci1@gmail.com', 'egjini17@gmail.com', 'bareshafinance@gmail.com', 'gjinienis148@gmail.com', 'emrushavdyli9@gmail.com');
 if (empty($user_info['email']) || !isValidEmailDomain($user_info['email'], $allowedGmailEmails)) {
   handleAuthenticationError();
 }
@@ -173,6 +173,10 @@ function isValidEmailDomain($email, $allowedDomains)
   <script src="https://cdn.jsdelivr.net/npm/moment/moment.min.js"></script>
   <!-- DataTables DateTime Plugin JavaScript -->
   <script src="https://cdn.datatables.net/datetime/1.5.1/js/dataTables.dateTime.min.js"></script>
+
+
+  <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js'></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <style>
     * {
       font-family: 'Inter', sans-serif;

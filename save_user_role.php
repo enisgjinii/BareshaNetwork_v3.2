@@ -5,6 +5,7 @@ include 'conn-d.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
+use TCPDF;
 
 // Validate CSRF token
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -27,14 +28,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $user_id = filter_var($_POST['user_id'], FILTER_SANITIZE_NUMBER_INT);
     $role_id = filter_var($_POST['role_id'], FILTER_SANITIZE_NUMBER_INT);
 
-    // Fetch user info and role name
+    // Fetch user info, role name, and pages access
     $user_info = fetchUserInfo($user_id, $conn);
     $role_name = fetchRoleName($role_id, $conn);
+    $pages_access = fetchPagesAccess($role_id, $conn);
 
-    // Check if user info and role name are fetched successfully
-    if (!$user_info || !$role_name) {
+    // Check if user info, role name, and pages access are fetched successfully
+    if (!$user_info || !$role_name || !$pages_access) {
         // Handle database fetch errors
-        echo "Error: Failed to fetch user info or role name.";
+        echo "Error: Failed to fetch user info, role name, or pages access.";
         exit();
     }
 
@@ -50,63 +52,74 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     // Check if insertion is successful
     if ($stmt->execute()) {
+        // Create PDF
+        $pdf = new TCPDF();
+        $pdf->AddPage();
+        $pdfContent = "<h1>Roli i përdoruesit është zgjedhur</h1>";
+        $pdfContent .= "<p><strong>Përdoruesi:</strong> " . htmlspecialchars($user_info['firstName']) . " " . htmlspecialchars($user_info['last_name']) . "</p>";
+        $pdfContent .= "<p><strong>Email:</strong> " . htmlspecialchars($user_info['email']) . "</p>";
+        $pdfContent .= "<p><strong>Roli:</strong> " . htmlspecialchars($role_name) . "</p>";
+        $pdfContent .= "<p><strong>Faqet ku keni akses:</strong></p><ul>";
+        foreach ($pages_access as $page) {
+            $pdfContent .= "<li>" . htmlspecialchars($page) . "</li>";
+        }
+        $pdfContent .= "</ul>";
+        $pdf->writeHTML($pdfContent);
+        $pdfOutput = $pdf->Output('', 'S');
+
+        // Create Markdown
+        $markdownContent = "# Roli i përdoruesit është zgjedhur\n";
+        $markdownContent .= "**Përdoruesi:** " . htmlspecialchars($user_info['firstName']) . " " . htmlspecialchars($user_info['last_name']) . "\n\n";
+        $markdownContent .= "**Email:** " . htmlspecialchars($user_info['email']) . "\n\n";
+        $markdownContent .= "**Roli:** " . htmlspecialchars($role_name) . "\n\n";
+        $markdownContent .= "**Faqet ku keni akses:**\n";
+        foreach ($pages_access as $page) {
+            $markdownContent .= "- " . htmlspecialchars($page) . "\n";
+        }
+        $markdownFile = 'role_info.md';
+        file_put_contents($markdownFile, $markdownContent);
+
         // Email sending code
         $mail = new PHPMailer(true);
         try {
             $mail->isSMTP();
             $mail->Host = 'smtp.gmail.com';
             $mail->SMTPAuth = true;
-            $mail->Username = 'egjini17@gmail.com';
-            $mail->Password = 'rhydniijtqzijjdy';
+            $mail->Username = 'egjini@bareshamusic.com';
+            $mail->Password = 'pazvpeihqiekpkiv';
             $mail->SMTPSecure = 'tls';
             $mail->Port = 587;
-            $mail->setFrom('egjini17@gmail.com', 'Technical Information');
+            $mail->setFrom('egjini@bareshamusic.com', 'Technical Information');
             $mail->addAddress($user_info['email'], $user_info['firstName'] . ' ' . $user_info['last_name']);
-            $mail->addAddress('egjini17@gmail.com', 'Administrator');
-            $mail->addReplyTo('egjini17@gmail.com', 'Technical Information');
+            $mail->addAddress('egjini@bareshamusic.com', 'Administrator');
+            $mail->addReplyTo('egjini@bareshamusic.com', 'Technical Information');
             $mail->isHTML(true);
             $mail->Subject = '=?utf-8?B?' . base64_encode('Roli për përdoruesin ' . $user_info['firstName'] . ' ' . $user_info['last_name'] . ' është zgjedhur ' . $role_name) . '?=';
             $mail->Body = "
             <html>
-            <head>
-                <style>
-                    body {
-                        font-family: Arial, sans-serif;
-                        background-color: #f4f4f4;
-                        margin: 0;
-                        padding: 0;
-                    }
-                    .container {
-                        max-width: 600px;
-                        margin: 0 auto;
-                        padding: 20px;
-                        background-color: #fff;
-                        border-radius: 5px;
-                        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-                    }
-                    h1 {
-                        color: #333;
-                        text-align: center;
-                    }
-                    .content {
-                        margin-top: 20px;
-                        border-top: 2px solid #ddd;
-                        padding-top: 20px;
-                    }
-                </style>
-            </head>
-            <body>
-                <div class='container'>
-                    <h1>Roli i përdoruesit është zgjedhur</h1>
-                    <div class='content'>
-                        <p>Përdoruesi: " . $user_info['firstName'] . " " . $user_info['last_name'] . "</p>
-                        <p>Email: " . $user_info['email'] . "</p>
-                        <p>Roli: " . $role_name . "</p>
+            <body style='font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0;'>
+                <div style='max-width: 600px; margin: 20px auto; padding: 20px; background-color: #fff; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);'>
+                    <h1 style='color: #333; text-align: center; font-size: 24px; margin-bottom: 20px;'>Roli i përdoruesit është zgjedhur</h1>
+                    <div style='border-top: 2px solid #ddd; padding-top: 20px;'>
+                        <p style='color: #555; font-size: 16px; margin: 10px 0;'><strong>Përdoruesi:</strong> " . htmlspecialchars($user_info['firstName']) . " " . htmlspecialchars($user_info['last_name']) . "</p>
+                        <p style='color: #555; font-size: 16px; margin: 10px 0;'><strong>Email:</strong> " . htmlspecialchars($user_info['email']) . "</p>
+                        <p style='color: #555; font-size: 16px; margin: 10px 0;'><strong>Roli:</strong> " . htmlspecialchars($role_name) . "</p>
+                        <p style='color: #555; font-size: 16px; margin: 10px 0;'><strong>Faqet ku keni akses:</strong></p>
+                        <ul style='list-style-type: none; padding: 0;'>";
+                        foreach ($pages_access as $page) {
+                            $mail->Body .= "<li style='color: #555; font-size: 16px; margin: 5px 0;'>" . htmlspecialchars($page) . "</li>";
+                        }
+                        $mail->Body .= "</ul>
+                    </div>
+                    <div style='margin-top: 30px; text-align: center; color: #888; font-size: 14px;'>
+                        <p>Ju faleminderit që përdorni shërbimet tona.</p>
                     </div>
                 </div>
             </body>
             </html>
             ";
+            $mail->addStringAttachment($pdfOutput, 'role_info.pdf');
+            $mail->addAttachment($markdownFile);
             $mail->send();
         } catch (Exception $e) {
             // Handle email sending errors
@@ -144,3 +157,19 @@ function fetchRoleName($role_id, $conn)
     $role = $result->fetch_assoc();
     return $role ? $role['name'] : null;
 }
+
+// Function to fetch pages access based on role ID
+function fetchPagesAccess($role_id, $conn)
+{
+    $sql = "SELECT page FROM role_pages WHERE role_id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $role_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $pages = [];
+    while ($row = $result->fetch_assoc()) {
+        $pages[] = $row['page'];
+    }
+    return $pages;
+}
+?>

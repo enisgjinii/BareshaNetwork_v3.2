@@ -30,6 +30,10 @@ $client->setRedirectUri($redirectUri);
 // Set scopes in a single call
 $client->setScopes(["email", "profile"]);
 
+// add Google Drive
+$client->addScope("https://www.googleapis.com/auth/drive");
+
+
 // Add an additional scope for gender
 $client->addScope("https://www.googleapis.com/auth/user.gender.read");
 

@@ -1,7 +1,9 @@
 <?php
 include 'partials/header.php';
+
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
+
 require 'vendor/autoload.php';
 if (!isset($_SESSION['oauth_uid'])) {
   echo '<script>
@@ -116,13 +118,14 @@ if (isset($_POST['paguaj'])) {
                     <label for="emri" class="form-label">Zgjidh nj&euml;rin nga klient&euml;t</label>
                     <select name="stafi" id="stafi" class="form-select shadow-sm rounded-5" style="border: 1px solid #ced4da">
                       <?php
-                      $gsta = $conn->query("SELECT * FROM klientet");
+                      $gsta = $conn->query("SELECT * FROM klientet WHERE aktiv IS NULL");
                       while ($gst = mysqli_fetch_array($gsta)) {
                       ?>
                         <option value="<?php echo $gst['id']; ?>"><?php echo $gst['emri']; ?></option>
                       <?php } ?>
                     </select>
                   </div>
+
                   <div class="col-md-6">
                     <label for="datab" class="form-label">Shuma</label>
                     <div class="input-group mb-2 rounded-5 me-2">
@@ -412,11 +415,13 @@ if (isset($_POST['paguaj'])) {
       $videoDetailsContainer.hide();
       $feedbackMessage.hide();
     });
+
     function extractYouTubeVideoId(link) {
       const regex = /[?&]v=([^&]+)/;
       const match = link.match(regex) || link.match(/(?:\/|%3D|v=|vi=)([^"&\?\/\s]{11})/);
       return match && match[1] ? match[1] : null;
     }
+
     function displayVideoDetails(details) {
       if ($videoTitle.children().length < maxDisplayedDetails) {
         $videoTitle.append(`<p>${details.title}</p>`);
@@ -424,6 +429,7 @@ if (isset($_POST['paguaj'])) {
         $publishedAt.append(`<p>${details.publishedAt}</p>`);
       }
     }
+
     function clearVideoDetails() {
       $videoTitle.empty();
       $videoDescription.empty();

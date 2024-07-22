@@ -1,0 +1,79 @@
+.custom-tooltip {
+    position: relative;
+    display: inline-block;
+    white-space: normal;
+    cursor: pointer;
+}
+.custom-dot {
+    width: 10px;
+    height: 10px;
+    background-color: red;
+    /* Change the dot color as desired */
+    border-radius: 50%;
+    display: inline-block;
+    white-space: normal;
+    cursor: pointer;
+}
+.custom-tooltiptext {
+    visibility: hidden;
+    width: 80px;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px;
+    position: absolute;
+    z-index: 1;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0.9;
+    transition: opacity 0.3s;
+    white-space: normal;
+    cursor: pointer;
+}
+.custom-tooltip:hover .custom-tooltiptext {
+    cursor: pointer;
+    visibility: visible;
+    white-space: normal;
+    opacity: 0.9;
+}
+@media (max-width: 767px) {
+    .breadcrumb-item a {
+        font-size: 14px;
+        /* Adjust the font size as needed */
+    }
+    .input-custom-css {
+        font-size: 12px;
+        /* Adjust the font size as needed */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 5px;
+        width: 100%;
+        /* Ensure buttons take up full width */
+        text-align: center;
+        /* Center text within buttons */
+    }
+    .input-custom-css i {
+        display: none;
+        /* Hide icons on mobile */
+    }
+    .nav-pills {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    .nav-item {
+        text-align: center;
+        margin: 0 5px;
+        /* Adjust margin as needed */
+    }
+    .table-sm th,
+    .table-sm td {
+        padding: 0.25rem;
+    }
+    .text-sm {
+        font-size: 12px;
+    }
+}

@@ -108,12 +108,12 @@ if (isset($_POST['ruaj'])) {
     //       $mail->isSMTP(); // Vendos mailer-in për të përdorur SMTP
     //       $mail->Host = 'smtp.gmail.com'; // Specifikoni serverët kryesor dhe rezervë SMTP
     //       $mail->SMTPAuth = true; // Aktivizoni autentikimin SMTP
-    //       $mail->Username = 'egjini17@gmail.com'; // Emri i përdoruesit SMTP
+    //       $mail->Username = 'egjini@bareshamusic.com'; // Emri i përdoruesit SMTP
     //       $mail->Password = 'nzlnbougxyeijlci'; // Fjalëkalimi SMTP
     //       $mail->SMTPSecure = 'tls'; // Aktivizoni kodimin TLS, pranohet edhe `ssl`
     //       $mail->Port = 587; // Porti TCP për tu lidhur me të
-    //       $mail->setFrom('egjini17@gmail.com', 'Dërguesi');
-    //       $mail->addAddress('egjini17@gmail.com', 'Dërguesi');
+    //       $mail->setFrom('egjini@bareshamusic.com', 'Dërguesi');
+    //       $mail->addAddress('egjini@bareshamusic.com', 'Dërguesi');
     //       $mail->addAddress('kastriot@bareshamusic.com', 'Kastrioti');
     //       $mail->CharSet = 'UTF-8';
     //       $mail->isHTML(true);

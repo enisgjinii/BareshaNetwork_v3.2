@@ -189,10 +189,13 @@ include('partials/header.php');
                                                     <?php if ($k['nenshkrimi'] == !null) { ?>
                                                     <?php } else {
                                                     ?>
-                                                        <button type="button" class="btn btn-success rounded-5 text-white" data-bs-toggle="modal" data-bs-target="#exampleModal" data-id="<?php echo $k['id']; ?>" data-email="<?php echo $k['klient_email']; ?>" onclick="updateEmailInput(this)" data-link="https://panel.bareshaoffice.com/kontrataPerKlient.php?id=">
+                                                        <button type="button" class="btn btn-success rounded-5 text-white" data-bs-toggle="modal" data-bs-target="#exampleModal" data-id="<?php echo $k['id']; ?>" data-email="<?php echo $k['klient_email']; ?>" onclick="updateEmailInput(this)" data-link="http://localhost/BareshaNetwork_v3.2/kontrataPerKlient.php?id=">
                                                             <i class="fi fi-rr-envelope"></i>
                                                         </button>
                                                     <?php } ?>
+                                                    <!-- Add a button with a Google Drive icon and to go redirect to file called add_manual_conttract.php -->
+                                                    <!-- <br> -->
+                                                    <a href="add_manual_contract.php?id=<?php echo $k['id']; ?>" class="btn btn-light rounded-5 border- border-2"><img style="width: 24px; height: 24px;" src="https://img.icons8.com/color/256/google-drive--v2.png" alt="google-drive--v2" /></a>
                                                 </td>
                                             </tr>
                                         <?php } ?>

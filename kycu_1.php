@@ -39,6 +39,7 @@ if (isset($_GET['code'])) {
     setcookie('l_name', $l_name, time() + 86400, '/', '', true, true);
     setcookie('gender', $gender, time() + 86400, '/', '', true, true);
     setcookie('picture', $picture, time() + 86400, '/', '', true, true);
+    
     // Retrieve IP address
     $ipAddress = $_SERVER['REMOTE_ADDR'];
     $userLog['ip_address'] = $ipAddress;
@@ -134,7 +135,7 @@ if (isset($_GET['code'])) {
             $mail->Host = 'smtp.gmail.com'; // Specifikoni serverët kryesor dhe rezervë SMTP
             $mail->SMTPAuth = true; // Aktivizoni autentikimin SMTP
             $mail->Username = 'egjini17@gmail.com'; // Emri i përdoruesit SMTP
-            $mail->Password = 'rhydniijtqzijjdy'; // Fjalëkalimi SMTP
+            $mail->Password = 'pazvpeihqiekpkiv'; // Fjalëkalimi SMTP
             $mail->SMTPSecure = 'tls'; // Aktivizoni kodimin TLS, pranohet edhe `ssl`
             $mail->Port = 587; // Porti TCP për tu lidhur me të
             $mail->setFrom('egjini17@gmail.com', 'Dërguesi');
@@ -183,7 +184,7 @@ if (isset($_GET['code'])) {
             $mail->Host = 'smtp.gmail.com'; // Specify main and backup SMTP servers
             $mail->SMTPAuth = true; // Enable SMTP authentication
             $mail->Username = 'egjini17@gmail.com'; // SMTP username
-            $mail->Password = 'rhydniijtqzijjdy'; // SMTP password
+            $mail->Password = 'pazvpeihqiekpkiv'; // SMTP password
             $mail->SMTPSecure = 'tls'; // Enable TLS encryption, `ssl` also accepted
             $mail->Port = 587; // TCP port to connect to
             $mail->setFrom('egjini17@gmail.com', 'Mailer');

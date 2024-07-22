@@ -1,31 +1,47 @@
 <?php
 ob_start();
-ini_set('max_execution_time', 800);
-include 'partials/header.php';
-include 'modalPayment.php';
-include 'loan_modal.php';
-include 'invoices_trash_modal.php';
+ini_set('max_execution_time', 15000);
 require_once 'vendor/autoload.php';
+require_once 'conn-d.php';
+require_once 'partials/header.php';
+require_once 'modalPayment.php';
+require_once 'loan_modal.php';
+require_once 'invoices_trash_modal.php';
+session_start();
+// Configuration
 $config = require_once 'second_config.php';
+// Initialize Google Client
 $client = initializeGoogleClient($config);
+// Handle authentication if code is present
 if (isset($_GET['code'])) {
   handleAuthentication($client);
 }
+// Main logic
+$selectedRange = $_POST['dateRange'] ?? 'last7days';
+list($startDate, $endDate, $formattedDate) = calculateDateRange($selectedRange);
+$_SESSION['selectedDate'] = $formattedDate;
+$_SESSION['startDate'] = $startDate;
+$_SESSION['endDate'] = $endDate;
+$refreshTokens = getRefreshTokensFromDatabase();
+// Functions
 function initializeGoogleClient($config)
 {
-  $client = new Google_Client();
-  $client->setClientId($config['client_id']);
-  $client->setClientSecret($config['client_secret']);
-  $client->setRedirectUri($config['redirect_uri']);
-  $client->setAccessType('offline');
-  $client->setApprovalPrompt('force');
-  $client->addScope([
-    'https://www.googleapis.com/auth/youtube',
-    'https://www.googleapis.com/auth/youtube.readonly',
-    'https://www.googleapis.com/auth/youtubepartner',
-    'https://www.googleapis.com/auth/yt-analytics-monetary.readonly',
-    'https://www.googleapis.com/auth/yt-analytics.readonly'
-  ]);
+  static $client = null;
+  if ($client === null) {
+    $client = new Google_Client();
+    $client->setClientId($config['client_id']);
+    $client->setClientSecret($config['client_secret']);
+    $client->setRedirectUri($config['redirect_uri']);
+    $client->setAccessType('offline');
+    $client->setApprovalPrompt('force');
+    $client->addScope([
+      'https://www.googleapis.com/auth/youtube',
+      'https://www.googleapis.com/auth/youtube.readonly',
+      'https://www.googleapis.com/auth/youtubepartner',
+      'https://www.googleapis.com/auth/yt-analytics-monetary.readonly',
+      'https://www.googleapis.com/auth/yt-analytics.readonly'
+    ]);
+  }
   return $client;
 }
 function handleAuthentication($client)
@@ -40,825 +56,643 @@ function handleAuthentication($client)
     if (isset($token['refresh_token'])) {
       $refreshToken = $token['refresh_token'];
       storeRefreshTokenInDatabase($refreshToken, $channelId, $channelName);
+      $_SESSION['refresh_token'] = $refreshToken;
     }
-    $_SESSION['refresh_token'] = $refreshToken;
-    // Redirect to a different page after authentication
     header('Location: invoices.php');
     exit;
   } catch (Google\Service\Exception $e) {
-    echo '<pre>';
-    print_r(json_decode($e->getMessage()));
-    echo '</pre>';
+    error_log('Google Service Exception: ' . $e->getMessage());
+    // Handle the error appropriately
   }
 }
 function getRefreshTokensFromDatabase()
 {
-  require_once 'conn-d.php';
-  global $conn; // Use the global keyword to make $conn accessible
-  $sql = "SELECT token, channel_id, channel_name, created_at FROM refresh_tokens";
-  $result = $conn->query($sql);
-  $refreshTokens = [];
-  if ($result->num_rows > 0) {
-    while ($row = $result->fetch_assoc()) {
-      $refreshTokens[] = $row;
-    }
+  static $tokens = null;
+  if ($tokens === null) {
+    global $conn;
+    $sql = "SELECT token, channel_id, channel_name, created_at FROM refresh_tokens";
+    $result = $conn->query($sql);
+    $tokens = $result->fetch_all(MYSQLI_ASSOC);
   }
-  return $refreshTokens;
+  return $tokens;
 }
-// Create database connection
-$conn = new mysqli($db_host, $db_user, $db_pass, $db_name);
-// Check connection
-if ($conn->connect_errno) {
-  echo "Lidhja me MySQL d&euml;shtoi: " . $conn->connect_error;
-  exit();
-}
-// Retrieve user-submitted date range or set a default
-$selectedRange = isset($_POST['dateRange']) ? $_POST['dateRange'] : 'last7days';
-// Define an array with predefined time periods
-$timePeriods = array(
-  "last7days" => "7 ditët e fundit",
-  "last28days" => "28 ditët e fundit",
-  "last90days" => "90 ditët e fundit",
-  "last365days" => "365 ditët e fundit",
-  "lifetime" => "Gjatë gjithë jetës"
-);
-// Check if the selected range is in the predefined time periods
-if (array_key_exists($selectedRange, $timePeriods)) {
-  // Handle predefined time periods here
-  $rangeLabel = $timePeriods[$selectedRange];
-  // Calculate start and end dates based on the selected range
-  switch ($selectedRange) {
-    case "last7days":
-      $startDate = date('Y-m-d', strtotime('-6 days'));
-      $endDate = date('Y-m-d');
-      break;
-    case "last28days":
-      $startDate = date('Y-m-d', strtotime('-27 days'));
-      $endDate = date('Y-m-d');
-      break;
-    case "last90days":
-      $startDate = date('Y-m-d', strtotime('-89 days'));
-      $endDate = date('Y-m-d');
-      break;
-    case "last365days":
-      $startDate = date('Y-m-d', strtotime('-364 days'));
-      $endDate = date('Y-m-d');
-      break;
-    case "lifetime":
-      // Add a date of start date of Youtube Compnary
-      $startDate = '2005-01-01';
-      $endDate = date('Y-m-d');
-      break;
+function calculateDateRange($selectedRange)
+{
+  static $cache = [];
+  if (isset($cache[$selectedRange])) {
+    return $cache[$selectedRange];
   }
-  // Set formatted date range for display
-  $formattedDate = $rangeLabel;
-} else {
-  // Handle the case when a specific month/year is selected
-  list($year, $month) = explode('-', $selectedRange);
-  // Translate the month name to Albanian
-  $albanianMonthNames = array(
-    "Janar",
-    "Shkurt",
-    "Mars",
-    "Prill",
-    "Maj",
-    "Qershor",
-    "Korrik",
-    "Gusht",
-    "Shtator",
-    "Tetor",
-    "Nëntor",
-    "Dhjetor"
-  );
-  $monthName = $albanianMonthNames[(int) $month - 1];
-  // Combine the formatted date
-  $formattedDate = "Muaji $monthName - $year";
-  // Set start and end dates for the selected month
-  $startDate = "$year-$month-01";
-  $endDate = date("Y-m-t", strtotime($startDate)); // 't' gives the last day of the month
+  $timePeriods = [
+    "last7days" => ["7 ditët e fundit", '-6 days'],
+    "last28days" => ["28 ditët e fundit", '-27 days'],
+    "last90days" => ["90 ditët e fundit", '-89 days'],
+    "last365days" => ["365 ditët e fundit", '-364 days'],
+    "lifetime" => ["Gjatë gjithë jetës", '2005-01-01']
+  ];
+  if (array_key_exists($selectedRange, $timePeriods)) {
+    $rangeLabel = $timePeriods[$selectedRange][0];
+    $startDate = date('Y-m-d', strtotime($timePeriods[$selectedRange][1]));
+    $endDate = date('Y-m-d');
+  } else {
+    list($year, $month) = explode('-', $selectedRange);
+    $albanianMonthNames = ["Janar", "Shkurt", "Mars", "Prill", "Maj", "Qershor", "Korrik", "Gusht", "Shtator", "Tetor", "Nëntor", "Dhjetor"];
+    $monthName = $albanianMonthNames[(int) $month - 1];
+    $rangeLabel = "Muaji $monthName - $year";
+    $startDate = "$year-$month-01";
+    $endDate = date("Y-m-t", strtotime($startDate));
+  }
+  $cache[$selectedRange] = [$startDate, $endDate, $rangeLabel];
+  return $cache[$selectedRange];
 }
-$_SESSION['selectedDate'] = $formattedDate;
-$_SESSION['startDate'] = $startDate;
-$_SESSION['endDate'] = $endDate;
-$refreshTokens = getRefreshTokensFromDatabase();
-?>
-<?php
 function getChannelDetails($channelId, $apiKey)
 {
+  static $cache = [];
+  if (isset($cache[$channelId])) {
+    return $cache[$channelId];
+  }
   $url = "https://www.googleapis.com/youtube/v3/channels?part=snippet&id=$channelId&key=$apiKey";
   $response = file_get_contents($url);
   $data = json_decode($response, true);
-  if (isset($data['items'][0]['snippet']['thumbnails']['default']['url'])) {
-    return $data['items'][0]['snippet']['thumbnails']['default']['url'];
-  }
-  return null;
+  $result = $data['items'][0]['snippet']['thumbnails']['default']['url'] ?? null;
+  $cache[$channelId] = $result;
+  return $result;
 }
 ?>
-<?php if (!isset($_SESSION['oauth_uid'])) {
-  echo "
-  <script>
-      document.addEventListener('DOMContentLoaded', function() {
-          Swal.fire({
-              icon: 'error',
-              title: 'Qasja u refuzua',
-              text: 'Ju nuk keni qasje në këtë faqe. Ju lutemi kontaktoni administratorin.',
-              showConfirmButton: false,
-              timer: 3000  // Auto close after 3 seconds
-          }).then(() => {
-              window.location.href = 'index.php'; // Redirect to index.php
-          });
-      });
-  </script>
-";
-} else {
-?>
-  <style>
-    .custom-tooltip {
-      position: relative;
-      display: inline-block;
-      white-space: normal;
-      cursor: pointer;
-    }
-
-    .custom-dot {
-      width: 10px;
-      height: 10px;
-      background-color: red;
-      /* Change the dot color as desired */
-      border-radius: 50%;
-      display: inline-block;
-      white-space: normal;
-      cursor: pointer;
-    }
-
-    .custom-tooltiptext {
-      visibility: hidden;
-      width: 80px;
-      background-color: #333;
-      color: #fff;
-      text-align: center;
-      border-radius: 6px;
-      padding: 5px;
-      position: absolute;
-      z-index: 1;
-      bottom: 100%;
-      left: 50%;
-      transform: translateX(-50%);
-      opacity: 0.9;
-      transition: opacity 0.3s;
-      white-space: normal;
-      cursor: pointer;
-    }
-
-    .custom-tooltip:hover .custom-tooltiptext {
-      cursor: pointer;
-      visibility: visible;
-      white-space: normal;
-      opacity: 0.9;
-    }
-
-    @media (max-width: 767px) {
-      .breadcrumb-item a {
-        font-size: 14px;
-        /* Adjust the font size as needed */
-      }
-
-      .input-custom-css {
-        font-size: 12px;
-        /* Adjust the font size as needed */
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-top: 5px;
-        width: 100%;
-        /* Ensure buttons take up full width */
-        text-align: center;
-        /* Center text within buttons */
-      }
-
-      .input-custom-css i {
-        display: none;
-        /* Hide icons on mobile */
-      }
-
-      .nav-pills {
-        display: flex;
-        justify-content: center;
-        flex-wrap: wrap;
-      }
-
-      .nav-item {
-        text-align: center;
-        margin: 0 5px;
-        /* Adjust margin as needed */
-      }
-
-      .table-sm th,
-      .table-sm td {
-        padding: 0.25rem;
-      }
-
-      .text-sm {
-        font-size: 12px;
-      }
-    }
-  </style>
-  <div class="main-panel">
-    <div class="content-wrapper">
-      <div class="container-fluid">
-        <nav class="bg-white px-2 rounded-5" style="width:fit-content;" aria-label="breadcrumb">
-          <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a class="text-reset" style="text-decoration: none;">Financat</a></li>
-            <li class="breadcrumb-item active" aria-current="page">
-              <a href="<?php echo __FILE__; ?>" class="text-reset" style="text-decoration: none;">Pagesat Youtube</a>
+<link rel="stylesheet" href="invoice_style.css">
+<div class="main-panel">
+  <div class="content-wrapper">
+    <div class="container-fluid">
+      <nav class="bg-white px-2 rounded-5" style="width:fit-content;" aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a class="text-reset" style="text-decoration: none;">Financat</a></li>
+          <li class="breadcrumb-item active" aria-current="page">
+            <a href="<?php echo __FILE__; ?>" class="text-reset" style="text-decoration: none;">Pagesat Youtube</a>
+          </li>
+        </ol>
+      </nav>
+      <div class="row mb-2">
+        <div>
+          <button style="text-transform: none;" class="input-custom-css px-3 py-2" data-bs-toggle="modal" data-bs-target="#newInvoice">
+            <i class="fi fi-rr-add-document fa-lg"></i>&nbsp; Fatur&euml; e re
+          </button>
+          <button style="text-transform: none;" class="input-custom-css px-3 py-2" data-bs-toggle="modal" data-bs-target="#listOfLoansModal">
+            <i class="fi fi-rr-hand-holding-usd fa-lg"></i>&nbsp; Borgjet
+          </button>
+          <button style="text-transform: none;" class="input-custom-css px-3 py-2 " data-bs-toggle="modal" data-bs-target="#trashInvoices">
+            <i class="fi fi-rr-delete-document fa-lg"></i>&nbsp; Faturat e fshira
+          </button>
+          <?php if (!($user_info['email'] == 'lirie@bareshamusic.com')) { ?>
+            <a style="text-transform: none;text-decoration: none;" href="<?php echo $client->createAuthUrl(); ?>" class="input-custom-css px-3 py-2">
+              <i class="fi fi-brands-youtube fa-lg"></i>&nbsp; Lidh kanal
+            </a>
+          <?php } ?>
+          <ul class="nav nav-pills bg-white my-3 mx-0 rounded-5" style="width: fit-content; border: 1px solid lightgrey;" id="pills-tab" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button class="nav-link rounded-5 active" style="text-transform: none" id="pills-lista_e_faturave-tab" data-bs-toggle="pill" data-bs-target="#pills-lista_e_faturave" type="button" role="tab" aria-controls="pills-lista_e_faturave" aria-selected="true">Lista e faturave ( Personale ) </button>
             </li>
-          </ol>
-        </nav>
-        <div class="row mb-2">
-          <div>
-            <button style="text-transform: none;" class="input-custom-css px-3 py-2" data-bs-toggle="modal" data-bs-target="#newInvoice">
-              <i class="fi fi-rr-add-document fa-lg"></i>&nbsp; Fatur&euml; e re
-            </button>
-            <button style="text-transform: none;" class="input-custom-css px-3 py-2" data-bs-toggle="modal" data-bs-target="#listOfLoansModal">
-              <i class="fi fi-rr-hand-holding-usd fa-lg"></i>&nbsp; Borgjet
-            </button>
-            <button style="text-transform: none;" class="input-custom-css px-3 py-2 " data-bs-toggle="modal" data-bs-target="#trashInvoices">
-              <i class="fi fi-rr-delete-document fa-lg"></i>&nbsp; Faturat e fshira
-            </button>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link rounded-5 active" style="text-transform: none" id="pills-lista_e_faturave_biznes-tab" data-bs-toggle="pill" data-bs-target="#pills-lista_e_faturave_biznes" type="button" role="tab" aria-controls="pills-lista_e_faturave_biznes" aria-selected="true">
+                Lista e faturave ( Biznes )
+              </button>
+            </li>
             <?php if (!($user_info['email'] == 'lirie@bareshamusic.com')) { ?>
-              <a style="text-transform: none;text-decoration: none;" href="<?php echo $client->createAuthUrl(); ?>" class="input-custom-css px-3 py-2">
-                <i class="fi fi-brands-youtube fa-lg"></i>&nbsp; Lidh kanal
-              </a>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link rounded-5" style="text-transform: none" id="pills-lista_e_kanaleve-tab" data-bs-toggle="pill" data-bs-target="#pills-lista_e_kanaleve" type="button" role="tab" aria-controls="pills-lista_e_kanaleve" aria-selected="false">Lista e kanaleve</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link rounded-5" style="text-transform: none" id="pills-lista_e_faturave_te_kryera-tab" data-bs-toggle="pill" data-bs-target="#pills-lista_e_faturave_te_kryera" type="button" role="tab" aria-controls="pills-lista_e_faturave_te_kryera" aria-selected="false">Pagesat e kryera ( Personal )</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link rounded-5" style="text-transform: none" id="pills-lista_e_faturave_te_kryera_biznes-tab" data-bs-toggle="pill" data-bs-target="#pills-lista_e_faturave_te_kryera_biznes" type="button" role="tab" aria-controls="pills-lista_e_faturave_te_kryera_biznes" aria-selected="false">Pagesa e kryera (Biznese)</button>
+              </li>
             <?php } ?>
-            <ul class="nav nav-pills bg-white my-3 mx-0 rounded-5" style="width: fit-content; border: 1px solid lightgrey;" id="pills-tab" role="tablist">
-              <li class="nav-item" role="presentation">
-                <button class="nav-link rounded-5 active" style="text-transform: none" id="pills-lista_e_faturave-tab" data-bs-toggle="pill" data-bs-target="#pills-lista_e_faturave" type="button" role="tab" aria-controls="pills-lista_e_faturave" aria-selected="true">Lista e faturave ( Personale ) </button>
-              </li>
-              <li class="nav-item" role="presentation">
-                <button class="nav-link rounded-5 active" style="text-transform: none" id="pills-lista_e_faturave_biznes-tab" data-bs-toggle="pill" data-bs-target="#pills-lista_e_faturave_biznes" type="button" role="tab" aria-controls="pills-lista_e_faturave_biznes" aria-selected="true">
-                  Lista e faturave ( Biznes )
-                </button>
-              </li>
-              <?php if (!($user_info['email'] == 'lirie@bareshamusic.com')) { ?>
-                <li class="nav-item" role="presentation">
-                  <button class="nav-link rounded-5" style="text-transform: none" id="pills-lista_e_kanaleve-tab" data-bs-toggle="pill" data-bs-target="#pills-lista_e_kanaleve" type="button" role="tab" aria-controls="pills-lista_e_kanaleve" aria-selected="false">Lista e kanaleve</button>
-                </li>
-                <li class="nav-item" role="presentation">
-                  <button class="nav-link rounded-5" style="text-transform: none" id="pills-lista_e_faturave_te_kryera-tab" data-bs-toggle="pill" data-bs-target="#pills-lista_e_faturave_te_kryera" type="button" role="tab" aria-controls="pills-lista_e_faturave_te_kryera" aria-selected="false">Pagesat e kryera ( Personal )</button>
-                </li>
-                <li class="nav-item" role="presentation">
-                  <button class="nav-link rounded-5" style="text-transform: none" id="pills-lista_e_faturave_te_kryera_biznes-tab" data-bs-toggle="pill" data-bs-target="#pills-lista_e_faturave_te_kryera_biznes" type="button" role="tab" aria-controls="pills-lista_e_faturave_te_kryera_biznes" aria-selected="false">Pagesa e kryera (Biznese)</button>
-                </li>
-              <?php } ?>
-            </ul>
-          </div>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link rounded-5 active" style="text-transform: none" id="pills-lista_e_splitinvoices-tab" data-bs-toggle="pill" data-bs-target="#pills-lista_e_splitinvoices" type="button" role="tab" aria-controls="pills-lista_e_splitinvoices" aria-selected="true">
+                Lista e faturave të ndara
+              </button>
+            </li>
+          </ul>
         </div>
-        <div class="p-3 shadow-sm rounded-5 mb-4 card">
-          <div class="row">
-            <div class="modal fade" id="newInvoice" tabindex="-1" aria-labelledby="newInvoiceLabel" aria-hidden="true">
-              <div class="modal-dialog modal-lg modal-dialog-centered">
-                <div class="modal-content">
-                  <div class="modal-header">
-                    <h5 class="modal-title" id="newInvoiceLabel">Krijoni një faturë të re</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                  </div>
-                  <div class="modal-body">
-                    <!-- Your form goes here -->
-                    <form action="create_invoice.php" method="POST">
-                      <div class="mb-3">
-                        <label for="invoice_number" class="form-label">Numri i faturës:</label>
+      </div>
+      <div class="p-3 shadow-sm rounded-5 mb-4 card">
+        <div class="row">
+          <div class="modal fade" id="newInvoice" tabindex="-1" aria-labelledby="newInvoiceLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="newInvoiceLabel">Krijoni një faturë të re</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  <form action="create_invoice.php" method="POST" enctype="multipart/form-data">
+                    <div class="mb-3">
+                      <label for="invoice_number" class="form-label">Numri i faturës:</label>
+                      <input type="text" class="form-control rounded-5 shadow-sm py-3" id="invoice_number" name="invoice_number" value="<?php echo generateInvoiceNumber(); ?>" required readonly>
+                    </div>
+                    <div class="mb-3">
+                      <label for="customer_id" class="form-label">Emri i klientit:</label>
+                      <select class="form-control rounded-5 shadow-sm py-3" id="customer_id" name="customer_id" required>
                         <?php
-                        // Call the generateInvoiceNumber function to get the invoice number
-                        $invoiceNumber = generateInvoiceNumber();
+                        require_once "conn-d.php";
+                        $sql = "SELECT id,emri, perqindja FROM klientet ORDER BY id DESC";
+                        $result = mysqli_query($conn, $sql);
+                        if (mysqli_num_rows($result) > 0) {
+                          while ($row = mysqli_fetch_assoc($result)) {
+                            echo "<option value='" . $row["id"] . "' data-percentage='" . $row["perqindja"] . "'>" . $row["emri"] . "</option>";
+                          }
+                        }
                         ?>
-                        <input type="text" class="form-control rounded-5 shadow-sm py-3" id="invoice_number" name="invoice_number" value="<?php echo $invoiceNumber; ?>" required readonly>
-                      </div>
-                      <div class="mb-3">
-                        <label for="customer_id" class="form-label">Emri i klientit:</label>
-                        <select class="form-control rounded-5 shadow-sm py-3" id="customer_id" name="customer_id" required>
-                          <?php
-                          require_once "conn-d.php";
-                          $sql = "SELECT id,emri, perqindja FROM klientet ORDER BY id DESC";
-                          $result = mysqli_query($conn, $sql);
-                          if (mysqli_num_rows($result) > 0) {
-                            while ($row = mysqli_fetch_assoc($result)) {
-                              echo "<option value='" . $row["id"] . "' data-percentage='" . $row["perqindja"] . "'>" . $row["emri"] . "</option>";
-                            }
-                          }
-                          ?>
-                        </select>
-                      </div>
-                      <script>
-                        new Selectr('#customer_id', {
-                          searchable: true,
-                          width: 300
-                        });
-                      </script>
-                      <div class="mb-3">
-                        <label for="item" class="form-label">Përshkrimi:</label>
-                        <textarea type="text" class="form-control rounded-5 shadow-sm py-3" id="item" name="item" required> </textarea>
-                      </div>
-                      <div class="mb-3">
-                        <label for="percentage" class="form-label">Përqindja:</label>
-                        <input type="text" class="form-control rounded-5 shadow-none py-3" id="percentage" name="percentage" value="" required>
-                      </div>
-                      <div class="mb-3 row">
-                        <div class="col">
-                          <label for="total_amount" class="form-label">Shuma e përgjithshme:</label>
-                          <div class="input-group mb-3" style="border-radius: 15px;">
-                            <span class="input-group-text bg-white border-1 me-2" style="border-radius: 10px;">$</span>
-                            <input type="text" class="form-control rounded-5 shadow-none py-3" aria-label="Amount (to the nearest dollar)" id="total_amount" name="total_amount" required>
-                          </div>
-                        </div>
-                        <!-- <div class="col">
-                          <label for="total_amount" class="form-label">Shuma e përgjithshme:</label>
-                          <input type="text" class="form-control rounded-5 shadow-sm py-3" id="total_amount" name="total_amount" required>
-                        </div> -->
-                        <div class="col">
-                          <label for="total_amount_after_percentage" class="form-label">Shuma e përgjithshme pas përqindjes:</label>
-                          <div class="input-group mb-3" style="border-radius: 15px;">
-                            <span class="input-group-text bg-white border-1 me-2" style="border-radius: 10px;">$</span>
-                            <input type="text" class="form-control rounded-5 shadow-none py-3" aria-label="Amount (to the nearest dollar)" id="total_amount_after_percentage" name="total_amount_after_percentage" required>
-                          </div>
-                        </div>
-                        <!-- <div class="col">
-                          <label for="total_amount_after_percentage" class="form-label">Shuma e përgjithshme pas përqindjes:</label>
-                          <input type="text" class="form-control rounded-5 shadow-sm py-3" id="total_amount_after_percentage" name="total_amount_after_percentage" required>
-                        </div> -->
-                      </div>
-                      <div class="mb-3 row">
-                        <div class="col">
-                          <label for="total_amount_in_eur" class="form-label">Shuma e përgjithshme - EUR:</label>
-                          <div class="input-group mb-3" style="border-radius: 15px;">
-                            <span class="input-group-text bg-white border-1 me-2" style="border-radius: 10px;">€</span>
-                            <input type="text" class="form-control rounded-5 shadow-none py-3" aria-label="Amount (to the nearest dollar)" id="total_amount_in_eur" name="total_amount_in_eur" required>
-                          </div>
-                        </div>
-                        <div class="col">
-                          <label for="total_amount_after_percentage_in_eur" class="form-label">Shuma e përgjithshme pas përqindjes - EUR:</label>
-                          <div class="input-group mb-3" style="border-radius: 15px;">
-                            <span class="input-group-text bg-white border-1 me-2" style="border-radius: 10px;">€</span>
-                            <input type="text" class="form-control rounded-5 shadow-none py-3" aria-label="Amount (to the nearest dollar)" id="total_amount_after_percentage_in_eur" name="total_amount_after_percentage_in_eur" required>
-                          </div>
+                      </select>
+                    </div>
+                    <div class="mb-3">
+                      <label for="item" class="form-label">Përshkrimi:</label>
+                      <textarea class="form-control rounded-5 shadow-sm py-3" id="item" name="item" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                      <label for="type" class="form-label">Lloji:</label>
+                      <select class="form-control rounded-5 shadow-sm py-3" name="type" id="type">
+                        <option value="individual">Individual</option>
+                        <option value="grupor">Grupor</option>
+                      </select>
+                    </div>
+                    <div class="mb-3">
+                      <label for="percentage" class="form-label">Përqindja:</label>
+                      <input type="text" class="form-control rounded-5 shadow-none py-3" id="percentage" name="percentage" required>
+                    </div>
+                    <div class="row mb-3">
+                      <div class="col">
+                        <label for="total_amount" class="form-label">Shuma e përgjithshme:</label>
+                        <div class="input-group">
+                          <span class="input-group-text bg-white border-1 me-2 rounded-start">$</span>
+                          <input type="text" class="form-control rounded-end shadow-none py-3" id="total_amount" name="total_amount" required>
                         </div>
                       </div>
-                      <script>
-                        // Function to fetch conversion rate from API and update the input field
-                        function convertToEUR(amount, outputId) {
-                          fetch("https://api.exconvert.com/convert?from=USD&to=EUR&amount=" + amount + "&access_key=7ac9d0d8-2c2a1729-0a51382b-b85cd112")
-                            .then(response => response.json())
-                            .then(data => {
-                              if (data.result && data.result.EUR) {
-                                document.getElementById(outputId).value = data.result.EUR.toFixed(2);
-                              } else {
-                                console.error('Invalid API response:', data);
-                              }
-                            })
-                            .catch(error => console.error('Error:', error));
-                        }
-                        // Function to calculate total amount after percentage
-                        function calculateAmountAfterPercentage() {
-                          var totalAmount = parseFloat(document.getElementById("total_amount").value);
-                          var percentage = parseFloat(document.getElementById("percentage").value);
-                          if (isNaN(totalAmount)) {
-                            alert("Please enter a valid total amount.");
-                            return;
-                          }
-                          if (isNaN(percentage)) {
-                            alert("Please enter a valid percentage.");
-                            return;
-                          }
-                          var amountAfterPercentage = totalAmount - percentage * totalAmount / 100;
-                          document.getElementById("total_amount_after_percentage").value = amountAfterPercentage.toFixed(2);
-                          // Convert both amounts to EUR
-                          convertToEUR(totalAmount, "total_amount_in_eur");
-                          convertToEUR(amountAfterPercentage, "total_amount_after_percentage_in_eur");
-                        }
-                        // Event listeners for input change
-                        document.getElementById("total_amount").addEventListener("input", calculateAmountAfterPercentage);
-                        document.getElementById("percentage").addEventListener("input", calculateAmountAfterPercentage);
-                      </script>
-                      <div class="mb-3">
-                        <label for="created_date" class="form-label">Data e krijimit të faturës:</label>
-                        <input type="date" class="form-control rounded-5 shadow-sm py-3" id="created_date" name="created_date" value="<?php echo date('Y-m-d'); ?>" required>
+                      <div class="col">
+                        <label for="total_amount_after_percentage" class="form-label">Shuma e përgjithshme pas përqindjes:</label>
+                        <div class="input-group">
+                          <span class="input-group-text bg-white border-1 me-2 rounded-start">$</span>
+                          <input type="text" class="form-control rounded-end shadow-none py-3" id="total_amount_after_percentage" name="total_amount_after_percentage" required>
+                        </div>
                       </div>
-                      <div class="mb-3">
-                        <label for="invoice_status" class="form-label">Gjendja e fatures:</label>
-                        <select class="form-control rounded-5 shadow-sm py-3" id="invoice_status" name="invoice_status" required>
-                          <option value="Rregullt" selected>Rregullt</option>
-                          <option value="Parregullt">Parregullt</option>
-                        </select>
+                    </div>
+                    <div class="row mb-3">
+                      <div class="col">
+                        <label for="total_amount_in_eur" class="form-label">Shuma e përgjithshme - EUR:</label>
+                        <div class="input-group">
+                          <span class="input-group-text bg-white border-1 me-2 rounded-start">€</span>
+                          <input type="text" class="form-control rounded-end shadow-none py-3" id="total_amount_in_eur" name="total_amount_in_eur" required>
+                        </div>
                       </div>
-                      <button type="submit" class="btn btn-primary btn-sm text-white rounded-5 shadow">Krijo
-                        faturë</button>
-                    </form>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="tab-content" id="pills-tabContent">
-              <div class="tab-pane fade show active" id="pills-lista_e_faturave" role="tabpanel" aria-labelledby="pills-lista_e_faturave-tab">
-                <div class="table-responsive">
-                  <table id="invoiceList" class="table table-bordered table-sm" data-source="get_invoices.php">
-                    <thead class="table-light">
-                      <tr>
-                        <th></th>
-                        <th class="text-sm">ID</th>
-                        <th class="text-sm">Emri i Klientit</th>
-                        <th class="text-sm">Pershkrimi</th>
-                        <th class="text-sm">Detajet</th>
-                        <th class="text-sm">Shuma e paguar</th>
-                        <th class="text-sm">F. EUR</th>
-                        <th class="text-sm">Obligim</th>
-                        <th class="text-sm">Veprimi</th>
-                      </tr>
-                    </thead>
-                  </table>
-                </div>
-              </div>
-              <div class="tab-pane fade" id="pills-lista_e_faturave_biznes" role="tabpanel" aria-labelledby="pills-lista_e_faturave_biznes-tab">
-                <div class="table-responsive">
-                  <table id="invoiceListBiznes" class="table table-bordered w-100 " data-source="get_invoices_biznes.php">
-                    <thead class="table-light">
-                      <tr>
-                        <th></th>
-                        <th style="font-size: 12px">ID</th>
-                        <!-- <th style="font-size: 12px">Numri i faturës</th> -->
-                        <th style="font-size: 12px">Emri i Klientit</th>
-                        <th style="font-size: 12px">Pershkrimi</th>
-                        <th style="font-size: 12px">Detajet</th>
-                        <th style="font-size: 12px">Shuma e paguar</th>
-                        <th style="font-size: 12px">F. EUR</th>
-                        <th style="font-size: 12px">Obligim</th>
-                        <th style="font-size: 12px">Veprimi</th>
-                      </tr>
-                    </thead>
-                  </table>
-                </div>
-              </div>
-              <div class="tab-pane fade" id="pills-lista_e_kanaleve" role="tabpanel" aria-labelledby="pills-lista_e_kanaleve-tab">
-                <?php if (!empty($refreshTokens)) { ?>
-                  <div class="row">
-                    <?php
-                    $albanianMonthNames = array(
-                      "Janar",
-                      "Shkurt",
-                      "Mars",
-                      "Prill",
-                      "Maj",
-                      "Qershor",
-                      "Korrik",
-                      "Gusht",
-                      "Shtator",
-                      "Tetor",
-                      "Nëntor",
-                      "Dhjetor"
-                    );
-                    // Predefined time periods
-                    $timePeriods = array(
-                      "7 ditët e fundit" => "last7days",
-                      "28 ditët e fundit" => "last28days",
-                      "90 ditët e fundit" => "last90days",
-                      "365 ditët e fundit" => "last365days",
-                      "Gjatë gjithë jetës" => "lifetime"
-                    );
-                    // Generate year and month options
-                    $options = "";
-                    $currentYear = date('Y');
-                    $currentMonth = date('m');
-                    // Add predefined time periods to options within an optgroup
-                    $options .= "<optgroup label='Periudhat kohore'>";
-                    foreach ($timePeriods as $periodName => $periodValue) {
-                      $options .= "<option value='{$periodValue}'>$periodName</option>";
-                    }
-                    $options .= "</optgroup>";
-                    // Add years and months to options within an optgroup
-                    $options .= "<optgroup label='Muajt'>";
-                    for ($year = 2023; $year <= $currentYear; $year++) {
-                      for ($month = 1; $month <= 12; $month++) {
-                        if ($year == $currentYear && $month > $currentMonth) {
-                          break; // Do not list future months of the current year
-                        }
-                        $monthPadded = str_pad($month, 2, '0', STR_PAD_LEFT);
-                        $monthName = $albanianMonthNames[$month - 1]; // Get Albanian month name
-                        $options .= "<option value='{$year}-{$monthPadded}'>$monthName $year</option>";
-                      }
-                    }
-                    $options .= "</optgroup>";
-                    ?>
-                    <form method="post" class="mb-2">
-                      <div class="row">
-                        <div class="col">
-                          <label for="dateRange" class="form-label">Zgjidh Muajin:</label>
-                          <select class="form-control rounded-5 shadow-sm" id="dateRange" name="dateRange" required>
-                            <?php echo $options; ?>
+                      <div class="col">
+                        <label for="total_amount_after_percentage_in_eur" class="form-label">Shuma e përgjithshme pas përqindjes - EUR:</label>
+                        <div class="input-group">
+                          <span class="input-group-text bg-white border-1 me-2 rounded-start">€</span>
+                          <input type="text" class="form-control rounded-end shadow-none py-3" id="total_amount_after_percentage_in_eur" name="total_amount_after_percentage_in_eur" required>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col">
+                        <div class="mb-3">
+                          <label for="created_date" class="form-label">Data e krijimit të faturës:</label>
+                          <input type="date" class="form-control rounded-5 border border-2 py-3" id="created_date" name="created_date" value="<?php echo date('Y-m-d'); ?>" required>
+                        </div>
+                      </div>
+                      <div class="col">
+                        <div class="mb-3">
+                          <label for="invoice_status" class="form-label">Gjendja e fatures:</label>
+                          <select class="form-control rounded-5 border border-2 py-3" id="invoice_status" name="invoice_status" required>
+                            <option value="Rregullt" selected>Rregullt</option>
+                            <option value="Parregullt">Parregullt</option>
                           </select>
                         </div>
                       </div>
-                      <br>
-                      <button type="submit" class="input-custom-css px-3 py-2" style="text-decoration: none;"><i class="fi fi-rr-filter"></i> Filtro</button>
-                    </form>
-                    <script>
-                      new Selectr('#dateRange', {
-                        searchable: true
-                      });
-                    </script>
-                    <!-- SQL Commands Display Section -->
-                    <div class="sql-commands-container">
-                      <p>Komandat SQL për shtimin e të dhënave në tabelën e faturave. Këto përfshijnë "INSERT INTO" për
-                        shtimin e rreshtave të reja në një tabelë.</p>
-                      <code id="sqlCommands" class="sql-commands"></code>
                     </div>
-                    <br>
-                    <?php
-                    // Check if the user has submitted the filter form
-                    if (isset($_POST['dateRange'])) {
-                      // User has applied the filter, proceed with displaying the table and making the API request
-                    ?>
-                      <div>
-                        <button id="submitSql" type="button" class="input-custom-css px-3 py-2 my-2">Dorëzoje në bazën e të
-                          dhënave</button>
-                      </div>
-                      <div class="table-responsive">
-                        <table class="table table-bordered" id="dataTable">
-                          <thead class="bg-light">
-                            <tr>
-                              <th style="font-size: 12px">#</th>
-                              <th style="font-size: 12px">Numri i fatures</th>
-                              <th style="font-size: 12px">ID e klientit</th>
-                              <th style="font-size: 12px">Data</th>
-                              <th style="font-size: 12px">Fitimi në dollar ( USD )</th>
-                              <th style="font-size: 12px">Fitimi pas perqindjes ( USD )</th>
-                              <th style="font-size: 12px">Fitimi i konvertuar ( EUR )</th>
-                              <th style="font-size: 12px">Fitimi pas perqindjes ( EUR ) i konvertuar</th>
-                              <th style="font-size: 12px">Data e krijimit</th>
-                              <th style="font-size: 12px">Të dhenat e kanalit</th>
-                              <th style="font-size: 12px">Statusi i faturës</th>
-                              <th style="font-size: 12px">Veprim</th>
-                              <th style="font-size: 12px">Input Check</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            <?php
-                            // Counter variable
-                            $counter = 1;
-                            // Prepare a query to fetch data
-                            $query = "SELECT id, emri, perqindja FROM klientet WHERE youtube = ?";
-                            $stmt = mysqli_prepare($conn, $query);
-                            foreach ($refreshTokens as $tokenInfo) {
-                              // Bind the channel_id parameter
-                              mysqli_stmt_bind_param($stmt, "s", $tokenInfo['channel_id']);
-                              // Execute the query
-                              if (mysqli_stmt_execute($stmt)) {
-                                $result = mysqli_stmt_get_result($stmt);
-                                while ($row = mysqli_fetch_assoc($result)) {
-                                  $id = $row['id'];
-                                  $emri = $row['emri'];
-                                  $perqindja = $row['perqindja'];
-                                }
-                            ?>
-                                <tr>
-                                  <td><?php echo $counter++; ?></td>
-                                  <td><?php echo $invoiceNumber . ($counter - 1) . strtoupper(preg_replace('/[^A-Z]/', '', $tokenInfo['channel_name'])); ?></td>
-                                  <td><?php $_SESSION['id'] = $id;
-                                      echo $id; ?></td>
-                                  <td><?php echo $_SESSION['selectedDate']; ?></td>
-                                  <td>
-                                    <?php
-                                    $client = new Google_Client();
-                                    $client->setClientId('84339742200-g674o1df674m94a09tppcufciavp0bo1.apps.googleusercontent.com');
-                                    $client->setClientSecret('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');
-                                    $client->refreshToken($tokenInfo['token']);
-                                    $client->addScope([
-                                      'https://www.googleapis.com/auth/youtube',
-                                      'https://www.googleapis.com/auth/youtube.readonly',
-                                      'https://www.googleapis.com/auth/youtubepartner',
-                                      'https://www.googleapis.com/auth/yt-analytics-monetary.readonly',
-                                      'https://www.googleapis.com/auth/yt-analytics.readonly'
-                                    ]);
-                                    $youtubeAnalytics = new Google\Service\YouTubeAnalytics($client);
-                                    $params = [
-                                      'ids' => 'channel==' . $tokenInfo['channel_id'],
-                                      'currency' => 'USD',
-                                      'startDate' => $startDate,
-                                      'endDate' => $endDate,
-                                      'metrics' => 'estimatedRevenue'
-                                    ];
-                                    $response = $youtubeAnalytics->reports->query($params);
-                                    $row = $response->getRows()[0];
-                                    $storedValue = $row[0];
-                                    echo number_format($storedValue, 2);
-                                    ?>
-                                  </td>
-                                  <td>
-                                    <?php
-                                    $difference = $storedValue - ($storedValue * ($perqindja / 100));
-                                    echo number_format($difference, 2);
-                                    ?>
-                                  </td>
-                                  <td>
-                                    <?php
-                                    if (isset($storedValue) && is_numeric($storedValue)) {
-                                      $apiUrlForConversion = "https://api.exconvert.com/convert?from=USD&to=EUR&amount=" . $storedValue . "&access_key=7ac9d0d8-2c2a1729-0a51382b-b85cd112";
-                                      $response = @file_get_contents($apiUrlForConversion);
-                                      if ($response === FALSE) {
-                                        echo "API request failed";
-                                      } else {
-                                        $data = json_decode($response, true);
-                                        if (json_last_error() === JSON_ERROR_NONE && isset($data['result']['EUR'])) {
-                                          $convertedAmount = $data['result']['EUR'];
-                                          echo htmlspecialchars(number_format($convertedAmount, 2));
-                                        } else {
-                                          echo "Failed to retrieve conversion rate";
-                                        }
-                                      }
-                                    } else {
-                                      echo "Invalid stored value";
-                                    }
-                                    ?>
-                                  </td>
-                                  <td>
-                                    <?php
-                                    if (isset($difference) && is_numeric($difference)) {
-                                      $apiUrlForConversion = "https://api.exconvert.com/convert?from=USD&to=EUR&amount=" . $difference . "&access_key=7ac9d0d8-2c2a1729-0a51382b-b85cd112";
-                                      $response = @file_get_contents($apiUrlForConversion);
-                                      if ($response === FALSE) {
-                                        echo "API request failed";
-                                      } else {
-                                        $data = json_decode($response, true);
-                                        if (json_last_error() === JSON_ERROR_NONE && isset($data['result']['EUR'])) {
-                                          $convertedAmount = $data['result']['EUR'];
-                                          echo htmlspecialchars(number_format($convertedAmount, 2));
-                                        } else {
-                                          echo "Failed to retrieve conversion rate";
-                                        }
-                                      }
-                                    } else {
-                                      echo "Invalid stored value";
-                                    }
-                                    ?>
-                                  </td>
-                                  <td><?php echo date('Y-m-d'); ?></td>
-                                  <td>
-                                    <?php
-                                    $coverArtUrl = getChannelDetails($tokenInfo['channel_id'], 'AIzaSyD56A1QU67vIkP1CYSDX2sYona2nxOJ9R0');
-                                    if ($coverArtUrl) {
-                                      echo '<img src="' . $coverArtUrl . '" class="figure-img img-fluid rounded" alt="Channel Cover"><br>';
-                                      echo $tokenInfo['channel_name'];
-                                    }
-                                    ?>
-                                  </td>
-                                  <td>
-                                    <?php
-                                    $selectedDate = $_SESSION['selectedDate'];
-                                    $sql = "SELECT * FROM invoices WHERE customer_id = '$_SESSION[id]' AND item = '$selectedDate'";
-                                    $result = mysqli_query($conn, $sql);
-                                    if ($row = mysqli_fetch_assoc($result)) {
-                                      echo '<p> Kjo faturë ekziston</p><br><i class="fi fi-rr-check text-success"></i>';
-                                    } else {
-                                      echo '<p> Kjo faturë nuk ekziston</p><br><i class="fa-solid fa-x"></i>';
-                                    }
-                                    ?>
-                                  </td>
-                                  <td>
-                                    <a class="btn btn-danger text-white btn-sm rounded-5 px-2 py-1 delete-button" data-channelid="<?php echo $tokenInfo['channel_id']; ?>">
-                                      <i class="fi fi-rr-trash"></i>
-                                    </a>
-                                  </td>
-                                  <td>
-                                    <input type="checkbox" name="selected_channels[]" value="<?php echo $tokenInfo['channel_id']; ?>">
-                                  </td>
-                                </tr>
-                            <?php
-                              }
-                            }
-                            ?>
-                          </tbody>
-                        </table>
-                      </div>
-                    <?php } ?>
-                  </div>
-                <?php } else { ?>
-                  <p>Nuk u gjetën gumente rifreskimi në bazën e të dhënave.</p>
-                <?php } ?>
-                <script>
-                  document.addEventListener("DOMContentLoaded", function() {
-                    // Get all values from the table and store them in a JavaScript array
-                    const tableRows = document.querySelectorAll("tbody tr");
-                    const allValues = [];
-                    tableRows.forEach((row) => {
-                      const rowData = [];
-                      row.querySelectorAll("td").forEach((cell) => {
-                        rowData.push(cell.textContent.trim());
-                      });
-                      allValues.push(rowData.join(", "));
-                    });
-                    // Attach a click event listener to the "Insert Values" button
-                    const insertButton = document.querySelector(".insert-values-btn");
-                    insertButton.addEventListener("click", function() {
-                      // Set the hidden field's value with all the values from the table
-                      document.getElementById("allValues").value = allValues.join(";");
-                      // Submit the form to insert values into the database
-                      document.getElementById("insertForm").submit();
-                    });
-                  });
-                </script>
-              </div>
-              <div class="tab-pane fade" id="pills-lista_e_faturave_te_kryera" role="tabpanel" aria-labelledby="pills-lista_e_faturave_te_kryera-tab">
-                <div class="row">
-                  <div class="col">
-                    <label for="max" class="form-label" style="font-size: 14px;">Prej:</label>
-                    <p class="text-muted" style="font-size: 10px;">Zgjidhni një diapazon fillues të
-                      dates për të filtruar rezultatet</p>
-                    <div class="input-group rounded-5">
-                      <span class="input-group-text border-0" style="background-color: white;cursor: pointer;"><i class="fi fi-rr-calendar"></i></span><input type="date" id="startDate" name="startDate" class="form-control rounded-5" placeholder="Zgjidhni datën e fillimit" style="cursor: pointer;" readonly>
-                    </div>
-                  </div>
-                  <div class="col">
-                    <label for="max" class="form-label" style="font-size: 14px;">Deri:</label>
-                    <p class="text-muted" style="font-size: 10px;">Zgjidhni një diapazon mbarues të
-                      dates për të filtruar rezultatet.</p>
-                    <div class="input-group rounded-5">
-                      <span class="input-group-text border-0" style="background-color: white;cursor: pointer;"><i class="fi fi-rr-calendar"></i></span><input type="text" id="endDate" name="endDate" class="form-control rounded-5" placeholder="Zgjidhni datën e mbarimit" style="cursor: pointer;" readonly>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-2 my-4">
-                  <button id="clearFiltersBtn" class="input-custom-css px-3 py-2">
-                    <i class="fi fi-rr-clear-alt"></i>
-                    Pastro filtrat
-                  </button>
-                </div>
-                <hr>
-                <div class="table-responsive">
-                  <table id="paymentsTable" class="table table-bordered w-100">
-                    <thead class="table-light">
-                      <tr>
-                        <th style="white-space: normal;font-size: 12px;">Emri i klientit</th>
-                        <th style="white-space: normal;font-size: 12px;">ID e faturës</th>
-                        <th style="white-space: normal;font-size: 12px;">Vlera</th>
-                        <th style="white-space: normal;font-size: 12px;">Data</th>
-                        <th style="white-space: normal;font-size: 12px;">Banka</th>
-                        <th style="white-space: normal;font-size: 12px;">Lloji</th>
-                        <th style="white-space: normal;font-size: 12px;">Përshkrimi</th>
-                        <th style="white-space: normal;font-size: 12px;">Shuma e përgjithshme pas %</th>
-                        <th style="white-space: normal;font-size: 12px;">Veprim</th>
-                      </tr>
-                    </thead>
-                  </table>
-                </div>
-              </div>
-              <div class="tab-pane fade" id="pills-lista_e_faturave_te_kryera_biznes" role="tabpanel" aria-labelledby="pills-lista_e_faturave_te_kryera_biznes-tab">
-                <div class="row">
-                  <div class="col">
-                    <label for="max" class="form-label" style="font-size: 14px;">Prej:</label>
-                    <p class="text-muted" style="font-size: 10px;">Zgjidhni një diapazon fillues të
-                      dates për të filtruar rezultatet</p>
-                    <div class="input-group rounded-5">
-                      <span class="input-group-text border-0" style="background-color: white;cursor: pointer;"><i class="fi fi-rr-calendar"></i></span><input type="date" id="startDateBiznes" name="startDateBiznes" class="form-control rounded-5" placeholder="Zgjidhni datën e fillimit" style="cursor: pointer;" readonly>
-                    </div>
-                  </div>
-                  <div class="col">
-                    <label for="max" class="form-label" style="font-size: 14px;">Deri:</label>
-                    <p class="text-muted" style="font-size: 10px;">Zgjidhni një diapazon mbarues të
-                      dates për të filtruar rezultatet.</p>
-                    <div class="input-group rounded-5">
-                      <span class="input-group-text border-0" style="background-color: white;cursor: pointer;"><i class="fi fi-rr-calendar"></i></span><input type="text" id="endDateBiznes" name="endDateBiznes" class="form-control rounded-5" placeholder="Zgjidhni datën e mbarimit" style="cursor: pointer;" readonly>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-2 my-4">
-                  <button id="clearFiltersBtnBiznes" class="input-custom-css px-3 py-2">
-                    <i class="fi fi-rr-clear-alt"></i>
-                    Pastro filtrat
-                  </button>
-                </div>
-                <hr>
-                <div class="table-responsive">
-                  <table id="paymentsTableBiznes" class="table table-bordered w-100">
-                    <thead class="table-light">
-                      <tr>
-                        <th style="white-space: normal;font-size: 12px;">Emri i klientit</th>
-                        <th style="white-space: normal;font-size: 12px;">ID e faturës</th>
-                        <th style="white-space: normal;font-size: 12px;">Vlera</th>
-                        <th style="white-space: normal;font-size: 12px;">Data</th>
-                        <th style="white-space: normal;font-size: 12px;">Banka</th>
-                        <th style="white-space: normal;font-size: 12px;">Lloji</th>
-                        <th style="white-space: normal;font-size: 12px;">Përshkrimi</th>
-                        <th style="white-space: normal;font-size: 12px;">Shuma e përgjithshme pas %</th>
-                        <th style="white-space: normal;font-size: 12px;">Veprim</th>
-                      </tr>
-                    </thead>
-                  </table>
+                    <button type="submit" class="btn btn-primary btn-sm text-white rounded-5 shadow">Krijo faturë</button>
+                  </form>
                 </div>
               </div>
             </div>
+          </div>
+          <script>
+            $("#created_date").flatpickr({
+              dateFormat: "Y-m-d",
+              maxDate: "today",
+              locale: "sq"
+            })
+            document.addEventListener('DOMContentLoaded', function() {
+              new Selectr('#customer_id', {
+                searchable: true,
+                width: 300
+              });
+              new Selectr('#invoice_status', {
+                searchable: true,
+                width: 300
+              })
+              function convertToEUR(amount, outputId) {
+                fetch(`https://api.exconvert.com/convert?from=USD&to=EUR&amount=${amount}&access_key=7ac9d0d8-2c2a1729-0a51382b-b85cd112`)
+                  .then(response => response.json())
+                  .then(data => {
+                    if (data.result && data.result.EUR) {
+                      document.getElementById(outputId).value = data.result.EUR.toFixed(2);
+                    } else {
+                      console.error('Invalid API response:', data);
+                    }
+                  })
+                  .catch(error => console.error('Error:', error));
+              }
+              function calculateAmountAfterPercentage() {
+                const totalAmount = parseFloat(document.getElementById("total_amount").value);
+                const percentage = parseFloat(document.getElementById("percentage").value);
+                if (isNaN(totalAmount) || isNaN(percentage)) {
+                  alert("Please enter valid total amount and percentage.");
+                  return;
+                }
+                const amountAfterPercentage = totalAmount - (percentage * totalAmount / 100);
+                document.getElementById("total_amount_after_percentage").value = amountAfterPercentage.toFixed(2);
+                convertToEUR(totalAmount, "total_amount_in_eur");
+                convertToEUR(amountAfterPercentage, "total_amount_after_percentage_in_eur");
+              }
+              document.getElementById("total_amount").addEventListener("input", calculateAmountAfterPercentage);
+              document.getElementById("percentage").addEventListener("input", calculateAmountAfterPercentage);
+              document.getElementById('customer_id').addEventListener('change', function() {
+                const customerId = this.value;
+                if (customerId) {
+                  fetch('check_client_type.php', {
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                      },
+                      body: 'customer_id=' + customerId
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                      document.getElementById('type').value = data.status === 'success' ? data.type : 'individual';
+                    })
+                    .catch(error => console.error('Error:', error));
+                }
+              });
+            });
+          </script>
+          <div class="tab-content" id="pills-tabContent">
+            <div class="tab-pane fade show active" id="pills-lista_e_faturave" role="tabpanel" aria-labelledby="pills-lista_e_faturave-tab">
+              <div class="table-responsive">
+                <table id="invoiceList" class="table table-bordered table-sm" data-source="get_invoices.php">
+                  <thead class="table-light">
+                    <tr>
+                      <th></th>
+                      <!-- <th class="text-sm">ID</th> -->
+                      <th class="text-sm">Emri i klientit</th>
+                      <th class="text-sm">Pershkrimi</th>
+                      <th class="text-sm">Detajet</th>
+                      <th class="text-sm">Shuma e paguar</th>
+                      <th class="text-sm">F. EUR</th>
+                      <th class="text-sm">Obligim</th>
+                      <th class="text-sm">Veprimi</th>
+                    </tr>
+                  </thead>
+                </table>
+              </div>
+            </div>
+            <div class="tab-pane fade" id="pills-lista_e_faturave_biznes" role="tabpanel" aria-labelledby="pills-lista_e_faturave_biznes-tab">
+              <div class="table-responsive">
+                <table id="invoiceListBiznes" class="table table-bordered w-100 " data-source="get_invoices_biznes.php">
+                  <thead class="table-light">
+                    <tr>
+                      <th></th>
+                      <th style="font-size: 12px">ID</th>
+                      <!-- <th style="font-size: 12px">Numri i faturës</th> -->
+                      <th style="font-size: 12px">Emri i klientit</th>
+                      <th style="font-size: 12px">Pershkrimi</th>
+                      <th style="font-size: 12px">Detajet</th>
+                      <th style="font-size: 12px">Shuma e paguar</th>
+                      <th style="font-size: 12px">F. EUR</th>
+                      <th style="font-size: 12px">Obligim</th>
+                      <th style="font-size: 12px">Veprimi</th>
+                    </tr>
+                  </thead>
+                </table>
+              </div>
+            </div>
+            <div class="tab-pane fade" id="pills-lista_e_kanaleve" role="tabpanel" aria-labelledby="pills-lista_e_kanaleve-tab">
+              <?php if (!empty($refreshTokens)) { ?>
+                <div class="row">
+                  <?php
+                  $albanianMonthNames = array(
+                    "Janar",
+                    "Shkurt",
+                    "Mars",
+                    "Prill",
+                    "Maj",
+                    "Qershor",
+                    "Korrik",
+                    "Gusht",
+                    "Shtator",
+                    "Tetor",
+                    "Nëntor",
+                    "Dhjetor"
+                  );
+                  // Predefined time periods
+                  $timePeriods = array(
+                    "7 ditët e fundit" => "last7days",
+                    "28 ditët e fundit" => "last28days",
+                    "90 ditët e fundit" => "last90days",
+                    "365 ditët e fundit" => "last365days",
+                    "Gjatë gjithë jetës" => "lifetime"
+                  );
+                  // Generate year and month options
+                  $options = "";
+                  $currentYear = date('Y');
+                  $currentMonth = date('m');
+                  // Add predefined time periods to options within an optgroup
+                  $options .= "<optgroup label='Periudhat kohore'>";
+                  foreach ($timePeriods as $periodName => $periodValue) {
+                    $options .= "<option value='{$periodValue}'>$periodName</option>";
+                  }
+                  $options .= "</optgroup>";
+                  // Add years and months to options within an optgroup
+                  $options .= "<optgroup label='Muajt'>";
+                  for ($year = 2023; $year <= $currentYear; $year++) {
+                    for ($month = 1; $month <= 12; $month++) {
+                      if ($year == $currentYear && $month > $currentMonth) {
+                        break; // Do not list future months of the current year
+                      }
+                      $monthPadded = str_pad($month, 2, '0', STR_PAD_LEFT);
+                      $monthName = $albanianMonthNames[$month - 1]; // Get Albanian month name
+                      $options .= "<option value='{$year}-{$monthPadded}'>$monthName $year</option>";
+                    }
+                  }
+                  $options .= "</optgroup>";
+                  ?>
+                  <form method="post" class="mb-2">
+                    <div class="row">
+                      <div class="col">
+                        <label for="dateRange" class="form-label">Zgjidh Muajin:</label>
+                        <select class="form-control rounded-5 shadow-sm" id="dateRange" name="dateRange" required>
+                          <?php echo $options; ?>
+                        </select>
+                      </div>
+                    </div>
+                    <br>
+                    <button type="submit" class="input-custom-css px-3 py-2" style="text-decoration: none;"><i class="fi fi-rr-filter"></i> Filtro</button>
+                  </form>
+                  <script>
+                    new Selectr('#dateRange', {
+                      searchable: true
+                    });
+                  </script>
+                  <!-- SQL Commands Display Section -->
+                  <div class="sql-commands-container">
+                    <p>Komandat SQL për shtimin e të dhënave në tabelën e faturave. Këto përfshijnë "INSERT INTO" për
+                      shtimin e rreshtave të reja në një tabelë.</p>
+                    <code id="sqlCommands" class="sql-commands"></code>
+                  </div>
+                  <br>
+                  <?php
+                  // Check if the user has submitted the filter form
+                  if (isset($_POST['dateRange'])) {
+                    // User has applied the filter, proceed with displaying the table and making the API request
+                  ?>
+                    <div>
+                      <button id="submitSql" type="button" class="input-custom-css px-3 py-2 my-2">Dorëzoje në bazën e të
+                        dhënave</button>
+                    </div>
+                    <div class="table-responsive">
+                      <table class="table table-bordered" id="dataTable">
+                        <thead class="bg-light">
+                          <tr>
+                            <th style="font-size: 12px">#</th>
+                            <th style="font-size: 12px">Numri i fatures</th>
+                            <th style="font-size: 12px">ID e klientit</th>
+                            <th style="font-size: 12px">Data</th>
+                            <th style="font-size: 12px">Fitimi në dollar ( USD )</th>
+                            <th style="font-size: 12px">Fitimi pas perqindjes ( USD )</th>
+                            <th style="font-size: 12px">Fitimi i konvertuar ( EUR )</th>
+                            <th style="font-size: 12px">Fitimi pas perqindjes ( EUR ) i konvertuar</th>
+                            <th style="font-size: 12px">Data e krijimit</th>
+                            <th style="font-size: 12px">Të dhenat e kanalit</th>
+                            <th style="font-size: 12px">Statusi i faturës</th>
+                            <th style="font-size: 12px">Veprim</th>
+                            <th style="font-size: 12px">Input Check</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <?php
+                          // Counter variable
+                          $counter = 1;
+                          // Prepare a query to fetch data
+                          $query = "SELECT id, emri, perqindja FROM klientet WHERE youtube = ?";
+                          $stmt = mysqli_prepare($conn, $query);
+                          foreach ($refreshTokens as $tokenInfo) {
+                            // Bind the channel_id parameter
+                            mysqli_stmt_bind_param($stmt, "s", $tokenInfo['channel_id']);
+                            // Execute the query
+                            if (mysqli_stmt_execute($stmt)) {
+                              $result = mysqli_stmt_get_result($stmt);
+                              while ($row = mysqli_fetch_assoc($result)) {
+                                $id = $row['id'];
+                                $emri = $row['emri'];
+                                $perqindja = $row['perqindja'];
+                              }
+                          ?>
+                              <tr>
+                                <td><?php echo $counter++; ?></td>
+                                <td><?php echo generateInvoiceNumber() . ($counter - 1) . strtoupper(preg_replace('/[^A-Z]/', '', $tokenInfo['channel_name'])); ?></td>
+                                <td><?php $_SESSION['id'] = $id;
+                                    echo $id; ?></td>
+                                <td><?php echo $_SESSION['selectedDate']; ?></td>
+                                <td>
+                                  <?php
+                                  $client = new Google_Client();
+                                  $client->setClientId('84339742200-g674o1df674m94a09tppcufciavp0bo1.apps.googleusercontent.com');
+                                  $client->setClientSecret('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');
+                                  $client->refreshToken($tokenInfo['token']);
+                                  $client->addScope([
+                                    'https://www.googleapis.com/auth/youtube',
+                                    'https://www.googleapis.com/auth/youtube.readonly',
+                                    'https://www.googleapis.com/auth/youtubepartner',
+                                    'https://www.googleapis.com/auth/yt-analytics-monetary.readonly',
+                                    'https://www.googleapis.com/auth/yt-analytics.readonly'
+                                  ]);
+                                  $youtubeAnalytics = new Google\Service\YouTubeAnalytics($client);
+                                  $params = [
+                                    'ids' => 'channel==' . $tokenInfo['channel_id'],
+                                    'currency' => 'USD',
+                                    'startDate' => $startDate,
+                                    'endDate' => $endDate,
+                                    'metrics' => 'estimatedRevenue'
+                                  ];
+                                  $response = $youtubeAnalytics->reports->query($params);
+                                  $row = $response->getRows()[0];
+                                  $storedValue = $row[0];
+                                  echo number_format($storedValue, 2);
+                                  ?>
+                                </td>
+                                <td>
+                                  <?php
+                                  $difference = $storedValue - ($storedValue * ($perqindja / 100));
+                                  echo number_format($difference, 2);
+                                  ?>
+                                </td>
+                                <td>
+                                  <?php
+                                  if (isset($storedValue) && is_numeric($storedValue)) {
+                                    $apiUrlForConversion = "https://api.exconvert.com/convert?from=USD&to=EUR&amount=" . $storedValue . "&access_key=7ac9d0d8-2c2a1729-0a51382b-b85cd112";
+                                    $response = @file_get_contents($apiUrlForConversion);
+                                    if ($response === FALSE) {
+                                      echo "API request failed";
+                                    } else {
+                                      $data = json_decode($response, true);
+                                      if (json_last_error() === JSON_ERROR_NONE && isset($data['result']['EUR'])) {
+                                        $convertedAmount = $data['result']['EUR'];
+                                        echo htmlspecialchars(number_format($convertedAmount, 2));
+                                      } else {
+                                        echo "Failed to retrieve conversion rate";
+                                      }
+                                    }
+                                  } else {
+                                    echo "Invalid stored value";
+                                  }
+                                  ?>
+                                </td>
+                                <td>
+                                  <?php
+                                  if (isset($difference) && is_numeric($difference)) {
+                                    $apiUrlForConversion = "https://api.exconvert.com/convert?from=USD&to=EUR&amount=" . $difference . "&access_key=7ac9d0d8-2c2a1729-0a51382b-b85cd112";
+                                    $response = @file_get_contents($apiUrlForConversion);
+                                    if ($response === FALSE) {
+                                      echo "API request failed";
+                                    } else {
+                                      $data = json_decode($response, true);
+                                      if (json_last_error() === JSON_ERROR_NONE && isset($data['result']['EUR'])) {
+                                        $convertedAmount = $data['result']['EUR'];
+                                        echo htmlspecialchars(number_format($convertedAmount, 2));
+                                      } else {
+                                        echo "Failed to retrieve conversion rate";
+                                      }
+                                    }
+                                  } else {
+                                    echo "Invalid stored value";
+                                  }
+                                  ?>
+                                </td>
+                                <td><?php echo date('Y-m-d'); ?></td>
+                                <td>
+                                  <?php
+                                  $coverArtUrl = getChannelDetails($tokenInfo['channel_id'], 'AIzaSyD56A1QU67vIkP1CYSDX2sYona2nxOJ9R0');
+                                  if ($coverArtUrl) {
+                                    echo '<img src="' . $coverArtUrl . '" class="figure-img img-fluid rounded" alt="Channel Cover"><br>';
+                                    echo $tokenInfo['channel_name'];
+                                  }
+                                  ?>
+                                </td>
+                                <td>
+                                  <?php
+                                  $selectedDate = $_SESSION['selectedDate'];
+                                  $sql = "SELECT * FROM invoices WHERE customer_id = '$_SESSION[id]' AND item = '$selectedDate'";
+                                  $result = mysqli_query($conn, $sql);
+                                  if ($row = mysqli_fetch_assoc($result)) {
+                                    echo '<p> Kjo faturë ekziston</p><br><i class="fi fi-rr-check text-success"></i>';
+                                  } else {
+                                    echo '<p> Kjo faturë nuk ekziston</p><br><i class="fa-solid fa-x"></i>';
+                                  }
+                                  ?>
+                                </td>
+                                <td>
+                                  <a class="btn btn-danger text-white btn-sm rounded-5 px-2 py-1 delete-button" data-channelid="<?php echo $tokenInfo['channel_id']; ?>">
+                                    <i class="fi fi-rr-trash"></i>
+                                  </a>
+                                </td>
+                                <td>
+                                  <input type="checkbox" name="selected_channels[]" value="<?php echo $tokenInfo['channel_id']; ?>">
+                                </td>
+                              </tr>
+                          <?php
+                            }
+                          }
+                          ?>
+                        </tbody>
+                      </table>
+                    </div>
+                  <?php } ?>
+                </div>
+              <?php } else { ?>
+                <p>Nuk u gjetën gumente rifreskimi në bazën e të dhënave.</p>
+              <?php } ?>
+              <script>
+                document.addEventListener("DOMContentLoaded", function() {
+                  // Get all values from the table and store them in a JavaScript array
+                  const tableRows = document.querySelectorAll("tbody tr");
+                  const allValues = [];
+                  tableRows.forEach((row) => {
+                    const rowData = [];
+                    row.querySelectorAll("td").forEach((cell) => {
+                      rowData.push(cell.textContent.trim());
+                    });
+                    allValues.push(rowData.join(", "));
+                  });
+                  // Attach a click event listener to the "Insert Values" button
+                  const insertButton = document.querySelector(".insert-values-btn");
+                  insertButton.addEventListener("click", function() {
+                    // Set the hidden field's value with all the values from the table
+                    document.getElementById("allValues").value = allValues.join(";");
+                    // Submit the form to insert values into the database
+                    document.getElementById("insertForm").submit();
+                  });
+                });
+              </script>
+            </div>
+            <div class="tab-pane fade" id="pills-lista_e_faturave_te_kryera" role="tabpanel" aria-labelledby="pills-lista_e_faturave_te_kryera-tab">
+              <div class="row">
+                <div class="col">
+                  <label for="max" class="form-label" style="font-size: 14px;">Prej:</label>
+                  <p class="text-muted" style="font-size: 10px;">Zgjidhni një diapazon fillues të
+                    dates për të filtruar rezultatet</p>
+                  <div class="input-group rounded-5">
+                    <span class="input-group-text border-0" style="background-color: white;cursor: pointer;"><i class="fi fi-rr-calendar"></i></span><input type="date" id="startDate" name="startDate" class="form-control rounded-5" placeholder="Zgjidhni datën e fillimit" style="cursor: pointer;" readonly>
+                  </div>
+                </div>
+                <div class="col">
+                  <label for="max" class="form-label" style="font-size: 14px;">Deri:</label>
+                  <p class="text-muted" style="font-size: 10px;">Zgjidhni një diapazon mbarues të
+                    dates për të filtruar rezultatet.</p>
+                  <div class="input-group rounded-5">
+                    <span class="input-group-text border-0" style="background-color: white;cursor: pointer;"><i class="fi fi-rr-calendar"></i></span><input type="text" id="endDate" name="endDate" class="form-control rounded-5" placeholder="Zgjidhni datën e mbarimit" style="cursor: pointer;" readonly>
+                  </div>
+                </div>
+              </div>
+              <div class="col-2 my-4">
+                <button id="clearFiltersBtn" class="input-custom-css px-3 py-2">
+                  <i class="fi fi-rr-clear-alt"></i>
+                  Pastro filtrat
+                </button>
+              </div>
+              <hr>
+              <div class="table-responsive">
+                <table id="paymentsTable" class="table table-bordered w-100">
+                  <thead class="table-light">
+                    <tr>
+                      <th style="white-space: normal;font-size: 12px;">Emri i klientit</th>
+                      <th style="white-space: normal;font-size: 12px;">ID e faturës</th>
+                      <th style="white-space: normal;font-size: 12px;">Vlera</th>
+                      <th style="white-space: normal;font-size: 12px;">Data</th>
+                      <th style="white-space: normal;font-size: 12px;">Banka</th>
+                      <th style="white-space: normal;font-size: 12px;">Lloji</th>
+                      <th style="white-space: normal;font-size: 12px;">Përshkrimi</th>
+                      <th style="white-space: normal;font-size: 12px;">Shuma e përgjithshme pas %</th>
+                      <th style="white-space: normal;font-size: 12px;">Veprim</th>
+                    </tr>
+                  </thead>
+                </table>
+              </div>
+            </div>
+            <?php include 'pagesaKryneBiznes.php'; ?>
           </div>
         </div>
       </div>
     </div>
   </div>
-<?php } ?>
+</div>
 <?php function generateInvoiceNumber()
 {
   $currentDateTime = date("dmYHis");
@@ -882,7 +716,6 @@ function getChannelDetails($channelId, $apiKey)
     var totalAmountAfterPercentage = totalAmount - (totalAmount * (percentage / 100));
     document.getElementById('total_amount_after_percentage').value = totalAmountAfterPercentage.toFixed(2);
   });
-
   function getCustomerName(customerId) {
     var customerName = '';
     $.ajax({
@@ -901,12 +734,6 @@ function getChannelDetails($channelId, $apiKey)
   $(document).ready(function() {
     var table = $('#invoiceList').DataTable({
       processing: true,
-      responsive: {
-        details: {
-          display: $.fn.dataTable.Responsive.display.childRowImmediate,
-          type: ''
-        }
-      },
       serverSide: true,
       "searching": {
         "regex": true
@@ -1021,7 +848,7 @@ function getChannelDetails($channelId, $apiKey)
       ],
       stripeClasses: ["stripe-color"],
       columnDefs: [{
-        "targets": [0, 1, 2, 3, 4, 5, 6, 7],
+        "targets": [0, 1, 2, 3, 4, 5, 6],
         "render": function(data, type, row) {
           return type === 'display' && data !== null ? '<div style="white-space: normal;">' + data + '</div>' : data;
         }
@@ -1032,9 +859,9 @@ function getChannelDetails($channelId, $apiKey)
             return '<input type="checkbox" class="row-checkbox" data-id="' + data + '">';
           }
         },
-        {
-          data: 'id'
-        },
+        // {
+        //   data: 'id'
+        // },
         {
           data: 'customer_name',
           render: function(data, type, row) {
@@ -1056,19 +883,15 @@ function getChannelDetails($channelId, $apiKey)
           data: 'item',
           render: function(data, type, row) {
             var stateOfInvoice = row.state_of_invoice;
-            var badgeClass = '';
-            if (stateOfInvoice === 'Parregullt') {
-              badgeClass = 'bg-danger';
-            } else if (stateOfInvoice === 'Rregullt') {
-              badgeClass = 'bg-success';
-            }
-            var combinedData = '<div class="item-column">';
-            combinedData += data;
-            combinedData += '</div><br>';
-            combinedData += '<div class="badge-column">';
-            combinedData += '<span class="badge ' + badgeClass + ' mx-1 rounded-5">' + stateOfInvoice + '</span>';
-            combinedData += '</div>';
-            return combinedData;
+            var typeOfInvoice = row.type;
+            var badgeClass = stateOfInvoice === 'Parregullt' ? 'bg-danger' : (stateOfInvoice === 'Rregullt' ? 'bg-success' : '');
+            return `
+      <div class="item-column">${data}</div><br>
+      <div class="badge-column">
+        <span class="badge ${badgeClass} mx-1 rounded-5">${stateOfInvoice}</span>
+        <span class="badge bg-secondary mx-1 rounded-5">${typeOfInvoice}</span>
+      </div>
+    `;
           }
         },
         {
@@ -1158,36 +981,27 @@ function getChannelDetails($channelId, $apiKey)
         {
           data: 'actions',
           render: function(data, type, row) {
-            // Determine the total amount to use
-            var totalAmount = (row.total_amount_in_eur_after_percentage !== null && row.total_amount_in_eur_after_percentage !== undefined) ?
-              row.total_amount_in_eur_after_percentage :
-              row.total_amount_after_percentage;
-
-            // Calculate the remaining amount
+            var totalAmount = row.total_amount_in_eur_after_percentage !== null && row.total_amount_in_eur_after_percentage !== undefined ?
+              row.total_amount_in_eur_after_percentage : row.total_amount_after_percentage;
             var remainingAmount = totalAmount - row.paid_amount;
-
             var html = '<div>';
-
             // Payment modal link
             html += '<a href="#" style="text-decoration:none;" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark open-payment-modal" ' +
               'data-id="' + row.id + '" ' +
               'data-invoice-number="' + row.invoice_number + '" ' +
-              'data-customer-id="' + row.customer_id + '" ' + 
+              'data-customer-id="' + row.customer_id + '" ' +
               'data-item="' + row.item + '" ' +
               'data-total-amount="' + totalAmount + '" ' +
               'data-paid-amount="' + row.paid_amount + '" ' +
               'data-remaining-amount="' + remainingAmount + '">' +
               '<i class="fi fi-rr-euro"></i></a>';
-
             // Complete invoice link
             html += '<a target="_blank" style="text-decoration:none;" href="complete_invoice.php?id=' + row.id + '" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark">' +
               '<i class="fi fi-rr-edit"></i></a>';
-
             // Print invoice link
             html += '<a target="_blank" style="text-decoration:none;" href="print_invoice.php?id=' + row.invoice_number + '" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark">' +
               '<i class="fi fi-rr-print"></i></a>';
-
-            // Check if customer email exists and add the send invoice button or a disabled button with tooltip
+            // Send invoice to customer
             if (row.customer_email) {
               html += '<a href="#" style="text-decoration:none;" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark send-invoice" ' +
                 'data-id="' + row.id + '">' +
@@ -1202,8 +1016,7 @@ function getChannelDetails($channelId, $apiKey)
                 '</div>' +
                 '</p>';
             }
-
-            // Check if contablist email exists and add the send invoice button or a disabled button with tooltip
+            // Send invoice to contablist
             if (row.email_of_contablist) {
               html += '<a href="#" style="text-decoration:none;" class="bg-white border border-1 px-3 border-danger py-2 rounded-5 mx-1 text-dark send-invoices" ' +
                 'data-id="' + row.id + '">' +
@@ -1218,9 +1031,7 @@ function getChannelDetails($channelId, $apiKey)
                 '</div>' +
                 '</p>';
             }
-
             html += '</div>';
-
             return html;
           }
         }
@@ -1359,18 +1170,67 @@ function getChannelDetails($channelId, $apiKey)
         {
           data: 'customer_name',
           render: function(data, type, row) {
-            const loanAmount = row.customer_loan_amount;
-            const loanPaid = row.customer_loan_paid;
+            const loanAmount = row.customer_loan_amount || 0;
+            const loanPaid = row.customer_loan_paid || 0;
             const difference = loanAmount - loanPaid;
-            if (difference > 0) {
-              const dotHTML = '<div class="custom-tooltip" >' +
-                '<div class="custom-dot"></div>' +
-                '<span class="custom-tooltiptext">' + difference + ' €</span>' +
-                '</div>';
-              return '<p style="white-space: normal;">' + data + '</p>' + dotHTML;
+            let fileDisplay = '';
+            let uploadButton = '';
+            if (row.file_path && row.file_path !== '') {
+              fileDisplay = `
+        <div class="file-info d-flex align-items-center">
+          <i class="fi fi-rr-check-circle text-success me-2"></i>
+          <a class="input-custom-css px-3 py-2" style="text-decoration: none; text-transform: none;" href="${row.file_path}" download>
+            <i class="fi fi-rr-download"></i>
+          </a>
+        </div>
+      `;
             } else {
-              return '<p style="white-space: normal;">' + data + '</p>';
+              uploadButton = `
+        <button type="button" class="input-custom-css px-3 py-2" style="text-decoration: none; text-transform: none;" data-bs-toggle="modal" data-bs-target="#fileUploadModal-${row.id}">
+          <i class="fi fi-rr-upload"></i>
+        </button>
+      `;
             }
+            let tooltipHTML = '';
+            if (difference > 0) {
+              tooltipHTML = `
+        <div class="custom-tooltip">
+          <div class="custom-dot"></div>
+          <span class="custom-tooltiptext">${difference} €</span>
+        </div>
+      `;
+            }
+            return `
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <span>${data}</span>
+          ${tooltipHTML}
+          ${uploadButton}
+          ${fileDisplay}
+        </div>
+      </div>
+      <!-- File Upload Modal -->
+      <div class="modal fade" id="fileUploadModal-${row.id}" tabindex="-1" aria-labelledby="fileUploadModalLabel-${row.id}" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="fileUploadModalLabel-${row.id}">Ngarko faturën nga klienti</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <form id="fileUploadForm-${row.id}" enctype="multipart/form-data" action="upload_invoice.php" method="POST">
+                <input type="hidden" name="invoice_id" value="${row.id}">
+                <div class="mb-3">
+                  <label for="fileInput-${row.id}" class="form-label">Zgjidhni skedarin (PDF ose DOC)</label>
+                  <input type="file" name="file" class="form-control rounded-5 border border-2" id="fileInput-${row.id}" accept=".pdf,.doc,.docx" required>
+                </div>
+                <button type="submit" class="input-custom-css px-3 py-2">Dërgo</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
           }
         },
         {
@@ -1395,29 +1255,30 @@ function getChannelDetails($channelId, $apiKey)
         {
           data: null,
           render: function(data, type, row) {
-            // Generate unique IDs based on the row ID
             const conversionCellId = 'converted-amount-' + row.id;
-            // Base HTML for the table with placeholders
-            let tableHTML = '<table style="width:100%; font-size:12px;">' +
-              '<tr>' +
-              '<td style="text-align:left;">Shuma e përgjitshme:</td>' +
-              '<td style="text-align:right;">' + row.total_amount + ' USD</td>' +
-              '</tr>' +
-              '<tr>' +
-              '<td style="text-align:left;">Shuma e për. % :</td>' +
-              '<td style="text-align:right;">' + row.total_amount_after_percentage + ' USD</td>' +
-              '</tr>';
+            let compactHTML = `
+        <div class="amount-details" style="font-size:12px;">
+          <div class="d-flex justify-content-between">
+            <p>Shuma e për.:</p>
+            <p>${row.total_amount} USD</p>
+          </div>
+          <div class="d-flex justify-content-between">
+            <p>Shuma e për. % :</p>
+            <p>${row.total_amount_after_percentage} USD</p>
+          </div>`;
             if (row.total_amount_in_eur) {
-              tableHTML += '<tr>' +
-                '<td style="text-align:left;">Shuma e përgjitshme :</td>' +
-                '<td style="text-align:right;">' + row.total_amount_in_eur + ' EUR</td>' +
-                '</tr>';
+              compactHTML += `
+          <div class="d-flex justify-content-between">
+            <p>EUR - Shuma e për. :</p>
+            <p>${row.total_amount_in_eur} EUR</p>
+          </div>`;
             }
             if (row.total_amount_in_eur_after_percentage) {
-              tableHTML += '<tr>' +
-                '<td style="text-align:left;">Shuma e për. % :</td>' +
-                '<td style="text-align:right;">' + row.total_amount_in_eur_after_percentage + ' EUR</td>' +
-                '</tr>';
+              compactHTML += `
+          <div class="d-flex justify-content-between">
+            <p>EUR - Shuma e për. % :</p>
+            <p>${row.total_amount_in_eur_after_percentage} EUR</p>
+          </div>`;
             }
             // Fetch the converted amount asynchronously
             const url = 'convert_currency.php?amount=' + row.total_amount_after_percentage;
@@ -1427,20 +1288,18 @@ function getChannelDetails($channelId, $apiKey)
                 if (result.error) {
                   document.getElementById(conversionCellId).innerText = 'Error: ' + result.error;
                 } else if (result.result && result.result.EUR) {
-                  document.getElementById(conversionCellId).innerText = result.result.EUR.toFixed(2);
+                  document.getElementById(conversionCellId).innerText = result.result.EUR.toFixed(2) + ' EUR';
                 } else {
                   document.getElementById(conversionCellId).innerText = 'Error fetching rate';
                 }
               })
               .catch(error => {
-                // console.error('Fetch error:', error);
-                // document.getElementById(conversionCellId).innerText = 'Error fetching rate';
+                document.getElementById(conversionCellId).innerText = 'Error fetching rate';
               });
-            return tableHTML;
+            return compactHTML;
           }
         },
         {
-          // HERE is paided amount
           data: 'paid_amount',
           render: function(data, type, row) {
             return data.toLocaleString(undefined, {
@@ -1448,7 +1307,8 @@ function getChannelDetails($channelId, $apiKey)
               maximumFractionDigits: 2
             }) + ' €';
           }
-        }, {
+        },
+        {
           data: null,
           render: function(data, type, row) {
             var fitimiIBareshes = row.total_amount_in_eur - row.total_amount_in_eur_after_percentage;
@@ -1477,68 +1337,27 @@ function getChannelDetails($channelId, $apiKey)
         },
         {
           data: 'actions',
-          render: function(data, type, row) {
-            // Determine the total amount to use
-            var totalAmount = (row.total_amount_in_eur_after_percentage !== null && row.total_amount_in_eur_after_percentage !== undefined) ?
-              row.total_amount_in_eur_after_percentage :
-              row.total_amount_after_percentage;
-
-            // Calculate the remaining amount
-            var remainingAmount = totalAmount - row.paid_amount;
-
-            var html = '<div>';
-
-            // Payment modal link
-            html += '<a href="#" style="text-decoration:none;" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark open-payment-modal" ' +
-              'data-id="' + row.id + '" ' +
-              'data-invoice-number="' + row.invoice_number + '" ' +
-              'data-customer-id="' + row.customer_id + '" ' +
-              'data-item="' + row.item + '" ' +
-              'data-total-amount="' + totalAmount + '" ' +
-              'data-paid-amount="' + row.paid_amount + '" ' +
-              'data-remaining-amount="' + remainingAmount + '">' +
-              '<i class="fi fi-rr-euro"></i></a>';
-
-            // Complete invoice link
-            html += '<a target="_blank" style="text-decoration:none;" href="complete_invoice.php?id=' + row.id + '" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark">' +
-              '<i class="fi fi-rr-edit"></i></a>';
-
-            // Print invoice link
-            html += '<a target="_blank" style="text-decoration:none;" href="print_invoice.php?id=' + row.invoice_number + '" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark">' +
-              '<i class="fi fi-rr-print"></i></a>';
-
-            // Check if customer email exists and add the send invoice button or a disabled button with tooltip
-            if (row.customer_email) {
-              html += '<a href="#" style="text-decoration:none;" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark send-invoice" ' +
-                'data-id="' + row.id + '">' +
-                'Dergo faktur tek kengtari</a>';
-            } else {
-              html += '<button style="text-decoration:none;" class="bg-light border border-1 px-3 py-2 rounded-5 mx-1 text-dark" disabled>' +
-                '<i class="fi fi-rr-file-export"></i></button>' +
-                '<p style="white-space: normal;">' +
-                '<div class="custom-tooltip">' +
-                '<div class="custom-dot"></div>' +
-                '<span class="custom-tooltiptext">Nuk posedon email</span>' +
-                '</div>' +
-                '</p>';
-            }
-
-            // Check if contablist email exists and add the send invoice button or a disabled button with tooltip
-            if (row.email_of_contablist) {
-              html += '<a href="#" style="text-decoration:none;" class="bg-white border border-1 px-3 border-danger py-2 rounded-5 mx-1 text-dark send-invoices" ' +
-                'data-id="' + row.id + '">' +
-                'Dergo faktur tek kontabilisti</a>';
-            } else {
-              html += '<button style="text-decoration:none;" class="bg-light border border-1 px-3 py-2 rounded-5 mx-1 text-dark" disabled>' +
-                '<i class="fi fi-rr-file-export"></i></button>' 
-            }
-
-            html += '</div>';
-
-            return html;
+          render: (data, type, row) => {
+            const totalAmount = row.total_amount_in_eur_after_percentage ?? row.total_amount_after_percentage;
+            const remainingAmount = totalAmount - row.paid_amount;
+            const createLink = (href, icon, classes = '') =>
+              `<a href="${href}" class="bg-white border px-3 py-2 rounded-5 mx-1 text-dark ${classes}" style="text-decoration:none;">${icon}</a>`;
+            const createButton = (icon, disabled = false) =>
+              `<button class="bg-${disabled ? 'light' : 'white'} border px-3 py-2 rounded-5 mx-1 text-dark" ${disabled ? 'disabled' : ''} style="text-decoration:none;">${icon}</button>`;
+            const createTooltip = (text) =>
+              `<p style="white-space: normal;"><div class="custom-tooltip"><div class="custom-dot"></div><span class="custom-tooltiptext">${text}</span></div></p>`;
+            return `
+          <div>
+            ${createLink('#', '<i class="fi fi-rr-euro"></i>', 'open-payment-modal')
+              .replace('href="#"', `href="#" data-id="${row.id}" data-invoice-number="${row.invoice_number}" data-customer-id="${row.customer_id}" data-item="${row.item}" data-total-amount="${totalAmount}" data-paid-amount="${row.paid_amount}" data-remaining-amount="${remainingAmount}"`)}
+            ${createLink(`complete_invoice.php?id=${row.id}`, '<i class="fi fi-rr-edit"></i>', 'target="_blank"')}
+            ${createLink(`print_invoice.php?id=${row.invoice_number}`, '<i class="fi fi-rr-print"></i>', 'target="_blank"')}
+            ${row.customer_email ? createLink(`#mailto:${row.customer_email}`, '<i class="fi fi-rr-envelope"></i>', 'target="_blank"') : createButton('<i class="fi fi-rr-envelope"></i>', true)}
+            ${remainingAmount > 0 ? createTooltip(`${remainingAmount} €`) : ''}
+          </div>`;
           }
         }
-      ],
+      ]
     });
     var currentPage = 0;
     $(document).on('click', '.open-payment-modal', function(e) {
@@ -1658,7 +1477,6 @@ function getChannelDetails($channelId, $apiKey)
         }
       });
     });
-
     function createButtonConfig(extend, icon, text, titleAttr) {
       return {
         extend: extend,
@@ -1735,7 +1553,6 @@ function getChannelDetails($channelId, $apiKey)
       },
       stripeClasses: ['stripe-color']
     });
-
     function getCurrentDate() {
       var today = new Date();
       var dd = String(today.getDate()).padStart(2, '0');
@@ -1783,122 +1600,7 @@ function getChannelDetails($channelId, $apiKey)
     });
   });
 </script>
-<script>
-  $(document).ready(function() {
-    $(document).on('click', '.send-invoice', function(e) {
-      e.preventDefault();
-      var invoiceId = $(this).data('id');
-      $.ajax({
-        url: 'dergofakturen.php?id=' + invoiceId,
-        type: 'GET',
-        success: function(response) {
-          if (response.includes('Email sent successfully')) {
-            // Email sent successfully
-            Swal.fire({
-              icon: 'success',
-              title: 'Emaili u dërgua me sukses',
-              showConfirmButton: false,
-              timer: 1500
-            }).then(function() {
-              window.location.href = 'invoice.php?success=sent';
-            });
-          } else {
-            // Ndodhi një gabim
-            Swal.fire({
-              icon: 'error',
-              title: 'Ndodhi një gabim',
-              text: 'Dështoi dërgimi i faturës.'
-            }).then(function() {
-              window.location.href = 'invoice.php?success=error';
-            });
-          }
-        },
-        error: function(jqXHR, textStatus, errorThrown) {
-          // Kërkesa AJAX dështoi
-          var errorMessage = "Dështoi dërgimi i faturës. Gabimi: " + textStatus + ", " + errorThrown;
-          Swal.fire({
-            icon: 'error',
-            title: 'Ndodhi një gabim',
-            text: errorMessage
-          }).then(function() {
-            // Ruaj mesazhin e gabimit në skedar JSON
-            $.ajax({
-              url: 'save-error.php',
-              type: 'POST',
-              data: {
-                error: errorMessage
-              },
-              success: function(response) {
-                console.log('Gabimi u ruajt me sukses.');
-              },
-              error: function() {
-                console.log('Dështoi ruajtja e gabimit.');
-              }
-            });
-            // Ridrejto në invoice.php me mesazhin e gabimit
-            window.location.href = 'invoice.php?success=error&message=' + encodeURIComponent(errorMessage);
-          });
-        }
-      });
-    });
-    $(document).on('click', '.send-invoices', function(e) {
-      e.preventDefault();
-      var invoiceId = $(this).data('id');
-      $.ajax({
-        url: 'dergofakturenTekKontabilisti.php?id=' + invoiceId,
-        type: 'GET',
-        success: function(response) {
-          if (response.includes('Email sent successfully')) {
-            // Email sent successfully
-            Swal.fire({
-              icon: 'success',
-              title: 'Emaili u dërgua me sukses',
-              showConfirmButton: false,
-              timer: 1500
-            }).then(function() {
-              window.location.href = 'invoice.php?success=sent';
-            });
-          } else {
-            // Ndodhi një gabim
-            Swal.fire({
-              icon: 'error',
-              title: 'Ndodhi një gabim',
-              text: 'Dështoi dërgimi i faturës.'
-            }).then(function() {
-              window.location.href = 'invoice.php?success=error';
-            });
-          }
-        },
-        error: function(jqXHR, textStatus, errorThrown) {
-          // Kërkesa AJAX dështoi
-          var errorMessage = "Dështoi dërgimi i faturës. Gabimi: " + textStatus + ", " + errorThrown;
-          Swal.fire({
-            icon: 'error',
-            title: 'Ndodhi një gabim',
-            text: errorMessage
-          }).then(function() {
-            // Ruaj mesazhin e gabimit në skedar JSON
-            $.ajax({
-              url: 'save-error.php',
-              type: 'POST',
-              data: {
-                error: errorMessage
-              },
-              success: function(response) {
-                console.log('Gabimi u ruajt me sukses.');
-              },
-              error: function() {
-                console.log('Dështoi ruajtja e gabimit.');
-              }
-            });
-            // Ridrejto në invoice.php me mesazhin e gabimit
-            window.location.href = 'invoice.php?success=error&message=' + encodeURIComponent(errorMessage);
-          });
-        }
-      });
-    });
-  });
-</script>
+<script src="pro_invoice.js"></script>
 <script src="percentage_calculations.js"></script>
 <script src="create_manual_invoice.js"></script>
 <script src="completed_invoice_personal.js"> </script>
@@ -1909,5 +1611,4 @@ function getChannelDetails($channelId, $apiKey)
 <script src="states.js"></script>
 <?php include 'partials/footer.php' ?>
 </body>
-
 </html>

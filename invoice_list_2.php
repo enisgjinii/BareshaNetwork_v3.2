@@ -18,16 +18,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['delete_id']) && !empty
     echo "Failed to delete invoice.";
   }
 }
-
-
 // Get invoice list
 $invoiceList = $invoice->getInvoiceList();
-
 // $invoice->checkLoggedIn();
 if (!empty($_POST['companyName']) && $_POST['companyName']) {
   $invoice->saveInvoice($_POST);
 }
-
 ?>
 <script src="invoice.js"></script>
 <div class="main-panel">
@@ -71,18 +67,14 @@ if (!empty($_POST['companyName']) && $_POST['companyName']) {
                     <td><?= $invoiceDetails["invoice_number"] ?></td>
                     <td><?= $invoiceDetails["order_id"] ?></td>
                     <td><?php
-
                         // First make an array with months in Albanian language
                         $months = array("Janar", "Shkurt", "Mars", "Prill", "Maj", "Qershor", "Korrik", "Gusht", "Shtator", "Tetor", "Nentor", "Dhjetor");
-
                         // Get the order date from $invoiceDetails and format it
                         $order_date = strtotime($invoiceDetails["order_date"]);
                         $month_index = date("n", $order_date) - 1; // Subtract 1 to get the correct index for the month array
                         $formatted_date = date("d", $order_date) . " " . $months[$month_index] . " " . date("Y", $order_date) . ", " . date("H:i:s", $order_date);
-
                         echo $formatted_date;
                         ?></td>
-
                     <td><?= $invoiceDetails["order_receiver_name"] ?></td>
                     <td><?= $invoiceDetails["order_total_after_tax"] ?></td>
                     <td>
@@ -127,6 +119,27 @@ if (!empty($_POST['companyName']) && $_POST['companyName']) {
                 </div>
                 <div class="col-xs-12 col-sm-4 col-md-6 col-lg-6 pull-right">
                   <h3>Për,</h3>
+                  <label for="customer" class="form-label">Emri i klientit</label>
+                  <select class="form-control rounded-5 border border-1" name="customer" id="customer">
+                    <option value="">Zgjidhni klientin</option>
+                    <?php
+                    include "conn-d.php";
+                    $sql = "SELECT DISTINCT order_receiver_name, order_receiver_address, mobile, email, tax_id FROM invoice_order";
+                    $result = $conn->query($sql);
+                    if ($result === false) {
+                      echo "<option value=''>Gabim në marrjen e klientëve</option>";
+                    } else {
+                      while ($row = $result->fetch_assoc()) {
+                        $clientData = htmlspecialchars(json_encode($row), ENT_QUOTES, 'UTF-8');
+                        echo '<option value="' . $clientData . '">' . htmlspecialchars($row['order_receiver_name'], ENT_QUOTES, 'UTF-8') . '</option>';
+                      }
+                    }
+                    ?>
+                  </select>
+                  <script>
+                    new Selectr('#customer');
+                  </script>
+                  <br>
                   <div class="form-group">
                     <input type="text" class="form-control rounded-5 border border-1" name="companyName" id="companyName" placeholder="Emri i kompanisë ( klientit )" autocomplete="off">
                   </div>
@@ -134,14 +147,11 @@ if (!empty($_POST['companyName']) && $_POST['companyName']) {
                     <textarea class="form-control rounded-5 border border-1" rows="3" name="address" id="address" placeholder="Adresa"></textarea>
                   </div>
                   <div class="form-group">
-                    <!-- Telephone number -->
                     <input type="text" class="form-control rounded-5 border border-1" name="mobile" id="mobile" placeholder="Telefoni" autocomplete="off">
                   </div>
-                  <!-- Email -->
                   <div class="form-group">
                     <input type="text" class="form-control rounded-5 border border-1" name="email" id="email" placeholder="Email" autocomplete="off">
                   </div>
-                  <!-- Tax ID -->
                   <div class="form-group">
                     <input type="text" class="form-control rounded-5 border border-1" name="taxId" id="taxId" placeholder="Tax ID" autocomplete="off">
                   </div>
@@ -171,7 +181,6 @@ if (!empty($_POST['companyName']) && $_POST['companyName']) {
               </div>
               <div class="row my-3">
                 <div class="col-xs-12 col-sm-3 col-md-3 col-lg-3">
-
                   <button class="input-custom-css px-3 py-2" id="addRows" type="button">+ Shtoni më shumë</button>
                   <button class="input-custom-css px-3 py-2 delete" id="removeRows" type="button">- Fshije</button>
                 </div>
@@ -255,4 +264,33 @@ if (!empty($_POST['companyName']) && $_POST['companyName']) {
     </div>
   </div>
 </div>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var customerSelect = document.getElementById('customer');
+    var companyNameInput = document.getElementById('companyName');
+    var addressInput = document.getElementById('address');
+    var mobileInput = document.getElementById('mobile');
+    var emailInput = document.getElementById('email');
+    var taxIdInput = document.getElementById('taxId');
+
+    customerSelect.addEventListener('change', function() {
+      var selectedOption = this.options[this.selectedIndex];
+      if (selectedOption.value) {
+        var clientData = JSON.parse(selectedOption.value);
+        companyNameInput.value = clientData.order_receiver_name || '';
+        addressInput.value = clientData.order_receiver_address || '';
+        mobileInput.value = clientData.mobile || '';
+        emailInput.value = clientData.email || '';
+        taxIdInput.value = clientData.tax_id || '';
+      } else {
+        // Clear all fields if no client is selected
+        companyNameInput.value = '';
+        addressInput.value = '';
+        mobileInput.value = '';
+        emailInput.value = '';
+        taxIdInput.value = '';
+      }
+    });
+  });
+</script>
 <?php include 'partials/footer.php'; ?>

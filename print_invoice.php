@@ -1,24 +1,27 @@
 <?php
-// Include the database connection
 include 'conn-d.php';
 // Get the ID from the URL or any other source
-$invoiceId = $_GET['id']; // Assuming you pass the ID through the URL, e.g., print_invoice.php?id=1
-// Prepare and execute the SQL query
+$invoiceId = $_GET['id'];
+// Prepare and execute the SQL query for invoice details
 $sql = "SELECT * FROM invoices WHERE invoice_number = '$invoiceId'";
 $result = $conn->query($sql);
 // Check if there is a result
-if ($result->num_rows > -1) {
+if ($result->num_rows > 0) {
     // Fetch data from the result set
     $row = $result->fetch_assoc();
     $customerID = $row['customer_id'];
+    $idofinvoice = $row['id'];
+    // Get customer details
     $sql2 = "SELECT * FROM klientet WHERE id = '$customerID'";
     $result2 = $conn->query($sql2);
     $clientRow = $result2->fetch_assoc();
     $customerName = $clientRow['emri'];
+    // Get all payments for this invoice
+    $sqlforpayments = "SELECT * FROM payments WHERE invoice_id = '$idofinvoice' ORDER BY payment_date";
+    $resultforpayments = $conn->query($sqlforpayments);
 ?>
     <!DOCTYPE html>
     <html lang="en">
-
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -40,14 +43,12 @@ if ($result->num_rows > -1) {
             * {
                 font-family: 'Inter', sans-serif;
             }
-
             body {
                 margin: 0;
                 padding: 0;
                 font-family: 'Roboto', sans-serif;
                 background-color: #f0f0f0;
             }
-
             .container {
                 max-width: 800px;
                 margin: 20px auto;
@@ -56,72 +57,57 @@ if ($result->num_rows > -1) {
                 border-radius: 5px;
                 box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             }
-
             .header {
                 text-align: left;
             }
-
             .header h1 {
                 margin-bottom: 10px;
             }
-
             .logo {
                 text-align: left;
                 margin-top: 20px;
             }
-
             .logo img {
                 width: 100px;
             }
-
             .address {
                 text-align: left;
             }
-
             .address p {
                 margin: 5px 0;
             }
-
             .customer-info {
                 margin-top: 20px;
             }
-
             .invoice-details {
                 margin-top: 20px;
             }
-
             .invoice-details .row {
                 justify-content: space-between;
             }
-
             .sales-table {
                 margin-top: 20px;
                 width: 100%;
                 border-collapse: collapse;
             }
-
             .sales-table th,
             .sales-table td {
                 border: 1px solid #ddd;
                 padding: 10px;
                 text-align: left;
             }
-
             .sales-table th {
                 background-color: #f2f2f2;
             }
-
             .total {
                 margin-top: 10px;
                 text-align: right;
                 font-weight: bold;
             }
-
             .btn-container {
                 text-align: right;
                 margin-top: 20px;
             }
-
             @media print {
                 .container {
                     max-width: 1900px;
@@ -131,7 +117,6 @@ if ($result->num_rows > -1) {
                     border-radius: 0px;
                     box-shadow: 0 0px 0px rgba(0, 0, 0, 0.2);
                 }
-
                 .btn-container {
                     display: none;
                 }
@@ -139,7 +124,6 @@ if ($result->num_rows > -1) {
         </style>
         <title>Fatura - <?php echo $_GET['id']; ?></title>
     </head>
-
     <body>
         <div class="btn-container fixed-top px-3 py-2 bg-light rounded-5 border ms-1" style="width: fit-content;">
             <a href="invoice.php" class="btn btn-sm btn-light border shadow-0 rounded-5" style="text-transform: none;"><i class="fa fa-angle-left me-2"></i>Kthehu</a>
@@ -217,6 +201,17 @@ if ($result->num_rows > -1) {
                     <div class="address text-end">
                         <p># <?php echo $row['invoice_number']; ?></p>
                     </div>
+                    <h4 class="text-muted text-left my-3">Lloji i faturës </h4>
+                    <div class="address text-end">
+                        <p>
+                            <?php
+                            if ($row['type'] == 'grupor') {
+                                echo "Fatura e ndarë";
+                            } else if ($row['type'] == "individual") {
+                                echo "Fatura individual";
+                            }
+                            ?>
+                    </div>
                 </div>
             </div>
             <hr style="border: 1px dashed red;">
@@ -282,7 +277,6 @@ if ($result->num_rows > -1) {
                         $totalInUsd = number_format($row['total_amount'], 2, '.', '');
                         // Calculate remaining amount after percentage
                         $remains = $row['total_amount'] - $row['total_amount_after_percentage'];
-
                         // Display data in table rows
                         echo "<tr>";
                         echo "<td>{$row['id']}</td>";
@@ -292,19 +286,107 @@ if ($result->num_rows > -1) {
                         echo "<td>" . number_format($remains, 2) . "</td>";
                         echo "<td>{$row['total_amount_in_eur_after_percentage']}</td><td>{$row['total_amount_in_eur_after_percentage']}</td></tr>";
                     }
-
-                    // Display the total converted amount
-
                     ?>
                 </tbody>
             </table>
+            <br>
+            <?php
+            // ... (previous code remains the same)
+            // Fetch the subaccounts for the customer
+            $subaccountQuery = "SELECT * FROM client_subaccounts WHERE client_id = " . $customerID;
+            $subaccountResult = $conn->query($subaccountQuery);
+            $subaccounts = $subaccountResult->fetch_all(MYSQLI_ASSOC);
+            // Reset the data seek pointer to the beginning of the result set
+            $result->data_seek(0);
+            ?>
+            <table class="sales-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Emërtimi</th>
+                        <th>Çmimi</th>
+                        <th>Totali pas konvertimit</th>
+                        <th>Shuma pas -15%</th>
+                        <?php foreach ($subaccounts as $subaccount) : ?>
+                            <th><?php echo htmlspecialchars($subaccount['name']); ?> (<?php echo $subaccount['percentage']; ?>%)</th>
+                        <?php endforeach; ?>
+                        <th>Mbetja</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php 
+                    // Loop through the result set
+                    $totalAmount = 0;
+                    while ($row = $result->fetch_assoc()) {
+                        $totalInEur = $row['total_amount_in_eur'];
+                        $afterFifteenPercent = $totalInEur * 0.85; // 15% reduction
+                        echo "<tr>";
+                        echo "<td>{$row['id']}</td>";
+                        echo "<td>{$row['item']}</td>";
+                        echo "<td>" . number_format($row['total_amount'], 2) . "</td>";
+                        echo "<td>" . number_format($totalInEur, 2) . "</td>";
+                        echo "<td>" . number_format($afterFifteenPercent, 2) . "</td>";
+                        $remainingAmount = $afterFifteenPercent;
+                        foreach ($subaccounts as $subaccount) {
+                            $subaccountAmount = $afterFifteenPercent * ($subaccount['percentage'] / 100);
+                            $remainingAmount -= $subaccountAmount;
+                            echo "<td>" . number_format($subaccountAmount, 2) . "</td>";
+                        }
+                        echo "<td>" . number_format($remainingAmount, 2) . "</td>";
+                        echo "</tr>";
+                        $totalAmount += $totalInEur;
+                    }
+                    ?>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="3"><strong>Totali</strong></td>
+                        <td><strong><?php echo number_format($totalAmount, 2); ?></strong></td>
+                        <td><strong><?php echo number_format($totalAmount * 0.85, 2); ?></strong></td>
+                        <?php
+                        $remainingTotal = $totalAmount * 0.85;
+                        foreach ($subaccounts as $subaccount) :
+                            $subaccountTotal = $totalAmount * 0.85 * ($subaccount['percentage'] / 100);
+                            $remainingTotal -= $subaccountTotal;
+                        ?>
+                            <td><strong><?php echo number_format($subaccountTotal, 2); ?></strong></td>
+                        <?php endforeach; ?>
+                        <td><strong><?php echo number_format($remainingTotal, 2); ?></strong></td>
+                    </tr>
+                </tfoot>
             </table>
-            <hr style="border: 1px dashed red;">
+            <table class="payments-table table">
+                <thead>
+                    <tr>
+                        <!-- <th>ID e pagesës</th> -->
+                        <th>Shuma</th>
+                        <th>Data e pagesës</th>
+                        <!-- <th>Informata e bankës</th> -->
+                        <!-- <th>Lloji i pagesës</th> -->
+                        <th>Përshkrimi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php
+                    $totalPaid = 0;
+                    while ($payment = $resultforpayments->fetch_assoc()) {
+                        echo "<tr>";
+                        // echo "<td>{$payment['payment_id']}</td>";
+                        echo "<td>" . number_format($payment['payment_amount'], 2) . "</td>";
+                        echo "<td>{$payment['payment_date']}</td>";
+                        // echo "<td>{$payment['bank_info']}</td>";
+                        // echo "<td>{$payment['type_of_pay']}</td>";
+                        echo "<td>{$payment['description']}</td>";
+                        echo "</tr>";
+                        $totalPaid += $payment['payment_amount'];
+                    }
+                    ?>
+                </tbody>
+            </table>
         </div>
         <!-- MDB -->
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.4.1/mdb.min.js"></script>
     </body>
-
     </html>
 <?php
 } else {

@@ -14,14 +14,14 @@ try {
     $mail->isSMTP();
     $mail->Host = 'smtp.gmail.com';  // Specify your SMTP server
     $mail->SMTPAuth = true;
-    $mail->Username = 'egjini17@gmail.com'; // SMTP username
-    $mail->Password = 'rhydniijtqzijjdy'; // SMTP password
+    $mail->Username = 'egjini@bareshamusic.com'; // SMTP username
+    $mail->Password = 'pazvpeihqiekpkiv'; // SMTP password
     $mail->SMTPSecure = 'tls';
     $mail->Port = 587;
     $mail->CharSet = 'UTF-8';
     // Recipient
-    $mail->setFrom('egjini17@gmail.com', 'Emri Juaj');
-    $mail->addAddress('egjini17@gmail.com', 'Emri i Mbeshtetësit'); // Add recipient email address
+    $mail->setFrom('egjini@bareshamusic.com', 'Emri Juaj');
+    $mail->addAddress('egjini@bareshamusic.com', 'Emri i Mbeshtetësit'); // Add recipient email address
 
     // Email subject with label
     $subject = 'Artikulli i Menysë Klikuar - ' . $_GET['redirect']; // Get the page name from GET parameter

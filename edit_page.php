@@ -190,6 +190,9 @@ function format_page_name($page)
     if ($page == 'pasqyrat.php') {
         return 'Pasqyrat';
     }
+    if ($page == 'aktiviteti.php') {
+        return 'Aktivitetet';
+    }
 }
 $pages = array(
     'stafi.php' => format_page_name('stafi.php'),
@@ -253,6 +256,7 @@ $pages = array(
     'shpenzimet_objekt.php' => format_page_name('shpenzimet_objekt.php'),
     'ttatimi.php' => format_page_name('ttatimi.php'),
     'pasqyrat.php' => format_page_name('pasqyrat.php'),
+    'aktiviteti.php' => format_page_name('aktiviteti.php'),
 );
 // Check if the role ID is present in the URL
 if (isset($_GET['role_id'])) {

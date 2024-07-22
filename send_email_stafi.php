@@ -9,12 +9,12 @@ try {
     $mail->isSMTP();
     $mail->Host = 'smtp.gmail.com'; // Specify main and backup SMTP servers
     $mail->SMTPAuth = true; // Enable SMTP authentication
-    $mail->Username = 'egjini17@gmail.com'; // SMTP username
-    $mail->Password = 'rhydniijtqzijjdy'; // SMTP password
+    $mail->Username = 'egjini@bareshamusic.com'; // SMTP username
+    $mail->Password = 'pazvpeihqiekpkiv'; // SMTP password
     $mail->SMTPSecure = 'tls'; // Enable TLS encryption, `ssl` also accepted
     $mail->Port = 587; // TCP port to connect to
     // Recipients
-    $mail->setFrom('egjini17@gmail.com', 'Enis Gjini');
+    $mail->setFrom('egjini@bareshamusic.com', 'Enis Gjini');
     $mail->addAddress($_POST['email']); // Add recipient
     // Add attachments if any
     if (isset($_FILES['attachment']) && $_FILES['attachment']['error'] == UPLOAD_ERR_OK) {

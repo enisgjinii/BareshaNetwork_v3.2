@@ -1,7 +1,7 @@
 <?php
 class Invoice
 {
-	private $host  = '198.38.83.75';
+	private $host  = '192.250.231.19';
 	private $user  = 'bareshao_f';
 	private $password   = "prishtin134?";
 	private $database  = "bareshao_f";

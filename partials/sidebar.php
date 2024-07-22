@@ -88,6 +88,8 @@
         "menuItems" => [
           "stafi.php" => "Stafi",
           "roles.php" => "Rolet",
+          "rrogat.php" => "Pagat",
+          "aktiviteti.php" => "Aktivitetet",
         ],
       ],
       [
@@ -140,7 +142,7 @@
           "invoice.php" => "Pagesat YouTube <span class='badge bg-success rounded'>New</span>",
           "faturat.php" => "Pagesat YouTube",
           "pagesat.php" => "Pagesat e kryera",
-          "rrogat.php" => "Pagat",
+
           "tatimi.php" => "Tatimi",
           "yinc.php" => "Borxhi",
           "shpenzimep.php" => "Borxhet personale",
@@ -155,7 +157,7 @@
           "shpenzimet_objekt.php" => "Shpenzimet e objektit",
           "ttatimi.php" => "Tatimet",
           "fitimi_pergjithshem.php" => "Fitimi i përgjithshëm",
-          
+
         ],
       ],
       [

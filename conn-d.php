@@ -24,4 +24,3 @@ if ($conn->connect_errno) {
   echo "Lidhja me MySQL dështoi: " . $conn->connect_error;
   exit();
 }
-

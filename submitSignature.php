@@ -1,97 +1,176 @@
 <?php
+require 'vendor/autoload.php';
 include 'conn-d.php';
+
+use Google\Client;
+use Google\Service\Drive;
 
 // Enable error reporting
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
+// Function to log errors
+function logError($message)
+{
+    error_log($message, 3, 'error_log.txt');
+}
+
+// Initialize Google Client
+function getClient()
+{
+    try {
+        $client = new Client();
+        $client->setAuthConfig('client.json');
+        $client->addScope(Drive::DRIVE_FILE);
+        $client->addScope(Drive::DRIVE);
+        $client->setAccessType('offline');
+        $client->setPrompt('select_account consent');
+
+        // Retrieve the refresh token from cookie
+        if (isset($_COOKIE['refreshToken'])) {
+            $refreshToken = $_COOKIE['refreshToken'];
+            $client->fetchAccessTokenWithRefreshToken($refreshToken);
+            $accessToken = $client->getAccessToken();
+            $client->setAccessToken($accessToken);
+
+            // Save the new access token to a file (optional)
+            $tokenPath = 'token.json';
+            if (!file_exists(dirname($tokenPath))) {
+                mkdir(dirname($tokenPath), 0700, true);
+            }
+            file_put_contents($tokenPath, json_encode($client->getAccessToken()));
+        } else {
+            throw new Exception('Refresh token not found in cookies.');
+        }
+    } catch (Exception $e) {
+        logError('Google Client Initialization Error: ' . $e->getMessage());
+        throw $e;
+    }
+
+    return $client;
+}
+
 // Check if form data is submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $emri = isset($_POST['emri']) ? $_POST['emri'] : '';
-    $mbiemri = isset($_POST['mbiemri']) ? $_POST['mbiemri'] : '';
-    $numri_tel = isset($_POST['numri_tel']) ? $_POST['numri_tel'] : '';
-    $numri_personal = isset($_POST['numri_personal']) ? $_POST['numri_personal'] : '';
-    $perqindja = isset($_POST['perqindja']) ? $_POST['perqindja'] : '';
-    $klienti = isset($_POST['klienti']) ? $_POST['klienti'] : '';
-    $vepra = isset($_POST['vepra']) ? $_POST['vepra'] : '';
-    $data = isset($_POST['data']) ? $_POST['data'] : '';
-    $shenime = isset($_POST['shenime']) ? $_POST['shenime'] : '';
-    $signatureData = isset($_POST['signatureData']) ? $_POST['signatureData'] : '';
-    $email = isset($_POST['email']) ? $_POST['email'] : '';
-    $emri_artistik = isset($_POST['emriartistik']) ? $_POST['emriartistik'] : '';
+    $fields = [
+        'emri', 'mbiemri', 'numri_tel', 'numri_personal',
+        'perqindja', 'klienti', 'vepra', 'data',
+        'shenime', 'signatureData', 'email', 'emriartistik'
+    ];
+
+    $data = [];
+    foreach ($fields as $field) {
+        $data[$field] = isset($_POST[$field]) ? $_POST[$field] : '';
+    }
 
     // Check if a PDF file has been uploaded
-    if (!empty($_FILES['pdf_file']['name'])) {
-        // Check if the PDF file was uploaded successfully
-        if ($_FILES['pdf_file']['error'] === UPLOAD_ERR_OK) {
-            // Get the uploaded file name and extension
-            $pdf_name = $_FILES['pdf_file']['name'];
+    $file_path = null;
+    if (!empty($_FILES['pdf_file']['name']) && $_FILES['pdf_file']['error'] === UPLOAD_ERR_OK) {
+        $folder_path = "pdf_files/";
+        $unique_pdf_name = time() . "_" . $_FILES['pdf_file']['name'];
+        $file_path = $folder_path . $unique_pdf_name;
 
-            // Set the folder path where the PDF will be stored on the server
-            $folder_path = "pdf_files/";
-
-            // Create a unique file name (e.g., timestamp + original name)
-            $unique_pdf_name = time() . "_" . $pdf_name;
-
-            // Set the file path where the PDF will be saved on the server
-            $file_path = $folder_path . $unique_pdf_name;
-
-            // Move the uploaded file to the desired path
-            if (move_uploaded_file($_FILES['pdf_file']['tmp_name'], $file_path)) {
-                // PDF file uploaded successfully
-            } else {
-                // If moving the file failed, show an error message
-                echo 'Error moving the PDF file.';
-                exit; // Exit script
-            }
-        } else {
-            // If the PDF file upload failed, show an error message
-            echo 'PDF file upload failed.';
-            exit; // Exit script
+        if (!move_uploaded_file($_FILES['pdf_file']['tmp_name'], $file_path)) {
+            logError('Error moving the PDF file.');
+            echo 'Error moving the PDF file.';
+            exit;
         }
-    } else {
-        // No PDF file was uploaded, so set $file_path to null
-        $file_path = null;
+    }
+
+    // Create text document content
+    $text_content = "Kontrata Information:\n";
+    foreach ($data as $key => $value) {
+        $text_content .= ucfirst($key) . ": " . $value . "\n";
+    }
+    if ($file_path) {
+        $text_content .= "PDF File Path: " . $file_path . "\n";
+    }
+
+    // Save text document locally
+    $text_file_path = "text_files/" . time() . "_kontrata.txt";
+    if (file_put_contents($text_file_path, $text_content) === false) {
+        logError('Error saving text document.');
+        echo 'Error saving text document.';
+        exit;
+    }
+
+    try {
+        // Get Google Client
+        $client = getClient();
+        $service = new Drive($client);
+
+        // Folder ID
+        $folderId = '1HLVc7GzZZZp0EyfPU1zpD0xOwJjOSmoT'; // Replace with the correct folder ID
+
+        // Check if the folder exists and is accessible
+        try {
+            $folder = $service->files->get($folderId, ['fields' => 'id']);
+        } catch (Exception $e) {
+            // If the folder is not found, create a new one
+            if ($e->getCode() == 404) {
+                $folderMetadata = new Drive\DriveFile([
+                    'name' => 'Kontrata Files',
+                    'mimeType' => 'application/vnd.google-apps.folder'
+                ]);
+                $folder = $service->files->create($folderMetadata, ['fields' => 'id']);
+                $folderId = $folder->id;
+                logError('Created new folder with ID: ' . $folderId);
+            } else {
+                throw $e; // Re-throw if it's a different error
+            }
+        }
+
+        $fileMetadata = new Drive\DriveFile([
+            'name' => basename($text_file_path),
+            'parents' => [$folderId]
+        ]);
+        $content = file_get_contents($text_file_path);
+        $file = $service->files->create($fileMetadata, [
+            'data' => $content,
+            'mimeType' => 'text/plain',
+            'uploadType' => 'multipart',
+            'fields' => 'id'
+        ]);
+        logError('File ID: ' . $file->id);
+    } catch (Exception $e) {
+        logError('Google Drive API Error: ' . $e->getMessage());
+        echo 'Error uploading to Google Drive: ' . $e->getMessage();
+        exit;
     }
 
     // Insert data into the database, including the PDF file path
-    $sql = "INSERT INTO kontrata (emri, mbiemri, numri_i_telefonit, numri_personal, vepra, data, shenim, nenshkrimi, pdf_file, perqindja, klienti, klient_email, emriartistik)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    try {
+        $sql = "INSERT INTO kontrata (emri, mbiemri, numri_i_telefonit, numri_personal, vepra, data, shenim, nenshkrimi, pdf_file, perqindja, klienti, klient_email, emriartistik)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-    // Create a prepared statement
-    $stmt = $conn->prepare($sql);
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param(
+            "sssssssssssss",
+            $data['emri'],
+            $data['mbiemri'],
+            $data['numri_tel'],
+            $data['numri_personal'],
+            $data['vepra'],
+            $data['data'],
+            $data['shenime'],
+            $data['signatureData'],
+            $file_path,
+            $data['perqindja'],
+            $data['klienti'],
+            $data['email'],
+            $data['emriartistik']
+        );
 
-    // Bind parameters
-    $stmt->bind_param(
-        "sssssssssssss",
-        $emri,
-        $mbiemri,
-        $numri_tel,
-        $numri_personal,
-        $vepra,
-        $data,
-        $shenime,
-        $signatureData,
-        $file_path, // This may be  null if no PDF file was uploaded
-        $perqindja,
-        $klienti,
-        $email,
-        $emri_artistik
-    );
+        $response = ['success' => $stmt->execute()];
 
-    // Execute the statement
-    if ($stmt->execute()) {
-        // Insertion successful
-        $response = ['success' => true];
-    } else {
-        // Insertion failed
-        $response = ['success' => false];
+        // Output response as JSON
+        header('Content-Type: application/json');
+        echo json_encode($response);
+    } catch (Exception $e) {
+        logError('Database Error: ' . $e->getMessage());
+        echo 'Error saving to the database: ' . $e->getMessage();
+        exit;
     }
-
-    // Output response as JSON
-    header('Content-Type: application/json');
-    echo json_encode($response);
 } else {
-    // Handle invalid request method
     echo 'Invalid request method.';
 }

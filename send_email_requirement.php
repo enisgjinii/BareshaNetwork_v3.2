@@ -11,13 +11,13 @@ try {
     $mail->isSMTP();
     $mail->Host = 'smtp.gmail.com';
     $mail->SMTPAuth = true;
-    $mail->Username = 'egjini17@gmail.com';
-    $mail->Password = 'rhydniijtqzijjdy';
+    $mail->Username = 'egjini@bareshamusic.com';
+    $mail->Password = 'pazvpeihqiekpkiv';
     $mail->SMTPSecure = 'tls';
     $mail->Port = 587;
 
     // Caktojnë dërguesin dhe pranuesin
-    $mail->setFrom('egjini17@gmail.com', 'Enis Gjini');
+    $mail->setFrom('egjini@bareshamusic.com', 'Enis Gjini');
     $mail->addAddress($_POST['email']); // Duke supozuar se adresa e emailit është dërguar përmes POST
 
     // Caktimi i përmbajtjes së emailit
