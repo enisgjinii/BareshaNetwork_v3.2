@@ -141,11 +141,6 @@ function getChannelDetails($channelId, $apiKey)
           <button style="text-transform: none;" class="input-custom-css px-3 py-2 " data-bs-toggle="modal" data-bs-target="#trashInvoices">
             <i class="fi fi-rr-delete-document fa-lg"></i>&nbsp; Faturat e fshira
           </button>
-          <?php if (!($user_info['email'] == 'lirie@bareshamusic.com')) { ?>
-            <a style="text-transform: none;text-decoration: none;" href="<?php echo $client->createAuthUrl(); ?>" class="input-custom-css px-3 py-2">
-              <i class="fi fi-brands-youtube fa-lg"></i>&nbsp; Lidh kanal
-            </a>
-          <?php } ?>
           <ul class="nav nav-pills bg-white my-3 mx-0 rounded-5" style="width: fit-content; border: 1px solid lightgrey;" id="pills-tab" role="tablist">
             <li class="nav-item" role="presentation">
               <button class="nav-link rounded-5 active" style="text-transform: none" id="pills-lista_e_faturave-tab" data-bs-toggle="pill" data-bs-target="#pills-lista_e_faturave" type="button" role="tab" aria-controls="pills-lista_e_faturave" aria-selected="true">Lista e faturave ( Personale ) </button>
@@ -156,9 +151,6 @@ function getChannelDetails($channelId, $apiKey)
               </button>
             </li>
             <?php if (!($user_info['email'] == 'lirie@bareshamusic.com')) { ?>
-              <li class="nav-item" role="presentation">
-                <button class="nav-link rounded-5" style="text-transform: none" id="pills-lista_e_kanaleve-tab" data-bs-toggle="pill" data-bs-target="#pills-lista_e_kanaleve" type="button" role="tab" aria-controls="pills-lista_e_kanaleve" aria-selected="false">Lista e kanaleve</button>
-              </li>
               <li class="nav-item" role="presentation">
                 <button class="nav-link rounded-5" style="text-transform: none" id="pills-lista_e_faturave_te_kryera-tab" data-bs-toggle="pill" data-bs-target="#pills-lista_e_faturave_te_kryera" type="button" role="tab" aria-controls="pills-lista_e_faturave_te_kryera" aria-selected="false">Pagesat e kryera ( Personal )</button>
               </li>
@@ -289,6 +281,7 @@ function getChannelDetails($channelId, $apiKey)
                 searchable: true,
                 width: 300
               })
+
               function convertToEUR(amount, outputId) {
                 fetch(`https://api.exconvert.com/convert?from=USD&to=EUR&amount=${amount}&access_key=7ac9d0d8-2c2a1729-0a51382b-b85cd112`)
                   .then(response => response.json())
@@ -301,6 +294,7 @@ function getChannelDetails($channelId, $apiKey)
                   })
                   .catch(error => console.error('Error:', error));
               }
+
               function calculateAmountAfterPercentage() {
                 const totalAmount = parseFloat(document.getElementById("total_amount").value);
                 const percentage = parseFloat(document.getElementById("percentage").value);
@@ -373,274 +367,6 @@ function getChannelDetails($channelId, $apiKey)
                   </thead>
                 </table>
               </div>
-            </div>
-            <div class="tab-pane fade" id="pills-lista_e_kanaleve" role="tabpanel" aria-labelledby="pills-lista_e_kanaleve-tab">
-              <?php if (!empty($refreshTokens)) { ?>
-                <div class="row">
-                  <?php
-                  $albanianMonthNames = array(
-                    "Janar",
-                    "Shkurt",
-                    "Mars",
-                    "Prill",
-                    "Maj",
-                    "Qershor",
-                    "Korrik",
-                    "Gusht",
-                    "Shtator",
-                    "Tetor",
-                    "Nëntor",
-                    "Dhjetor"
-                  );
-                  // Predefined time periods
-                  $timePeriods = array(
-                    "7 ditët e fundit" => "last7days",
-                    "28 ditët e fundit" => "last28days",
-                    "90 ditët e fundit" => "last90days",
-                    "365 ditët e fundit" => "last365days",
-                    "Gjatë gjithë jetës" => "lifetime"
-                  );
-                  // Generate year and month options
-                  $options = "";
-                  $currentYear = date('Y');
-                  $currentMonth = date('m');
-                  // Add predefined time periods to options within an optgroup
-                  $options .= "<optgroup label='Periudhat kohore'>";
-                  foreach ($timePeriods as $periodName => $periodValue) {
-                    $options .= "<option value='{$periodValue}'>$periodName</option>";
-                  }
-                  $options .= "</optgroup>";
-                  // Add years and months to options within an optgroup
-                  $options .= "<optgroup label='Muajt'>";
-                  for ($year = 2023; $year <= $currentYear; $year++) {
-                    for ($month = 1; $month <= 12; $month++) {
-                      if ($year == $currentYear && $month > $currentMonth) {
-                        break; // Do not list future months of the current year
-                      }
-                      $monthPadded = str_pad($month, 2, '0', STR_PAD_LEFT);
-                      $monthName = $albanianMonthNames[$month - 1]; // Get Albanian month name
-                      $options .= "<option value='{$year}-{$monthPadded}'>$monthName $year</option>";
-                    }
-                  }
-                  $options .= "</optgroup>";
-                  ?>
-                  <form method="post" class="mb-2">
-                    <div class="row">
-                      <div class="col">
-                        <label for="dateRange" class="form-label">Zgjidh Muajin:</label>
-                        <select class="form-control rounded-5 shadow-sm" id="dateRange" name="dateRange" required>
-                          <?php echo $options; ?>
-                        </select>
-                      </div>
-                    </div>
-                    <br>
-                    <button type="submit" class="input-custom-css px-3 py-2" style="text-decoration: none;"><i class="fi fi-rr-filter"></i> Filtro</button>
-                  </form>
-                  <script>
-                    new Selectr('#dateRange', {
-                      searchable: true
-                    });
-                  </script>
-                  <!-- SQL Commands Display Section -->
-                  <div class="sql-commands-container">
-                    <p>Komandat SQL për shtimin e të dhënave në tabelën e faturave. Këto përfshijnë "INSERT INTO" për
-                      shtimin e rreshtave të reja në një tabelë.</p>
-                    <code id="sqlCommands" class="sql-commands"></code>
-                  </div>
-                  <br>
-                  <?php
-                  // Check if the user has submitted the filter form
-                  if (isset($_POST['dateRange'])) {
-                    // User has applied the filter, proceed with displaying the table and making the API request
-                  ?>
-                    <div>
-                      <button id="submitSql" type="button" class="input-custom-css px-3 py-2 my-2">Dorëzoje në bazën e të
-                        dhënave</button>
-                    </div>
-                    <div class="table-responsive">
-                      <table class="table table-bordered" id="dataTable">
-                        <thead class="bg-light">
-                          <tr>
-                            <th style="font-size: 12px">#</th>
-                            <th style="font-size: 12px">Numri i fatures</th>
-                            <th style="font-size: 12px">ID e klientit</th>
-                            <th style="font-size: 12px">Data</th>
-                            <th style="font-size: 12px">Fitimi në dollar ( USD )</th>
-                            <th style="font-size: 12px">Fitimi pas perqindjes ( USD )</th>
-                            <th style="font-size: 12px">Fitimi i konvertuar ( EUR )</th>
-                            <th style="font-size: 12px">Fitimi pas perqindjes ( EUR ) i konvertuar</th>
-                            <th style="font-size: 12px">Data e krijimit</th>
-                            <th style="font-size: 12px">Të dhenat e kanalit</th>
-                            <th style="font-size: 12px">Statusi i faturës</th>
-                            <th style="font-size: 12px">Veprim</th>
-                            <th style="font-size: 12px">Input Check</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <?php
-                          // Counter variable
-                          $counter = 1;
-                          // Prepare a query to fetch data
-                          $query = "SELECT id, emri, perqindja FROM klientet WHERE youtube = ?";
-                          $stmt = mysqli_prepare($conn, $query);
-                          foreach ($refreshTokens as $tokenInfo) {
-                            // Bind the channel_id parameter
-                            mysqli_stmt_bind_param($stmt, "s", $tokenInfo['channel_id']);
-                            // Execute the query
-                            if (mysqli_stmt_execute($stmt)) {
-                              $result = mysqli_stmt_get_result($stmt);
-                              while ($row = mysqli_fetch_assoc($result)) {
-                                $id = $row['id'];
-                                $emri = $row['emri'];
-                                $perqindja = $row['perqindja'];
-                              }
-                          ?>
-                              <tr>
-                                <td><?php echo $counter++; ?></td>
-                                <td><?php echo generateInvoiceNumber() . ($counter - 1) . strtoupper(preg_replace('/[^A-Z]/', '', $tokenInfo['channel_name'])); ?></td>
-                                <td><?php $_SESSION['id'] = $id;
-                                    echo $id; ?></td>
-                                <td><?php echo $_SESSION['selectedDate']; ?></td>
-                                <td>
-                                  <?php
-                                  $client = new Google_Client();
-                                  $client->setClientId('84339742200-g674o1df674m94a09tppcufciavp0bo1.apps.googleusercontent.com');
-                                  $client->setClientSecret('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');
-                                  $client->refreshToken($tokenInfo['token']);
-                                  $client->addScope([
-                                    'https://www.googleapis.com/auth/youtube',
-                                    'https://www.googleapis.com/auth/youtube.readonly',
-                                    'https://www.googleapis.com/auth/youtubepartner',
-                                    'https://www.googleapis.com/auth/yt-analytics-monetary.readonly',
-                                    'https://www.googleapis.com/auth/yt-analytics.readonly'
-                                  ]);
-                                  $youtubeAnalytics = new Google\Service\YouTubeAnalytics($client);
-                                  $params = [
-                                    'ids' => 'channel==' . $tokenInfo['channel_id'],
-                                    'currency' => 'USD',
-                                    'startDate' => $startDate,
-                                    'endDate' => $endDate,
-                                    'metrics' => 'estimatedRevenue'
-                                  ];
-                                  $response = $youtubeAnalytics->reports->query($params);
-                                  $row = $response->getRows()[0];
-                                  $storedValue = $row[0];
-                                  echo number_format($storedValue, 2);
-                                  ?>
-                                </td>
-                                <td>
-                                  <?php
-                                  $difference = $storedValue - ($storedValue * ($perqindja / 100));
-                                  echo number_format($difference, 2);
-                                  ?>
-                                </td>
-                                <td>
-                                  <?php
-                                  if (isset($storedValue) && is_numeric($storedValue)) {
-                                    $apiUrlForConversion = "https://api.exconvert.com/convert?from=USD&to=EUR&amount=" . $storedValue . "&access_key=7ac9d0d8-2c2a1729-0a51382b-b85cd112";
-                                    $response = @file_get_contents($apiUrlForConversion);
-                                    if ($response === FALSE) {
-                                      echo "API request failed";
-                                    } else {
-                                      $data = json_decode($response, true);
-                                      if (json_last_error() === JSON_ERROR_NONE && isset($data['result']['EUR'])) {
-                                        $convertedAmount = $data['result']['EUR'];
-                                        echo htmlspecialchars(number_format($convertedAmount, 2));
-                                      } else {
-                                        echo "Failed to retrieve conversion rate";
-                                      }
-                                    }
-                                  } else {
-                                    echo "Invalid stored value";
-                                  }
-                                  ?>
-                                </td>
-                                <td>
-                                  <?php
-                                  if (isset($difference) && is_numeric($difference)) {
-                                    $apiUrlForConversion = "https://api.exconvert.com/convert?from=USD&to=EUR&amount=" . $difference . "&access_key=7ac9d0d8-2c2a1729-0a51382b-b85cd112";
-                                    $response = @file_get_contents($apiUrlForConversion);
-                                    if ($response === FALSE) {
-                                      echo "API request failed";
-                                    } else {
-                                      $data = json_decode($response, true);
-                                      if (json_last_error() === JSON_ERROR_NONE && isset($data['result']['EUR'])) {
-                                        $convertedAmount = $data['result']['EUR'];
-                                        echo htmlspecialchars(number_format($convertedAmount, 2));
-                                      } else {
-                                        echo "Failed to retrieve conversion rate";
-                                      }
-                                    }
-                                  } else {
-                                    echo "Invalid stored value";
-                                  }
-                                  ?>
-                                </td>
-                                <td><?php echo date('Y-m-d'); ?></td>
-                                <td>
-                                  <?php
-                                  $coverArtUrl = getChannelDetails($tokenInfo['channel_id'], 'AIzaSyD56A1QU67vIkP1CYSDX2sYona2nxOJ9R0');
-                                  if ($coverArtUrl) {
-                                    echo '<img src="' . $coverArtUrl . '" class="figure-img img-fluid rounded" alt="Channel Cover"><br>';
-                                    echo $tokenInfo['channel_name'];
-                                  }
-                                  ?>
-                                </td>
-                                <td>
-                                  <?php
-                                  $selectedDate = $_SESSION['selectedDate'];
-                                  $sql = "SELECT * FROM invoices WHERE customer_id = '$_SESSION[id]' AND item = '$selectedDate'";
-                                  $result = mysqli_query($conn, $sql);
-                                  if ($row = mysqli_fetch_assoc($result)) {
-                                    echo '<p> Kjo faturë ekziston</p><br><i class="fi fi-rr-check text-success"></i>';
-                                  } else {
-                                    echo '<p> Kjo faturë nuk ekziston</p><br><i class="fa-solid fa-x"></i>';
-                                  }
-                                  ?>
-                                </td>
-                                <td>
-                                  <a class="btn btn-danger text-white btn-sm rounded-5 px-2 py-1 delete-button" data-channelid="<?php echo $tokenInfo['channel_id']; ?>">
-                                    <i class="fi fi-rr-trash"></i>
-                                  </a>
-                                </td>
-                                <td>
-                                  <input type="checkbox" name="selected_channels[]" value="<?php echo $tokenInfo['channel_id']; ?>">
-                                </td>
-                              </tr>
-                          <?php
-                            }
-                          }
-                          ?>
-                        </tbody>
-                      </table>
-                    </div>
-                  <?php } ?>
-                </div>
-              <?php } else { ?>
-                <p>Nuk u gjetën gumente rifreskimi në bazën e të dhënave.</p>
-              <?php } ?>
-              <script>
-                document.addEventListener("DOMContentLoaded", function() {
-                  // Get all values from the table and store them in a JavaScript array
-                  const tableRows = document.querySelectorAll("tbody tr");
-                  const allValues = [];
-                  tableRows.forEach((row) => {
-                    const rowData = [];
-                    row.querySelectorAll("td").forEach((cell) => {
-                      rowData.push(cell.textContent.trim());
-                    });
-                    allValues.push(rowData.join(", "));
-                  });
-                  // Attach a click event listener to the "Insert Values" button
-                  const insertButton = document.querySelector(".insert-values-btn");
-                  insertButton.addEventListener("click", function() {
-                    // Set the hidden field's value with all the values from the table
-                    document.getElementById("allValues").value = allValues.join(";");
-                    // Submit the form to insert values into the database
-                    document.getElementById("insertForm").submit();
-                  });
-                });
-              </script>
             </div>
             <div class="tab-pane fade" id="pills-lista_e_faturave_te_kryera" role="tabpanel" aria-labelledby="pills-lista_e_faturave_te_kryera-tab">
               <div class="row">
@@ -716,6 +442,7 @@ function getChannelDetails($channelId, $apiKey)
     var totalAmountAfterPercentage = totalAmount - (totalAmount * (percentage / 100));
     document.getElementById('total_amount_after_percentage').value = totalAmountAfterPercentage.toFixed(2);
   });
+
   function getCustomerName(customerId) {
     var customerName = '';
     $.ajax({
@@ -1337,24 +1064,59 @@ function getChannelDetails($channelId, $apiKey)
         },
         {
           data: 'actions',
-          render: (data, type, row) => {
-            const totalAmount = row.total_amount_in_eur_after_percentage ?? row.total_amount_after_percentage;
-            const remainingAmount = totalAmount - row.paid_amount;
-            const createLink = (href, icon, classes = '') =>
-              `<a href="${href}" class="bg-white border px-3 py-2 rounded-5 mx-1 text-dark ${classes}" style="text-decoration:none;">${icon}</a>`;
-            const createButton = (icon, disabled = false) =>
-              `<button class="bg-${disabled ? 'light' : 'white'} border px-3 py-2 rounded-5 mx-1 text-dark" ${disabled ? 'disabled' : ''} style="text-decoration:none;">${icon}</button>`;
-            const createTooltip = (text) =>
-              `<p style="white-space: normal;"><div class="custom-tooltip"><div class="custom-dot"></div><span class="custom-tooltiptext">${text}</span></div></p>`;
-            return `
-          <div>
-            ${createLink('#', '<i class="fi fi-rr-euro"></i>', 'open-payment-modal')
-              .replace('href="#"', `href="#" data-id="${row.id}" data-invoice-number="${row.invoice_number}" data-customer-id="${row.customer_id}" data-item="${row.item}" data-total-amount="${totalAmount}" data-paid-amount="${row.paid_amount}" data-remaining-amount="${remainingAmount}"`)}
-            ${createLink(`complete_invoice.php?id=${row.id}`, '<i class="fi fi-rr-edit"></i>', 'target="_blank"')}
-            ${createLink(`print_invoice.php?id=${row.invoice_number}`, '<i class="fi fi-rr-print"></i>', 'target="_blank"')}
-            ${row.customer_email ? createLink(`#mailto:${row.customer_email}`, '<i class="fi fi-rr-envelope"></i>', 'target="_blank"') : createButton('<i class="fi fi-rr-envelope"></i>', true)}
-            ${remainingAmount > 0 ? createTooltip(`${remainingAmount} €`) : ''}
-          </div>`;
+          render: function(data, type, row) {
+            var totalAmount = row.total_amount_in_eur_after_percentage !== null && row.total_amount_in_eur_after_percentage !== undefined ?
+              row.total_amount_in_eur_after_percentage : row.total_amount_after_percentage;
+            var remainingAmount = totalAmount - row.paid_amount;
+            var html = '<div>';
+            // Payment modal link
+            html += '<a href="#" style="text-decoration:none;" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark open-payment-modal" ' +
+              'data-id="' + row.id + '" ' +
+              'data-invoice-number="' + row.invoice_number + '" ' +
+              'data-customer-id="' + row.customer_id + '" ' +
+              'data-item="' + row.item + '" ' +
+              'data-total-amount="' + totalAmount + '" ' +
+              'data-paid-amount="' + row.paid_amount + '" ' +
+              'data-remaining-amount="' + remainingAmount + '">' +
+              '<i class="fi fi-rr-euro"></i></a>';
+            // Complete invoice link
+            html += '<a target="_blank" style="text-decoration:none;" href="complete_invoice.php?id=' + row.id + '" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark">' +
+              '<i class="fi fi-rr-edit"></i></a>';
+            // Print invoice link
+            html += '<a target="_blank" style="text-decoration:none;" href="print_invoice.php?id=' + row.invoice_number + '" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark">' +
+              '<i class="fi fi-rr-print"></i></a>';
+            // Send invoice to customer
+            if (row.customer_email) {
+              html += '<a href="#" style="text-decoration:none;" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark send-invoice" ' +
+                'data-id="' + row.id + '">' +
+                'Dergo faktur tek kengtari</a>';
+            } else {
+              html += '<button style="text-decoration:none;" class="bg-light border border-1 px-3 py-2 rounded-5 mx-1 text-dark" disabled>' +
+                '<i class="fi fi-rr-file-export"></i></button>' +
+                '<p style="white-space: normal;">' +
+                '<div class="custom-tooltip">' +
+                '<div class="custom-dot"></div>' +
+                '<span class="custom-tooltiptext">Nuk posedon email</span>' +
+                '</div>' +
+                '</p>';
+            }
+            // Send invoice to contablist
+            if (row.email_of_contablist) {
+              html += '<a href="#" style="text-decoration:none;" class="bg-white border border-1 px-3 border-danger py-2 rounded-5 mx-1 text-dark send-invoices" ' +
+                'data-id="' + row.id + '">' +
+                'Dergo faktur tek kontabilisti</a>';
+            } else {
+              html += '<button style="text-decoration:none;" class="bg-light border border-1 px-3 py-2 rounded-5 mx-1 text-dark" disabled>' +
+                '<i class="fi fi-rr-file-export"></i></button>' +
+                '<p style="white-space: normal;">' +
+                '<div class="custom-tooltip">' +
+                '<div class="custom-dot"></div>' +
+                '<span class="custom-tooltiptext">Nuk posedon email</span>' +
+                '</div>' +
+                '</p>';
+            }
+            html += '</div>';
+            return html;
           }
         }
       ]
@@ -1477,6 +1239,7 @@ function getChannelDetails($channelId, $apiKey)
         }
       });
     });
+
     function createButtonConfig(extend, icon, text, titleAttr) {
       return {
         extend: extend,
@@ -1553,6 +1316,7 @@ function getChannelDetails($channelId, $apiKey)
       },
       stripeClasses: ['stripe-color']
     });
+
     function getCurrentDate() {
       var today = new Date();
       var dd = String(today.getDate()).padStart(2, '0');
@@ -1611,4 +1375,5 @@ function getChannelDetails($channelId, $apiKey)
 <script src="states.js"></script>
 <?php include 'partials/footer.php' ?>
 </body>
+
 </html>
