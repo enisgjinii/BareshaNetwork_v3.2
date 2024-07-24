@@ -211,10 +211,8 @@ include('partials/header.php');
 </div>
 <?php
 require './vendor/autoload.php';
-
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
-
 $dateComponent = date('Ymd');
 $nameComponent = 'BAR';
 $token = $dateComponent . $nameComponent;
@@ -348,7 +346,6 @@ ob_flush();
 ?>
 <script>
     var token = "<?php echo isset($token) ? $token : ''; ?>";
-
     function updateEmailInput(button) {
         var id = button.getAttribute("data-id");
         var tableRow = button.closest("tr");
@@ -459,7 +456,6 @@ ob_flush();
                 }
             }]
         });
-
         // Initialize Flatpickr for date inputs with Albanian locale
         let minDate = flatpickr('#min', {
             dateFormat: "Y-m-d",
@@ -469,7 +465,6 @@ ob_flush();
             dateFormat: "Y-m-d",
             locale: "sq"
         });
-
         let table = $('#example').DataTable({
             responsive: false,
             "ordering": false,
@@ -543,13 +538,11 @@ ob_flush();
                 }
             ],
         });
-
         // Custom filtering function which will search data in column four between two values
         $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
             let min = minDate.input.value ? new Date(minDate.input.value) : null;
             let max = maxDate.input.value ? new Date(maxDate.input.value) : null;
             let date = new Date(data[4]);
-
             if (
                 (min === null && max === null) ||
                 (min === null && date <= max) ||
@@ -560,15 +553,12 @@ ob_flush();
             }
             return false;
         });
-
         // Refilter the table
         $('#min, #max').on('change', function() {
             table.draw();
         });
     });
 </script>
-
-
 <script>
     $(document).ready(function() {
         $(".delete-contract").click(function(e) {
