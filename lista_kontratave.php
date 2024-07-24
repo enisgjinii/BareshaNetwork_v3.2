@@ -459,14 +459,17 @@ ob_flush();
                 }
             }]
         });
-        let minDate, maxDate;
-        // Create date inputs
-        minDate = new DateTime('#min', {
-            format: 'MMMM Do YYYY'
+
+        // Initialize Flatpickr for date inputs with Albanian locale
+        let minDate = flatpickr('#min', {
+            dateFormat: "Y-m-d",
+            locale: "sq"
         });
-        maxDate = new DateTime('#max', {
-            format: 'MMMM Do YYYY'
+        let maxDate = flatpickr('#max', {
+            dateFormat: "Y-m-d",
+            locale: "sq"
         });
+
         let table = $('#example').DataTable({
             responsive: false,
             "ordering": false,
@@ -531,7 +534,7 @@ ob_flush();
                     width: '2%',
                     targets: [5]
                 }, {
-                    targets: 4, // Assuming the "Data" column is at index 5
+                    targets: 4, // Assuming the "Data" column is at index 4
                     type: 'date-range',
                     // Customize the date format if needed
                     render: function(data) {
@@ -540,11 +543,13 @@ ob_flush();
                 }
             ],
         });
+
         // Custom filtering function which will search data in column four between two values
         $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
-            let min = minDate.val();
-            let max = maxDate.val();
+            let min = minDate.input.value ? new Date(minDate.input.value) : null;
+            let max = maxDate.input.value ? new Date(maxDate.input.value) : null;
             let date = new Date(data[4]);
+
             if (
                 (min === null && max === null) ||
                 (min === null && date <= max) ||
@@ -555,12 +560,15 @@ ob_flush();
             }
             return false;
         });
+
         // Refilter the table
         $('#min, #max').on('change', function() {
             table.draw();
         });
     });
 </script>
+
+
 <script>
     $(document).ready(function() {
         $(".delete-contract").click(function(e) {

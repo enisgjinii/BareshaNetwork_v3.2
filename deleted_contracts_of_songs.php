@@ -7,7 +7,7 @@ try {
     ini_set('display_errors', 1);
 
     // Define the columns which can be searched
-    $searchableColumns = array('emri', 'mbiemri', 'numri_i_telefonit', 'numri_personal', 'vepra', 'data', 'shenim', 'nenshkrimi', 'kontrata_PDF', 'perqindja', 'klienti', 'klient_email', 'emriartistik', 'pdf_file', 'created_at');
+    $searchableColumns = array('emri', 'mbiemri', 'numri_i_telefonit', 'numri_personal', 'vepra', 'data', 'shenim', 'nenshkrimi', 'kontrata_PDF', 'perqindja', 'klienti', 'klient_email', 'emriartistik', 'pdf_file');
 
     // Initialize variables for pagination
     $start = isset($_POST['start']) ? $_POST['start'] : 0;
@@ -22,7 +22,7 @@ try {
     $searchValue = isset($_POST['search']['value']) ? $_POST['search']['value'] : '';
 
     // Construct the query
-    $query = "SELECT id, emri, mbiemri, numri_i_telefonit, numri_personal, vepra, data, shenim, nenshkrimi, kontrata_PDF, perqindja, klienti, klient_email, emriartistik, pdf_file, created_at FROM kontrata_recovery WHERE 1";
+    $query = "SELECT id, emri, mbiemri, numri_i_telefonit, numri_personal, vepra, data, shenim, nenshkrimi, kontrata_PDF, perqindja, klienti, klient_email, emriartistik, pdf_file FROM kontrata_recovery WHERE 1";
 
     // Apply search filter
     if (!empty($searchValue)) {
@@ -59,7 +59,7 @@ try {
     $totalFiltered = mysqli_fetch_assoc($totalFilteredResult)['totalFiltered'];
 
     // Append the ORDER BY clause to the query
-    $query .= " ORDER BY created_at DESC";
+    $query .= " ORDER BY id DESC";
 
     // Apply pagination
     $query .= " LIMIT $start, $length";

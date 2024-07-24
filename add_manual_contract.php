@@ -59,12 +59,13 @@ function htmlToPdf($htmlContent, $outputFile)
 }
 
 // Upload PDF to Google Drive
-function uploadToDrive($client, $filePath, $emri, $mbiemri)
+function uploadToDrive($client, $filePath, $emri, $mbiemri, $folderId)
 {
     try {
         $driveService = new Drive($client);
         $fileMetadata = new Drive\DriveFile(array(
             'name' => $emri . ' ' . $mbiemri . ' - Nënshkruar.pdf',
+            'parents' => array($folderId)
         ));
         $content = file_get_contents($filePath);
         $file = $driveService->files->create($fileMetadata, array(
@@ -310,7 +311,7 @@ if (mysqli_num_rows($result) > 0) {
     </body>
 
     </html>
-<?php
+    <?php
     $htmlContent = ob_get_clean();
 
     // Define the PDF file path
@@ -322,12 +323,15 @@ if (mysqli_num_rows($result) > 0) {
     // Upload the PDF to Google Drive
     try {
         $client = getClient();
-        $fileId = uploadToDrive($client, $outputFile, $row['emri'], $row['mbiemri']);
-        echo "PDF uploaded to Google Drive successfully. File ID: $fileId";
+        $folderId = '1HLVc7GzZZZp0EyfPU1zpD0xOwJjOSmoT'; // Replace with the actual folder ID
+        $fileId = uploadToDrive($client, $outputFile, $row['emri'], $row['mbiemri'], $folderId);
+        echo "File uploaded successfully. File ID: " . $fileId;
+        header("Location: lista_kontratave.php");
+        exit();
     } catch (Exception $e) {
-        echo 'An error occurred: ' . $e->getMessage();
+        echo 'Error: ' . $e->getMessage();
     }
 } else {
-    echo "No contract found with ID: $id";
+    echo 'No contract found with the given ID.';
 }
 ?>
