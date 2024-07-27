@@ -157,6 +157,7 @@
           "shpenzimet_objekt.php" => "Shpenzimet e objektit",
           "ttatimi.php" => "Tatimet",
           "fitimi_pergjithshem.php" => "Fitimi i përgjithshëm",
+          "kontabiliteti_pagesat.php" => "Pagesat e kryera (Kont.)",
 
         ],
       ],
