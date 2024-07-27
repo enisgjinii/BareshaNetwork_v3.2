@@ -1,6 +1,13 @@
 <?php
+
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 include 'partials/header.php';
 include 'conn-d.php';
+
+if (!$conn) {
+    die("Connection failed: " . mysqli_connect_error());
+}
 ?>
 <div class="main-panel">
     <div class="content-wrapper">
@@ -131,6 +138,7 @@ include 'partials/footer.php';
                 "error": function(xhr, error, thrown) {
                     console.log("Error:", error);
                     console.log("Response:", xhr.responseText);
+                    alert("An error occurred while fetching data: " + thrown);
                 }
             },
             dom: "<'row'<'col-md-3'l><'col-md-6'B><'col-md-3'f>>" +
@@ -227,6 +235,7 @@ include 'partials/footer.php';
                 "error": function(xhr, error, thrown) {
                     console.log("Error:", error);
                     console.log("Response:", xhr.responseText);
+                    alert("An error occurred while fetching data: " + thrown);
                 }
             },
             dom: "<'row'<'col-md-3'l><'col-md-6'B><'col-md-3'f>>" +
