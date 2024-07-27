@@ -35,10 +35,10 @@ include 'conn-d.php';
                                             <div class="col-6"> <input type="text" id="minDate" class="form-control shadow-sm rounded-5 w-100 mt-3" style="width: 230px;" placeholder="Prej: "></div>
                                             <div class="col-6"> <input type="text" id="maxDate" class="form-control shadow-sm rounded-5 w-100 mt-3" placeholder="Deri: "></div>
                                         </div>
-
+                                        <br>
                                         <button id="filterDate" class="input-custom-css px-3 py-2"> <i class="fi fi-rr-filter"></i>Filtro</button>
                                     </div>
-
+                                    <br>
                                     <table id="paymentsTablePersonal" class="table table-bordered w-100">
                                         <thead class="table-light">
                                             <tr>
@@ -68,8 +68,9 @@ include 'conn-d.php';
                                             <div class="col-6"> <input type="text" id="minDateBiz" class="form-control shadow-sm rounded-5 w-100 mt-3" style="width: 230px;" placeholder="Prej: "></div>
                                             <div class="col-6"> <input type="text" id="maxDateBiz" class="form-control shadow-sm rounded-5 w-100 mt-3" placeholder="Deri: "></div>
                                         </div>
+                                        <br>
                                         <button id="filterDateBiz" class="input-custom-css px-3 py-2"> <i class="fi fi-rr-filter"></i>Filtro</button>
-                                    </div>
+                                    </div> <br>
                                     <table id="paymentsTableBiznes" class="table table-bordered w-100">
                                         <thead class="table-light">
                                             <tr>
