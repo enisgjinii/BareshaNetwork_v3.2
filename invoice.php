@@ -41,7 +41,7 @@ require_once 'invoices_trash_modal.php';
             <div class="modal-dialog modal-fullscreen">
               <div class="modal-content">
                 <div class="modal-header">
-                  <h5 class="modal-title" id="listOfChannelsAuthLabel">Modal title</h5>
+                  <h5 class="modal-title" id="listOfChannelsAuthLabel">Lista e kanaleve te lidhura</h5>
                   <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
