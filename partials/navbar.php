@@ -16,7 +16,7 @@
           <?php echo $user_info['givenName'] . ' ' . $user_info['familyName']; ?>
         </button>
         <button id="darkModeButton" class="input-custom-css px-3 py-2">
-          <i id="modeIcon" class="fas fa-moon"></i>
+          <i id="modeIcon" class="fi fi-rr-brightness"></i>
         </button>
         <ul class="dropdown-menu p-2">
           <li class="rounded-5 mt-1 text-center py-1" style="border:1px solid lightgrey;font-size:11px;"> <?php echo $user_info['email'] ?>
