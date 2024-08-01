@@ -24,7 +24,7 @@ $client->setAccessType('offline');  // Request offline access from the user
 $client->setApprovalPrompt('force');  // Force re-authorization even if previously granted
 
 // Set redirect URI based on environment
-$redirectUri = ($_SERVER['HTTP_HOST'] === 'localhost') ? LOCALHOST_URI : ONLINE_URI;
+$redirectUri = "https://panel.bareshaoffice.com/kycu_1.php";
 $client->setRedirectUri($redirectUri);
 
 // Set scopes in a single call
