@@ -15,6 +15,9 @@
           <img src="<?php echo $user_info['picture']; ?>" alt="profile" width="25" style="border-radius:50%;margin-right:15px" />
           <?php echo $user_info['givenName'] . ' ' . $user_info['familyName']; ?>
         </button>
+        <button id="darkModeButton" class="input-custom-css px-3 py-2">
+          <i id="modeIcon" class="fas fa-moon"></i>
+        </button>
         <ul class="dropdown-menu p-2">
           <li class="rounded-5 mt-1 text-center py-1" style="border:1px solid lightgrey;font-size:11px;"> <?php echo $user_info['email'] ?>
           </li>

@@ -47,31 +47,53 @@
 <script src="https://cdn.datatables.net/searchpanes/2.1.0/js/searchPanes.bootstrap5.min.js" defer></script>
 <script src="https://cdn.datatables.net/select/1.5.0/js/dataTables.select.min.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/moment/moment.min.js"></script>
-<!-- <script>
+<script>
+  // Function to enable dark mode
+  function enableDarkMode() {
+    DarkReader.enable({
+      brightness: 100,
+      contrast: 90,
+      sepia: 10,
+      darkSchemeBackgroundColor: '#0a0e27',
+      darkSchemeTextColor: '#cdd3ff'
+    });
+    document.getElementById('modeIcon').className = 'fi fi-rr-brightness'; // Change to light mode icon
+    localStorage.setItem('darkMode', 'dark');
+  }
+
+  // Function to disable dark mode
+  function disableDarkMode() {
+    DarkReader.disable();
+    document.getElementById('modeIcon').className = 'fi fi-rr-moon'; // Change to dark mode icon
+    localStorage.setItem('darkMode', 'light');
+  }
+
   // Function to toggle dark mode
-  function toggleDarkMode(isDarkMode) {
+  function toggleDarkMode() {
+    const isDarkMode = localStorage.getItem('darkMode') !== 'dark';
     if (isDarkMode) {
-      DarkReader.enable({
-        brightness: 100,
-        contrast: 90,
-        sepia: 10
-      });
-      localStorage.setItem('darkMode', 'dark');
+      enableDarkMode();
     } else {
-      DarkReader.disable();
-      localStorage.setItem('darkMode', 'light');
+      disableDarkMode();
     }
   }
+
   // Function to check local storage for dark mode preference
   function checkDarkModePreference() {
     const userPreference = localStorage.getItem('darkMode');
     if (userPreference === 'dark') {
-      document.getElementById('toggle-mode').checked = true;
-      toggleDarkMode(true); // Enable dark mode
+      enableDarkMode();
+    } else {
+      disableDarkMode();
     }
   }
+
   // Check local storage for dark mode preference on page load
   window.addEventListener('load', checkDarkModePreference);
-</script> -->
+
+  // Toggle dark mode on button click
+  document.getElementById('darkModeButton').addEventListener('click', toggleDarkMode);
+</script>
 </body>
+
 </html>

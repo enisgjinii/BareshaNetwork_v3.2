@@ -174,12 +174,20 @@ function isValidEmailDomain($email, $allowedDomains)
   <!-- DataTables DateTime Plugin JavaScript -->
   <script src="https://cdn.datatables.net/datetime/1.5.1/js/dataTables.dateTime.min.js"></script>
 
-
+  <script src="https://cdn.jsdelivr.net/npm/darkreader@4.9.87/darkreader.min.js"></script>
   <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js'></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <style>
     * {
       font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    .btn-icon {
+      font-size: 1.5rem;
     }
 
     .nav-item {
