@@ -86,8 +86,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $text_content .= "PDF File Path: " . $file_path . "\n";
     }
 
+    // Ensure the directory exists before saving the text document
+    $text_folder_path = "text_files/";
+    if (!file_exists($text_folder_path)) {
+        mkdir($text_folder_path, 0700, true);
+    }
+
     // Save text document locally
-    $text_file_path = "text_files/" . time() . "_kontrata.txt";
+    $text_file_path = $text_folder_path . time() . "_kontrata.txt";
     if (file_put_contents($text_file_path, $text_content) === false) {
         logError('Error saving text document.');
         echo 'Error saving text document.';

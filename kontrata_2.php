@@ -52,27 +52,29 @@ $clients = $result->num_rows > 0 ? $result->fetch_all(MYSQLI_ASSOC) : [];
                                 ["label" => "Emri artistik", "name" => "emriartistik", "type" => "text", "placeholder" => "Sheno emrin artistik"],
                                 ["label" => "Vepra", "name" => "vepra", "type" => "text", "placeholder" => "Sheno veprën"],
                                 ["label" => "Data", "name" => "data", "type" => "date"],
-                                ["label" => "Ngarko kontratën", "name" => "pdf_file", "type" => "file", "attributes" => "accept='.docx,.pdf' onchange='validateFile(this)'"],
+                                ["label" => "Ngarko kontratën", "name" => "pdf_file", "type" => "file", "attributes" => "accept='.docx,.pdf' onchange='validateFile(this)'"],  // Removed 'required'
                                 ["label" => "Përqindja (Baresha)", "name" => "perqindja", "type" => "number", "placeholder" => "Sheno përqindjen", "attributes" => "onchange='updatePerqindjaOther()'"],
                                 ["label" => "Përqindja (Klienti)", "name" => "perqindja_other", "type" => "number", "readonly" => true],
                                 ["label" => "Shënime", "name" => "shenime", "type" => "textarea", "rows" => 5, "placeholder" => "Shëno..."]
                             ];
+
                             foreach ($additionalFields as $field) {
                                 if ($field['type'] == 'textarea') {
                                     echo "<div class='col-md-12 mb-3'>
-                                            <label class='form-label' for='{$field['name']}'>{$field['label']}</label>
-                                            <textarea name='{$field['name']}' class='form-control rounded-5 border-1' rows='{$field['rows']}' placeholder='{$field['placeholder']}' required></textarea>
-                                          </div>";
+                <label class='form-label' for='{$field['name']}'>{$field['label']}</label>
+                <textarea name='{$field['name']}' class='form-control rounded-5 border-1' rows='{$field['rows']}' placeholder='{$field['placeholder']}' required></textarea>
+              </div>";
                                 } else {
                                     $attributes = isset($field['attributes']) ? $field['attributes'] : '';
                                     $readonly = isset($field['readonly']) ? 'readonly' : '';
                                     echo "<div class='col-md-12 mb-3'>
-                                            <label class='form-label' for='{$field['name']}'>{$field['label']}</label>
-                                            <input type='{$field['type']}' name='{$field['name']}' id='{$field['name']}' class='form-control rounded-5 border-1' required placeholder='{$field['placeholder']}' {$attributes} {$readonly}>
-                                          </div>";
+                <label class='form-label' for='{$field['name']}'>{$field['label']}</label>
+                <input type='{$field['type']}' name='{$field['name']}' id='{$field['name']}' class='form-control rounded-5 border-1' placeholder='{$field['placeholder']}' {$attributes} {$readonly}>
+              </div>";
                                 }
                             }
                             ?>
+
                             <button type="submit" class="input-custom-css px-3 py-2 rounded-5">
                                 <i class="fi fi-rr-paper-plane me-2"></i>Dërgo
                             </button>
