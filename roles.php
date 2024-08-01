@@ -231,9 +231,7 @@ include 'partials/header.php'; ?>
                                     if ($page == 'invoice_list_2.php') {
                                         return 'Faturë e shpejtë <br><br>'  . $button_html;
                                     }
-                                    if ($page == 'authenticated_channels.php') {
-                                        return 'Kanalet e autentifikuara <br><br>' . $button_html;
-                                    }
+                                  
                                     if ($page == 'pagesat_punetor.php') {
                                         return 'Pagesat e punetorit <br><br>' . $button_html;
                                     }
@@ -296,7 +294,6 @@ include 'partials/header.php'; ?>
                                     'currency.php',
                                     'rating_list.php',
                                     'invoice_list_2.php',
-                                    'authenticated_channels.php',
                                     'pagesat_punetor.php',
                                     'shpenzimet_objekt.php'
                                 );

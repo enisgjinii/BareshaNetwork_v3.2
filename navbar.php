@@ -12,9 +12,6 @@
                     <a class="nav-link" href="index.php">Home</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="authenticated_channels.php">Authenticated Channels</a>
-                </li>
-                <li class="nav-item">
                     <a class="nav-link" href="analytics.php">Analytics</a>
                 </li>
                 <!-- Add more navigation items as needed -->
