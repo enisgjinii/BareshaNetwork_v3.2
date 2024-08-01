@@ -1,13 +1,6 @@
-<?php
-include 'partials/header.php';
-
-// Check if the current page is pagesat.php
-$current_page = basename($_SERVER['PHP_SELF']);
-$is_pagesat_page = ($current_page === 'pagesat.php');
-?>
-
+<?php include 'partials/header.php';
+$is_pagesat_page = (basename($_SERVER['PHP_SELF']) === 'pagesat.php'); ?>
 <!-- Your HTML code here -->
-
 <?php if ($is_pagesat_page) : ?>
     <!-- Bootstrap modal -->
     <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -27,7 +20,6 @@ $is_pagesat_page = ($current_page === 'pagesat.php');
         </div>
     </div>
     <!-- End Bootstrap modal -->
-
     <!-- JavaScript to trigger the modal -->
     <script>
         // This script will execute only if the current page is pagesat.php
@@ -37,282 +29,153 @@ $is_pagesat_page = ($current_page === 'pagesat.php');
         });
     </script>
 <?php endif; ?>
-
-
-
-<style>
-    .wrap-text {
-        white-space: normal !important;
-    }
-</style>
 <div class="main-panel">
     <div class="content-wrapper">
-        <div class="container-fluid">
-            <div class="container">
-                <nav class="bg-white px-2 rounded-5" aria-label="breadcrumb">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item "><a class="text-reset" style="text-decoration: none;">Financat</a>
-                        </li>
-                        <li class="breadcrumb-item active" aria-current="page"><a href="pagesat.php" class="text-reset" style="text-decoration: none;">Pagesat e kryera</a></li>
-                </nav>
-
-
-                <div class="row">
-                    <div class="col">
-                        <div class="card shadow-sm rounded-5">
-                            <div class="container table-responsive p-3">
-                                <div class="row mb-4">
-                                    <div class="col-md-6">
-                                        <label for="min" class="form-label" style="font-size: 14px;">Prej:</label>
-                                        <p class="text-muted" style="font-size: 10px;">Zgjidhni një diapazon fillues të
-                                            dates për të filtruar rezultatet.</p>
-                                        <div class="input-group rounded-5">
-
-                                            <span class="input-group-text border-0" style="background-color: white;cursor: pointer;"><i class="fi fi-rr-calendar"></i></span>
-                                            <input type="text" id="min" name="min" class="form-control rounded-5" placeholder="Zgjidhni datën e fillimit" style="cursor: pointer;">
-                                        </div>
-
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label for="max" class="form-label" style="font-size: 14px;">Deri:</label>
-                                        <p class="text-muted" style="font-size: 10px;">Zgjidhni një diapazon mbarues të
-                                            dates për tëfiltruar rezultatet.</p>
-                                        <div class="input-group rounded-5">
-
-                                            <span class="input-group-text border-0" style="background-color: white;cursor: pointer;"><i class="fi fi-rr-calendar"></i></span><input type="text" id="max" name="max" class="form-control rounded-5" placeholder="Zgjidhni datën e mbarimit" style="cursor: pointer;">
-                                        </div>
-
-
-                                    </div>
+        <div class="container">
+            <nav class="bg-white px-2 rounded-5" aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a class="text-reset text-decoration-none">Financat</a></li>
+                    <li class="breadcrumb-item active"><a href="pagesat.php" class="text-reset text-decoration-none">Pagesat e kryera</a></li>
+                </ol>
+            </nav>
+            <div class="card shadow-sm rounded-5">
+                <div class="container table-responsive p-3">
+                    <div class="row mb-4">
+                        <?php foreach (['min' => 'Prej', 'max' => 'Deri'] as $id => $label) : ?>
+                            <div class="col-md-6">
+                                <label for="<?= $id ?>" class="form-label"><?= $label ?>:</label>
+                                <p class="text-muted small">Zgjidhni një diapazon <?= $id === 'min' ? 'fillues' : 'mbarues' ?> të datës për të filtruar rezultatet.</p>
+                                <div class="input-group rounded-5">
+                                    <span class="input-group-text border-0 bg-white"><i class="fi fi-rr-calendar"></i></span>
+                                    <input type="text" id="<?= $id ?>" name="<?= $id ?>" class="form-control rounded-5 flatpickr" placeholder="Zgjidhni datën">
                                 </div>
-
-
-                                <table id="paymentTable" class="table table-bordered" style="width:100%">
-
-                                    <thead class="bg-light">
-                                        <!-- <td>#</td> -->
-                                        <td>
-                                            Klienti
-                                        </td>
-                                        <td>
-                                            Fatura
-                                        </td>
-                                        <td>
-                                            Pershkrimi
-                                        </td>
-                                        <td>
-                                            Shuma
-                                        </td>
-                                        <td>
-                                            Menyra
-                                        </td>
-                                        <td>
-                                            Data
-                                        </td>
-                                        <td>
-                                            Kategorizimi
-                                        </td>
-                                        <td>Fatura PDF</td>
-                                    </thead>
-                                    <tbody>
-                                        <?php
-                                        $invoices_query = $conn->query("SELECT fatura, kategoria, SUM(shuma) as total_shuma, menyra, data, pershkrimi
-                                        FROM pagesat 
-                                        GROUP BY fatura, kategoria
-                                        ORDER BY id DESC");
-
-
-                                        while ($invoice_row = mysqli_fetch_assoc($invoices_query)) {
-                                            $invoice_number = $invoice_row['fatura'];
-                                            $total_shuma = $invoice_row['total_shuma'];
-                                            $menyra = $invoice_row['menyra'];
-                                            $data = $invoice_row['data'];
-                                            $pershkrimi = $invoice_row['pershkrimi'];
-
-                                            $invoice_info = $conn->query("SELECT * FROM fatura WHERE fatura='$invoice_number'");
-                                            $invoice_data = mysqli_fetch_array($invoice_info);
-
-                                            if (!empty($invoice_data)) {
-                                                $client_id = $invoice_data['emri'];
-                                                $client_info = $conn->query("SELECT * FROM klientet WHERE id='$client_id'");
-                                                $client_data = mysqli_fetch_array($client_info);
-                                        ?>
-                                                <tr>
-                                                    <td class="wrap-text">
-                                                        <?= $client_data['emri']; ?>
-                                                    </td>
-                                                    <td class="wrap-text">
-                                                        <?= $invoice_number; ?>
-                                                    </td>
-                                                    <td class="wrap-text">
-                                                        <?= $pershkrimi; ?>
-                                                    </td>
-                                                    <td class="wrap-text">
-                                                        <?= $total_shuma; ?>
-                                                    </td>
-                                                    <td class="wrap-text">
-                                                        <?= $menyra; ?>
-                                                    </td>
-                                                    <td class="wrap-text">
-                                                        <?= date("d-m-Y", strtotime($data)); ?>
-                                                    </td>
-                                                    <td class="wrap-text">
-                                                        <?php
-                                                        if (!empty($invoice_row['kategoria'])) {
-                                                            $kategoria = @unserialize($invoice_row['kategoria']);
-                                                            if ($kategoria !== false) {
-                                                                $kategoria = array_map(function ($value) {
-                                                                    return ($value == 'null') ? 'Ska' : $value;
-                                                                }, $kategoria);
-                                                                echo implode(", ", $kategoria);
-                                                            } else {
-                                                                echo str_replace('null', 'Ska', $invoice_row['kategoria']);
-                                                            }
-                                                        } else {
-                                                            echo '';
-                                                        }
-                                                        ?>
-                                                    </td>
-                                                    <td>
-                                                        <a class="btn btn-light py-1 px-2 border border-1" target="_blank" href="fatura.php?invoice=<?= $invoice_number; ?>">
-                                                            <i class="fi fi-rr-print"></i>
-                                                        </a>
-                                                    </td>
-                                                </tr>
-                                        <?php
-                                            }
-                                        }
-                                        ?>
-                                    </tbody>
-
-                                </table>
-
                             </div>
-                        </div>
+                        <?php endforeach; ?>
                     </div>
+                    <table id="paymentTable" class="table table-bordered w-100">
+                        <thead class="bg-light">
+                            <tr>
+                                <th>Klienti</th>
+                                <th>Fatura</th>
+                                <th>Pershkrimi</th>
+                                <th>Shuma</th>
+                                <th>Menyra</th>
+                                <th>Data</th>
+                                <th>Kategorizimi</th>
+                                <th>Fatura PDF</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php
+                            $stmt = $conn->prepare("SELECT p.fatura, p.kategoria, SUM(p.shuma) as total_shuma, p.menyra, p.data, p.pershkrimi, k.emri as client_name FROM pagesat p JOIN fatura f ON p.fatura = f.fatura JOIN klientet k ON f.emri = k.id GROUP BY p.fatura, p.kategoria ORDER BY p.id DESC");
+                            $stmt->execute();
+                            $result = $stmt->get_result();
+                            while ($row = $result->fetch_assoc()) :
+                                $kategoria = !empty($row['kategoria']) ? @unserialize($row['kategoria']) : [];
+                                $kategoria_str = is_array($kategoria) ? implode(", ", array_map(fn ($v) => $v == 'null' ? 'Ska' : $v, $kategoria)) : str_replace('null', 'Ska', $row['kategoria']);
+                            ?>
+                                <tr>
+                                    <td class="wrap-text"><?= htmlspecialchars($row['client_name']) ?></td>
+                                    <td class="wrap-text"><?= htmlspecialchars($row['fatura']) ?></td>
+                                    <td class="wrap-text"><?= htmlspecialchars($row['pershkrimi']) ?></td>
+                                    <td class="wrap-text"><?= htmlspecialchars($row['total_shuma']) ?></td>
+                                    <td class="wrap-text"><?= htmlspecialchars($row['menyra']) ?></td>
+                                    <td class="wrap-text"><?= date("d-m-Y", strtotime($row['data'])) ?></td>
+                                    <td class="wrap-text"><?= htmlspecialchars($kategoria_str) ?></td>
+                                    <td>
+                                        <a class="btn btn-light py-1 px-2 border border-1" target="_blank" href="fatura.php?invoice=<?= htmlspecialchars($row['fatura']) ?>">
+                                            <i class="fi fi-rr-print"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            <?php endwhile;
+                            $stmt->close(); ?>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
 <?php include 'partials/footer.php'; ?>
-<script type="text/javascript">
-    $(document).ready(function() {
-        let minDate, maxDate;
-
-        // Create date inputs
-        minDate = new DateTime('#min', {
-            format: 'MMMM Do YYYY'
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://npmcdn.com/flatpickr/dist/l10n/sq.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        flatpickr(".flatpickr", {
+            locale: "sq",
+            dateFormat: "d-m-Y",
+            allowInput: true
         });
-        maxDate = new DateTime('#max', {
-            format: 'MMMM Do YYYY'
-        });
-
-        function getCurrentDate() {
-            var today = new Date();
-            var dd = String(today.getDate()).padStart(2, '0');
-            var mm = String(today.getMonth() + 1).padStart(2, '0');
-            var yyyy = today.getFullYear();
-            return yyyy + mm + dd;
-        }
         let table = $('#paymentTable').DataTable({
-            dom: "<'row'<'col-md-3'l><'col-md-6'B><'col-md-3'f>>" +
-                "<'row'<'col-md-12'tr>>" +
-                "<'row'<'col-md-6'><'col-md-6'p>>",
-
+            dom: "<'row'<'col-md-3'l><'col-md-6'B><'col-md-3'f>><'row'<'col-md-12'tr>><'row'<'col-md-6'><'col-md-6'p>>",
             buttons: [{
                     extend: "pdfHtml5",
-                    text: '<i class="fi fi-rr-file-pdf fa-lg"></i>&nbsp;&nbsp; PDF',
-                    titleAttr: "Eksporto tabelen ne formatin PDF",
-                    className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
-                    filename: "faturat_e_kryera_" + getCurrentDate() + "" // Set custom filename for PDF
+                    text: '<i class="fi fi-rr-file-pdf fa-lg"></i> PDF',
+                    titleAttr: "Eksporto në PDF",
+                    className: "btn btn-light btn-sm bg-light border me-2 rounded-5"
                 },
                 {
                     extend: "copyHtml5",
-                    text: '<i class="fi fi-rr-copy fa-lg"></i>&nbsp;&nbsp; Kopjo',
-                    titleAttr: "Kopjo tabelen ne formatin Clipboard",
-                    className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
-                    filename: "faturat_e_kryera_" + getCurrentDate() + "" // Set custom filename for Copy
+                    text: '<i class="fi fi-rr-copy fa-lg"></i> Kopjo',
+                    titleAttr: "Kopjo në Clipboard",
+                    className: "btn btn-light btn-sm bg-light border me-2 rounded-5"
                 },
                 {
                     extend: "excelHtml5",
-                    text: '<i class="fi fi-rr-file-excel fa-lg"></i>&nbsp;&nbsp; Excel',
-                    titleAttr: "Eksporto tabelen ne formatin Excel",
+                    text: '<i class="fi fi-rr-file-excel fa-lg"></i> Excel',
+                    titleAttr: "Eksporto në Excel",
                     className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
                     exportOptions: {
                         modifier: {
                             search: "applied",
                             order: "applied",
-                            page: "all",
-                        },
-                    },
-                    filename: "faturat_e_kryera_" + getCurrentDate() + "" // Set custom filename for Excel
+                            page: "all"
+                        }
+                    }
                 },
                 {
                     extend: "print",
-                    text: '<i class="fi fi-rr-print fa-lg"></i>&nbsp;&nbsp; Printo',
-                    titleAttr: "Printo tabel&euml;n",
-                    className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
-                    filename: "faturat_e_kryera_" + getCurrentDate() + "" // Set custom filename for Print
-                },
+                    text: '<i class="fi fi-rr-print fa-lg"></i> Printo',
+                    titleAttr: "Printo tabelën",
+                    className: "btn btn-light btn-sm bg-light border me-2 rounded-5"
+                }
             ],
-
             order: [],
-            stripeClasses: ['stripe-color'],
             columnDefs: [{
                 width: '10%',
                 targets: '_all'
             }, {
-                targets: 5, // Assuming the "Data" column is at index 5
-                type: 'date-range',
-                // Customize the date format if needed
-                render: function(data) {
-                    return moment(data, 'DD-MM-YYYY').format('YYYY-MM-DD');
-                }
+                targets: 5,
+                type: 'date-eu'
             }],
-            responsive: false,
-            // dom: '<"row mb-3"<"col-sm-6"l><"col-sm-6"f>>' + 'Brtip',
-            initComplete: function() {
-                var btns = $('.dt-buttons');
-                btns.addClass('');
-                btns.removeClass('dt-buttons btn-group');
-                var lengthSelect = $('div.dataTables_length select');
-                lengthSelect.addClass('form-select'); // add Bootstrap form-select class
-                lengthSelect.css({
-                    'width': 'auto', // adjust width to fit content
-                    'margin': '0 8px', // add some margin around the element
-                    'padding': '0.375rem 1.75rem 0.375rem 0.75rem', // adjust padding to match Bootstrap's styles
-                    'line-height': '1.5', // adjust line-height to match Bootstrap's styles
-                    'border': '1px solid #ced4da', // add border to match Bootstrap's styles
-                    'border-radius': '0.25rem', // add border radius to match Bootstrap's styles
-                }); // adjust width to fit content
-            },
+            responsive: true,
             language: {
-                url: "https://cdn.datatables.net/plug-ins/1.13.1/i18n/sq.json",
+                url: "https://cdn.datatables.net/plug-ins/1.13.1/i18n/sq.json"
             },
-        });
-
-        // Custom filtering function which will search data in column four between two values
-        $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
-            let min = minDate.val();
-            let max = maxDate.val();
-            let date = new Date(data[5]);
-
-            if (
-                (min === null && max === null) ||
-                (min === null && date <= max) ||
-                (min <= date && max === null) ||
-                (min <= date && date <= max)
-            ) {
-                return true;
+            initComplete: function() {
+                $('.dt-buttons').removeClass('dt-buttons btn-group');
+                $('div.dataTables_length select').addClass('form-select').css({
+                    'width': 'auto',
+                    'margin': '0 8px',
+                    'padding': '0.375rem 1.75rem 0.375rem 0.75rem',
+                    'line-height': '1.5',
+                    'border': '1px solid #ced4da',
+                    'border-radius': '0.25rem'
+                });
             }
-            return false;
         });
-
-        // Refilter the table
-        $('#min, #max').on('change', function() {
-            table.draw();
+        $.fn.dataTable.ext.search.push((settings, data, dataIndex) => {
+            let min = $('#min').val(),
+                max = $('#max').val(),
+                date = moment(data[5], "DD-MM-YYYY");
+            return (!min && !max) || (!min && date <= moment(max, "DD-MM-YYYY")) || (moment(min, "DD-MM-YYYY") <= date && !max) || (moment(min, "DD-MM-YYYY") <= date && date <= moment(max, "DD-MM-YYYY"));
         });
+        $('.flatpickr').on('change', () => table.draw());
     });
 </script>
+<style>
+    .wrap-text {
+        white-space: normal !important;
+    }
+</style>
