@@ -33,12 +33,17 @@ $stmt->bind_param("ssssi", $title, $start_date, $end_date, $status, $employee_id
 
 if ($stmt->execute()) {
     // Send email to employee
-    $subject = 'New Leave Request';
-    $body = "A new leave request has been submitted for you:<br>
-             Title: {$title}<br>
-             Start Date: {$start_date}<br>
-             End Date: {$end_date}<br>
-             Status: {$status}";
+    $subject = 'Kërkesë e re për leje';
+    $body = "<div style='font-family: Arial, sans-serif; background-color: #f8f9fa; padding: 20px;'>
+             <p style='background-color: #ffffff; padding: 15px; border: 1px solid #dee2e6; border-radius: 5px;'>
+                 Një kërkesë e re për pushim është paraqitur për ju:<br>
+                 <strong>Titulli:</strong> {$title}<br>
+                 <strong>Data e fillimit:</strong> {$start_date}<br>
+                 <strong>Data e përfundimit:</strong> {$end_date}<br>
+                 <strong>Statusi:</strong> {$status}
+             </p>
+         </div>";
+
 
     $emailSent = sendEmail($employee['email'], $subject, $body);
 

@@ -52,11 +52,11 @@ include 'conn-d.php';
             // Event Click Handler
             eventClick: function(info) {
                 Swal.fire({
-                    title: 'Edito Kërkesën e Lahës',
+                    title: 'Edito ' + info.event.title,
                     html: `
             <div class="form-group">
-                <label for="editLeaveTitle" class="col-form-label">Titulli i Lahës</label>
-                <input id="editLeaveTitle" class="form-control" value="${info.event.title}" placeholder="Titulli i Lahës">
+                <label for="editLeaveTitle" class="col-form-label">Titulli i kërkesës</label>
+                <input id="editLeaveTitle" class="form-control" value="${info.event.title}" placeholder="Titulli i kërkesës">
             </div>
             <div class="row">
             <div class="form-group col">
@@ -114,19 +114,19 @@ include 'conn-d.php';
                     return;
                 }
                 Swal.fire({
-                    title: 'Shto Kërkesa të Re',
+                    title: 'Shto kërkes të re',
                     html: `
                     <div class="form-group">
-                        <label for="leaveTitle" class="col-form-label">Titulli i Lahës</label>
-                        <input id="leaveTitle" class="form-control" placeholder="Titulli i Lahës">
+                        <label for="leaveTitle" class="col-form-label">Titulli i kërkesës</label>
+                        <input id="leaveTitle" class="form-control" placeholder="Titulli i kërkesës">
                     </div>
                     <div class="row">
                         <div class="form-group">
-                            <label for="leaveStart" class="col-form-label">Data e Fillimit</label>
+                            <label for="leaveStart" class="col-form-label">Data e fillimit</label>
                             <input id="leaveStart" class="form-control flatpickr" type="text" value="${info.startStr}" autocomplete="off">
                         </div>
                         <div class="form-group">
-                            <label for="leaveEnd" class="col-form-label">Data e Përfundimit</label>
+                            <label for="leaveEnd" class="col-form-label">Data e përfundimit</label>
                             <input id="leaveEnd" class="form-control flatpickr" type="text" value="${info.endStr}" autocomplete="off">
                         </div>
                     </div>
