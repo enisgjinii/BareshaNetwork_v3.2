@@ -31,6 +31,58 @@ require_once 'invoices_trash_modal.php';
           <button style="text-transform: none;" class="input-custom-css px-3 py-2 " data-bs-toggle="modal" data-bs-target="#trashInvoices">
             <i class="fi fi-rr-delete-document fa-lg"></i>&nbsp; Faturat e fshira
           </button>
+          <!-- Button trigger modal -->
+          <button style="text-transform: none;" class="input-custom-css px-3 py-2 " data-bs-toggle="modal" data-bs-target="#listOfChannelsAuth">
+            <i class="fi fi-rr-list fa-lg"></i>&nbsp;  Lista e kanaleve te lidhura
+          </button>
+
+          <!-- Modal -->
+          <div class="modal fade" id="listOfChannelsAuth" tabindex="-1" aria-labelledby="listOfChannelsAuthLabel" aria-hidden="true">
+            <div class="modal-dialog modal-fullscreen">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="listOfChannelsAuthLabel">Modal title</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  <?php
+                  function readCSV($csvFile)
+                  {
+                    $file_handle = fopen($csvFile, 'r');
+                    $data = [];
+                    while (!feof($file_handle)) {
+                      $row = fgetcsv($file_handle);
+                      if ($row) {
+                        $data[] = $row;
+                      }
+                    }
+                    fclose($file_handle);
+                    return $data;
+                  }
+
+                  $csvFile = 'channel_data_monetized.csv';
+                  $csvData = readCSV($csvFile);
+                  ?>
+                  <table class="table table-bordered ">
+                    <tbody>
+                      <?php
+                      foreach ($csvData as $row) {
+                        echo '<tr>';
+                        echo '<td>' . htmlspecialchars($row[0]) . '</td>';
+                        echo '<td>' . htmlspecialchars($row[1]) . '</td>';
+                        echo '</tr>';
+                      }
+                      ?>
+                    </tbody>
+                  </table>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="input-custom-css px-3 py-2" data-bs-dismiss="modal">Close</button>
+                  <button type="button" class="input-custom-css px-3 py-2">Save changes</button>
+                </div>
+              </div>
+            </div>
+          </div>
           <ul class="nav nav-pills bg-white my-3 mx-0 rounded-5" style="width: fit-content; border: 1px solid lightgrey;" id="pills-tab" role="tablist">
             <li class="nav-item" role="presentation">
               <button class="nav-link rounded-5 active" style="text-transform: none" id="pills-lista_e_faturave-tab" data-bs-toggle="pill" data-bs-target="#pills-lista_e_faturave" type="button" role="tab" aria-controls="pills-lista_e_faturave" aria-selected="true">Lista e faturave ( Personale ) </button>
