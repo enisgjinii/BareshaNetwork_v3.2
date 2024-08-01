@@ -1,20 +1,16 @@
 <?php
 include 'partials/header.php';
 require 'vendor/autoload.php';
-
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 use Dompdf\Dompdf;
 use Dompdf\Options;
-
 $id = isset($_GET['id']) ? intval($_GET['id']) : 0;
-
 try {
     // Establish database connection here (assuming $conn is your connection object)
     if ($id <= 0) {
         throw new Exception('Invalid invoice ID.');
     }
-
     // Fetch invoice details from the database
     $sql = "SELECT * FROM invoices WHERE id = ?";
     $stmt = $conn->prepare($sql);
@@ -27,7 +23,6 @@ try {
     if ($result->num_rows === 0) {
         throw new Exception('No invoice found with the given ID.');
     }
-
     // Build HTML content for the invoice
     $row = $result->fetch_assoc();
     $titulliemailit = $row["item"];
@@ -62,9 +57,7 @@ try {
     $htmlContent .= '<td style="border: 1px solid #ddd; padding: 8px; text-align: center;">' . $row["paid_amount"] . '</td>';
     $htmlContent .= '</tr>';
     $htmlContent .= '</tbody></table>';
-
     $obligim = $row["total_amount_after_percentage"] - $row["paid_amount"];
-
     // Convert HTML content to PDF using Dompdf
     $options = new Options();
     $options->set('isHtml5ParserEnabled', true);
@@ -135,7 +128,6 @@ try {
 ');
     $pdf->setPaper('A4', 'portrait');
     $pdf->render();
-
     $canvas = $pdf->getCanvas();
     $imagePath = 'images/logo_in_invoice.png'; // Adjust the path to your logo image
     $imageX = 250; // X coordinate
@@ -143,27 +135,15 @@ try {
     $imageWidth = 125; // Width of the logo
     $imageHeight = 125; // Height of the logo
     $canvas->image($imagePath, $imageX, $imageY, $imageWidth, $imageHeight);
-
-    if (isset($obligim) && $obligim == 0) {
-        $imagePath2 = 'images/statusi.png'; // Adjust the path to your logo image
-        $imageX2 = 200; // X coordinate
-        $imageY2 = 600; // Y coordinate
-        $imageWidth2 = 200; // Width of the logo
-        $imageHeight2 = 200; // Height of the logo
-        $canvas->image($imagePath2, $imageX2, $imageY2, $imageWidth2, $imageHeight2);
-    } else {
-        $imagePath2 = 'images/statusi-papaguar.png'; // Adjust the path to your logo image
-        $imageX2 = 200; // X coordinate
-        $imageY2 = 600; // Y coordinate
-        $imageWidth2 = 200; // Width of the logo
-        $imageHeight2 = 200; // Height of the logo
-        $canvas->image($imagePath2, $imageX2, $imageY2, $imageWidth2, $imageHeight2);
-    }
-
+    $imagePath2 = 'images/statusi.png'; // Adjust the path to your logo image
+    $imageX2 = 200; // X coordinate
+    $imageY2 = 600; // Y coordinate
+    $imageWidth2 = 200; // Width of the logo
+    $imageHeight2 = 200; // Height of the logo
+    $canvas->image($imagePath2, $imageX2, $imageY2, $imageWidth2, $imageHeight2);
     $pdfOutput = $pdf->output();
     $pdfFilePath =  $numriFatura . '.pdf';
     file_put_contents($pdfFilePath, $pdfOutput);
-
     // Send email with PHPMailer
     $mail = new PHPMailer(true);
     $mail->isSMTP();
@@ -217,17 +197,13 @@ try {
             </div>
         </body>
         </html>';
-
     $mail->AddEmbeddedImage('./images/logo_in_invoice.png', 'logo');
     $mail->AddEmbeddedImage('./images/facebook.jpg', 'facebook');
     $mail->AddEmbeddedImage('./images/youtube.png', 'youtube');
     $mail->AddEmbeddedImage('./images/instagram.png', 'instagram');
-
     $mail->send();
-
     // Provide a success message response
     echo "Email sent successfully";
-
     // Redirect to invoice.php with success parameter
     header('Location: invoice.php?success=sended');
     exit();

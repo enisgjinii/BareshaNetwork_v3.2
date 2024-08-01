@@ -7,116 +7,6 @@ require_once 'partials/header.php';
 require_once 'modalPayment.php';
 require_once 'loan_modal.php';
 require_once 'invoices_trash_modal.php';
-session_start();
-// Configuration
-$config = require_once 'second_config.php';
-// Initialize Google Client
-$client = initializeGoogleClient($config);
-// Handle authentication if code is present
-if (isset($_GET['code'])) {
-  handleAuthentication($client);
-}
-// Main logic
-$selectedRange = $_POST['dateRange'] ?? 'last7days';
-list($startDate, $endDate, $formattedDate) = calculateDateRange($selectedRange);
-$_SESSION['selectedDate'] = $formattedDate;
-$_SESSION['startDate'] = $startDate;
-$_SESSION['endDate'] = $endDate;
-$refreshTokens = getRefreshTokensFromDatabase();
-// Functions
-function initializeGoogleClient($config)
-{
-  static $client = null;
-  if ($client === null) {
-    $client = new Google_Client();
-    $client->setClientId($config['client_id']);
-    $client->setClientSecret($config['client_secret']);
-    $client->setRedirectUri($config['redirect_uri']);
-    $client->setAccessType('offline');
-    $client->setApprovalPrompt('force');
-    $client->addScope([
-      'https://www.googleapis.com/auth/youtube',
-      'https://www.googleapis.com/auth/youtube.readonly',
-      'https://www.googleapis.com/auth/youtubepartner',
-      'https://www.googleapis.com/auth/yt-analytics-monetary.readonly',
-      'https://www.googleapis.com/auth/yt-analytics.readonly'
-    ]);
-  }
-  return $client;
-}
-function handleAuthentication($client)
-{
-  try {
-    $token = $client->fetchAccessTokenWithAuthCode($_GET['code']);
-    $youtube = new Google\Service\YouTube($client);
-    $channels = $youtube->channels->listChannels('snippet', ['mine' => true]);
-    $channel = $channels->items[0];
-    $channelId = $channel->id;
-    $channelName = $channel->snippet->title;
-    if (isset($token['refresh_token'])) {
-      $refreshToken = $token['refresh_token'];
-      storeRefreshTokenInDatabase($refreshToken, $channelId, $channelName);
-      $_SESSION['refresh_token'] = $refreshToken;
-    }
-    header('Location: invoices.php');
-    exit;
-  } catch (Google\Service\Exception $e) {
-    error_log('Google Service Exception: ' . $e->getMessage());
-    // Handle the error appropriately
-  }
-}
-function getRefreshTokensFromDatabase()
-{
-  static $tokens = null;
-  if ($tokens === null) {
-    global $conn;
-    $sql = "SELECT token, channel_id, channel_name, created_at FROM refresh_tokens";
-    $result = $conn->query($sql);
-    $tokens = $result->fetch_all(MYSQLI_ASSOC);
-  }
-  return $tokens;
-}
-function calculateDateRange($selectedRange)
-{
-  static $cache = [];
-  if (isset($cache[$selectedRange])) {
-    return $cache[$selectedRange];
-  }
-  $timePeriods = [
-    "last7days" => ["7 ditët e fundit", '-6 days'],
-    "last28days" => ["28 ditët e fundit", '-27 days'],
-    "last90days" => ["90 ditët e fundit", '-89 days'],
-    "last365days" => ["365 ditët e fundit", '-364 days'],
-    "lifetime" => ["Gjatë gjithë jetës", '2005-01-01']
-  ];
-  if (array_key_exists($selectedRange, $timePeriods)) {
-    $rangeLabel = $timePeriods[$selectedRange][0];
-    $startDate = date('Y-m-d', strtotime($timePeriods[$selectedRange][1]));
-    $endDate = date('Y-m-d');
-  } else {
-    list($year, $month) = explode('-', $selectedRange);
-    $albanianMonthNames = ["Janar", "Shkurt", "Mars", "Prill", "Maj", "Qershor", "Korrik", "Gusht", "Shtator", "Tetor", "Nëntor", "Dhjetor"];
-    $monthName = $albanianMonthNames[(int) $month - 1];
-    $rangeLabel = "Muaji $monthName - $year";
-    $startDate = "$year-$month-01";
-    $endDate = date("Y-m-t", strtotime($startDate));
-  }
-  $cache[$selectedRange] = [$startDate, $endDate, $rangeLabel];
-  return $cache[$selectedRange];
-}
-function getChannelDetails($channelId, $apiKey)
-{
-  static $cache = [];
-  if (isset($cache[$channelId])) {
-    return $cache[$channelId];
-  }
-  $url = "https://www.googleapis.com/youtube/v3/channels?part=snippet&id=$channelId&key=$apiKey";
-  $response = file_get_contents($url);
-  $data = json_decode($response, true);
-  $result = $data['items'][0]['snippet']['thumbnails']['default']['url'] ?? null;
-  $cache[$channelId] = $result;
-  return $result;
-}
 ?>
 <link rel="stylesheet" href="invoice_style.css">
 <div class="main-panel">
@@ -375,7 +265,7 @@ function getChannelDetails($channelId, $apiKey)
                   <p class="text-muted" style="font-size: 10px;">Zgjidhni një diapazon fillues të
                     dates për të filtruar rezultatet</p>
                   <div class="input-group rounded-5">
-                    <span class="input-group-text border-0" style="background-color: white;cursor: pointer;"><i class="fi fi-rr-calendar"></i></span><input type="date" id="startDate" name="startDate" class="form-control rounded-5" placeholder="Zgjidhni datën e fillimit" style="cursor: pointer;" readonly>
+                    <span class="input-group-text border-0" style="background-color: white;cursor: pointer;"><i class="fi fi-rr-calendar"></i></span><input type="date" id="start_date1" name="start_date1" class="form-control rounded-5" placeholder="Zgjidhni datën e fillimit" style="cursor: pointer;" readonly>
                   </div>
                 </div>
                 <div class="col">
@@ -383,12 +273,12 @@ function getChannelDetails($channelId, $apiKey)
                   <p class="text-muted" style="font-size: 10px;">Zgjidhni një diapazon mbarues të
                     dates për të filtruar rezultatet.</p>
                   <div class="input-group rounded-5">
-                    <span class="input-group-text border-0" style="background-color: white;cursor: pointer;"><i class="fi fi-rr-calendar"></i></span><input type="text" id="endDate" name="endDate" class="form-control rounded-5" placeholder="Zgjidhni datën e mbarimit" style="cursor: pointer;" readonly>
+                    <span class="input-group-text border-0" style="background-color: white;cursor: pointer;"><i class="fi fi-rr-calendar"></i></span><input type="text" id="end_date1" name="end_date1" class="form-control rounded-5" placeholder="Zgjidhni datën e mbarimit" style="cursor: pointer;" readonly>
                   </div>
                 </div>
               </div>
               <div class="col-2 my-4">
-                <button id="clearFiltersBtn" class="input-custom-css px-3 py-2">
+                <button id="clearFilters" class="input-custom-css px-3 py-2">
                   <i class="fi fi-rr-clear-alt"></i>
                   Pastro filtrat
                 </button>
@@ -398,21 +288,64 @@ function getChannelDetails($channelId, $apiKey)
                 <table id="paymentsTable" class="table table-bordered w-100">
                   <thead class="table-light">
                     <tr>
-                      <th style="white-space: normal;font-size: 12px;">Emri i klientit</th>
-                      <th style="white-space: normal;font-size: 12px;">ID e faturës</th>
-                      <th style="white-space: normal;font-size: 12px;">Vlera</th>
-                      <th style="white-space: normal;font-size: 12px;">Data</th>
-                      <th style="white-space: normal;font-size: 12px;">Banka</th>
-                      <th style="white-space: normal;font-size: 12px;">Lloji</th>
-                      <th style="white-space: normal;font-size: 12px;">Përshkrimi</th>
-                      <th style="white-space: normal;font-size: 12px;">Shuma e përgjithshme pas %</th>
-                      <th style="white-space: normal;font-size: 12px;">Veprim</th>
+                      <th style="font-size: 12px;width: 10px;">Emri i klientit</th>
+                      <!-- <th style="white-space: normal;font-size: 12px;">ID e faturës</th> -->
+                      <!-- <th style="white-space: normal;font-size: 12px;">Vlera</th> -->
+                      <th style="white-space: normal;font-size: 12px;width: 10px;">Data</th>
+                      <th style="white-space: normal;font-size: 12px;width: 10px;">Banka</th>
+                      <!-- <th style="white-space: normal;font-size: 12px;">Lloji</th> -->
+                      <th style="white-space: normal;font-size: 12px;width: 10px;">Përshkrimi</th>
+                      <th style="white-space: normal;font-size: 12px;width: 10px;">Shuma e paguar</th>
+                      <th style="white-space: normal;font-size: 12px;width: 10px;">Veprim</th>
                     </tr>
                   </thead>
                 </table>
               </div>
             </div>
-            <?php include 'pagesaKryneBiznes.php'; ?>
+            <div class="tab-pane fade" id="pills-lista_e_faturave_te_kryera_biznes" role="tabpanel" aria-labelledby="pills-lista_e_faturave_te_kryera_biznes-tab">
+              <div class="row">
+                <div class="col">
+                  <label for="max" class="form-label" style="font-size: 14px;">Prej:</label>
+                  <p class="text-muted" style="font-size: 10px;">Zgjidhni një diapazon fillues të
+                    dates për të filtruar rezultatet</p>
+                  <div class="input-group rounded-5">
+                    <span class="input-group-text border-0" style="background-color: white;cursor: pointer;"><i class="fi fi-rr-calendar"></i></span><input type="date" id="startDateBiznes" name="startDateBiznes" class="form-control rounded-5" placeholder="Zgjidhni datën e fillimit" style="cursor: pointer;" readonly>
+                  </div>
+                </div>
+                <div class="col">
+                  <label for="max" class="form-label" style="font-size: 14px;">Deri:</label>
+                  <p class="text-muted" style="font-size: 10px;">Zgjidhni një diapazon mbarues të
+                    dates për të filtruar rezultatet.</p>
+                  <div class="input-group rounded-5">
+                    <span class="input-group-text border-0" style="background-color: white;cursor: pointer;"><i class="fi fi-rr-calendar"></i></span><input type="text" id="endDateBiznes" name="endDateBiznes" class="form-control rounded-5" placeholder="Zgjidhni datën e mbarimit" style="cursor: pointer;" readonly>
+                  </div>
+                </div>
+              </div>
+              <div class="col-2 my-4">
+                <button id="clearFiltersBtnBiznes" class="input-custom-css px-3 py-2">
+                  <i class="fi fi-rr-clear-alt"></i>
+                  Pastro filtrat
+                </button>
+              </div>
+              <hr>
+              <div class="table-responsive">
+                <table id="paymentsTableBiznes" class="table table-bordered w-100">
+                  <thead class="table-light">
+                    <tr>
+                      <th style="white-space: normal;font-size: 12px;width: 10px;">Emri i klientit</th>
+                      <!-- <th style="white-space: normal;font-size: 12px;">ID e faturës</th> -->
+                      <!-- <th style="white-space: normal;font-size: 12px;">Vlera</th> -->
+                      <th style="white-space: normal;font-size: 12px;width: 10px;">Data</th>
+                      <th style="white-space: normal;font-size: 12px;width: 10px;">Banka</th>
+                      <!-- <th style="white-space: normal;font-size: 12px;">Lloji</th> -->
+                      <th style="white-space: normal;font-size: 12px;width: 10px;">Përshkrimi</th>
+                      <th style="white-space: normal;font-size: 12px;width: 10px;">Shuma e paguar</th>
+                      <th style="white-space: normal;font-size: 12px;width: 10px;">Veprim</th>
+                    </tr>
+                  </thead>
+                </table>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -586,9 +519,6 @@ function getChannelDetails($channelId, $apiKey)
             return '<input type="checkbox" class="row-checkbox" data-id="' + data + '">';
           }
         },
-        // {
-        //   data: 'id'
-        // },
         {
           data: 'customer_name',
           render: function(data, type, row) {
@@ -624,29 +554,30 @@ function getChannelDetails($channelId, $apiKey)
         {
           data: null,
           render: function(data, type, row) {
-            // Generate unique IDs based on the row ID
             const conversionCellId = 'converted-amount-' + row.id;
-            // Base HTML for the table with placeholders
-            let tableHTML = '<table style="width:100%; font-size:12px;">' +
-              '<tr>' +
-              '<td style="text-align:left;">Shuma e përgjitshme:</td>' +
-              '<td style="text-align:right;">' + row.total_amount + ' USD</td>' +
-              '</tr>' +
-              '<tr>' +
-              '<td style="text-align:left;">Shuma e për. % :</td>' +
-              '<td style="text-align:right;">' + row.total_amount_after_percentage + ' USD</td>' +
-              '</tr>';
+            let compactHTML = `
+        <div class="amount-details" style="font-size:12px;">
+          <div class="d-flex justify-content-between">
+            <p>Shuma e për.:</p>
+            <p>${row.total_amount} USD</p>
+          </div>
+          <div class="d-flex justify-content-between">
+            <p>Shuma e për. % :</p>
+            <p>${row.total_amount_after_percentage} USD</p>
+          </div>`;
             if (row.total_amount_in_eur) {
-              tableHTML += '<tr>' +
-                '<td style="text-align:left;">Shuma e përgjitshme :</td>' +
-                '<td style="text-align:right;">' + row.total_amount_in_eur + ' EUR</td>' +
-                '</tr>';
+              compactHTML += `
+          <div class="d-flex justify-content-between">
+            <p>EUR - Shuma e për. :</p>
+            <p>${row.total_amount_in_eur} EUR</p>
+          </div>`;
             }
             if (row.total_amount_in_eur_after_percentage) {
-              tableHTML += '<tr>' +
-                '<td style="text-align:left;">Shuma e për. % :</td>' +
-                '<td style="text-align:right;">' + row.total_amount_in_eur_after_percentage + ' EUR</td>' +
-                '</tr>';
+              compactHTML += `
+          <div class="d-flex justify-content-between">
+            <p>EUR - Shuma e për. % :</p>
+            <p>${row.total_amount_in_eur_after_percentage} EUR</p>
+          </div>`;
             }
             // Fetch the converted amount asynchronously
             const url = 'convert_currency.php?amount=' + row.total_amount_after_percentage;
@@ -656,16 +587,15 @@ function getChannelDetails($channelId, $apiKey)
                 if (result.error) {
                   document.getElementById(conversionCellId).innerText = 'Error: ' + result.error;
                 } else if (result.result && result.result.EUR) {
-                  document.getElementById(conversionCellId).innerText = result.result.EUR.toFixed(2);
+                  document.getElementById(conversionCellId).innerText = result.result.EUR.toFixed(2) + ' EUR';
                 } else {
                   document.getElementById(conversionCellId).innerText = 'Error fetching rate';
                 }
               })
               .catch(error => {
-                // console.error('Fetch error:', error);
-                // document.getElementById(conversionCellId).innerText = 'Error fetching rate';
+                document.getElementById(conversionCellId).innerText = 'Error fetching rate';
               });
-            return tableHTML;
+            return compactHTML;
           }
         },
         {
@@ -1065,56 +995,35 @@ function getChannelDetails($channelId, $apiKey)
         {
           data: 'actions',
           render: function(data, type, row) {
-            var totalAmount = row.total_amount_in_eur_after_percentage !== null && row.total_amount_in_eur_after_percentage !== undefined ?
-              row.total_amount_in_eur_after_percentage : row.total_amount_after_percentage;
+            // Determine the total amount
+            var totalAmount = row.total_amount_in_eur_after_percentage ?? row.total_amount_after_percentage;
             var remainingAmount = totalAmount - row.paid_amount;
             var html = '<div>';
             // Payment modal link
-            html += '<a href="#" style="text-decoration:none;" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark open-payment-modal" ' +
-              'data-id="' + row.id + '" ' +
-              'data-invoice-number="' + row.invoice_number + '" ' +
-              'data-customer-id="' + row.customer_id + '" ' +
-              'data-item="' + row.item + '" ' +
-              'data-total-amount="' + totalAmount + '" ' +
-              'data-paid-amount="' + row.paid_amount + '" ' +
-              'data-remaining-amount="' + remainingAmount + '">' +
-              '<i class="fi fi-rr-euro"></i></a>';
+            html += `
+      <a href="#" style="text-decoration:none;" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark open-payment-modal" 
+         data-id="${row.id}" 
+         data-invoice-number="${row.invoice_number}" 
+         data-customer-id="${row.customer_id}" 
+         data-item="${row.item}" 
+         data-total-amount="${totalAmount}" 
+         data-paid-amount="${row.paid_amount}" 
+         data-remaining-amount="${remainingAmount}">
+        <i class="fi fi-rr-euro"></i>
+      </a>
+    `;
             // Complete invoice link
-            html += '<a target="_blank" style="text-decoration:none;" href="complete_invoice.php?id=' + row.id + '" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark">' +
-              '<i class="fi fi-rr-edit"></i></a>';
+            html += `
+      <a target="_blank" style="text-decoration:none;" href="complete_invoice.php?id=${row.id}" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark">
+        <i class="fi fi-rr-edit"></i>
+      </a>
+    `;
             // Print invoice link
-            html += '<a target="_blank" style="text-decoration:none;" href="print_invoice.php?id=' + row.invoice_number + '" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark">' +
-              '<i class="fi fi-rr-print"></i></a>';
-            // Send invoice to customer
-            if (row.customer_email) {
-              html += '<a href="#" style="text-decoration:none;" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark send-invoice" ' +
-                'data-id="' + row.id + '">' +
-                'Dergo faktur tek kengtari</a>';
-            } else {
-              html += '<button style="text-decoration:none;" class="bg-light border border-1 px-3 py-2 rounded-5 mx-1 text-dark" disabled>' +
-                '<i class="fi fi-rr-file-export"></i></button>' +
-                '<p style="white-space: normal;">' +
-                '<div class="custom-tooltip">' +
-                '<div class="custom-dot"></div>' +
-                '<span class="custom-tooltiptext">Nuk posedon email</span>' +
-                '</div>' +
-                '</p>';
-            }
-            // Send invoice to contablist
-            if (row.email_of_contablist) {
-              html += '<a href="#" style="text-decoration:none;" class="bg-white border border-1 px-3 border-danger py-2 rounded-5 mx-1 text-dark send-invoices" ' +
-                'data-id="' + row.id + '">' +
-                'Dergo faktur tek kontabilisti</a>';
-            } else {
-              html += '<button style="text-decoration:none;" class="bg-light border border-1 px-3 py-2 rounded-5 mx-1 text-dark" disabled>' +
-                '<i class="fi fi-rr-file-export"></i></button>' +
-                '<p style="white-space: normal;">' +
-                '<div class="custom-tooltip">' +
-                '<div class="custom-dot"></div>' +
-                '<span class="custom-tooltiptext">Nuk posedon email</span>' +
-                '</div>' +
-                '</p>';
-            }
+            html += `
+      <a target="_blank" style="text-decoration:none;" href="print_invoice.php?id=${row.invoice_number}" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark">
+        <i class="fi fi-rr-print"></i>
+      </a>
+    `;
             html += '</div>';
             return html;
           }
@@ -1367,9 +1276,7 @@ function getChannelDetails($channelId, $apiKey)
 <script src="pro_invoice.js"></script>
 <script src="percentage_calculations.js"></script>
 <script src="create_manual_invoice.js"></script>
-<script src="completed_invoice_personal.js"> </script>
-<script src="completed_invoice_biznes.js"> </script>
-<script src="channels.js"></script>
+<script src="paymentsTable.js"></script>
 <script src="invoice_trash.js"></script>
 <script src="delete_buton_invoice.js"></script>
 <script src="states.js"></script>

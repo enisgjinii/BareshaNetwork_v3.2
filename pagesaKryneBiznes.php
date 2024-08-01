@@ -28,15 +28,15 @@
         <table id="paymentsTableBiznes" class="table table-bordered w-100">
             <thead class="table-light">
                 <tr>
-                    <th style="white-space: normal;font-size: 12px;">Emri i klientit</th>
-                    <th style="white-space: normal;font-size: 12px;">ID e faturës</th>
-                    <th style="white-space: normal;font-size: 12px;">Vlera</th>
-                    <th style="white-space: normal;font-size: 12px;">Data</th>
-                    <th style="white-space: normal;font-size: 12px;">Banka</th>
-                    <th style="white-space: normal;font-size: 12px;">Lloji</th>
-                    <th style="white-space: normal;font-size: 12px;">Përshkrimi</th>
-                    <th style="white-space: normal;font-size: 12px;">Shuma e përgjithshme pas %</th>
-                    <th style="white-space: normal;font-size: 12px;">Veprim</th>
+                    <th style="white-space: normal;font-size: 12px;width: 10px;">Emri i klientit</th>
+                    <!-- <th style="white-space: normal;font-size: 12px;">ID e faturës</th> -->
+                    <!-- <th style="white-space: normal;font-size: 12px;">Vlera</th> -->
+                    <th style="white-space: normal;font-size: 12px;width: 10px;">Data</th>
+                    <th style="white-space: normal;font-size: 12px;width: 10px;">Banka</th>
+                    <!-- <th style="white-space: normal;font-size: 12px;">Lloji</th> -->
+                    <th style="white-space: normal;font-size: 12px;width: 10px;">Përshkrimi</th>
+                    <th style="white-space: normal;font-size: 12px;width: 10px;">Shuma e paguar</th>
+                    <th style="white-space: normal;font-size: 12px;width: 10px;">Veprim</th>
                 </tr>
             </thead>
         </table>
