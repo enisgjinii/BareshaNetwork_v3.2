@@ -2,9 +2,6 @@
 require 'vendor/autoload.php';
 include 'conn-d.php';
 
-use Google\Client;
-use Google\Service\Drive;
-
 // Enable error reporting
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
@@ -13,41 +10,6 @@ ini_set('display_errors', 1);
 function logError($message)
 {
     error_log($message, 3, 'error_log.txt');
-}
-
-// Initialize Google Client
-function getClient()
-{
-    try {
-        $client = new Client();
-        $client->setAuthConfig('client.json');
-        $client->addScope(Drive::DRIVE_FILE);
-        $client->addScope(Drive::DRIVE);
-        $client->setAccessType('offline');
-        $client->setPrompt('select_account consent');
-
-        // Retrieve the refresh token from cookie
-        if (isset($_COOKIE['refreshToken'])) {
-            $refreshToken = $_COOKIE['refreshToken'];
-            $client->fetchAccessTokenWithRefreshToken($refreshToken);
-            $accessToken = $client->getAccessToken();
-            $client->setAccessToken($accessToken);
-
-            // Save the new access token to a file (optional)
-            $tokenPath = 'token.json';
-            if (!file_exists(dirname($tokenPath))) {
-                mkdir(dirname($tokenPath), 0700, true);
-            }
-            file_put_contents($tokenPath, json_encode($client->getAccessToken()));
-        } else {
-            throw new Exception('Refresh token not found in cookies.');
-        }
-    } catch (Exception $e) {
-        logError('Google Client Initialization Error: ' . $e->getMessage());
-        throw $e;
-    }
-
-    return $client;
 }
 
 // Check if form data is submitted
@@ -97,50 +59,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (file_put_contents($text_file_path, $text_content) === false) {
         logError('Error saving text document.');
         echo 'Error saving text document.';
-        exit;
-    }
-
-    try {
-        // Get Google Client
-        $client = getClient();
-        $service = new Drive($client);
-
-        // Folder ID
-        $folderId = '1HLVc7GzZZZp0EyfPU1zpD0xOwJjOSmoT'; // Replace with the correct folder ID
-
-        // Check if the folder exists and is accessible
-        try {
-            $folder = $service->files->get($folderId, ['fields' => 'id']);
-        } catch (Exception $e) {
-            // If the folder is not found, create a new one
-            if ($e->getCode() == 404) {
-                $folderMetadata = new Drive\DriveFile([
-                    'name' => 'Kontrata Files',
-                    'mimeType' => 'application/vnd.google-apps.folder'
-                ]);
-                $folder = $service->files->create($folderMetadata, ['fields' => 'id']);
-                $folderId = $folder->id;
-                logError('Created new folder with ID: ' . $folderId);
-            } else {
-                throw $e; // Re-throw if it's a different error
-            }
-        }
-
-        $fileMetadata = new Drive\DriveFile([
-            'name' => basename($text_file_path),
-            'parents' => [$folderId]
-        ]);
-        $content = file_get_contents($text_file_path);
-        $file = $service->files->create($fileMetadata, [
-            'data' => $content,
-            'mimeType' => 'text/plain',
-            'uploadType' => 'multipart',
-            'fields' => 'id'
-        ]);
-        logError('File ID: ' . $file->id);
-    } catch (Exception $e) {
-        logError('Google Drive API Error: ' . $e->getMessage());
-        echo 'Error uploading to Google Drive: ' . $e->getMessage();
         exit;
     }
 

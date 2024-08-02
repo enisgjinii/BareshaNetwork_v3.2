@@ -19,21 +19,22 @@ $clientSecret = $clientConfig['web']['client_secret'];
 $client = new Google_Client();
 $client->setClientId($clientId);
 $client->setClientSecret($clientSecret);
+
 // Enable offline access
 $client->setAccessType('offline');  // Request offline access from the user
 $client->setApprovalPrompt('force');  // Force re-authorization even if previously granted
 
-// Set redirect URI based on environment
-$redirectUri = "https://panel.bareshaoffice.com/kycu_1.php";
+// Determine environment and set redirect URI
+$isLocal = ($_SERVER['SERVER_NAME'] === 'localhost');
+$redirectUri = $isLocal ? LOCALHOST_URI : ONLINE_URI;
 $client->setRedirectUri($redirectUri);
 
 // Set scopes in a single call
 $client->setScopes(["email", "profile"]);
 
-// add Google Drive
+// Add Google Drive scope
 $client->addScope("https://www.googleapis.com/auth/drive");
-
 
 // Add an additional scope for gender
 $client->addScope("https://www.googleapis.com/auth/user.gender.read");
-
+?>
