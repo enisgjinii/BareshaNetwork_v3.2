@@ -167,12 +167,12 @@ $text = 'Madhësia e dosjes: ' . $fileSize;
                   <table id="example" class="table w-100 table-bordered">
                     <thead class="bg-light">
                       <tr>
-                        <th>#</th> <!-- Add this column -->
-                        <th>ID</th>
-                        <th>Shuma</th>
-                        <th>P&euml;rshkrimi</th>
-                        <th>Data</th>
-                        <th>Forma</th>
+                        <th class="text-dark">#</th> <!-- Add this column -->
+                        <th class="text-dark">ID</th>
+                        <th class="text-dark">Shuma</th>
+                        <th class="text-dark">P&euml;rshkrimi</th>
+                        <th class="text-dark">Data</th>
+                        <th class="text-dark">Forma</th>
                       </tr>
                     </thead>
                     <tbody></tbody>

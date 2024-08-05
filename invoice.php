@@ -35,7 +35,6 @@ require_once 'invoices_trash_modal.php';
           <button style="text-transform: none;" class="input-custom-css px-3 py-2 " data-bs-toggle="modal" data-bs-target="#listOfChannelsAuth">
             <i class="fi fi-rr-list fa-lg"></i>&nbsp;  Lista e kanaleve te lidhura
           </button>
-
           <!-- Modal -->
           <div class="modal fade" id="listOfChannelsAuth" tabindex="-1" aria-labelledby="listOfChannelsAuthLabel" aria-hidden="true">
             <div class="modal-dialog modal-fullscreen">
@@ -59,7 +58,6 @@ require_once 'invoices_trash_modal.php';
                     fclose($file_handle);
                     return $data;
                   }
-
                   $csvFile = 'channel_data_monetized.csv';
                   $csvData = readCSV($csvFile);
                   ?>
@@ -223,7 +221,6 @@ require_once 'invoices_trash_modal.php';
                 searchable: true,
                 width: 300
               })
-
               function convertToEUR(amount, outputId) {
                 fetch(`https://api.exconvert.com/convert?from=USD&to=EUR&amount=${amount}&access_key=7ac9d0d8-2c2a1729-0a51382b-b85cd112`)
                   .then(response => response.json())
@@ -236,7 +233,6 @@ require_once 'invoices_trash_modal.php';
                   })
                   .catch(error => console.error('Error:', error));
               }
-
               function calculateAmountAfterPercentage() {
                 const totalAmount = parseFloat(document.getElementById("total_amount").value);
                 const percentage = parseFloat(document.getElementById("percentage").value);
@@ -427,7 +423,6 @@ require_once 'invoices_trash_modal.php';
     var totalAmountAfterPercentage = totalAmount - (totalAmount * (percentage / 100));
     document.getElementById('total_amount_after_percentage').value = totalAmountAfterPercentage.toFixed(2);
   });
-
   function getCustomerName(customerId) {
     var customerName = '';
     $.ajax({
@@ -1200,7 +1195,6 @@ require_once 'invoices_trash_modal.php';
         }
       });
     });
-
     function createButtonConfig(extend, icon, text, titleAttr) {
       return {
         extend: extend,
@@ -1277,7 +1271,6 @@ require_once 'invoices_trash_modal.php';
       },
       stripeClasses: ['stripe-color']
     });
-
     function getCurrentDate() {
       var today = new Date();
       var dd = String(today.getDate()).padStart(2, '0');
@@ -1334,5 +1327,4 @@ require_once 'invoices_trash_modal.php';
 <script src="states.js"></script>
 <?php include 'partials/footer.php' ?>
 </body>
-
 </html>

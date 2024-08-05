@@ -1,26 +1,18 @@
 <?php
-// Include the database connection
 include 'conn-d.php';
 
-// Fetch data from the database
-$query = "SELECT ngarkimi.*, klientet.emri AS klienti_emri, users.name AS postuar_nga
-    FROM ngarkimi
-    LEFT JOIN klientet ON ngarkimi.klienti=klientet.id
-    LEFT JOIN users ON ngarkimi.nga=users.id
-    ORDER BY ngarkimi.id DESC";
+$query = "SELECT n.*, k.emri AS klienti_emri, u.name AS postuar_nga
+    FROM ngarkimi n
+    LEFT JOIN klientet k ON n.klienti = k.id
+    LEFT JOIN users u ON n.nga = u.id
+    ORDER BY n.id DESC";
 $result = $conn->query($query);
 
-// Prepare an array to store the table data
-$data = array();
+$data = array_map(function ($row) {
+    $linkuColumn = '<a class="input-custom-css px-3 py-2" href="' . $row['linku'] . '" target="_blank">Hap Linkun</a><br><br>';
+    $linkuplatColumn = '<a class="input-custom-css px-3 py-2" href="' . $row['linkuplat'] . '" target="_blank">Hap Linkun</a>';
 
-// Loop through the result set and fetch the data
-while ($row = mysqli_fetch_assoc($result)) {
-    // $deleteButton = '<a class="btn btn-danger text-white shadow-sm rounded-5" href="?del=' . $row['id'] . '" onclick="return confirm(\'A jeni i sigurt q&euml; d&euml;shironi ta fshini?\');"><i class="fi fi-rr-trash"></i></a>';
-
-    $linkuColumn = '<a style="text-transform:none;text-decoration:none;" class="input-custom-css px-3 py-2" href="' . $row['linku'] . '" target="_blank">Hap Linkun</a><br><br>';
-    $linkuplatColumn = '<a style="text-transform:none;text-decoration:none;" class="input-custom-css px-3 py-2" href="' . $row['linkuplat'] . '" target="_blank">Hap Linkun</a>';
-
-    $data[] = array(
+    return [
         'id' => $row['id'],
         'kengetari' => $row['kengetari'],
         'emri' => $row['emri'],
@@ -39,8 +31,7 @@ while ($row = mysqli_fetch_assoc($result)) {
         'gjuha' => $row['gjuha'],
         'infosh' => $row['infosh'],
         'postuar_nga' => $row['postuar_nga']
-    );
-}
+    ];
+}, mysqli_fetch_all($result, MYSQLI_ASSOC));
 
-// Return the data as JSON
-echo json_encode(array('data' => $data));
+echo json_encode(['data' => $data]);
