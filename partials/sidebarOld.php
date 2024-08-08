@@ -141,12 +141,7 @@
                                 <span class="menu-title">Aktiviteti ne Github</span>
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="todo_list.php">
-                                <i class="fi fi-rr-checkbox menu-icon pe-3"></i>
-                                <span class="menu-title">To do</span>
-                            </a>
-                        </li>
+                       
                         <li class="nav-item">
                             <a class="nav-link" href="takimet.php">
                                 <i class="fi fi-rr-video-camera-alt menu-icon pe-3"></i>

@@ -165,7 +165,6 @@
         "menuItems" => [
           "filet.php" => "Dokumente tjera",
           "notes.php" => "Shenime",
-          "todo_list.php" => "To do",
           "takimet.php" => "Takimet",
           "klient_CSV.php" => "Klient CSV",
           "logs.php" => "Logs",

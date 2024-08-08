@@ -47,7 +47,7 @@ $is_pagesat_page = (basename($_SERVER['PHP_SELF']) === 'pagesat.php'); ?>
                                 <p class="text-muted small">Zgjidhni një diapazon <?= $id === 'min' ? 'fillues' : 'mbarues' ?> të datës për të filtruar rezultatet.</p>
                                 <div class="input-group rounded-5  ">
                                     <span class="input-group-text border-0 bg-white "><i class="fi fi-rr-calendar"></i></span>
-                                    <input type="text" id="<?= $id ?>" name="<?= $id ?>" class="form-control rounded-5 flatpickr" placeholder="Zgjidhni datën">
+                                    <input type="text" id="<?= $id ?>" name="<?= $id ?>" class="form-control rounded-5 flatpickr " placeholder="Zgjidhni datën">
                                 </div>
                             </div>
                         <?php endforeach; ?>
