@@ -128,30 +128,30 @@ $reportingPeriod = $_POST['reportingPeriod'] ?? null;
                             <table id="example" data-ordering="false" class="table w-100 table-bordered">
                                 <thead class="bg-light">
                                     <tr>
-                                        <th>Emri</th>
-                                        <th>Artist(s)</th>
-                                        <th>Reporting Period</th>
-                                        <th>Accounting Period</th>
-                                        <th>Release</th>
-                                        <th>Track</th>
-                                        <th>Country</th>
-                                        <th>Revenue (USD)</th>
-                                        <th>Revenue Share (%)</th>
-                                        <th>Split Pay Share (%)</th>
+                                        <th class="text-dark">Emri</th>
+                                        <th class="text-dark">Artist(s)</th>
+                                        <th class="text-dark">Reporting Period</th>
+                                        <th class="text-dark">Accounting Period</th>
+                                        <th class="text-dark">Release</th>
+                                        <th class="text-dark">Track</th>
+                                        <th class="text-dark">Country</th>
+                                        <th class="text-dark">Revenue (USD)</th>
+                                        <th class="text-dark">Revenue Share (%)</th>
+                                        <th class="text-dark">Split Pay Share (%)</th>
                                     </tr>
                                 </thead>
                                 <tfoot class="bg-light">
                                     <tr>
-                                        <th>Emri</th>
-                                        <th>Artist(s)</th>
-                                        <th>Reporting Period</th>
-                                        <th>Accounting Period</th>
-                                        <th>Release</th>
-                                        <th>Track</th>
-                                        <th>Country</th>
-                                        <th>Revenue (USD)</th>
-                                        <th>Revenue Share (%)</th>
-                                        <th>Split Pay Share (%)</th>
+                                        <th class="text-dark">Emri</th>
+                                        <th class="text-dark">Artist(s)</th>
+                                        <th class="text-dark">Reporting Period</th>
+                                        <th class="text-dark">Accounting Period</th>
+                                        <th class="text-dark">Release</th>
+                                        <th class="text-dark">Track</th>
+                                        <th class="text-dark">Country</th>
+                                        <th class="text-dark">Revenue (USD)</th>
+                                        <th class="text-dark">Revenue Share (%)</th>
+                                        <th class="text-dark">Split Pay Share (%)</th>
                                     </tr>
                                 </tfoot>
                             </table>

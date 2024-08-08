@@ -50,9 +50,9 @@ foreach ($backupFiles as $backupFile) {
                                 <table class="table" id="listaKopjeve">
                                     <thead class="bg-light">
                                         <tr>
-                                            <th>Skedari rezerv&euml;</th>
-                                            <th>Ora e krijimit</th>
-                                            <th>Veprimet</th>
+                                            <th class="text-dark">Skedari rezerv&euml;</th>
+                                            <th class="text-dark">Ora e krijimit</th>
+                                            <th class="text-dark">Veprimet</th>
                                         </tr>
                                     </thead>
                                     <tbody>

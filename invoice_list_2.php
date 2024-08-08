@@ -53,20 +53,20 @@ if (!empty($_POST['companyName']) && $_POST['companyName']) {
               <!-- <caption>Lista e faturave te shpejta</caption> -->
               <thead>
                 <tr>
-                  <th>Numri i faturës</th>
-                  <th>Id e fatures</th>
-                  <th>Data dhe ora e krijimit</th>
-                  <th>Emri i klientit</th>
-                  <th>Totali i faturës</th>
-                  <th>Vepro</th>
+                  <th class="text-dark">Numri i faturës</th>
+                  <th class="text-dark">Id e fatures</th>
+                  <th class="text-dark">Data dhe ora e krijimit</th>
+                  <th class="text-dark">Emri i klientit</th>
+                  <th class="text-dark">Totali i faturës</th>
+                  <th class="text-dark">Vepro</th>
                 </tr>
               </thead>
               <tbody>
                 <?php foreach ($invoiceList as $invoiceDetails) : ?>
                   <tr>
-                    <td><?= $invoiceDetails["invoice_number"] ?></td>
-                    <td><?= $invoiceDetails["order_id"] ?></td>
-                    <td><?php
+                    <td class="text-dark"><?= $invoiceDetails["invoice_number"] ?></td>
+                    <td class="text-dark"><?= $invoiceDetails["order_id"] ?></td>
+                    <td class="text-dark"><?php
                         // First make an array with months in Albanian language
                         $months = array("Janar", "Shkurt", "Mars", "Prill", "Maj", "Qershor", "Korrik", "Gusht", "Shtator", "Tetor", "Nentor", "Dhjetor");
                         // Get the order date from $invoiceDetails and format it
@@ -75,8 +75,8 @@ if (!empty($_POST['companyName']) && $_POST['companyName']) {
                         $formatted_date = date("d", $order_date) . " " . $months[$month_index] . " " . date("Y", $order_date) . ", " . date("H:i:s", $order_date);
                         echo $formatted_date;
                         ?></td>
-                    <td><?= $invoiceDetails["order_receiver_name"] ?></td>
-                    <td><?= $invoiceDetails["order_total_after_tax"] ?></td>
+                    <td class="text-dark"><?= $invoiceDetails["order_receiver_name"] ?></td>
+                    <td class="text-dark"><?= $invoiceDetails["order_total_after_tax"] ?></td>
                     <td>
                       <a class="btn btn-sm btn-primary rounded-5 text-white" style="text-transform: none;" href="print_Invoice_2.php?invoice_id=<?= $invoiceDetails["order_id"] ?>" title="Print Invoice">
                         <i class="fi fi-rr-print"></i>
@@ -106,7 +106,7 @@ if (!empty($_POST['companyName']) && $_POST['companyName']) {
             <div class="load-animate animated fadeInUp">
               <input id="currency" type="hidden" value="$">
               <div class="row">
-                <div class="col-xs-12 col-sm-4 col-md-6 col-lg-6">
+                <div class="col-xs-12 col-sm-4 col-md-6 col-lg-6 text-dark">
                   <h3>Nga,</h3>
                   Baresha Music
                   <br>
@@ -118,7 +118,7 @@ if (!empty($_POST['companyName']) && $_POST['companyName']) {
                   Tax ID : 811499228
                 </div>
                 <div class="col-xs-12 col-sm-4 col-md-6 col-lg-6 pull-right">
-                  <h3>Për,</h3>
+                  <h3 class="text-dark">Për,</h3>
                   <label for="customer" class="form-label">Emri i klientit</label>
                   <select class="form-control rounded-5 border border-1" name="customer" id="customer">
                     <option value="">Zgjidhni klientin</option>

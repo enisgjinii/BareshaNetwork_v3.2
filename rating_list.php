@@ -44,11 +44,11 @@ $ratings = $rating->fetchRatings();
                                 <table id="ratings" class="table table-bordered w-100">
                                     <thead class="bg-light">
                                         <tr>
-                                            <th>ID</th>
-                                            <th>Emri</th>
-                                            <th>Vlersimi</th>
-                                            <th>Komenti</th>
-                                            <th>Data</th>
+                                            <th class="text-dark">ID</th>
+                                            <th class="text-dark">Emri</th>
+                                            <th class="text-dark">Vlersimi</th>
+                                            <th class="text-dark">Komenti</th>
+                                            <th class="text-dark">Data</th>
                                         </tr>
                                     </thead>
                                     <tbody>

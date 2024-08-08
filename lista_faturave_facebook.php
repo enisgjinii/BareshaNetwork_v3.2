@@ -29,13 +29,13 @@
                                     <thead class="bg-light">
                                         <tr>
                                             <th></th>
-                                            <th>Klienti</th>
-                                            <th>Fatura</th>
-                                            <th>Pershkrimi</th>
-                                            <th>Shuma</th>
-                                            <th>Menyra</th>
-                                            <th>Data</th>
-                                            <th>Kategorizimi</th>
+                                            <th class="text-dark">Klienti</th>
+                                            <th class="text-dark">Fatura</th>
+                                            <th class="text-dark">Pershkrimi</th>
+                                            <th class="text-dark">Shuma</th>
+                                            <th class="text-dark">Menyra</th>
+                                            <th class="text-dark">Data</th>
+                                            <th class="text-dark">Kategorizimi</th>
                                             <th></th>
                                         </tr>
                                     </thead>
@@ -109,13 +109,13 @@
                                     <tfoot class="bg-light">
                                         <tr>
                                             <th></th>
-                                            <th>Klienti</th>
-                                            <th>Fatura</th>
-                                            <th>Pershkrimi</th>
-                                            <th>Shuma</th>
-                                            <th>Menyra</th>
-                                            <th>Data</th>
-                                            <th>Kategorizimi</th>
+                                            <th class="text-dark">Klienti</th>
+                                            <th class="text-dark">Fatura</th>
+                                            <th class="text-dark">Pershkrimi</th>
+                                            <th class="text-dark">Shuma</th>
+                                            <th class="text-dark">Menyra</th>
+                                            <th class="text-dark">Data</th>
+                                            <th class="text-dark">Kategorizimi</th>
                                             <th></th>
                                         </tr>
                                     </tfoot>

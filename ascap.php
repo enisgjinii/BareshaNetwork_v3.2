@@ -11,7 +11,7 @@ require_once 'vendor/autoload.php';
 <div class="main-panel">
     <div class="content-wrapper">
         <div class="container-fluid">
-            <div class="p-5 rounded-5 shadow-sm mb-4 card">
+            <div class="p-5 rounded-5 shadow-sm mb-4 card text-dark">
                 <h2>CSV File Upload</h2>
                 <form action="upload-ascap.php" method="post" enctype="multipart/form-data">
                     <label for="file" class="custom-file-upload">
@@ -21,7 +21,7 @@ require_once 'vendor/autoload.php';
                         class="btn btn-light shadow-sm rounded-5 ms-2 bordered">
                 </form>
             </div>
-            <div class="p-5 rounded-5 shadow-sm mb-4 card">
+            <div class="p-5 rounded-5 shadow-sm mb-4 card text-dark">
                 <div class="row mb-5">
                     <div class="col">
                         <label for="kerko" class="form-label">Kërko</label>
@@ -34,28 +34,28 @@ require_once 'vendor/autoload.php';
                     <table id="example" class="table table-bordered">
                         <thead class="bg-light">
                             <tr>
-                                <th>Party ID 1</th>
-                                <th>Party ID 2</th>
-                                <th>Party ID</th>
-                                <th>Total Number of Works</th>
-                                <th>Member Name</th>
-                                <th>Work Title</th>
-                                <th>Ascap Work ID</th>
-                                <th>Interested Parties</th>
-                                <th>IPI Number</th>
-                                <th>Interested Party Status</th>
-                                <th>Role</th>
-                                <th>Society</th>
-                                <th>Own Percentage</th>
-                                <th>Collect Percentage</th>
-                                <th>Registration Date</th>
-                                <th>Registration Status</th>
-                                <th>Surveyed Work</th>
-                                <th>ISWC Number</th>
-                                <th>Work Licensed by Ascap</th>
-                                <th>Share Licensed by Ascap</th>
-                                <th>Length</th>
-                                <th>Date of published</th>
+                                <th class="text-dark">Party ID 1</th>
+                                <th class="text-dark">Party ID 2</th>
+                                <th class="text-dark">Party ID</th>
+                                <th class="text-dark">Total Number of Works</th>
+                                <th class="text-dark">Member Name</th>
+                                <th class="text-dark">Work Title</th>
+                                <th class="text-dark">Ascap Work ID</th>
+                                <th class="text-dark">Interested Parties</th>
+                                <th class="text-dark">IPI Number</th>
+                                <th class="text-dark">Interested Party Status</th>
+                                <th class="text-dark">Role</th>
+                                <th class="text-dark">Society</th>
+                                <th class="text-dark">Own Percentage</th>
+                                <th class="text-dark">Collect Percentage</th>
+                                <th class="text-dark">Registration Date</th>
+                                <th class="text-dark">Registration Status</th>
+                                <th class="text-dark">Surveyed Work</th>
+                                <th class="text-dark">ISWC Number</th>
+                                <th class="text-dark">Work Licensed by Ascap</th>
+                                <th class="text-dark">Share Licensed by Ascap</th>
+                                <th class="text-dark">Length</th>
+                                <th class="text-dark">Date of published</th>
                             </tr>
                         </thead>
                         <!-- <tbody id="table-body"> -->

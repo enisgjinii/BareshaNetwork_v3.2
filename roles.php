@@ -45,7 +45,7 @@ include 'partials/header.php'; ?>
                     <form method="post" action="create_role.php" class="my-3">
                         <div class="card  rounded-5 p-5">
                             <div class="table-responsive">
-                                <label>Shkruani emrin e rolit</label>
+                                <label class="text-dark">Shkruani emrin e rolit</label>
                                 <div class="row my-3">
                                     <div class="col-6">
                                         <input type="text" name="role_name" class="form-control rounded-5 w-50" required oninvalid="this.setCustomValidity('Ju lutem plotësoni këtë fushë')" oninput="this.setCustomValidity('')">
@@ -298,10 +298,10 @@ include 'partials/header.php'; ?>
                                     'shpenzimet_objekt.php'
                                 );
                                 echo '<table id="tabelaEFaqeve" class="table table-bordered table-hover">';
-                                echo '<thead class="bg-light"><tr><th>Emri i faqes</th><th>Zgjedhe</th></tr></thead>';
+                                echo '<thead class="bg-light text-dark"><tr><th class="text-dark">Emri i faqes</th><th class="text-dark">Zgjedhe</th></tr></thead>';
                                 echo '<tbody>';
                                 foreach ($pages as $page) {
-                                    echo '<tr><td>' . format_page_name($page) . '</td><td><label><input type="checkbox" name="pages[]" value="' . $page . '" onclick="toggleCheckbox(event, this)"></label></td></tr>';
+                                    echo '<tr ><td>' . format_page_name($page) . '</td><td><label><input type="checkbox" name="pages[]" value="' . $page . '" onclick="toggleCheckbox(event, this)"></label></td></tr>';
                                 }
                                 echo '</tbody>';
                                 echo '</table>';
@@ -363,13 +363,13 @@ include 'partials/header.php'; ?>
                 </div>
                 <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
                     <div class="card  rounded-5 p-5 my-3">
-                        <div class="table-responsive">
+                        <div class="table-responsive text-dark">
                             <table id="example" class="table table-bordered">
                                 <thead class="bg-light">
                                     <tr>
-                                        <th>#</th>
-                                        <th>Emri i rolit</th>
-                                        <th>Faqet e aksesuara</th>
+                                        <th class="text-dark">#</th>
+                                        <th class="text-dark">Emri i rolit</th>
+                                        <th class="text-dark">Faqet e aksesuara</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -430,9 +430,9 @@ include 'partials/header.php'; ?>
                             <table class="table w-100 table-bordered">
                                 <thead>
                                     <tr>
-                                        <th>Emri i përdoruesit</th>
-                                        <th>Emri i rolit</th>
-                                        <th>Faqet</th>
+                                        <th class="text-dark">Emri i përdoruesit</th>
+                                        <th class="text-dark">Emri i rolit</th>
+                                        <th class="text-dark">Faqet</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -448,8 +448,8 @@ include 'partials/header.php'; ?>
                                             // Check if pages are empty or null
                                             if (!empty($row['pages'])) {
                                                 echo '<tr>';
-                                                echo '<td>' . $row['user_name'] . '</td>';
-                                                echo '<td>' . $row['role_name'] . '</td>';
+                                                echo '<td class="text-dark">' . $row['user_name'] . '</td>';
+                                                echo '<td class="text-dark">' . $row['role_name'] . '</td>';
                                                 echo '<td>';
                                                 echo "<button class='input-custom-css px-3 py-2 btn-sm' data-bs-toggle='modal' data-bs-target='#pagesAndStafModal-" . $row['role_id'] . "'>Shfaq te gjitha</button>";
                                                 // Modal for displaying pages
@@ -494,8 +494,8 @@ include 'partials/header.php'; ?>
                                     <!-- CSRF Token Field -->
                                     <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8'); ?>">
                                     <!-- Rest of the form -->
-                                    <div class="form-group">
-                                        <label for="user_id">Zgjidhni përdoruesin:</label>
+                                    <div class="form-group text-dark">
+                                        <label  for="user_id">Zgjidhni përdoruesin:</label>
                                         <select class="form-select rounded-5" id="user_id" name="user_id" required>
                                             <?php
                                             // Query to select all users
@@ -513,7 +513,7 @@ include 'partials/header.php'; ?>
                                             ?>
                                         </select>
                                     </div>
-                                    <div class="form-group">
+                                    <div class="form-group text-dark">
                                         <label for="role_id">Zgjidhni rolin:</label>
                                         <select class="form-select rounded-5" id="role_id" name="role_id" required>
                                             <?php

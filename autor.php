@@ -51,21 +51,21 @@
                             </button>
                         </li>
                     </ul>
-                    <div class="tab-content text-start" id="pills-tabContent">
+                    <div class="tab-content text-start text-dark" id="pills-tabContent">
                         <div class="tab-pane fade <?php if (isset($_GET['tab']) && $_GET['tab'] == 'profile') echo 'show active'; ?>" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab" tabindex="0">
                             <div class=" table-responsive">
                                 <!-- Table -->
                                 <table id="example" class="table table-border">
                                     <thead class="bg-light">
                                         <tr>
-                                            <th>Emri dhe mbiemri</th>
-                                            <th>Kategoria</th>
-                                            <th>Publisher</th>
-                                            <th>Numri personal</th>
-                                            <th>Dokument</th>
-                                            <th>Kompania</th>
-                                            <th>IPI Number</th>
-                                            <th>Veprimet</th>
+                                            <th class="text-dark">Emri dhe mbiemri</th>
+                                            <th class="text-dark">Kategoria</th>
+                                            <th class="text-dark">Publisher</th>
+                                            <th class="text-dark">Numri personal</th>
+                                            <th class="text-dark">Dokument</th>
+                                            <th class="text-dark">Kompania</th>
+                                            <th class="text-dark">IPI Number</th>
+                                            <th class="text-dark">Veprimet</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -194,17 +194,17 @@
                                 <table class="table table-bordered" id="listaEKengeveAutor">
                                     <thead class="bg-light">
                                         <tr>
-                                            <th>Emri dhe Mbiemri i Autorit</th>
-                                            <th>Emri i K&euml;ng&euml;s</th>
-                                            <th>Minutasha e K&euml;ng&euml;s</th>
-                                            <th>Link YouTube</th>
-                                            <th>Link Platforma</th>
-                                            <th>Roli</th>
-                                            <th>Kompania</th>
-                                            <th>Puntori Regjistrues</th>
-                                            <th>Informacion Shtes&euml;</th>
-                                            <th>IPI Number</th>
-                                            <th>Veprimet</th>
+                                            <th class="text-dark">Emri dhe Mbiemri i Autorit</th>
+                                            <th class="text-dark">Emri i K&euml;ng&euml;s</th>
+                                            <th class="text-dark">Minutasha e K&euml;ng&euml;s</th>
+                                            <th class="text-dark">Link YouTube</th>
+                                            <th class="text-dark">Link Platforma</th>
+                                            <th class="text-dark">Roli</th>
+                                            <th class="text-dark">Kompania</th>
+                                            <th class="text-dark">Puntori Regjistrues</th>
+                                            <th class="text-dark">Informacion Shtes&euml;</th>
+                                            <th class="text-dark">IPI Number</th>
+                                            <th class="text-dark">Veprimet</th>
                                         </tr>
                                     </thead>
                                     <tbody>

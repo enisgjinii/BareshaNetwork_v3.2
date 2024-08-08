@@ -169,16 +169,17 @@ $text = 'Madhësia e dosjes: ' . $fileSize;
         <div class="card-body">
           <div class="row">
             <div class="col-12">
-              <div class="table-responsive">
+              <div class="table-responsive" >
                 <table id="claims_table" class="table w-100 table-bordered">
                   <thead class="bg-light">
                     <tr>
-                      <th>Track ID</th>
-                      <th>Video</th>
-                      <th>Kanali</th>
-                      <th>Claim ID</th>
-                      <th>Data</th>
-                      <th>Action</th>
+                      <th class="text-dark" >Track ID</th>
+                      <th class="text-dark">Video</th>
+                      <th class="text-dark">Video</th>
+                      <th class="text-dark">Kanali</th>
+                      <th class="text-dark">Claim ID</th>
+                      <th class="text-dark">Data</th>
+                      <th class="text-dark">Action</th>
                     </tr>
                   </thead>
                   <tbody>

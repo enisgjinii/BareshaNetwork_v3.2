@@ -23,14 +23,14 @@
                             <table id="example" class="table">
                                 <thead class="bg-light">
                                     <tr>
-                                        <th>ID</th>
-                                        <th>Emri</th>
-                                        <th>Data</th>
-                                        <th>Klienti</th>
-                                        <th>Shuma</th>
-                                        <th>Borgji</th>
-                                        <th>Niveli i urgjenc&euml;s</th>
-                                        <th>Statusi</th>
+                                        <th class="text-dark">ID</th>
+                                        <th class="text-dark">Emri</th>
+                                        <th class="text-dark">Data</th>
+                                        <th class="text-dark">Klienti</th>
+                                        <th class="text-dark">Shuma</th>
+                                        <th class="text-dark">Borgji</th>
+                                        <th class="text-dark">Niveli i urgjenc&euml;s</th>
+                                        <th class="text-dark">Statusi</th>
                                     </tr>
                                 </thead>
                                 <tbody>

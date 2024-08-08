@@ -42,30 +42,30 @@ $is_pagesat_page = (basename($_SERVER['PHP_SELF']) === 'pagesat.php'); ?>
                 <div class="container table-responsive p-3">
                     <div class="row mb-4">
                         <?php foreach (['min' => 'Prej', 'max' => 'Deri'] as $id => $label) : ?>
-                            <div class="col-md-6">
+                            <div class="col-md-6 text-dark text-dark">
                                 <label for="<?= $id ?>" class="form-label"><?= $label ?>:</label>
                                 <p class="text-muted small">Zgjidhni një diapazon <?= $id === 'min' ? 'fillues' : 'mbarues' ?> të datës për të filtruar rezultatet.</p>
-                                <div class="input-group rounded-5">
-                                    <span class="input-group-text border-0 bg-white"><i class="fi fi-rr-calendar"></i></span>
+                                <div class="input-group rounded-5  ">
+                                    <span class="input-group-text border-0 bg-white "><i class="fi fi-rr-calendar"></i></span>
                                     <input type="text" id="<?= $id ?>" name="<?= $id ?>" class="form-control rounded-5 flatpickr" placeholder="Zgjidhni datën">
                                 </div>
                             </div>
                         <?php endforeach; ?>
                     </div>
-                    <table id="paymentTable" class="table table-bordered w-100">
+                    <table id="paymentTable" class="table table-bordered w-100 text-dark">
                         <thead class="bg-light">
                             <tr>
-                                <th>Klienti</th>
-                                <th>Fatura</th>
-                                <th>Pershkrimi</th>
-                                <th>Shuma</th>
-                                <th>Menyra</th>
-                                <th>Data</th>
-                                <th>Kategorizimi</th>
-                                <th>Fatura PDF</th>
+                                <th class="text-dark">Klienti</th>
+                                <th class="text-dark">Fatura</th>
+                                <th class="text-dark">Pershkrimi</th>
+                                <th class="text-dark">Shuma</th>
+                                <th class="text-dark">Menyra</th>
+                                <th class="text-dark">Data</th>
+                                <th class="text-dark">Kategorizimi</th>
+                                <th class="text-dark">Fatura PDF</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody class="text-dark">
                             <?php
                             $stmt = $conn->prepare("SELECT p.fatura, p.kategoria, SUM(p.shuma) as total_shuma, p.menyra, p.data, p.pershkrimi, k.emri as client_name FROM pagesat p JOIN fatura f ON p.fatura = f.fatura JOIN klientet k ON f.emri = k.id GROUP BY p.fatura, p.kategoria ORDER BY p.id DESC");
                             $stmt->execute();

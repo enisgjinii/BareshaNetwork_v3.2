@@ -61,13 +61,13 @@ require_once 'invoices_trash_modal.php';
                   $csvFile = 'channel_data_monetized.csv';
                   $csvData = readCSV($csvFile);
                   ?>
-                  <table class="table table-bordered ">
+                  <table class="table table-bordered text-dark">
                     <tbody>
                       <?php
                       foreach ($csvData as $row) {
-                        echo '<tr>';
-                        echo '<td>' . htmlspecialchars($row[0]) . '</td>';
-                        echo '<td>' . htmlspecialchars($row[1]) . '</td>';
+                        echo '<tr class="text-dark">';
+                        echo '<td class="text-dark">' . htmlspecialchars($row[0]) . '</td>';
+                        echo '<td class="text-dark">' . htmlspecialchars($row[1]) . '</td>';
                         echo '</tr>';
                       }
                       ?>
@@ -75,8 +75,8 @@ require_once 'invoices_trash_modal.php';
                   </table>
                 </div>
                 <div class="modal-footer">
-                  <button type="button" class="input-custom-css px-3 py-2" data-bs-dismiss="modal">Close</button>
-                  <button type="button" class="input-custom-css px-3 py-2">Save changes</button>
+                  <button type="button" class="input-custom-css px-3 py-2" data-bs-dismiss="modal">Mbylle</button>
+                  <button type="button" class="input-custom-css px-3 py-2">Ruaj ndryshimet</button>
                 </div>
               </div>
             </div>
@@ -115,7 +115,7 @@ require_once 'invoices_trash_modal.php';
                   <h5 class="modal-title" id="newInvoiceLabel">Krijoni një faturë të re</h5>
                   <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body text-dark">
                   <form action="create_invoice.php" method="POST" enctype="multipart/form-data">
                     <div class="mb-3">
                       <label for="invoice_number" class="form-label">Numri i faturës:</label>
@@ -266,7 +266,7 @@ require_once 'invoices_trash_modal.php';
               });
             });
           </script>
-          <div class="tab-content" id="pills-tabContent">
+          <div class="tab-content text-dark" id="pills-tabContent">
             <div class="tab-pane fade show active" id="pills-lista_e_faturave" role="tabpanel" aria-labelledby="pills-lista_e_faturave-tab">
               <div class="table-responsive">
                 <table id="invoiceList" class="table table-bordered table-sm" data-source="get_invoices.php">
@@ -274,51 +274,51 @@ require_once 'invoices_trash_modal.php';
                     <tr>
                       <th></th>
                       <!-- <th class="text-sm">ID</th> -->
-                      <th class="text-sm">Emri i klientit</th>
-                      <th class="text-sm">Pershkrimi</th>
-                      <th class="text-sm">Detajet</th>
-                      <th class="text-sm">Shuma e paguar</th>
-                      <th class="text-sm">F. EUR</th>
-                      <th class="text-sm">Obligim</th>
-                      <th class="text-sm">Veprimi</th>
+                      <th class="text-sm text-dark">Emri i klientit</th>
+                      <th class="text-sm text-dark">Pershkrimi</th>
+                      <th class="text-sm text-dark">Detajet</th>
+                      <th class="text-sm text-dark">Shuma e paguar</th>
+                      <th class="text-sm text-dark">F. EUR</th>
+                      <th class="text-sm text-dark">Obligim</th>
+                      <th class="text-sm text-dark">Veprimi</th>
                     </tr>
                   </thead>
                 </table>
               </div>
             </div>
-            <div class="tab-pane fade" id="pills-lista_e_faturave_biznes" role="tabpanel" aria-labelledby="pills-lista_e_faturave_biznes-tab">
+            <div class="tab-pane fade text-dark" id="pills-lista_e_faturave_biznes" role="tabpanel" aria-labelledby="pills-lista_e_faturave_biznes-tab">
               <div class="table-responsive">
                 <table id="invoiceListBiznes" class="table table-bordered w-100 " data-source="get_invoices_biznes.php">
                   <thead class="table-light">
                     <tr>
                       <th></th>
-                      <th style="font-size: 12px">ID</th>
+                      <th class="text-dark" style="font-size: 12px">ID</th>
                       <!-- <th style="font-size: 12px">Numri i faturës</th> -->
-                      <th style="font-size: 12px">Emri i klientit</th>
-                      <th style="font-size: 12px">Pershkrimi</th>
-                      <th style="font-size: 12px">Detajet</th>
-                      <th style="font-size: 12px">Shuma e paguar</th>
-                      <th style="font-size: 12px">F. EUR</th>
-                      <th style="font-size: 12px">Obligim</th>
-                      <th style="font-size: 12px">Veprimi</th>
+                      <th class="text-dark" style="font-size: 12px">Emri i klientit</th>
+                      <th class="text-dark" style="font-size: 12px">Pershkrimi</th>
+                      <th class="text-dark" style="font-size: 12px">Detajet</th>
+                      <th class="text-dark" style="font-size: 12px">Shuma e paguar</th>
+                      <th class="text-dark" style="font-size: 12px">F. EUR</th>
+                      <th class="text-dark" style="font-size: 12px">Obligim</th>
+                      <th class="text-dark" style="font-size: 12px">Veprimi</th>
                     </tr>
                   </thead>
                 </table>
               </div>
             </div>
-            <div class="tab-pane fade" id="pills-lista_e_faturave_te_kryera" role="tabpanel" aria-labelledby="pills-lista_e_faturave_te_kryera-tab">
+            <div class="tab-pane fade text-dark" id="pills-lista_e_faturave_te_kryera" role="tabpanel" aria-labelledby="pills-lista_e_faturave_te_kryera-tab">
               <div class="row">
                 <div class="col">
                   <label for="max" class="form-label" style="font-size: 14px;">Prej:</label>
                   <p class="text-muted" style="font-size: 10px;">Zgjidhni një diapazon fillues të
                     dates për të filtruar rezultatet</p>
                   <div class="input-group rounded-5">
-                    <span class="input-group-text border-0" style="background-color: white;cursor: pointer;"><i class="fi fi-rr-calendar"></i></span><input type="date" id="start_date1" name="start_date1" class="form-control rounded-5" placeholder="Zgjidhni datën e fillimit" style="cursor: pointer;" readonly>
+                    <span class="input-group-text border-0 text-dark" style="background-color: white;cursor: pointer;"><i class="fi fi-rr-calendar"></i></span><input type="date" id="start_date1" name="start_date1" class="form-control rounded-5" placeholder="Zgjidhni datën e fillimit" style="cursor: pointer;" readonly>
                   </div>
                 </div>
-                <div class="col">
+                <div class="col text-dark">
                   <label for="max" class="form-label" style="font-size: 14px;">Deri:</label>
-                  <p class="text-muted" style="font-size: 10px;">Zgjidhni një diapazon mbarues të
+                  <p class="text-muted text-dark" style="font-size: 10px;">Zgjidhni një diapazon mbarues të
                     dates për të filtruar rezultatet.</p>
                   <div class="input-group rounded-5">
                     <span class="input-group-text border-0" style="background-color: white;cursor: pointer;"><i class="fi fi-rr-calendar"></i></span><input type="text" id="end_date1" name="end_date1" class="form-control rounded-5" placeholder="Zgjidhni datën e mbarimit" style="cursor: pointer;" readonly>
@@ -336,15 +336,15 @@ require_once 'invoices_trash_modal.php';
                 <table id="paymentsTable" class="table table-bordered w-100">
                   <thead class="table-light">
                     <tr>
-                      <th style="font-size: 12px;width: 10px;">Emri i klientit</th>
+                      <th class="text-dark" style="font-size: 12px;width: 10px;">Emri i klientit</th>
                       <!-- <th style="white-space: normal;font-size: 12px;">ID e faturës</th> -->
                       <!-- <th style="white-space: normal;font-size: 12px;">Vlera</th> -->
-                      <th style="white-space: normal;font-size: 12px;width: 10px;">Data</th>
-                      <th style="white-space: normal;font-size: 12px;width: 10px;">Banka</th>
+                      <th class="text-dark" style="white-space: normal;font-size: 12px;width: 10px;">Data</th>
+                      <th class="text-dark" style="white-space: normal;font-size: 12px;width: 10px;">Banka</th>
                       <!-- <th style="white-space: normal;font-size: 12px;">Lloji</th> -->
-                      <th style="white-space: normal;font-size: 12px;width: 10px;">Përshkrimi</th>
-                      <th style="white-space: normal;font-size: 12px;width: 10px;">Shuma e paguar</th>
-                      <th style="white-space: normal;font-size: 12px;width: 10px;">Veprim</th>
+                      <th class="text-dark" style="white-space: normal;font-size: 12px;width: 10px;">Përshkrimi</th>
+                      <th class="text-dark" style="white-space: normal;font-size: 12px;width: 10px;">Shuma e paguar</th>
+                      <th class="text-dark" style="white-space: normal;font-size: 12px;width: 10px;">Veprim</th>
                     </tr>
                   </thead>
                 </table>
@@ -380,15 +380,15 @@ require_once 'invoices_trash_modal.php';
                 <table id="paymentsTableBiznes" class="table table-bordered w-100">
                   <thead class="table-light">
                     <tr>
-                      <th style="white-space: normal;font-size: 12px;width: 10px;">Emri i klientit</th>
+                      <th class="text-dark" style="white-space: normal;font-size: 12px;width: 10px;">Emri i klientit</th>
                       <!-- <th style="white-space: normal;font-size: 12px;">ID e faturës</th> -->
                       <!-- <th style="white-space: normal;font-size: 12px;">Vlera</th> -->
-                      <th style="white-space: normal;font-size: 12px;width: 10px;">Data</th>
-                      <th style="white-space: normal;font-size: 12px;width: 10px;">Banka</th>
+                      <th class="text-dark" style="white-space: normal;font-size: 12px;width: 10px;">Data</th>
+                      <th class="text-dark" style="white-space: normal;font-size: 12px;width: 10px;">Banka</th>
                       <!-- <th style="white-space: normal;font-size: 12px;">Lloji</th> -->
-                      <th style="white-space: normal;font-size: 12px;width: 10px;">Përshkrimi</th>
-                      <th style="white-space: normal;font-size: 12px;width: 10px;">Shuma e paguar</th>
-                      <th style="white-space: normal;font-size: 12px;width: 10px;">Veprim</th>
+                      <th class="text-dark" style="white-space: normal;font-size: 12px;width: 10px;">Përshkrimi</th>
+                      <th class="text-dark" style="white-space: normal;font-size: 12px;width: 10px;">Shuma e paguar</th>
+                      <th class="text-dark" style="white-space: normal;font-size: 12px;width: 10px;">Veprim</th>
                     </tr>
                   </thead>
                 </table>

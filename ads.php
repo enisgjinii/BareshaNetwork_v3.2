@@ -149,10 +149,10 @@ while ($k = mysqli_fetch_array($kueri)) {
                 <table id="example" class="table w-100 table-bordered">
                   <thead class="bg-light">
                     <tr>
-                      <th>Email</th>
-                      <th>ADS ID</th>
-                      <th>Shteti</th>
-                      <th>Klientet</th>
+                      <th class="text-dark">Email</th>
+                      <th class="text-dark">ADS ID</th>
+                      <th class="text-dark">Shteti</th>
+                      <th class="text-dark">Klientet</th>
                       <th></th>
                     </tr>
                   </thead>
@@ -197,8 +197,8 @@ while ($k = mysqli_fetch_array($kueri)) {
           <br>
             <!-- Display list items -->
             <li class="list-group-item rounded-5">
-              <div class="row">
-                <div class="col-md-3">
+              <div class="row text-dark">
+                <div class="col-md-3 ">
                   <strong>ID:</strong> <?php echo $k['id']; ?>
                 </div>
                 <div class="col-md-3">

@@ -31,14 +31,14 @@ if (!$conn) {
                     <button class="nav-link rounded-5" id="pills-pagesat_biz-tab" data-bs-toggle="pill" data-bs-target="#pills-pagesat_biz" type="button" role="tab" aria-controls="pills-pagesat_biz" aria-selected="false" style="text-decoration: none;text-transform: none;">Pagesat e kryera biznes</button>
                 </li>
             </ul>
-            <div class="tab-content" id="pills-tabContent">
+            <div class="tab-content text-dark" id="pills-tabContent">
                 <div class="tab-pane fade show active" id="pills-pagesat_pers" role="tabpanel" aria-labelledby="pills-pagesat_pers-tab" tabindex="0">
                     <div class="card p-5">
                         <div class="row">
                             <div class="col-12">
                                 <div class="table-responsive">
-                                    <div class="date-range-filter">
-                                        <div class="row">
+                                    <div class="date-range-filter text-dark">
+                                        <div class="row text-dark">
                                             <div class="col-6"> <input type="text" id="minDate" class="form-control shadow-sm rounded-5 w-100 mt-3" style="width: 230px;" placeholder="Prej: "></div>
                                             <div class="col-6"> <input type="text" id="maxDate" class="form-control shadow-sm rounded-5 w-100 mt-3" placeholder="Deri: "></div>
                                         </div>
@@ -46,17 +46,17 @@ if (!$conn) {
                                         <button id="filterDate" class="input-custom-css px-3 py-2"> <i class="fi fi-rr-filter"></i>Filtro</button>
                                     </div>
                                     <br>
-                                    <table id="paymentsTablePersonal" class="table table-bordered w-100">
-                                        <thead class="table-light">
+                                    <table id="paymentsTablePersonal" class="table table-bordered w-100 text-dark">
+                                        <thead class="table-light text-dark">
                                             <tr>
-                                                <th style="white-space: normal;font-size: 12px;">Emri i klientit</th>
-                                                <th style="white-space: normal;font-size: 12px;">ID e faturës</th>
-                                                <th style="white-space: normal;font-size: 12px;">Vlera</th>
-                                                <th style="white-space: normal;font-size: 12px;">Data</th>
-                                                <th style="white-space: normal;font-size: 12px;">Banka</th>
-                                                <th style="white-space: normal;font-size: 12px;">Lloji</th>
-                                                <th style="white-space: normal;font-size: 12px;">Përshkrimi</th>
-                                                <th style="white-space: normal;font-size: 12px;">Shuma e përgjithshme pas %</th>
+                                                <th class="text-dark"  style="white-space: normal;font-size: 12px;">Emri i klientit</th>
+                                                <th class="text-dark"  style="white-space: normal;font-size: 12px;">ID e faturës</th>
+                                                <th class="text-dark"  style="white-space: normal;font-size: 12px;">Vlera</th>
+                                                <th class="text-dark"  style="white-space: normal;font-size: 12px;">Data</th>
+                                                <th class="text-dark"  style="white-space: normal;font-size: 12px;">Banka</th>
+                                                <th class="text-dark"  style="white-space: normal;font-size: 12px;">Lloji</th>
+                                                <th class="text-dark"  style="white-space: normal;font-size: 12px;">Përshkrimi</th>
+                                                <th class="text-dark"  style="white-space: normal;font-size: 12px;">Shuma e përgjithshme pas %</th>
                                             </tr>
                                         </thead>
                                     </table>
@@ -66,7 +66,7 @@ if (!$conn) {
                     </div>
                 </div>
                 <div class="tab-pane fade" id="pills-pagesat_biz" role="tabpanel" aria-labelledby="pills-pagesat_biz-tab" tabindex="0">
-                    <div class="card p-5">
+                    <div class="card p-5 text-dark">
                         <div class="row">
                             <div class="col-12">
                                 <div class="table-responsive">
@@ -79,16 +79,16 @@ if (!$conn) {
                                         <button id="filterDateBiz" class="input-custom-css px-3 py-2"> <i class="fi fi-rr-filter"></i>Filtro</button>
                                     </div> <br>
                                     <table id="paymentsTableBiznes" class="table table-bordered w-100">
-                                        <thead class="table-light">
-                                            <tr>
-                                                <th style="white-space: normal;font-size: 12px;">Emri i klientit</th>
-                                                <th style="white-space: normal;font-size: 12px;">ID e faturës</th>
-                                                <th style="white-space: normal;font-size: 12px;">Vlera</th>
-                                                <th style="white-space: normal;font-size: 12px;">Data</th>
-                                                <th style="white-space: normal;font-size: 12px;">Banka</th>
-                                                <th style="white-space: normal;font-size: 12px;">Lloji</th>
-                                                <th style="white-space: normal;font-size: 12px;">Përshkrimi</th>
-                                                <th style="white-space: normal;font-size: 12px;">Shuma e përgjithshme pas %</th>
+                                        <thead class="table-light text-dark">
+                                            <tr >
+                                                <th class="text-dark" style="white-space: normal;font-size: 12px;">Emri i klientit</th>
+                                                <th class="text-dark"  style="white-space: normal;font-size: 12px;">ID e faturës</th>
+                                                <th class="text-dark"  style="white-space: normal;font-size: 12px;">Vlera</th>
+                                                <th class="text-dark"  style="white-space: normal;font-size: 12px;">Data</th>
+                                                <th class="text-dark"  style="white-space: normal;font-size: 12px;">Banka</th>
+                                                <th class="text-dark"  style="white-space: normal;font-size: 12px;">Lloji</th>
+                                                <th class="text-dark"  style="white-space: normal;font-size: 12px;">Përshkrimi</th>
+                                                <th class="text-dark"  style="white-space: normal;font-size: 12px;">Shuma e përgjithshme pas %</th>
                                             </tr>
                                         </thead>
                                     </table>

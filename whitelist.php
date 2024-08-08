@@ -145,8 +145,8 @@ if (isset($_GET['remove'])) {
                   <table id="example" class="table w-100 table-bordered">
                     <thead class="bg-light">
                       <tr>
-                        <th>Kanali</th>
-                        <th>Shenime</th>
+                        <th class="text-dark">Kanali</th>
+                        <th class="text-dark">Shenime</th>
                         <th></th>
                       </tr>
                     </thead>

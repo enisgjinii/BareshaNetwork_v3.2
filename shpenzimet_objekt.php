@@ -81,15 +81,15 @@ if ($result->num_rows > 0) {
                     <table class="table table-bordered" id="expenses-table">
                         <thead class="bg-light">
                             <tr>
-                                <th>Registruesi</th>
-                                <th>Pershkrimi</th>
-                                <th>Shuma</th>
-                                <th>Dokumenti</th>
-                                <th>Data e krijuar</th>
-                                <th>Action</th>
+                                <th class="text-dark">Registruesi</th>
+                                <th class="text-dark">Pershkrimi</th>
+                                <th class="text-dark">Shuma</th>
+                                <th class="text-dark">Dokumenti</th>
+                                <th class="text-dark">Data e krijuar</th>
+                                <th class="text-dark">Action</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody class="text-dark">
                             <?php
                             // Fetch data from the database
                             $query = "SELECT * FROM expenses";
@@ -144,7 +144,7 @@ if ($result->num_rows > 0) {
     </div>
 </div>
 <!-- Edit Expense Modal -->
-<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+<div class="modal fade text-dark" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">

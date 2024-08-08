@@ -39,12 +39,12 @@ include('partials/header.php');
                                 <thead class="table-light">
                                     <!-- Emri dhe mbiemri	Perqindja	Klienti	Vepra	Data	Kontrata PDF	Kontrata e vjeter	Modifiko -->
                                     <tr>
-                                        <th>Emri dhe mbiemri</th>
-                                        <th>Perqindja</th>
-                                        <th>Klienti</th>
-                                        <th>Vepra</th>
-                                        <th>Data</th>
-                                        <th>Kontrata PDF</th>
+                                        <th class="text-dark">Emri dhe mbiemri</th>
+                                        <th class="text-dark">Perqindja</th>
+                                        <th class="text-dark">Klienti</th>
+                                        <th class="text-dark">Vepra</th>
+                                        <th class="text-dark">Data</th>
+                                        <th class="text-dark">Kontrata PDF</th>
                                     </tr>
                                 </thead>
                                 <tbody></tbody>
@@ -81,14 +81,14 @@ include('partials/header.php');
                                 <table id="example" class="table table-bordered">
                                     <thead class="bg-light">
                                         <tr>
-                                            <th style="font-size: 14px;" style="font-size: 14px;">Emri dhe mbiemri</th>
-                                            <th style="font-size: 14px;" style="font-size: 14px;">Perqindja</th>
-                                            <th style="font-size: 14px;">Klienti</th>
-                                            <th style="font-size: 14px;">Vepra</th>
-                                            <th style="font-size: 14px;">Data</th>
-                                            <th style="font-size: 14px;">Kontrata PDF</th>
-                                            <th style="font-size: 14px;">Kontrata e vjeter</th>
-                                            <th style="font-size: 14px;">Modifiko</th>
+                                            <th class="text-dark" style="font-size: 14px;" style="font-size: 14px;">Emri dhe mbiemri</th>
+                                            <th class="text-dark" style="font-size: 14px;" style="font-size: 14px;">Perqindja</th>
+                                            <th class="text-dark" style="font-size: 14px;">Klienti</th>
+                                            <th class="text-dark" style="font-size: 14px;">Vepra</th>
+                                            <th class="text-dark" style="font-size: 14px;">Data</th>
+                                            <th class="text-dark" style="font-size: 14px;">Kontrata PDF</th>
+                                            <th class="text-dark" style="font-size: 14px;">Kontrata e vjeter</th>
+                                            <th class="text-dark" style="font-size: 14px;">Modifiko</th>
                                         </tr>
                                     </thead>
                                     <tbody>

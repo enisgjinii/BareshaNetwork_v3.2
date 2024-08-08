@@ -21,7 +21,7 @@
                 <i class="fi fi-rr-trash"></i> &nbsp; Fshij
             </button>
             <!-- Modal -->
-            <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal fade text-dark" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                 <div class="modal-dialog">
                     <div class="modal-content">
                         <div class="modal-header">
@@ -88,24 +88,24 @@
                 </div>
             </div>
             <!-- Table for Displaying Investments -->
-            <div class="card p-3 d-none d-lg-block d-xl-block d-md-none rounded-5">
+            <div class="card p-3 d-none d-lg-block d-xl-block d-md-none rounded-5 text-dark">
                 <table class='table table-bordered' id="investmentsTable">
                     <thead class="table-light">
                         <tr>
-                            <th scope='col'></th>
-                            <td scope='col'>Id</td>
-                            <th scope='col'>Emri i furnitorit</th>
-                            <th scope='col'>Numri i faturës</th>
-                            <th scope='col'>Vlera e faturës</th>
-                            <th scope='col'>Data e faturës</th>
-                            <th scope='col'>Statusi i pagesës</th>
-                            <th scope='col'>Dokumenti</th>
+                            <th class="text-dark" scope='col'></th>
+                            <td class="text-dark" scope='col'>Id</td>
+                            <th class="text-dark" scope='col'>Emri i furnitorit</th>
+                            <th class="text-dark" scope='col'>Numri i faturës</th>
+                            <th class="text-dark" scope='col'>Vlera e faturës</th>
+                            <th class="text-dark" scope='col'>Data e faturës</th>
+                            <th class="text-dark" scope='col'>Statusi i pagesës</th>
+                            <th class="text-dark" scope='col'>Dokumenti</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
                 </table>
             </div>
-            <div class="card p-3 d-md-block d-lg-none d-xl-none rounded-5">
+            <div class="card p-3 d-md-block d-lg-none d-xl-none rounded-5 text-dark">
                 <ul class="list-group list-group-flush">
                     <?php
                     include 'conn-d.php';

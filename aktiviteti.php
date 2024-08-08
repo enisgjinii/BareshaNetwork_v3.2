@@ -318,7 +318,7 @@ include 'conn-d.php';
                         </div>
                     </div>
                 <?php else : ?>
-                    <div class="row">
+                    <div class="row text-dark">
                         <h4 class="mb-4">Kërko ditë të lirë</h4>
                         <form id="leaveRequestForm" action="request-leave.php" method="POST">
                             <div class="mb-3">

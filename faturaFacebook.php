@@ -225,7 +225,7 @@ if (isset($_GET['fshij'])) {
           <h4 style="text-transform: none;" class="card-title">Filtro t&euml; dh&euml;nat</h4>
 
           <form method="POST">
-            <div class="row">
+            <div class="row text-dark">
               <div class="col mb-3">
                 <label for="start_date">Prej :</label>
                 <input type="date" class="form-control shadow-sm rounded-5 my-2 shadow-sm rounded-5 mt-2" id="start_date" name="start_date">
@@ -300,12 +300,12 @@ if (isset($_GET['fshij'])) {
                 <table id="employeeList" class="table w-100 table-bordered">
                   <thead class="bg-light">
                     <tr>
-                      <th>Emri</th>
-                      <th>Fatura</th>
-                      <th>Data</th>
-                      <th>Shuma</th>
-                      <th>Sh.Paguar</th>
-                      <th>Obligim</th>
+                      <th class="text-dark">Emri</th>
+                      <th class="text-dark">Fatura</th>
+                      <th class="text-dark">Data</th>
+                      <th class="text-dark">Shuma</th>
+                      <th class="text-dark">Sh.Paguar</th>
+                      <th class="text-dark">Obligim</th>
                       <th></th>
                     </tr>
                   </thead>

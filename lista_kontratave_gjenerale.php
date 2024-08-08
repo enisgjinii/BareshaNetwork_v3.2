@@ -28,11 +28,11 @@ include('partials/header.php');
                                     <table id="example" class="table table-bordered">
                                         <thead class="bg-light">
                                             <tr>
-                                                <th>#</th>
-                                                <th>Emri dhe mbiemri</th>
-                                                <th>Data e krijimit</th>
-                                                <th>Data e skadimit</th>
-                                                <th>Përqindja</th>
+                                                <th class="text-dark">#</th>
+                                                <th class="text-dark">Emri dhe mbiemri</th>
+                                                <th class="text-dark">Data e krijimit</th>
+                                                <th class="text-dark">Data e skadimit</th>
+                                                <th class="text-dark">Përqindja</th>
                                                 <th></th>
                                                 <th></th>
                                             </tr>

@@ -76,16 +76,16 @@
                 </div>
             </div>
             <!-- Table for Displaying Investments -->
-            <div class="card p-3 d-none d-lg-block d-xl-block d-md-none rounded-5">
+            <div class="card p-3 d-none d-lg-block d-xl-block d-md-none rounded-5 text-dark">
                 <table class='table table-bordered' id="damagesTable">
                     <thead class="table-light">
                         <tr>
-                            <th scope='col'></th>
-                            <th scope='col'>ID</th>
-                            <th scope='col'>Lloji</th>
-                            <th scope='col'>Pershkrimi</th>
-                            <th scope='col'>Data</th>
-                            <th scope='col'>Raportuesi</th>
+                            <th class="text-dark" scope='col'></th>
+                            <th class="text-dark" scope='col'>ID</th>
+                            <th class="text-dark" scope='col'>Lloji</th>
+                            <th class="text-dark"  scope='col'>Pershkrimi</th>
+                            <th class="text-dark" scope='col'>Data</th>
+                            <th class="text-dark" scope='col'>Raportuesi</th>
                         </tr>
                     </thead>
                     <tbody></tbody>

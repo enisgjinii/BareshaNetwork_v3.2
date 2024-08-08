@@ -216,10 +216,10 @@ $numriIFatures = $inicialetEFatures . date('dmYhi');
             <div class="row">
                 <div class="col-9">
                     <div class="p-5 mb-4 card rounded-5 shadow-sm">
-                        <h4 class="font-weight-bold text-gray-800 mb-4">Lista e faturave</h4>
+                        <h4 class="font-weight-bold text-gray-800 mb-4 text-dark">Lista e faturave</h4>
                         <nav class="d-flex">
-                            <h6 class="mb-0">
-                                <a href="" class="text-reset">Platformat</a>
+                            <h6 class="mb-0 text-dark">
+                                <a href="" class="text-reset text-dark">Platformat</a>
                                 <span>/</span>
                                 <a href="<?php echo $_SERVER['PHP_SELF']; ?>" class="text-reset" data-bs-placement="top"
                                     data-bs-toggle="tooltip" title="<?php echo __FILE__; ?>"><u>Lista e faturave</u></a>
@@ -260,13 +260,13 @@ $numriIFatures = $inicialetEFatures . date('dmYhi');
                     <table id="example" class="table w-100 table-bordered">
                         <thead class="bg-light">
                             <tr>
-                                <th>Emri</th>
-                                <th>Emri artistik</th>
-                                <th>Fatura</th>
-                                <th>Data</th>
-                                <th>Shuma</th>
-                                <th>Sh.Paguar</th>
-                                <th>Obligim</th>
+                                <th class="text-dark">Emri</th>
+                                <th class="text-dark">Emri artistik</th>
+                                <th class="text-dark">Fatura</th>
+                                <th class="text-dark">Data</th>
+                                <th class="text-dark">Shuma</th>
+                                <th class="text-dark">Sh.Paguar</th>
+                                <th class="text-dark">Obligim</th>
                                 <th></th>
                             </tr>
                         </thead>
@@ -274,13 +274,13 @@ $numriIFatures = $inicialetEFatures . date('dmYhi');
 
                         <tfoot class="bg-light">
                             <tr>
-                                <th>Emri</th>
-                                <th>Emri artistik</th>
-                                <th>Fatura</th>
-                                <th>Data</th>
-                                <th>Shuma</th>
-                                <th>Sh.Paguar</th>
-                                <th>Obligim</th>
+                                <th class="text-dark">Emri</th>
+                                <th class="text-dark">Emri artistik</th>
+                                <th class="text-dark">Fatura</th>
+                                <th class="text-dark">Data</th>
+                                <th class="text-dark">Shuma</th>
+                                <th class="text-dark">Sh.Paguar</th>
+                                <th class="text-dark">Obligim</th>
                                 <th></th>
                             </tr>
                         </tfoot>

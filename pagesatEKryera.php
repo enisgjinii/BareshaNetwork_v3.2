@@ -4,10 +4,10 @@
     <div class="container-fluid">
       <div class="container">
         <div class="p-5 shadow-sm rounded-5 mb-4 card">
-          <h4 class="font-weight-bold text-gray-800 mb-4">Pagesat e perfunduara</h4> <!-- Breadcrumb -->
+          <h4 class="font-weight-bold text-gray-800 mb-4 text-dark">Pagesat e perfunduara</h4> <!-- Breadcrumb -->
           <nav class="d-flex">
-            <h6 class="mb-0">
-              <a href="" class="text-reset">Platformat</a>
+            <h6 class="mb-0 text-dark">
+              <a href="" class="text-reset text-dark">Platformat</a>
               <span>/</span>
               <a href="pagesatEKryera.php" class="text-reset" data-bs-placement="top" data-bs-toggle="tooltip" title="<?php echo __FILE__; ?>"><u>Pagesat e perfunduara</u></a>
             </h6>
@@ -15,7 +15,7 @@
         </div>
         <div class="card shadow-sm rounded-5 my-2 py-5 px-3 mb-4">
           <form method="GET" action="" class="form-inline">
-            <div class="form-group row">
+            <div class="form-group row text-dark">
               <div class="col-6">
                 Prej :
                 <input type="date" class="form-control shadow-sm rounded-5 w-100 mt-3" value="<?php echo date("Y-m-d"); ?>" style="width: 230px;" name="d1" autocomplete="off">
@@ -55,12 +55,12 @@
                     <table id="example1" class="table w-100 table-bordered">
                       <thead class="bg-light">
                         <tr>
-                          <th>Klienti</th>
-                          <th>Fatura</th>
-                          <th>Pershkrimi</th>
-                          <th>Shuma</th>
-                          <th>Menyra</th>
-                          <th>Data</th>
+                          <th class="text-dark">Klienti</th>
+                          <th class="text-dark">Fatura</th>
+                          <th class="text-dark">Pershkrimi</th>
+                          <th class="text-dark">Shuma</th>
+                          <th class="text-dark">Menyra</th>
+                          <th class="text-dark">Data</th>
                           <th></th>
                         </tr>
                       </thead>
@@ -94,12 +94,12 @@
                       </tbody>
                       <tfoot class="bg-light">
                         <tr>
-                          <th>Klienti</th>
-                          <th>Fatura</th>
-                          <th>Pershkrimi</th>
-                          <th>Shuma</th>
-                          <th>Menyra</th>
-                          <th>Data</th>
+                          <th class="text-dark">Klienti</th>
+                          <th class="text-dark">Fatura</th>
+                          <th class="text-dark">Pershkrimi</th>
+                          <th class="text-dark">Shuma</th>
+                          <th class="text-dark">Menyra</th>
+                          <th class="text-dark">Data</th>
                           <th></th>
                         </tr>
                       </tfoot>
@@ -122,12 +122,12 @@
                     <thead class="bg-light">
                       <tr>
                         <th></th>
-                        <th>Klienti</th>
-                        <th>Fatura</th>
-                        <th>Pershkrimi</th>
-                        <th>Shuma</th>
-                        <th>Menyra</th>
-                        <th>Data</th>
+                        <th class="text-dark">Klienti</th>
+                        <th class="text-dark">Fatura</th>
+                        <th class="text-dark">Pershkrimi</th>
+                        <th class="text-dark">Shuma</th>
+                        <th class="text-dark">Menyra</th>
+                        <th class="text-dark">Data</th>
                         <th></th>
                       </tr>
                     </thead>
@@ -168,12 +168,12 @@
                     <tfoot class="bg-light">
                       <tr>
                         <th></th>
-                        <th>Klienti</th>
-                        <th>Fatura</th>
-                        <th>Pershkrimi</th>
-                        <th>Shuma</th>
-                        <th>Menyra</th>
-                        <th>Data</th>
+                        <th class="text-dark">Klienti</th>
+                        <th class="text-dark">Fatura</th>
+                        <th class="text-dark">Pershkrimi</th>
+                        <th class="text-dark">Shuma</th>
+                        <th class="text-dark">Menyra</th>
+                        <th class="text-dark">Data</th>
                         <th></th>
                       </tr>
                     </tfoot>

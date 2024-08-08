@@ -129,8 +129,8 @@ while ($k = mysqli_fetch_array($kueri)) {
                 <table id="example" class="table w-100 table-bordered">
                   <thead class="bg-light">
                     <tr>
-                      <th>ID</th>
-                      <th>Email</th>
+                      <th class="text-dark">ID</th>
+                      <th class="text-dark">Email</th>
                       <th></th>
                     </tr>
                   </thead>

@@ -87,14 +87,14 @@ if (isset($_POST['paguaj'])) {
               <table id="deletedExpensesTable" class="table table-bordered w-100">
                 <thead class="bg-light">
                   <tr>
-                    <th>Klienti</th>
-                    <th>Shuma</th>
-                    <th>Pagoi</th>
-                    <th>Obligim</th>
-                    <th>Forma</th>
-                    <th>P&euml;rshkrimi</th>
-                    <th>Data</th>
-                    <th>Link</th>
+                    <th class="text-dark">Klienti</th>
+                    <th class="text-dark">Shuma</th>
+                    <th class="text-dark">Pagoi</th>
+                    <th class="text-dark">Obligim</th>
+                    <th class="text-dark">Forma</th>
+                    <th class="text-dark">P&euml;rshkrimi</th>
+                    <th class="text-dark">Data</th>
+                    <th class="text-dark">Link</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -185,14 +185,14 @@ if (isset($_POST['paguaj'])) {
                   <thead class="bg-light">
                     <tr>
                       <th></th>
-                      <th width="2%">Klienti</th>
-                      <th>Shuma</th>
-                      <th>Pagoi</th>
-                      <th>Obligim</th>
-                      <th>Forma</th>
-                      <th>P&euml;rshkrimi</th>
-                      <th>Data</th>
-                      <th>Link</th>
+                      <th class="text-dark" width="2%">Klienti</th>
+                      <th class="text-dark">Shuma</th>
+                      <th class="text-dark">Pagoi</th>
+                      <th class="text-dark">Obligim</th>
+                      <th class="text-dark">Forma</th>
+                      <th class="text-dark">P&euml;rshkrimi</th>
+                      <th class="text-dark" >Data</th>
+                      <th class="text-dark">Link</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -338,14 +338,14 @@ if (isset($_POST['paguaj'])) {
                   <tfoot class="bg-light">
                     <tr>
                       <th></th>
-                      <th>Klienti</th>
-                      <th>Shuma</th>
-                      <th>Pagoi</th>
-                      <th>Obligim</th>
-                      <th>Forma</th>
-                      <th>P&euml;rshkrimi</th>
-                      <th>Data</th>
-                      <th>Link</th>
+                      <th class="text-dark">Klienti</th>
+                      <th class="text-dark">Shuma</th>
+                      <th class="text-dark">Pagoi</th>
+                      <th class="text-dark">Obligim</th>
+                      <th class="text-dark">Forma</th>
+                      <th class="text-dark">P&euml;rshkrimi</th>
+                      <th class="text-dark">Data</th>
+                      <th class="text-dark">Link</th>
                     </tr>
                   </tfoot>
                 </table>

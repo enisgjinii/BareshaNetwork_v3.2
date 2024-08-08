@@ -36,10 +36,10 @@ if (isset($_POST['ruaj'])) {
     <div class="container-fluid">
       <div class="container">
         <div class="p-5 rounded-5 shadow-sm mb-4 card">
-          <h4 class="font-weight-bold text-gray-800 mb-4">Dokumente tjera</h4>
+          <h4 class="font-weight-bold text-gray-800 mb-4 text-dark">Dokumente tjera</h4>
           <nav class="d-flex">
             <h6 class="mb-0">
-              <a href="filet.php" class="text-reset" data-bs-placement="top" data-bs-toggle="tooltip" title="<?php echo __FILE__; ?>"><u>Dokumente tjera</u></a>
+              <a href="filet.php" class="text-reset text-dark" data-bs-placement="top" data-bs-toggle="tooltip" title="<?php echo __FILE__; ?>"><u>Dokumente tjera</u></a>
             </h6>
           </nav>
         </div>
@@ -78,8 +78,8 @@ if (isset($_POST['ruaj'])) {
                   <table id="example" class="table w-100 table-bordered">
                     <thead class="bg-light">
                       <tr>
-                        <th>Pershkrimi</th>
-                        <th>Filet</th>
+                        <th class="text-dark">Pershkrimi</th>
+                        <th class="text-dark">Filet</th>
                         <th></th>
                       </tr>
                     </thead>

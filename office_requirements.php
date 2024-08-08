@@ -55,15 +55,15 @@
                 </div>
             </div>
             <!-- Table for Displaying Investments -->
-            <div class="card p-3">
+            <div class="card p-3 text-dark">
                 <table class='table table-bordered' id="requirementsTable">
-                    <thead class="table-light">
+                    <thead class="table-light text-dark">
                         <tr>
-                            <th scope='col'></th>
-                            <th scope='col'>ID</th>
-                            <th scope='col'>Përshkrimi i kërkesës</th>
-                            <th scope='col'>Data e parashikuar</th>
-                            <th scope='col'>Dërgo stafit apo dikuna tjeter kerkesen</th>
+                            <th class="text-dark" scope='col'></th>
+                            <th class="text-dark" scope='col'>ID</th>
+                            <th class="text-dark" scope='col'>Përshkrimi i kërkesës</th>
+                            <th class="text-dark" scope='col'>Data e parashikuar</th>
+                            <th class="text-dark" scope='col'>Dërgo stafit apo dikuna tjeter kerkesen</th>
                         </tr>
                     </thead>
                     <tbody></tbody>

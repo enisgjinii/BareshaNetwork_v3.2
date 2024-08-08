@@ -140,8 +140,8 @@ $text = 'Madhësia e dosjes: ' . $fileSize;
                 <table id="example" class="table w-100 table-bordered">
                   <thead class="bg-light">
                     <tr>
-                      <th>Emertimi</th>
-                      <th>Modifiko</th>
+                      <th class="text-dark">Emertimi</th>
+                      <th class="text-dark">Modifiko</th>
                     </tr>
                   </thead>
                   <tbody>

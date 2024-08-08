@@ -34,8 +34,8 @@
                                         <option value="LinkedIn">LinkedIn</option>
                                     </select>
                                 </div>
-                                <div class="mb-3">
-                                    <label for="titulli" class="form-label">Titulli</label>
+                                <div class="mb-3 text-dark" >
+                                    <label for="titulli" class="form-label ">Titulli</label>
                                     <input type="text" class="form-control rounded-5 border border-2" name="titulli" id="titulli" placeholder="Shëno titullin" required>
                                 </div>
                                 <div class="mb-3">
@@ -64,13 +64,13 @@
                     <table class="table table-striped table-bordered" id="platformTable">
                         <thead class="table-light">
                             <tr>
-                                <th>ID</th>
-                                <th>Platforma</th>
-                                <th>Titulli</th>
-                                <th>Pershkrimi</th>
-                                <th>Data e shtimit</th>
-                                <th>Email Used for sending strike</th>
-                                <th>Vepro</th>
+                                <th class="text-dark">ID</th>
+                                <th class="text-dark">Platforma</th>
+                                <th class="text-dark">Titulli</th>
+                                <th class="text-dark">Pershkrimi</th>
+                                <th class="text-dark">Data e shtimit</th>
+                                <th class="text-dark">Email Used for sending strike</th>
+                                <th class="text-dark">Vepro</th>
                             </tr>
                         </thead>
                         <tbody>

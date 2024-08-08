@@ -51,10 +51,10 @@ if (isset($_GET['mbaro'])) {
   <div class="content-wrapper">
     <div class="container">
       <div class="p-5 mb-4 card rounded-5 shadow-sm">
-        <h4 class="font-weight-bold text-gray-800 mb-4">Takimet</h4>
+        <h4 class="font-weight-bold text-gray-800 mb-4 text-dark">Takimet</h4>
         <nav class="d-flex">
           <h6 class="mb-0">
-            <a href="takimet.php" class="text-reset" data-mdb-toggle="tooltip" title="Hi! I'm tooltip" title="<?php echo __FILE__; ?>"><u>Takimet</u></a>
+            <a href="takimet.php" class="text-reset text-dark" data-mdb-toggle="tooltip" title="Hi! I'm tooltip" title="<?php echo __FILE__; ?>"><u class="text-dark">Takimet</u></a>
           </h6>
         </nav>
       </div>
@@ -66,10 +66,10 @@ if (isset($_GET['mbaro'])) {
                 <table id="example" class="table w-100 table-bordered">
                   <thead class="bg-light">
                     <tr>
-                      <th>Emertimi</th>
-                      <th>Pershkrimi</th>
-                      <th>Data</th>
-                      <th>Statusi</th>
+                      <th class="text-dark">Emertimi</th>
+                      <th class="text-dark">Pershkrimi</th>
+                      <th class="text-dark">Data</th>
+                      <th class="text-dark">Statusi</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -98,10 +98,10 @@ if (isset($_GET['mbaro'])) {
                   </tbody>
                   <tfoot class="bg-light">
                     <tr>
-                      <th>Emertimi</th>
-                      <th>Pershkrimi</th>
-                      <th>Data</th>
-                      <th>Statusi</th>
+                      <th class="text-dark">Emertimi</th>
+                      <th class="text-dark">Pershkrimi</th>
+                      <th class="text-dark">Data</th>
+                      <th class="text-dark">Statusi</th>
                     </tr>
                   </tfoot>
                 </table>

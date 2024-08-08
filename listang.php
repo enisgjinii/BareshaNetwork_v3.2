@@ -38,9 +38,9 @@ $tableHeaders = ['Id', 'Këngëtari', 'Informacioni', 'Rrjete sociale', 'Klienti
                             <table id="deletedRecordsTable" class="table table-bordered table-sm" style="width:100%">
                                 <thead class="table-light">
                                     <tr>
-                                        <th>ID</th>
-                                        <th>Rekordi i fshirë</th>
-                                        <th>Koha e fshirjes</th>
+                                        <th class="text-dark">ID</th>
+                                        <th class="text-dark">Rekordi i fshirë</th>
+                                        <th class="text-dark">Koha e fshirjes</th>
                                     </tr>
                                 </thead>
                                 <tbody></tbody>
@@ -54,7 +54,7 @@ $tableHeaders = ['Id', 'Këngëtari', 'Informacioni', 'Rrjete sociale', 'Klienti
                     <div class="table-responsive">
                         <table id="example" class="table w-100">
                             <thead class="bg-light">
-                                <tr><?php foreach ($tableHeaders as $header) : ?><th><?= $header ?></th><?php endforeach; ?></tr>
+                                <tr><?php foreach ($tableHeaders as $header) : ?><th class="text-dark"><?= $header ?></th><?php endforeach; ?></tr>
                             </thead>
                         </table>
                     </div>

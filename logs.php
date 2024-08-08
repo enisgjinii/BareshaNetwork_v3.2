@@ -116,9 +116,9 @@ if (!$pageAccessController->checkAccess()) {
                   <table id="example1" class="table w-100 table-bordered">
                     <thead class="bg-light">
                       <tr>
-                        <th>Stafi</th>
-                        <th>Sherbimi</th>
-                        <th>Koha</th>
+                        <th class="text-dark">Stafi</th>
+                        <th class="text-dark">Sherbimi</th>
+                        <th class="text-dark">Koha</th>
                       </tr>
                     </thead>
                     <tbody>

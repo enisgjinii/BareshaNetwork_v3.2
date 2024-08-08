@@ -169,7 +169,7 @@ $csrf_token = generateCsrfToken();
           </div>
           <hr />
           <div class="form-group row">
-            <div class="col">
+            <div class="col text-dark">
               <label for="tel" class="form-label">Cover / Origjinale </label><br>
               <input type="radio" id="html" name="cover" value="Cover" class="form-check-input">
               <label for="html">Cover</label>
@@ -178,7 +178,7 @@ $csrf_token = generateCsrfToken();
               <input type="radio" id="css" name="cover" value="Potpuri" class="form-check-input">
               <label for="css">Potpuri</label><br>
             </div>
-            <div class="col">
+            <div class="col text-dark">
               <label for="tel" class="form-label">Platformat sociale </label><br>
               <input type="checkbox" id="facebook" name="facebook" value="Po" class="form-check-input">
               <label for="Facebook">Facebook</label><br>

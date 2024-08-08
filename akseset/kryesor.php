@@ -393,8 +393,8 @@ $m6 = mysqli_fetch_array($mp6);
                   <table class="table table-bordered">
                     <thead>
                       <tr>
-                        <th>Emri</th>
-                        <th>Shuma e fatures</th>
+                        <th class="text-dark">Emri</th>
+                        <th class="text-dark">Shuma e fatures</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -407,8 +407,8 @@ $m6 = mysqli_fetch_array($mp6);
                         $row['customer_name'] = $customer['emri'];
                       ?>
                         <tr>
-                          <td><?php echo $row['customer_name'] ?></td>
-                          <td><?php echo $row['total_amount']; ?></td>
+                          <td class="text-dark"><?php echo $row['customer_name'] ?></td>
+                          <td class="text-dark"><?php echo $row['total_amount']; ?></td>
                         </tr>
                       <?php
                       }

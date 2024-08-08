@@ -92,10 +92,10 @@ if (isset($_GET['fshij'])) {
         <div class="container-fluid">
             <div class="container">
                 <div class="p-5 shadow-sm rounded-5 mb-4 card">
-                    <h4 class="font-weight-bold text-gray-800 mb-4">Pagesat Youtube</h4>
+                    <h4 class="font-weight-bold text-gray-800 mb-4 text-dark">Pagesat Youtube</h4>
                     <nav class="d-flex">
-                        <h6 class="mb-0">
-                            <a href="" class="text-reset">Financat</a>
+                        <h6 class="mb-0 text-dark">
+                            <a href="" class="text-reset text-dark">Financat</a>
                             <span>/</span>
                             <a href="faturat.php" class="text-reset" data-bs-placement="top" data-bs-toggle="tooltip" title="<?php echo __FILE__; ?>"><u>Pagesat Youtube</u></a>
                             <br>
@@ -188,14 +188,14 @@ if (isset($_GET['fshij'])) {
                             <div class="table-responsive">
                                 <table id="employeeList" class="table w-100 table-bordered">
                                     <thead class="bg-light">
-                                        <tr>
-                                            <th>Emri</th>
-                                            <th>Emri artistik</th>
-                                            <th>Fatura</th>
-                                            <th>Data</th>
-                                            <th>Shuma</th>
-                                            <th>Sh.Paguar</th>
-                                            <th>Obligim</th>
+                                        <tr class="text-dark">
+                                            <th class="text-dark">Emri</th>
+                                            <th class="text-dark">Emri artistik</th>
+                                            <th class="text-dark">Fatura</th>
+                                            <th class="text-dark">Data</th>
+                                            <th class="text-dark">Shuma</th>
+                                            <th class="text-dark">Sh.Paguar</th>
+                                            <th class="text-dark">Obligim</th>
                                             <th></th>
                                         </tr>
                                     </thead>
@@ -203,13 +203,13 @@ if (isset($_GET['fshij'])) {
 
                                     <tfoot class="bg-light">
                                         <tr>
-                                            <th>Emri</th>
-                                            <th>Emri artistik</th>
-                                            <th>Fatura</th>
-                                            <th>Data</th>
-                                            <th>Shuma</th>
-                                            <th>Sh.Paguar</th>
-                                            <th>Obligim</th>
+                                            <th class="text-dark">Emri</th>
+                                            <th class="text-dark">Emri artistik</th>
+                                            <th class="text-dark">Fatura</th>
+                                            <th class="text-dark">Data</th>
+                                            <th class="text-dark">Shuma</th>
+                                            <th class="text-dark">Sh.Paguar</th>
+                                            <th class="text-dark">Obligim</th>
                                             <th></th>
                                         </tr>
                                     </tfoot>

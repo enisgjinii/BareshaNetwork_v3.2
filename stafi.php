@@ -28,10 +28,10 @@
                   <table id="example" class="table table-bordered w-full">
                     <thead class="bg-light">
                       <tr>
-                        <th>Emri & Mbiemri</th>
-                        <th>Email Adresa</th>
-                        <th>Rroga</th>
-                        <th>Veprime</th>
+                        <th class="text-dark">Emri & Mbiemri</th>
+                        <th class="text-dark">Email Adresa</th>
+                        <th class="text-dark">Rroga</th>
+                        <th class="text-dark">Veprime</th>
                       </tr>
                     </thead>
                     <tbody>
