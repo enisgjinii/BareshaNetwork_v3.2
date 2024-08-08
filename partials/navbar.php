@@ -21,6 +21,29 @@
         <ul class="dropdown-menu p-2">
           <li class="rounded-5 mt-1 text-center py-1" style="border:1px solid lightgrey;font-size:11px;"> <?php echo $user_info['email'] ?>
           </li>
+          <?php
+          // Function to get geolocation data from an external API
+          function get_ip_geolocation($ip)
+          {
+            $api_url = "http://ip-api.com/json/{$ip}?fields=country,regionName,city";
+            $response = file_get_contents($api_url);
+            return json_decode($response, true);
+            // 185.82.108.183
+          }
+
+          // Get the IP address of the user
+          $visitor_ip = $_SERVER['REMOTE_ADDR'];
+          $geo_data = get_ip_geolocation($visitor_ip);
+          $country = isset($geo_data['country']) ? $geo_data['country'] : 'Unknown';
+          $region = isset($geo_data['regionName']) ? $geo_data['regionName'] : 'Unknown';
+          $city = isset($geo_data['city']) ? $geo_data['city'] : 'Unknown';
+          ?>
+
+          <li class="rounded-5 mt-1 text-center py-2 px-3" style="border:1px solid lightgrey; font-size:12px; background-color: #f9f9f9; color: #333;">
+            <strong>IP Address:</strong> <?php echo htmlspecialchars($visitor_ip); ?><br>
+            <small><strong>Location:</strong> <?php echo htmlspecialchars("$city, $region, $country"); ?></small>
+          </li>
+
           <li>
             <a class="dropdown-item rounded-5 mt-1" style="border:1px solid lightgrey;" href="sendLogoutEmail.php">
               <i class="fi fi-rr-exit me-2"></i>
