@@ -179,7 +179,7 @@
           "lista_kontratave.php" => "Lista e kontratave <span class='small-text'>(Kengë)</span>",
           "ofertat.php" => "Ofertat <span class='small-text'>(Kengë)</span>",
           "kontrata_gjenelare_2.php" => "Kontrata e re <span class='small-text'>(Gjenerale)</span>",
-          "lista_kontratave_gjenerale.php" => "Lista e kontratave <span class='small-text'>(Gjenerale)</span>",
+          "lista_kontratave_gjenerale.php" => "Lista e kontratave <span class='small-text'>(Gjen.)</span>",
         ],
       ],
       [
