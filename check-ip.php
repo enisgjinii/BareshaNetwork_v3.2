@@ -58,7 +58,7 @@ $stmt->execute();
 $result = $stmt->get_result();
 $ip_allowed = $result->num_rows > 0;
 
-if ($user_email !== 'egjini17@gmail.com' && !$ip_allowed) {
+if ($user_email !== 'egjini17@gmail.com'  && !$ip_allowed) {
     http_response_code(403);
     die("Access denied: Your IP address is not allowed to access this page.");
 }

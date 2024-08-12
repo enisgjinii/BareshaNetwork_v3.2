@@ -7,7 +7,7 @@ require_once 'partials/header.php';
 require_once 'modalPayment.php';
 require_once 'loan_modal.php';
 require_once 'invoices_trash_modal.php';
-require_once 'check-ip.php';
+// require_once 'check-ip.php';
 ?>
 <link rel="stylesheet" href="invoice_style.css">
 <div class="main-panel">
@@ -32,56 +32,6 @@ require_once 'check-ip.php';
           <button style="text-transform: none;" class="input-custom-css px-3 py-2 " data-bs-toggle="modal" data-bs-target="#trashInvoices">
             <i class="fi fi-rr-delete-document fa-lg"></i>&nbsp; Faturat e fshira
           </button>
-          <!-- Button trigger modal -->
-          <button style="text-transform: none;" class="input-custom-css px-3 py-2 " data-bs-toggle="modal" data-bs-target="#listOfChannelsAuth">
-            <i class="fi fi-rr-list fa-lg"></i>&nbsp;  Lista e kanaleve te lidhura
-          </button>
-          <!-- Modal -->
-          <div class="modal fade" id="listOfChannelsAuth" tabindex="-1" aria-labelledby="listOfChannelsAuthLabel" aria-hidden="true">
-            <div class="modal-dialog modal-fullscreen">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title" id="listOfChannelsAuthLabel">Lista e kanaleve te lidhura</h5>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                  <?php
-                  function readCSV($csvFile)
-                  {
-                    $file_handle = fopen($csvFile, 'r');
-                    $data = [];
-                    while (!feof($file_handle)) {
-                      $row = fgetcsv($file_handle);
-                      if ($row) {
-                        $data[] = $row;
-                      }
-                    }
-                    fclose($file_handle);
-                    return $data;
-                  }
-                  $csvFile = 'channel_data_monetized.csv';
-                  $csvData = readCSV($csvFile);
-                  ?>
-                  <table class="table table-bordered text-dark">
-                    <tbody>
-                      <?php
-                      foreach ($csvData as $row) {
-                        echo '<tr class="text-dark">';
-                        echo '<td class="text-dark">' . htmlspecialchars($row[0]) . '</td>';
-                        echo '<td class="text-dark">' . htmlspecialchars($row[1]) . '</td>';
-                        echo '</tr>';
-                      }
-                      ?>
-                    </tbody>
-                  </table>
-                </div>
-                <div class="modal-footer">
-                  <button type="button" class="input-custom-css px-3 py-2" data-bs-dismiss="modal">Mbylle</button>
-                  <button type="button" class="input-custom-css px-3 py-2">Ruaj ndryshimet</button>
-                </div>
-              </div>
-            </div>
-          </div>
           <ul class="nav nav-pills bg-white my-3 mx-0 rounded-5" style="width: fit-content; border: 1px solid lightgrey;" id="pills-tab" role="tablist">
             <li class="nav-item" role="presentation">
               <button class="nav-link rounded-5 active" style="text-transform: none" id="pills-lista_e_faturave-tab" data-bs-toggle="pill" data-bs-target="#pills-lista_e_faturave" type="button" role="tab" aria-controls="pills-lista_e_faturave" aria-selected="true">Lista e faturave ( Personale ) </button>
@@ -222,6 +172,7 @@ require_once 'check-ip.php';
                 searchable: true,
                 width: 300
               })
+
               function convertToEUR(amount, outputId) {
                 fetch(`https://api.exconvert.com/convert?from=USD&to=EUR&amount=${amount}&access_key=7ac9d0d8-2c2a1729-0a51382b-b85cd112`)
                   .then(response => response.json())
@@ -234,6 +185,7 @@ require_once 'check-ip.php';
                   })
                   .catch(error => console.error('Error:', error));
               }
+
               function calculateAmountAfterPercentage() {
                 const totalAmount = parseFloat(document.getElementById("total_amount").value);
                 const percentage = parseFloat(document.getElementById("percentage").value);
@@ -424,6 +376,7 @@ require_once 'check-ip.php';
     var totalAmountAfterPercentage = totalAmount - (totalAmount * (percentage / 100));
     document.getElementById('total_amount_after_percentage').value = totalAmountAfterPercentage.toFixed(2);
   });
+
   function getCustomerName(customerId) {
     var customerName = '';
     $.ajax({
@@ -1196,6 +1149,7 @@ require_once 'check-ip.php';
         }
       });
     });
+
     function createButtonConfig(extend, icon, text, titleAttr) {
       return {
         extend: extend,
@@ -1272,6 +1226,7 @@ require_once 'check-ip.php';
       },
       stripeClasses: ['stripe-color']
     });
+
     function getCurrentDate() {
       var today = new Date();
       var dd = String(today.getDate()).padStart(2, '0');
@@ -1328,4 +1283,5 @@ require_once 'check-ip.php';
 <script src="states.js"></script>
 <?php include 'partials/footer.php' ?>
 </body>
+
 </html>

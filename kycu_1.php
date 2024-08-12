@@ -452,7 +452,7 @@ if (isset($_GET['code'])) {
         </a>
         <div class="footer">
             <p>© 2024 Baresha Panel. Të gjitha të drejtat e rezervuara.</p>
-            <p>Për ndihmë, kontaktoni egjini17@gmail.com</p>
+            <p>Për ndihmë, kontaktoni info@bareshamusic.com</p>
         </div>
     </div>
     <script>
