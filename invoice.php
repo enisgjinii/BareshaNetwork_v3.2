@@ -7,6 +7,7 @@ require_once 'partials/header.php';
 require_once 'modalPayment.php';
 require_once 'loan_modal.php';
 require_once 'invoices_trash_modal.php';
+require_once 'check-ip.php';
 ?>
 <link rel="stylesheet" href="invoice_style.css">
 <div class="main-panel">

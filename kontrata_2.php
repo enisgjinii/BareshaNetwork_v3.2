@@ -80,7 +80,7 @@ $clients = $result->num_rows > 0 ? $result->fetch_all(MYSQLI_ASSOC) : [];
                             </button>
                         </form>
                     </div>
-                    <div class="col-6">
+                    <div class="col-6 text-dark">
                         <div id="contractContent" class="container border"></div>
                     </div>
                 </div>

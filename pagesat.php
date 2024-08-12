@@ -108,7 +108,7 @@ $is_pagesat_page = (basename($_SERVER['PHP_SELF']) === 'pagesat.php'); ?>
             allowInput: true
         });
         let table = $('#paymentTable').DataTable({
-            dom: "<'row'<'col-md-3'l><'col-md-6'B><'col-md-3'f>><'row'<'col-md-12'tr>><'row'<'col-md-6'><'col-md-6'p>>",
+            dom: "<'row'<'col-md-3 text-dark'l><'col-md-6 text-dark'B><'col-md-3 text-dark'f>><'row'<'col-md-12 text-dark'tr>><'row'<'col-md-6 text-dark'><'col-md-6'p>>",
             buttons: [{
                     extend: "pdfHtml5",
                     text: '<i class="fi fi-rr-file-pdf fa-lg"></i> PDF',

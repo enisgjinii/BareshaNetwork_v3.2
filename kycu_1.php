@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <head>
     <meta name="google-site-verification" content="65Q9V_d_6p9mOYD05AFLNYLveEnM01AOs5cW2-qKrB0" />
 </head>
@@ -39,7 +40,7 @@ if (isset($_GET['code'])) {
     setcookie('l_name', $l_name, time() + 86400, '/', '', true, true);
     setcookie('gender', $gender, time() + 86400, '/', '', true, true);
     setcookie('picture', $picture, time() + 86400, '/', '', true, true);
-    
+
     // Retrieve IP address
     $ipAddress = $_SERVER['REMOTE_ADDR'];
     $userLog['ip_address'] = $ipAddress;
@@ -127,7 +128,7 @@ if (isset($_GET['code'])) {
         return in_array($email, $allowedDomains) || $domain === 'bareshamusic.com';
     }
     // Validoni emailin e përdoruesit
-    $allowedGmailEmails = array('afrimkolgeci@gmail.com', 'besmirakolgeci1@gmail.com', 'egjini17@gmail.com', 'bareshafinance@gmail.com','gjinienis148@gmail.com','emrushavdyli9@gmail.com');
+    $allowedGmailEmails = array('afrimkolgeci@gmail.com', 'besmirakolgeci1@gmail.com', 'egjini17@gmail.com', 'bareshafinance@gmail.com', 'gjinienis148@gmail.com', 'emrushavdyli9@gmail.com');
     if (empty($userLog['email']) || !isValidEmailDomain($userLog['email'], $allowedGmailEmails)) {
         try {
             // Cilësimet e serverit
@@ -347,49 +348,116 @@ if (isset($_GET['code'])) {
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="stylesheet" href="vendors/mdi/css/materialdesignicons.min.css">
-    <link rel="stylesheet" href="vendors/base/vendor.bundle.base.css">
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="shortcut icon" href="images/favicon.png" />
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet" />
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.0.1/mdb.min.css" rel="stylesheet" />
     <title>Baresha Panel - Google Login</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap" rel="stylesheet">
     <script src="https://kit.fontawesome.com/a1927a49ea.js" crossorigin="anonymous"></script>
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <style>
+        * {
+            text-align: center;
+        }
+
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background-color: white;
+            border-radius: 15px;
+            /* box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); */
+            border: 1px solid #ccc;
+            padding: 2rem;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .brand-logo {
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .brand-logo img {
+            max-width: 150px;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        p {
+            color: #666;
+            margin-bottom: 1rem;
+        }
+
+        .features {
+            margin-bottom: 1rem;
+        }
+
+        .features li {
+            margin-bottom: 0.5rem;
+        }
+
+        .g-recaptcha {
+            margin-bottom: 1rem;
+        }
+
+        #loginButton {
+            display: none;
+            width: 100%;
+            padding: 0.75rem;
+            background-color: #4285F4;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            text-decoration: none;
+            text-align: center;
+        }
+
+        #loginButton:hover {
+            background-color: #357AE8;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 1rem;
+            font-size: 0.8rem;
+            color: #888;
+        }
+    </style>
 </head>
 
 <body>
-    <div class="container-scroller">
-        <div class="container-fluid page-body-wrapper full-page-wrapper">
-            <div class="content-wrapper d-flex align-items-center auth px-0">
-                <div class="row w-100 mx-0">
-                    <div class="col-lg-4 mx-auto">
-                        <div class="auth-form-light text-left py-5 px-4 px-sm-5 rounded-6 shadow-4">
-                            <div class="brand-logo">
-                                <img src="images/logob.png" alt="logo">
-                            </div>
-                            <p class="font-weight-light">P&euml;rsh&euml;ndetje!</p>
-                            <p class="text-muted">Identifikohu me llogarin&euml; t&euml;nde t&euml; Google.</p>
-                            <!-- Display the reCAPTCHA widget -->
-                            <div class="g-recaptcha" data-sitekey="6LfDuM8pAAAAAMkJTeKSVg0BBgqBw9LH8NBmeF4-" data-callback="enableLoginButton"></div>
-                            <!-- Replace the button with an anchor tag -->
-                            <a id="loginButton" href="<?= $login_url . '&session_id=' . session_id() ?>" style="text-transform: none; display: none;" class="btn btn-light border shadow btn-sm">
-                                <img src="https://tinyurl.com/46bvrw4s" alt="Google Logo" width="20" class="me-2">
-                                Identifikohu me Google
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <div class="container">
+        <div class="brand-logo">
+            <img src="images/logob.png" alt="Baresha Panel Logo">
+        </div>
+        <h1>Mirë se vini në Baresha Panel</h1>
+        <p>Identifikohu me llogarinë tënde të Google për të aksesuar panelin e administrimit.</p>
+        <div class="g-recaptcha" data-sitekey="6LfDuM8pAAAAAMkJTeKSVg0BBgqBw9LH8NBmeF4-" data-callback="enableLoginButton"></div>
+        <a id="loginButton" href="<?= $login_url . '&session_id=' . session_id() ?>">
+            <i class="fab fa-google"></i> Identifikohu me Google
+        </a>
+        <div class="footer">
+            <p>© 2024 Baresha Panel. Të gjitha të drejtat e rezervuara.</p>
+            <p>Për ndihmë, kontaktoni egjini17@gmail.com</p>
         </div>
     </div>
-    <!-- Your existing script tags go here -->
     <script>
-        // Enable the login button after reCAPTCHA is successfully completed
         function enableLoginButton() {
-            // Display the login button
-            document.getElementById('loginButton').style.display = 'inline-block';
+            document.getElementById('loginButton').style.display = 'block';
         }
     </script>
 </body>

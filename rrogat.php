@@ -150,23 +150,23 @@ if (isset($_POST['ruaj'])) {
         <div class="card-body">
           <div class="row">
             <div class="col-12">
-              <div class="table-responsive">
-                <table id="table_of_salaries_of_staff" class="table w-100 table-bordered">
+              <div class="table-responsive text-dark">
+                <table id="table_of_salaries_of_staff" class="table w-100 table-bordered text-dark">
                   <thead class="bg-light">
                     <tr>
-                      <th style="white-space: normal;">Stafi</th>
-                      <th style="white-space: normal;">Muaji & Viti</th>
-                      <th style="white-space: normal;">Bruto</th>
-                      <th style="white-space: normal;">Kontributi i punëdhënësit</th>
-                      <th style="white-space: normal;">Kontributi i punëtorit</th>
-                      <th style="white-space: normal;">Tatimi</th>
-                      <th style="white-space: normal;">Neto</th>
-                      <th style="white-space: normal;">Data</th>
-                      <th style="white-space: normal;">Forma</th>
-                      <th style="white-space: normal;">Vepro</th>
+                      <th class="text-dark" style="white-space: normal;">Stafi</th>
+                      <th class="text-dark" style="white-space: normal;">Muaji & Viti</th>
+                      <th class="text-dark"style="white-space: normal;">Bruto</th>
+                      <th class="text-dark" style="white-space: normal;">Kontributi i punëdhënësit</th>
+                      <th class="text-dark" style="white-space: normal;">Kontributi i punëtorit</th>
+                      <th class="text-dark" style="white-space: normal;">Tatimi</th>
+                      <th class="text-dark" style="white-space: normal;">Neto</th>
+                      <th class="text-dark" style="white-space: normal;">Data</th>
+                      <th class="text-dark" style="white-space: normal;">Forma</th>
+                      <th class="text-dark" style="white-space: normal;">Vepro</th>
                     </tr>
                   </thead>
-                  <tbody>
+                  <tbody class="text-dark">
                     <?php
                     $kueri = $conn->query("SELECT * FROM rrogat ORDER BY id DESC");
                     while ($k = mysqli_fetch_array($kueri)) {

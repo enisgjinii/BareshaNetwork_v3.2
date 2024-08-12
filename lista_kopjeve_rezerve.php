@@ -23,6 +23,7 @@ foreach ($backupFiles as $backupFile) {
         break;
     }
 }
+include 'check-ip.php';
 ?>
 <div class="main-panel">
     <div class="content-wrapper">

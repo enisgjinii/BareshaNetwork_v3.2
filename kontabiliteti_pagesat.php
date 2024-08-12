@@ -36,7 +36,7 @@ if (!$conn) {
                     <div class="card p-5">
                         <div class="row">
                             <div class="col-12">
-                                <div class="table-responsive">
+                                <div class="table-responsive text-dark">
                                     <div class="date-range-filter text-dark">
                                         <div class="row text-dark">
                                             <div class="col-6"> <input type="text" id="minDate" class="form-control shadow-sm rounded-5 w-100 mt-3" style="width: 230px;" placeholder="Prej: "></div>
@@ -48,7 +48,7 @@ if (!$conn) {
                                     <br>
                                     <table id="paymentsTablePersonal" class="table table-bordered w-100 text-dark">
                                         <thead class="table-light text-dark">
-                                            <tr>
+                                            <tr class="text-dark">
                                                 <th class="text-dark"  style="white-space: normal;font-size: 12px;">Emri i klientit</th>
                                                 <th class="text-dark"  style="white-space: normal;font-size: 12px;">ID e faturës</th>
                                                 <th class="text-dark"  style="white-space: normal;font-size: 12px;">Vlera</th>
@@ -59,6 +59,9 @@ if (!$conn) {
                                                 <th class="text-dark"  style="white-space: normal;font-size: 12px;">Shuma e përgjithshme pas %</th>
                                             </tr>
                                         </thead>
+                                        <tbody class="text-dark">
+
+                                        </tbody>
                                     </table>
                                 </div>
                             </div>
@@ -78,9 +81,9 @@ if (!$conn) {
                                         <br>
                                         <button id="filterDateBiz" class="input-custom-css px-3 py-2"> <i class="fi fi-rr-filter"></i>Filtro</button>
                                     </div> <br>
-                                    <table id="paymentsTableBiznes" class="table table-bordered w-100">
+                                    <table id="paymentsTableBiznes" class="table table-bordered w-100 text-dark">
                                         <thead class="table-light text-dark">
-                                            <tr >
+                                            <tr class="text-dark">
                                                 <th class="text-dark" style="white-space: normal;font-size: 12px;">Emri i klientit</th>
                                                 <th class="text-dark"  style="white-space: normal;font-size: 12px;">ID e faturës</th>
                                                 <th class="text-dark"  style="white-space: normal;font-size: 12px;">Vlera</th>
@@ -239,9 +242,9 @@ include 'partials/footer.php';
                     alert("An error occurred while fetching data: " + thrown);
                 }
             },
-            dom: "<'row'<'col-md-3'l><'col-md-6'B><'col-md-3'f>>" +
-                "<'row'<'col-md-12'tr>>" +
-                "<'row'<'col-md-6'i><'col-md-6'p>>",
+            dom: "<'row'<'col-md-3 text-dark'l><'col-md-6 text-dark'B><'col-md-3 text-dark'f>>" +
+                "<'row'<'col-md-12 text-dark'tr>>" +
+                "<'row'<'col-md-6 text-dark'i><'col-md-6 text-dark'p>>",
             buttons: [{
                 extend: 'pdfHtml5',
                 text: '<i class="fi fi-rr-file-pdf fa-lg"></i>&nbsp;&nbsp; PDF',

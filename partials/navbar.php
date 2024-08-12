@@ -1,14 +1,14 @@
-<nav class="navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row shadow-1 mt-0">
+<nav class="navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row shadow-1 mt-0 ">
   <div class="navbar-brand-wrapper d-flex justify-content-center">
     <div class="navbar-brand-inner-wrapper d-flex justify-content-between align-items-center w-100">
       <a class="navbar-brand brand-logo" href="index.php"><img src="images/brand-icon.png" alt="logo" style="object-fit:contain;" /></a>
-      <a class="navbar-brand brand-logo-miP" href="index.php"><img src="images/brand-icon.png" alt="logo" style="object-fit:contain;width:min-content;" /></a>
+      <a class="navbar-brand brand-logo-mini" href="index.php"><img src="images/brand-icon.png" alt="logo" style="object-fit:contain;width:min-content;" /></a>
       <button class="navbar-toggler navbar-toggler align-self-center" type="button" data-mdb-toggle="minimize" data-mdb-placement="bottom" title="Mbylle menun duke shtypur tastin m">
         <span class="mdi mdi-sort-variant"></span>
       </button>
     </div>
   </div>
-  <div class="navbar-menu-wrapper d-flex align-items-center justify-content-end">
+  <div class="navbar-menu-wrapper d-flex align-items-center justify-content-end ">
     <ul class="navbar-nav navbar-nav-right d-flex align-items-center ms-2">
       <li class="dropdown-center ms-auto mt-2">
         <button class="btn btn-light btn-sm shadow-sm rounded-6 dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border:1px solid lightgrey;">
