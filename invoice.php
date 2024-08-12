@@ -1,6 +1,5 @@
 <?php
 ob_start();
-ini_set('max_execution_time', 15000);
 require_once 'vendor/autoload.php';
 require_once 'conn-d.php';
 require_once 'partials/header.php';
@@ -172,7 +171,6 @@ require_once 'invoices_trash_modal.php';
                 searchable: true,
                 width: 300
               })
-
               function convertToEUR(amount, outputId) {
                 fetch(`https://api.exconvert.com/convert?from=USD&to=EUR&amount=${amount}&access_key=7ac9d0d8-2c2a1729-0a51382b-b85cd112`)
                   .then(response => response.json())
@@ -185,7 +183,6 @@ require_once 'invoices_trash_modal.php';
                   })
                   .catch(error => console.error('Error:', error));
               }
-
               function calculateAmountAfterPercentage() {
                 const totalAmount = parseFloat(document.getElementById("total_amount").value);
                 const percentage = parseFloat(document.getElementById("percentage").value);
@@ -376,7 +373,6 @@ require_once 'invoices_trash_modal.php';
     var totalAmountAfterPercentage = totalAmount - (totalAmount * (percentage / 100));
     document.getElementById('total_amount_after_percentage').value = totalAmountAfterPercentage.toFixed(2);
   });
-
   function getCustomerName(customerId) {
     var customerName = '';
     $.ajax({
@@ -540,16 +536,16 @@ require_once 'invoices_trash_modal.php';
         {
           data: 'item',
           render: function(data, type, row) {
-            var stateOfInvoice = row.state_of_invoice;
-            var typeOfInvoice = row.type;
-            var badgeClass = stateOfInvoice === 'Parregullt' ? 'bg-danger' : (stateOfInvoice === 'Rregullt' ? 'bg-success' : '');
+            var stateOfInvoice = row.state_of_invoice || '';
+            var typeOfInvoice = row.type || '';
+            var badgeClass = stateOfInvoice === 'Parregullt' ? 'bg-danger' : stateOfInvoice === 'Rregullt' ? 'bg-success' : '';
             return `
-      <div class="item-column">${data}</div><br>
-      <div class="badge-column">
-        <span class="badge ${badgeClass} mx-1 rounded-5">${stateOfInvoice}</span>
-        <span class="badge bg-secondary mx-1 rounded-5">${typeOfInvoice}</span>
-      </div>
-    `;
+    <div class="item-column">${data || ''}</div><br>
+    <div class="badge-column">
+      ${stateOfInvoice && `<span class="badge ${badgeClass} mx-1 rounded-5">${stateOfInvoice}</span>`}
+      ${typeOfInvoice && `<span class="badge bg-secondary mx-1 rounded-5">${typeOfInvoice}</span>`}
+    </div>
+  `;
           }
         },
         {
@@ -1149,7 +1145,6 @@ require_once 'invoices_trash_modal.php';
         }
       });
     });
-
     function createButtonConfig(extend, icon, text, titleAttr) {
       return {
         extend: extend,
@@ -1226,7 +1221,6 @@ require_once 'invoices_trash_modal.php';
       },
       stripeClasses: ['stripe-color']
     });
-
     function getCurrentDate() {
       var today = new Date();
       var dd = String(today.getDate()).padStart(2, '0');
@@ -1283,5 +1277,4 @@ require_once 'invoices_trash_modal.php';
 <script src="states.js"></script>
 <?php include 'partials/footer.php' ?>
 </body>
-
 </html>
