@@ -24,7 +24,8 @@ SELECT
 FROM payments
 JOIN invoices ON payments.invoice_id = invoices.id
 JOIN klientet ON invoices.customer_id = klientet.id
-WHERE (klientet.lloji_klientit = 'Personal' OR klientet.lloji_klientit IS NULL)
+WHERE (klientet.shtetsia IS NULL OR klientet.shtetsia = 'Kosova')
+AND (klientet.lloji_klientit = 'Personal' OR klientet.lloji_klientit IS NULL)
 ";
 
 // Handle date filter
@@ -73,7 +74,9 @@ SELECT COUNT(*) AS total
 FROM payments
 JOIN invoices ON payments.invoice_id = invoices.id
 JOIN klientet ON invoices.customer_id = klientet.id
-WHERE (klientet.lloji_klientit = 'Personal' OR klientet.lloji_klientit IS NULL)";
+WHERE (klientet.shtetsia IS NULL OR klientet.shtetsia = 'Kosova')
+AND (klientet.lloji_klientit = 'Personal' OR klientet.lloji_klientit IS NULL)
+";
 
 if (!empty($minDate) && !empty($maxDate)) {
     $totalRecordsQuery .= " AND payments.payment_date BETWEEN '$minDate' AND '$maxDate'";
@@ -122,4 +125,3 @@ $output = array(
 
 // Send the output in JSON format
 echo json_encode($output);
-?>

@@ -1,136 +1,107 @@
 <?php
 include 'partials/header.php';
 require 'vendor/autoload.php';
-// use PHPMailer\PHPMailer\PHPMailer;
-// use PHPMailer\PHPMailer\Exception;
-// use Dompdf\Dompdf;
-// use Dompdf\Options;
-// $mail = new PHPMailer(true); // Passing `true` enables exceptions
 if (isset($_POST['ruaj'])) {
-  $emri = $_POST['emri'];
-  if (empty($_POST['min'])) {
-    $mon = "JO";
-  } else {
-    $mon = $_POST['min'];
+  $fields = [
+    'emri',
+    'dk',
+    'np',
+    'dks',
+    'yt',
+    'info',
+    'perqindja',
+    'perqindja2',
+    'ads',
+    'fb',
+    'ig',
+    'adresa',
+    'kategoria',
+    'nrtel',
+    'emailadd',
+    'email_kontablist',
+    'emailp',
+    'emriart',
+    'nrllog',
+    'bank_info',
+    'perdoruesi',
+    'password',
+    'shtetsia'
+  ];
+  $data = [];
+  foreach ($fields as $field) {
+    $data[$field] = mysqli_real_escape_string($conn, $_POST[$field]);
   }
-  $dk = mysqli_real_escape_string($conn, $_POST['dk']);
-  $np = mysqli_real_escape_string($conn, $_POST['np']);
-  $dks = mysqli_real_escape_string($conn, $_POST['dks']);
-  $yt = mysqli_real_escape_string($conn, $_POST['yt']);
-  $info = mysqli_real_escape_string($conn, $_POST['info']);
-  $perq = mysqli_real_escape_string($conn, $_POST['perqindja']);
-  $perq2 = mysqli_real_escape_string($conn, $_POST['perqindja2']);
-  $ads = mysqli_real_escape_string($conn, $_POST['ads']);
-  $fb = mysqli_real_escape_string($conn, $_POST['fb']);
-  $ig = mysqli_real_escape_string($conn, $_POST['ig']);
-  $adresa = mysqli_real_escape_string($conn, $_POST['adresa']);
-  $kategoria = mysqli_real_escape_string($conn, $_POST['kategoria']);
-  $nrtel = mysqli_real_escape_string($conn, $_POST['nrtel']);
-  $emailadd = mysqli_real_escape_string($conn, $_POST['emailadd']);
-  $email_kontablist = mysqli_real_escape_string($conn, $_POST['email_kontablist']);
-  $emailp = mysqli_real_escape_string($conn, $_POST['emailp']);
-  $emriart = mysqli_real_escape_string($conn, $_POST['emriart']);
-  $nrllog = mysqli_real_escape_string($conn, $_POST['nrllog']);
-  $bank_info = mysqli_real_escape_string($conn, $_POST['bank_info']);
-  $perdoruesi = mysqli_real_escape_string($conn, $_POST['perdoruesi']);
-  $password = mysqli_real_escape_string($conn, $_POST["password"]);
-  $emails = '';
+  // Special cases
+  $data['mon'] = empty($_POST['min']) ? "JO" : $_POST['min'];
+  $data['password'] = md5($data['password']);
+  $data['emails'] = isset($_POST['emails']) && !empty($_POST['emails']) ? addslashes(implode(', ', $_POST['emails'])) : '';
   $perqindja_check = isset($_POST['perqindja_check']) ? '1' : '0';
   $perqindja_e_platformave_check = isset($_POST['perqindja_platformave_check']) ? '1' : '0';
-  if (isset($_POST['emails']) && !empty($_POST['emails'])) {
-    $emails = implode(', ', $_POST['emails']);
-  }
-  $password = md5($password);
-  $targetfolder = "dokument/";
-  $targetfolder = $targetfolder . basename($_FILES['tipi']['name']);
-  $ok = 1;
+  $type_of_client = $_POST['type_of_client'];
+  $shtetsia = $_POST['shtetsia'];
+  // File upload handling
+  $targetfolder = "dokument/" . basename($_FILES['tipi']['name']);
   $file_type = $_FILES['tipi']['type'];
   if ($file_type == "application/pdf") {
-    if (move_uploaded_file($_FILES['tipi']['tmp_name'], $targetfolder)) {
-    } else {
+    if (!move_uploaded_file($_FILES['tipi']['tmp_name'], $targetfolder)) {
+      // Handle the error if needed
     }
   } else {
+    // Handle the error if needed
   }
-  $emails = addslashes($emails);
-  $type__of_client = $_POST['type_of_client'];
   if ($conn->query(
     "INSERT INTO klientet 
-    (emri, np, monetizuar, dk, dks, youtube, info, perqindja, perqindja2, kontrata, ads, fb, ig, adresa, kategoria, nrtel, emailadd, emailp, emriart, nrllog, bank_name ,fjalkalimi, perdoruesi, emails, blocked, perqindja_check, perqindja_platformave_check,lloji_klientit,email_kontablist) VALUES ('$emri', '$np','$mon', '$dk', '$dks', '$yt', '$info', '$perq', '$perq2', '$targetfolder', '$ads', '$fb', '$ig', '$adresa', '$kategoria', '$nrtel', '$emailadd', '$emailp', '$emriart', '$nrllog', '$bank_info', '$password', '$perdoruesi', '$emails', '0', '$perqindja_check', '$perqindja_e_platformave_check','$type__of_client','$email_kontablist')"
+        (emri, np, monetizuar, dk, dks, youtube, info, perqindja, perqindja2, kontrata, ads, fb, ig, adresa, kategoria, nrtel, emailadd, emailp, emriart, nrllog, bank_name ,fjalkalimi, perdoruesi, emails, blocked, perqindja_check, perqindja_platformave_check, lloji_klientit, email_kontablist, shtetsia) 
+        VALUES (
+            '{$data['emri']}', '{$data['np']}', '{$data['mon']}', '{$data['dk']}', '{$data['dks']}', '{$data['yt']}', 
+            '{$data['info']}', '{$data['perqindja']}', '{$data['perqindja2']}', '$targetfolder', '{$data['ads']}', 
+            '{$data['fb']}', '{$data['ig']}', '{$data['adresa']}', '{$data['kategoria']}', '{$data['nrtel']}', 
+            '{$data['emailadd']}', '{$data['emailp']}', '{$data['emriart']}', '{$data['nrllog']}', '{$data['bank_info']}', 
+            '{$data['password']}', '{$data['perdoruesi']}', '{$data['emails']}', '0', '$perqindja_check', 
+            '$perqindja_e_platformave_check', '$type_of_client', '{$data['email_kontablist']}', '$shtetsia'
+        )"
   )) {
     $kueri = $conn->query("SELECT * FROM klientet ORDER BY id DESC");
     $k = mysqli_fetch_array($kueri);
     $cdata = date("Y-m-d H:i:s");
-    // Kontrollo nëse email-i ekziston tashmë në bazën e të dhënave
+    // Check if email exists
     $check_email = $conn->prepare("SELECT `email` FROM `googleauth` WHERE `email`=?");
     $check_email->bind_param("s", $email);
     $check_email->execute();
     $check_email->store_result();
-    // Marrja e emrit të përdoruesit nga sesioni
+    // Get user info
     $cname = $_SESSION['username'];
-    // Nëse emri dhe mbiemri nuk janë disponibël në sesion, mund të përdorni vlerat e ruajtura në cookies
-    // $outha
     $f_name = $_COOKIE['user_first_name'];
     $l_name = $_COOKIE['user_last_name'];
-    // Krijo string-un për të përdorur në deklaratën më poshtë
     $user_info = $f_name . ' ' . $l_name;
-    // Nëse informacioni për emër dhe mbiemër nuk është në dispozicion, mund të përdorni vlerën e ruajtur në sesion
     if (empty($user_info)) {
       $user_info = $_SESSION['user_info'];
     }
-    // Përgatit string-un për log-in e veprimit
-    $cnd = $user_info . " ka shtuar klientin " . $emri;
+    // Log the action
+    $cnd = $user_info . " ka shtuar klientin " . $data['emri'];
     $query = "INSERT INTO logs (stafi, ndryshimi, koha) VALUES ('$cname', '$cnd', '$cdata')";
-    if ($conn->query($query)) {
-    } else {
+    if (!$conn->query($query)) {
       echo '<script>alert("' . $conn->error . '")</script>';
     }
     // Add the Sweet Alert with a button to go to the newly added client page
     echo '<script>
-    Swal.fire({
-      icon: "success",
-      title: "Kengetari u shtua me sukses!",
-      showConfirmButton: true,
-      confirmButtonText: "Shiko k&euml;ngetarin",
-      showCancelButton: true,
-      cancelButtonText: "Mbylle",
-      allowOutsideClick: false,
-      allowEscapeKey: false,
-      closeOnClickOutside: false,
-      closeOnEsc: false,
-    }).then((result) => {
-     if (result.isConfirmed) {
-       window.location.href = "kanal.php?kid=' . $k['id'] . '"; // Adjust the link to the actual URL of the client page
-     }
-   });
-   </script>';
-    //     try {
-    //       // Cilësimet e serverit
-    //       $mail->isSMTP(); // Vendos mailer-in për të përdorur SMTP
-    //       $mail->Host = 'smtp.gmail.com'; // Specifikoni serverët kryesor dhe rezervë SMTP
-    //       $mail->SMTPAuth = true; // Aktivizoni autentikimin SMTP
-    //       $mail->Username = 'egjini@bareshamusic.com'; // Emri i përdoruesit SMTP
-    //       $mail->Password = 'nzlnbougxyeijlci'; // Fjalëkalimi SMTP
-    //       $mail->SMTPSecure = 'tls'; // Aktivizoni kodimin TLS, pranohet edhe `ssl`
-    //       $mail->Port = 587; // Porti TCP për tu lidhur me të
-    //       $mail->setFrom('egjini@bareshamusic.com', 'Dërguesi');
-    //       $mail->addAddress('egjini@bareshamusic.com', 'Dërguesi');
-    //       $mail->addAddress('kastriot@bareshamusic.com', 'Kastrioti');
-    //       $mail->CharSet = 'UTF-8';
-    //       $mail->isHTML(true);
-    //       // Bashkangjitje
-    //       $mail->Subject = 'Mirë se erdhët';
-    //       // Përgatitni trupin e emailit me informacionin e përdoruesit
-    //       $mail->Body = "
-    //     <div style='background-color: #f5f5f5; border-radius: 10px; padding: 20px; margin: 20px;'>
-    //         <h2 style='color: #333;'>Ju mire se erdhet </h2>
-    //         <hr>
-    //     </div>
-    // ";
-    //       // Dërgoni emailin
-    //       $mail->send();
-    //     } catch (Exception $e) {
-    //       // Trajtoni ndonjë gabim nëse ekziston
-    //     }
+        Swal.fire({
+            icon: "success",
+            title: "Kengetari u shtua me sukses!",
+            showConfirmButton: true,
+            confirmButtonText: "Shiko k&euml;ngetarin",
+            showCancelButton: true,
+            cancelButtonText: "Mbylle",
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            closeOnClickOutside: false,
+            closeOnEsc: false,
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = "kanal.php?kid=' . $k['id'] . '"; 
+            }
+        });
+        </script>';
   }
 }
 ?>
@@ -160,56 +131,50 @@ if (isset($_POST['ruaj'])) {
                     <i class="fi fi-rr-user me-5"></i> Të dhënat e klientit
                   </button>
                 </h2>
-                <div id="collapseOne" class="accordion-collapse collapse show " aria-labelledby="headingOne" data-bs-parent="#client-infos-accordion">
+                <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#client-infos-accordion">
                   <div class="accordion-body border-0">
+                    <?php
+                    $inputs = [
+                      ["label" => "Emri dhe Mbiemri", "name" => "emri", "id" => "emri", "placeholder" => "Shëno emrin dhe mbiemrin e klientit"],
+                      ["label" => "ID e dokumentit personal", "name" => "np", "id" => "emriart", "placeholder" => "Shëno ID e dokumentit personal"],
+                      ["label" => "Adresa", "name" => "adresa", "id" => "adresa", "placeholder" => "Shëno adresën"],
+                      ["label" => "Adresa elektronike (Email)", "name" => "emailadd", "id" => "emailadd", "placeholder" => "Shëno email-in e klientit"],
+                      ["label" => "Adresa elektronike e kontablistit (Email)", "name" => "email_kontablist", "id" => "email_kontablist", "placeholder" => "Shëno email-in e kontablistit"],
+                      ["label" => "Numri i telefonit", "name" => "nrtel", "id" => "nrtel", "placeholder" => "Shëno numrin e telefonit"],
+                      ["label" => "Nr. Xhirollogaris", "name" => "nrllog", "id" => "nrllog", "placeholder" => "Shëno numrin e xhirollogaris"]
+                    ];
+                    foreach ($inputs as $input) {
+                      echo '<div class="col">';
+                      echo '<label class="form-label" for="' . $input['id'] . '">' . $input['label'] . '</label>';
+                      echo '<input type="text" name="' . $input['name'] . '" id="' . $input['id'] . '" class="form-control border border-2 rounded-5" placeholder="' . $input['placeholder'] . '" autocomplete="off">';
+                      echo '</div><br>';
+                    }
+                    ?>
                     <div class="col">
-                      <label class="form-label" for="emri">Emri dhe Mbiemri</label>
-                      <input type="text" name="emri" id="emri" class="form-control border border-2 rounded-5" placeholder="Shëno emrin dhe mbiemrin e klientit">
-                    </div>
-                    <br>
-                    <div class="col">
-                      <label class="form-label" for="emri">ID e dokumentit personal</label>
-                      <input type="text" name="np" id="emriart" class="form-control border border-2 rounded-5" placeholder="Shëno ID e dokumentit personal">
-                    </div>
-                    <br>
-                    <div class="col">
-                      <label class="form-label" for="yt">Adresa</label>
-                      <input type="text" name="adresa" id="adresa" class="form-control border border-2 rounded-5" placeholder="Shëno adresën" autocomplete="off">
-                    </div>
-                    <br>
-                    <div class="col">
-                      <label class="form-label" for="yt">Adresa elektronike ( Email )</label>
-                      <input type="text" name="emailadd" id="emailadd" class="form-control border border-2 rounded-5" placeholder="Shëno email-in e klientit" autocomplete="off">
-                    </div>
-                    <br>
-                    <div class="col">
-                      <label class="form-label" for="email_kontablist">Adresa elektronike e kontablistit ( Email )</label>
-                      <input type="text" name="email_kontablist" id="email_kontablist" class="form-control border border-2 rounded-5" placeholder="Shëno email-in e kontablistit" autocomplete="off">
-                    </div>
-                    <br>
-                    <div class="col">
-                      <label class="form-label" for="yt">Numri i telefonit</label>
-                      <input type="text" name="nrtel" id="nrtel" class="form-control border border-2 rounded-5" placeholder="Shëno numrin e telefonit" autocomplete="off">
-                    </div>
-                    <br>
-                    <div class="col">
-                      <label class="form-label" for="yt">Zgjedh bankën</label>
+                      <label class="form-label" for="bank_info">Zgjedh bankën</label>
                       <select id="bank_info" name="bank_info" class="form-select rounded-5 border border-2 py-2">
-                        <option value="custom">Shto emrin e personalizuar të bankës</option> <!-- Add this option -->
-                        <option value="Banka Ekonomike">Banka Ekonomike (Kosovo)</option>
-                        <option value="Banka KombetareTregtare">Banka Kombëtare Tregtare (Albania)</option>
-                        <option value="Banka Per Biznes">Banka për Biznes (Kosovo)</option>
-                        <option value="NLB Komercijalna Banka">NLB Komercijalna banka (Slovenia)</option>
-                        <option value="NLB Banka">NLB Banka (Slovenia)</option>
-                        <option value="Pro Credit Bank">ProCredit Bank (Germany)</option>
-                        <option value="Raiffeisen Bank Kosovo">Raiffeisen Bank Kosovo (Austria)</option>
-                        <option value="TEB SHA">TEB SH.A. (Turkey)</option>
-                        <option value="Ziraat Bank">Ziraat Bank (Turkey)</option>
-                        <option value="Turkiye Is Bank">Turkiye Is Bank (Turkey)</option>
-                        <option value="PayPal">PayPal</option>
-                        <option value="Ria">Ria</option>
-                        <option value="Money Gram"> Money Gram</option>
-                        <option value="Western Union">Western Union</option>
+                        <option value="custom">Shto emrin e personalizuar të bankës</option>
+                        <?php
+                        $banks = [
+                          "Banka Ekonomike (Kosovo)",
+                          "Banka Kombëtare Tregtare (Albania)",
+                          "Banka për Biznes (Kosovo)",
+                          "NLB Komercijalna banka (Slovenia)",
+                          "NLB Banka (Slovenia)",
+                          "ProCredit Bank (Germany)",
+                          "Raiffeisen Bank Kosovo (Austria)",
+                          "TEB SH.A. (Turkey)",
+                          "Ziraat Bank (Turkey)",
+                          "Turkiye Is Bank (Turkey)",
+                          "PayPal",
+                          "Ria",
+                          "Money Gram",
+                          "Western Union"
+                        ];
+                        foreach ($banks as $bank) {
+                          echo '<option value="' . $bank . '">' . $bank . '</option>';
+                        }
+                        ?>
                       </select>
                       <script>
                         new Selectr('#bank_info', {
@@ -233,24 +198,17 @@ if (isset($_POST['ruaj'])) {
                             }).then((result) => {
                               if (result.isConfirmed) {
                                 var customBankName = result.value;
-                                // Add the custom bank name as an option
                                 var selectElement = document.getElementById('bank_info');
                                 var customOption = document.createElement('option');
                                 customOption.value = customBankName;
                                 customOption.textContent = customBankName;
                                 selectElement.appendChild(customOption);
-                                // Select the newly added custom bank name
                                 selectElement.value = customBankName;
                               }
                             });
                           }
                         });
                       </script>
-                    </div>
-                    <br>
-                    <div class="col">
-                      <label class="form-label" for="yt">Nr. Xhirollogaris</label>
-                      <input type="text" name="nrllog" id="nrllog" class="form-control border border-2 rounded-5" placeholder="Shëno numrin e xhirollogaris" autocomplete="off">
                     </div>
                     <br>
                     <div class="col">
@@ -263,7 +221,7 @@ if (isset($_POST['ruaj'])) {
                         new Selectr('#type_of_client', {
                           searchable: true,
                           width: 300
-                        })
+                        });
                       </script>
                     </div>
                     <br>
@@ -457,6 +415,24 @@ if (isset($_POST['ruaj'])) {
                     <div class="col">
                       <label class="form-label">Fjalekalimi <small>(Sistemit)</small>:</label>
                       <input type="password" name="password" class="form-control border border-2 rounded-5" placeholder="Fjalkalimi i sistemit">
+                    </div>
+                    <br>
+                    <div class="col">
+                      <label class="form-label">Shtetsia</label>
+                      <select class="form-control border border-2 rounded-5" name="shtetsia" id="shtetsia">
+                        <option value="Shqipëri">Shqipëri</option>
+                        <option value="Kosovë">Kosovë</option>
+                        <option value="Gjermania">Gjermania</option>
+                        <option value="Italia">Italia</option>
+                        <option value="Zvicër">Zvicër</option>
+                        <option value="Maqedonia">Maqedonia</option>
+                        <option value="Mali i zi">Mali i zi</option>
+                      </select>
+                      <script>
+                        new Selectr('#shtetsia', {
+                          searchable: true
+                        })
+                      </script>
                     </div>
                     <br>
                     <div class="col">

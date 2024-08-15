@@ -5,64 +5,65 @@ include 'partials/header.php';
 $editid = mysqli_real_escape_string($conn, $_GET['id']);
 // Check if the form has been submitted
 if (isset($_POST['ndrysho'])) {
-  // Sanitize and retrieve data from the form
-  $emri = mysqli_real_escape_string($conn, $_POST['emri']);
-  $mon = empty($_POST['min']) ? "JO" : mysqli_real_escape_string($conn, $_POST['min']);
-  $dk = mysqli_real_escape_string($conn, $_POST['dk']);
-  $dks = mysqli_real_escape_string($conn, $_POST['dks']);
-  $yt = mysqli_real_escape_string($conn, $_POST['yt']);
-  $info = mysqli_real_escape_string($conn, $_POST['info']);
-  $np = mysqli_real_escape_string($conn, $_POST['np']);
-  $perq = mysqli_real_escape_string($conn, $_POST['perqindja']);
-  $perq2 = mysqli_real_escape_string($conn, $_POST['perqindja2']);
-  $adsa = mysqli_real_escape_string($conn, $_POST['ads']);
-  $fb = mysqli_real_escape_string($conn, $_POST['fb']);
-  $emailadd = mysqli_real_escape_string($conn, $_POST['emailadd']);
-  $email_kontablist = mysqli_real_escape_string($conn, $_POST['email_kontablist']);
-  $emailp = mysqli_real_escape_string($conn, $_POST['emailp']);
-  $ig = mysqli_real_escape_string($conn, $_POST['ig']);
-  $adresa = mysqli_real_escape_string($conn, $_POST['adresa']);
-  $kategoria = mysqli_real_escape_string($conn, $_POST['kategoria']);
-  $emriart = mysqli_real_escape_string($conn, $_POST['emriart']);
-  $nrllog = mysqli_real_escape_string($conn, $_POST['nrllog']);
-  $bank_info = mysqli_real_escape_string($conn, $_POST['bank_info']);
-  $perdoruesi = mysqli_real_escape_string($conn, $_POST['perdoruesi']);
-  $fjalekalimi = md5(mysqli_real_escape_string($conn, $_POST['fjalkalimi']));
-  // Convert the array to a comma-separated string
-  $emails = isset($_POST['emails']) ? implode(',', $_POST['emails']) : '';
-  $perqindja_check = isset($_POST['perqindja_check']) ? '1' : '0';
-  $perqindja_e_platformave_check = isset($_POST['perqindja_platformave_check']) ? '1' : '0';
-  // Define the target folder for file uploads
-  $targetfolder = "dokument/";
-  // Initialize a flag for file upload success
-  $ok = 1;
-  // Check if a file has been uploaded
-  if (isset($_FILES['tipi']) && $_FILES['tipi']['error'] == UPLOAD_ERR_OK) {
-    // Set the target path for the uploaded file
-    $targetfolder = $targetfolder . basename($_FILES['tipi']['name']);
-    // Get the file type
-    $file_type = $_FILES['tipi']['type'];
-    // Check if the file type is PDF
-    if ($file_type == "application/pdf") {
-      // Attempt to move the uploaded file to the target folder
-      if (move_uploaded_file($_FILES['tipi']['tmp_name'], $targetfolder)) {
-        echo "The file " . basename($_FILES['tipi']['name']) . " has been uploaded.";
-      } else {
-        echo "Na vjen keq, ka pasur një gabim gjatë ngarkimit të skedarit tuaj.";
-      }
+    // Sanitize and retrieve data from the form
+    $emri = mysqli_real_escape_string($conn, $_POST['emri']);
+    $mon = empty($_POST['min']) ? "JO" : mysqli_real_escape_string($conn, $_POST['min']);
+    $dk = mysqli_real_escape_string($conn, $_POST['dk']);
+    $dks = mysqli_real_escape_string($conn, $_POST['dks']);
+    $yt = mysqli_real_escape_string($conn, $_POST['yt']);
+    $info = mysqli_real_escape_string($conn, $_POST['info']);
+    $np = mysqli_real_escape_string($conn, $_POST['np']);
+    $perq = mysqli_real_escape_string($conn, $_POST['perqindja']);
+    $perq2 = mysqli_real_escape_string($conn, $_POST['perqindja2']);
+    $adsa = mysqli_real_escape_string($conn, $_POST['ads']);
+    $fb = mysqli_real_escape_string($conn, $_POST['fb']);
+    $emailadd = mysqli_real_escape_string($conn, $_POST['emailadd']);
+    $email_kontablist = mysqli_real_escape_string($conn, $_POST['email_kontablist']);
+    $emailp = mysqli_real_escape_string($conn, $_POST['emailp']);
+    $ig = mysqli_real_escape_string($conn, $_POST['ig']);
+    $adresa = mysqli_real_escape_string($conn, $_POST['adresa']);
+    $kategoria = mysqli_real_escape_string($conn, $_POST['kategoria']);
+    $emriart = mysqli_real_escape_string($conn, $_POST['emriart']);
+    $nrllog = mysqli_real_escape_string($conn, $_POST['nrllog']);
+    $bank_info = mysqli_real_escape_string($conn, $_POST['bank_info']);
+    $perdoruesi = mysqli_real_escape_string($conn, $_POST['perdoruesi']);
+    $fjalekalimi = md5(mysqli_real_escape_string($conn, $_POST['fjalkalimi']));
+    $shtetsia = mysqli_real_escape_string($conn, $_POST['shtetsia']);
+    // Convert the array to a comma-separated string
+    $emails = isset($_POST['emails']) ? implode(',', $_POST['emails']) : '';
+    $perqindja_check = isset($_POST['perqindja_check']) ? '1' : '0';
+    $perqindja_e_platformave_check = isset($_POST['perqindja_platformave_check']) ? '1' : '0';
+    // Define the target folder for file uploads
+    $targetfolder = "dokument/";
+    // Initialize a flag for file upload success
+    $ok = 1;
+    // Check if a file has been uploaded
+    if (isset($_FILES['tipi']) && $_FILES['tipi']['error'] == UPLOAD_ERR_OK) {
+        // Set the target path for the uploaded file
+        $targetfolder = $targetfolder . basename($_FILES['tipi']['name']);
+        // Get the file type
+        $file_type = $_FILES['tipi']['type'];
+        // Check if the file type is PDF
+        if ($file_type == "application/pdf") {
+            // Attempt to move the uploaded file to the target folder
+            if (move_uploaded_file($_FILES['tipi']['tmp_name'], $targetfolder)) {
+                echo "The file " . basename($_FILES['tipi']['name']) . " has been uploaded.";
+            } else {
+                echo "Na vjen keq, ka pasur një gabim gjatë ngarkimit të skedarit tuaj.";
+            }
+        } else {
+            echo "Na vjen keq, lejohen vetëm skedarët PDF.";
+        }
     } else {
-      echo "Na vjen keq, lejohen vetëm skedarët PDF.";
+        // File upload error handling
+        // echo "Sorry, there was an error uploading your file.";
     }
-  } else {
-    // File upload error handling
-    // echo "Sorry, there was an error uploading your file.";
-  }
-  // Sanitize and retrieve the 'nrtel' field
-  $nrtel = mysqli_real_escape_string($conn, $_POST['nrtel']);
-  $type__of_client = mysqli_real_escape_string($conn, $_POST['type_of_client']);
-  // Update the database with the new data
-  if ($conn->query("UPDATE klientet SET emri='$emri', np='$np', monetizuar='$mon', emails='$emails', dk='$dk', dks='$dks', youtube='$yt', info='$info', perqindja='$perq', perqindja2='$perq2', fb='$fb', ig='$ig', adresa='$adresa', kategoria='$kategoria', nrtel='$nrtel', emailp='$emailp', emailadd='$emailadd', emriart='$emriart', nrllog='$nrllog',  bank_name='$bank_info', ads='$adsa', perdoruesi='$perdoruesi', perqindja_check='$perqindja_check', perqindja_platformave_check='$perqindja_e_platformave_check', fjalkalimi='$fjalekalimi', lloji_klientit='$type__of_client', email_kontablist = '$email_kontablist' WHERE id='$editid'")) {
-    echo '<script>
+    // Sanitize and retrieve the 'nrtel' field
+    $nrtel = mysqli_real_escape_string($conn, $_POST['nrtel']);
+    $type__of_client = mysqli_real_escape_string($conn, $_POST['type_of_client']);
+    // Update the database with the new data
+    if ($conn->query("UPDATE klientet SET emri='$emri', np='$np', monetizuar='$mon', emails='$emails', dk='$dk', dks='$dks', youtube='$yt', info='$info', perqindja='$perq', perqindja2='$perq2', fb='$fb', ig='$ig', adresa='$adresa', kategoria='$kategoria', nrtel='$nrtel', emailp='$emailp', emailadd='$emailadd', emriart='$emriart', nrllog='$nrllog',  bank_name='$bank_info', ads='$adsa', perdoruesi='$perdoruesi', perqindja_check='$perqindja_check', perqindja_platformave_check='$perqindja_e_platformave_check', fjalkalimi='$fjalekalimi', shtetsia='$shtetsia', lloji_klientit='$type__of_client', email_kontablist = '$email_kontablist' WHERE id='$editid'")) {
+        echo '<script>
             Swal.fire({
               icon: "success",
               title: "Të dhënat u perditësuan me sukses",
@@ -70,16 +71,16 @@ if (isset($_POST['ndrysho'])) {
               timer: 1500
             });
           </script>';
-    // Prepare data for insertion
-    $user_informations = $user_info['givenName'] . ' ' . $user_info['familyName'];
-    $log_description = $user_informations . " ka ndryshuar klientin " . $emri;
-    $date_information = date('Y-m-d H:i:s');
-    // Prepare the INSERT statement
-    $stmt = $conn->prepare("INSERT INTO logs (stafi, ndryshimi, koha) VALUES (?, ?, ?)");
-    $stmt->bind_param("sss", $user_informations, $log_description, $date_information);
-    if ($stmt->execute()) {
-    } else {
-      echo '<script>
+        // Prepare data for insertion
+        $user_informations = $user_info['givenName'] . ' ' . $user_info['familyName'];
+        $log_description = $user_informations . " ka ndryshuar klientin " . $emri;
+        $date_information = date('Y-m-d H:i:s');
+        // Prepare the INSERT statement
+        $stmt = $conn->prepare("INSERT INTO logs (stafi, ndryshimi, koha) VALUES (?, ?, ?)");
+        $stmt->bind_param("sss", $user_informations, $log_description, $date_information);
+        if ($stmt->execute()) {
+        } else {
+            echo '<script>
               Swal.fire({
                 icon: "error",
                 title: "' . $conn->error . '",
@@ -87,9 +88,9 @@ if (isset($_POST['ndrysho'])) {
                 timer: 1500
               });
             </script>';
-    }
-  } else {
-    echo '<script>
+        }
+    } else {
+        echo '<script>
             Swal.fire({
               icon: "error",
               title: "' . $conn->error . '",
@@ -97,7 +98,7 @@ if (isset($_POST['ndrysho'])) {
               timer: 1500
             });
           </script>';
-  }
+    }
 }
 // Retrieve the data for editing
 $editcl = mysqli_fetch_array($conn->query("SELECT * FROM klientet WHERE id='$editid'"));
@@ -197,17 +198,17 @@ $contractStartDate = mysqli_fetch_array($conn->query("SELECT * FROM kontrata_gje
                                         <br>
                                         <div class="col">
                                             <?php
-                      // Fetch default value from the database (replace with your actual SQL query)
-                      $sql = "SELECT bank_name FROM klientet WHERE id = '$editid'"; // You may need to adjust this query based on your table structure
-                      $result = $conn->query($sql);
-                      // Check if the query was successful
-                      if ($result->num_rows > 0) {
-                        $row = $result->fetch_assoc();
-                        $defaultBank = $row["bank_name"];
-                      } else {
-                        $defaultBank = "Banka Ekonomike"; // Set a default value if no result is found
-                      }
-                      ?>
+                                            // Fetch default value from the database (replace with your actual SQL query)
+                                            $sql = "SELECT bank_name FROM klientet WHERE id = '$editid'"; // You may need to adjust this query based on your table structure
+                                            $result = $conn->query($sql);
+                                            // Check if the query was successful
+                                            if ($result->num_rows > 0) {
+                                                $row = $result->fetch_assoc();
+                                                $defaultBank = $row["bank_name"];
+                                            } else {
+                                                $defaultBank = "Banka Ekonomike"; // Set a default value if no result is found
+                                            }
+                                            ?>
                                             <label class="form-label" for="yt">Emri i bankës</label>
                                             <select id="bank_info" name="bank_info"
                                                 class="form-select rounded-5 border border-2 py-2">
@@ -233,41 +234,41 @@ $contractStartDate = mysqli_fetch_array($conn->query("SELECT * FROM kontrata_gje
                                                 <option value="Western Union">Western Union</option>
                                             </select>
                                             <script>
-                                            new Selectr('#bank_info', {
-                                                searchable: true,
-                                                width: 300
-                                            });
-                                            document.getElementById('bank_info').addEventListener('change', function() {
-                                                var selectedOption = this.value;
-                                                if (selectedOption === 'custom') {
-                                                    Swal.fire({
-                                                        title: 'Shëno emrin e personalizuar të bankës:',
-                                                        input: 'text',
-                                                        showCancelButton: true,
-                                                        confirmButtonText: 'Shto',
-                                                        cancelButtonText: 'Anulo',
-                                                        inputValidator: (value) => {
-                                                            if (!value) {
-                                                                return 'Ju duhet të shënoni diçka!';
+                                                new Selectr('#bank_info', {
+                                                    searchable: true,
+                                                    width: 300
+                                                });
+                                                document.getElementById('bank_info').addEventListener('change', function() {
+                                                    var selectedOption = this.value;
+                                                    if (selectedOption === 'custom') {
+                                                        Swal.fire({
+                                                            title: 'Shëno emrin e personalizuar të bankës:',
+                                                            input: 'text',
+                                                            showCancelButton: true,
+                                                            confirmButtonText: 'Shto',
+                                                            cancelButtonText: 'Anulo',
+                                                            inputValidator: (value) => {
+                                                                if (!value) {
+                                                                    return 'Ju duhet të shënoni diçka!';
+                                                                }
                                                             }
-                                                        }
-                                                    }).then((result) => {
-                                                        if (result.isConfirmed) {
-                                                            var customBankName = result.value;
-                                                            // Add the custom bank name as an option
-                                                            var selectElement = document.getElementById(
-                                                                'bank_info');
-                                                            var customOption = document.createElement(
-                                                                'option');
-                                                            customOption.value = customBankName;
-                                                            customOption.textContent = customBankName;
-                                                            selectElement.appendChild(customOption);
-                                                            // Select the newly added custom bank name
-                                                            selectElement.value = customBankName;
-                                                        }
-                                                    });
-                                                }
-                                            });
+                                                        }).then((result) => {
+                                                            if (result.isConfirmed) {
+                                                                var customBankName = result.value;
+                                                                // Add the custom bank name as an option
+                                                                var selectElement = document.getElementById(
+                                                                    'bank_info');
+                                                                var customOption = document.createElement(
+                                                                    'option');
+                                                                customOption.value = customBankName;
+                                                                customOption.textContent = customBankName;
+                                                                selectElement.appendChild(customOption);
+                                                                // Select the newly added custom bank name
+                                                                selectElement.value = customBankName;
+                                                            }
+                                                        });
+                                                    }
+                                                });
                                             </script>
                                         </div>
                                         <br>
@@ -286,8 +287,8 @@ $contractStartDate = mysqli_fetch_array($conn->query("SELECT * FROM kontrata_gje
                                                 llojit te klientit : <?php echo $editcl['lloji_klientit']; ?></span>
                                             <hr>
                                             <?php // Retrieve the data for editing
-                      $type_of_client = $editcl['lloji_klientit'];
-                      ?>
+                                            $type_of_client = $editcl['lloji_klientit'];
+                                            ?>
                                             <select id="type_of_client" name="type_of_client"
                                                 class="form-select rounded-5 border border-2">
                                                 <option value="Personal"
@@ -298,10 +299,10 @@ $contractStartDate = mysqli_fetch_array($conn->query("SELECT * FROM kontrata_gje
                                                 </option>
                                             </select>
                                             <script>
-                                            new Selectr('#type_of_client', {
-                                                searchable: true,
-                                                width: 300
-                                            })
+                                                new Selectr('#type_of_client', {
+                                                    searchable: true,
+                                                    width: 300
+                                                })
                                             </script>
                                         </div>
                                     </div>
@@ -344,18 +345,18 @@ $contractStartDate = mysqli_fetch_array($conn->query("SELECT * FROM kontrata_gje
                                                 class="form-control rounded-5 border border-2"
                                                 placeholder="Shkruaj Daten e kontrates"
                                                 value="<?php
-                                                                                                                                                          echo $contractStartDate['data_e_krijimit']; ?>">
+                                                        echo $contractStartDate['data_e_krijimit']; ?>">
                                         </div>
                                         <br>
                                         <div class="col">
                                             <label class="form-label" for="dks">Data e skadimit të kontratës</label>
                                             <?php
-                      // Perform calculations for expiration date
-                      $startDate = new DateTime($contractStartDate['data_e_krijimit']);
-                      $durationMonths = $contractStartDate['kohezgjatja'];
-                      $expirationDate = clone $startDate;
-                      $expirationDate->modify("+ $durationMonths months");
-                      ?>
+                                            // Perform calculations for expiration date
+                                            $startDate = new DateTime($contractStartDate['data_e_krijimit']);
+                                            $durationMonths = $contractStartDate['kohezgjatja'];
+                                            $expirationDate = clone $startDate;
+                                            $expirationDate->modify("+ $durationMonths months");
+                                            ?>
                                             <input type="date" name="dks" id="dks"
                                                 class="form-control rounded-5 border border-2"
                                                 placeholder="Shkruaj Daten e skaditimit"
@@ -367,42 +368,42 @@ $contractStartDate = mysqli_fetch_array($conn->query("SELECT * FROM kontrata_gje
                                             <select class="form-select border border-2 rounded-5 w-100" name="kategoria"
                                                 id="kategoria">
                                                 <?php
-                        $kg = $conn->query("SELECT * FROM kategorit");
-                        while ($kgg = mysqli_fetch_array($kg)) {
-                          echo '<option value="' . $kgg['kategorit'] . '">' . $kgg['kategorit'] . '</option>';
-                        }
-                        ?>
+                                                $kg = $conn->query("SELECT * FROM kategorit");
+                                                while ($kgg = mysqli_fetch_array($kg)) {
+                                                    echo '<option value="' . $kgg['kategorit'] . '">' . $kgg['kategorit'] . '</option>';
+                                                }
+                                                ?>
                                             </select>
                                             <script>
-                                            new Selectr('#kategoria', {
-                                                searchable: true,
-                                            })
+                                                new Selectr('#kategoria', {
+                                                    searchable: true,
+                                                })
                                             </script>
                                         </div>
                                         <br>
                                         <div class="col">
                                             <label class="form-label" for="tel">Monetizuar ? </label><br>
                                             <?php if ($editcl['monetizuar'] == "PO") {
-                      ?>
-                                            <input type="radio" id="html" name="min" value="PO" checked
-                                                class="form-check-input">
-                                            <label class="form-check-label text-success" for="flexRadioDefault1">
-                                                PO ( aktive )
-                                            </label>
-                                            <input type="radio" id="css" name="min" value="JO" class="form-check-input">
-                                            <label class="form-check-label text-muted" for="flexRadioDefault1">
-                                                JO
-                                            </label>
+                                            ?>
+                                                <input type="radio" id="html" name="min" value="PO" checked
+                                                    class="form-check-input">
+                                                <label class="form-check-label text-success" for="flexRadioDefault1">
+                                                    PO ( aktive )
+                                                </label>
+                                                <input type="radio" id="css" name="min" value="JO" class="form-check-input">
+                                                <label class="form-check-label text-muted" for="flexRadioDefault1">
+                                                    JO
+                                                </label>
                                             <?php
-                      } else {
-                      ?>
-                                            <input type="radio" id="html" name="min" value="PO"
-                                                class="form-check-input">
-                                              <label class="form-check-label text-muted" for="html">PO</label>
-                                              <input type="radio" id="css" name="min" value="JO" checked
-                                                class="form-check-input">
-                                              <label class="form-check-label text-success" for="css">JO ( aktive
-                                                )</label><br>
+                                            } else {
+                                            ?>
+                                                <input type="radio" id="html" name="min" value="PO"
+                                                    class="form-check-input">
+                                                  <label class="form-check-label text-muted" for="html">PO</label>
+                                                  <input type="radio" id="css" name="min" value="JO" checked
+                                                    class="form-check-input">
+                                                  <label class="form-check-label text-success" for="css">JO ( aktive
+                                                    )</label><br>
                                             <?php } ?>
                                         </div>
                                         <br>
@@ -410,36 +411,36 @@ $contractStartDate = mysqli_fetch_array($conn->query("SELECT * FROM kontrata_gje
                                             <label class="form-label" for="imei">Edito llogarinë e ADS: </label>
                                             <select class="form-select w-100" name="ads" id="exampleFormControlSelect2">
                                                 <?php
-                        $mads = $conn->query("SELECT * FROM ads");
-                        $ads_found = false;
-                        while ($ads = mysqli_fetch_array($mads)) {
-                          if ($ads['id'] == $editcl['ads']) {
-                            $ads_found = true;
-                          }
-                        ?>
-                                                <option value="<?php echo $ads['id']; ?>" <?php if ($ads['id'] == $editcl['ads']) {
-                                                                      echo "selected";
-                                                                    } ?>><?php echo $ads['email']; ?> |
-                                                    <?php echo $ads['adsid']; ?> (<?php echo $ads['shteti']; ?>)
-                                                </option>
+                                                $mads = $conn->query("SELECT * FROM ads");
+                                                $ads_found = false;
+                                                while ($ads = mysqli_fetch_array($mads)) {
+                                                    if ($ads['id'] == $editcl['ads']) {
+                                                        $ads_found = true;
+                                                    }
+                                                ?>
+                                                    <option value="<?php echo $ads['id']; ?>" <?php if ($ads['id'] == $editcl['ads']) {
+                                                                                                    echo "selected";
+                                                                                                } ?>><?php echo $ads['email']; ?> |
+                                                        <?php echo $ads['adsid']; ?> (<?php echo $ads['shteti']; ?>)
+                                                    </option>
                                                 <?php } ?>
                                                 <?php if (!$ads_found && !empty($editcl['emri'])) {
-                          $guse = $conn->query("SELECT * FROM klientet WHERE emri='" . $editcl['emri'] . "'");
-                          $guse2 = mysqli_fetch_array($guse);
-                          $adsid = $guse2['ads'];
-                          $mads = $conn->query("SELECT * FROM ads WHERE id='$adsid'");
-                          $ads = mysqli_fetch_array($mads);
-                        ?>
-                                                <option value="<?php echo $ads['id']; ?>" selected>
-                                                    <?php echo $ads['email']; ?> | <?php echo $ads['adsid']; ?>
-                                                    (<?php echo $ads['shteti']; ?>)</option>
+                                                    $guse = $conn->query("SELECT * FROM klientet WHERE emri='" . $editcl['emri'] . "'");
+                                                    $guse2 = mysqli_fetch_array($guse);
+                                                    $adsid = $guse2['ads'];
+                                                    $mads = $conn->query("SELECT * FROM ads WHERE id='$adsid'");
+                                                    $ads = mysqli_fetch_array($mads);
+                                                ?>
+                                                    <option value="<?php echo $ads['id']; ?>" selected>
+                                                        <?php echo $ads['email']; ?> | <?php echo $ads['adsid']; ?>
+                                                        (<?php echo $ads['shteti']; ?>)</option>
                                                 <?php } ?>
                                             </select>
                                             <script>
-                                            new Selectr('#exampleFormControlSelect2', {
-                                                searchable: true,
-                                                width: 300
-                                            });
+                                                new Selectr('#exampleFormControlSelect2', {
+                                                    searchable: true,
+                                                    width: 300
+                                                });
                                             </script>
                                         </div>
                                     </div>
@@ -491,28 +492,28 @@ $contractStartDate = mysqli_fetch_array($conn->query("SELECT * FROM kontrata_gje
                                                 <div class="input-group-text bg-transparent border-0"
                                                     id="addon-wrapping">
                                                     <input type="checkbox" name="perqindja_check" id="perqindja_check" <?php if ($editcl['perqindja_check'] === "1") {
-                                                                                                echo "checked";
-                                                                                              }  ?>>
+                                                                                                                            echo "checked";
+                                                                                                                        }  ?>>
                                                 </div>
                                                 <?php
-                        if (isset($editcl['perqindja']) && is_numeric($editcl['perqindja'])) {
-                          $perqindja_value = 100 - $editcl['perqindja'];
-                        } else {
-                          $perqindja_value = 'Error: Invalid or missing Perqindja2 value.';
-                        }
-                        ?>
+                                                if (isset($editcl['perqindja']) && is_numeric($editcl['perqindja'])) {
+                                                    $perqindja_value = 100 - $editcl['perqindja'];
+                                                } else {
+                                                    $perqindja_value = 'Error: Invalid or missing Perqindja2 value.';
+                                                }
+                                                ?>
                                                 <input type="text" class="form-control rounded-5 border border-2"
                                                     id="perqindja_platformave_output" name="perqindja_e_klientit"
                                                     disabled value="<?php echo $perqindja_value; ?>">
                                             </div>
                                             <br>
                                             <?php
-                      if ($editcl['perqindja_check'] === "1") {
-                        echo '<div id="perqindja_platformave_message" style="color: green;">Statusi i kesaj perqindje ne sistemin e klientit eshte e vrojtueshme.</div>';
-                      } else {
-                        echo '<div id="perqindja_platformave_message" style="color: red;">JO.</div>';
-                      }
-                      ?>
+                                            if ($editcl['perqindja_check'] === "1") {
+                                                echo '<div id="perqindja_platformave_message" style="color: green;">Statusi i kesaj perqindje ne sistemin e klientit eshte e vrojtueshme.</div>';
+                                            } else {
+                                                echo '<div id="perqindja_platformave_message" style="color: red;">JO.</div>';
+                                            }
+                                            ?>
                                         </div>
                                         <br>
                                         <div class="col">
@@ -523,27 +524,27 @@ $contractStartDate = mysqli_fetch_array($conn->query("SELECT * FROM kontrata_gje
                                                     <input type="checkbox" name="perqindja_platformave_check"
                                                         id="perqindja_platformave_check"
                                                         <?php if ($editcl['perqindja_platformave_check'] === "1") {
-                                                                                                                        echo "checked";
-                                                                                                                      }  ?>>
+                                                            echo "checked";
+                                                        }  ?>>
                                                 </div>
                                                 <?php
-                        if (isset($editcl['perqindja2']) && is_numeric($editcl['perqindja2'])) {
-                          $perqindja2_value = 100 - $editcl['perqindja2'];
-                        } else {
-                          $perqindja2_value = 'Error: Invalid or missing Perqindja2 value.';
-                        }
-                        ?>
+                                                if (isset($editcl['perqindja2']) && is_numeric($editcl['perqindja2'])) {
+                                                    $perqindja2_value = 100 - $editcl['perqindja2'];
+                                                } else {
+                                                    $perqindja2_value = 'Error: Invalid or missing Perqindja2 value.';
+                                                }
+                                                ?>
                                                 <input type="text" class="form-control rounded-5 border border-2"
                                                     id="perqindja_platformave_output" name="perqindja_e_klientit"
                                                     disabled value="<?php echo $perqindja2_value; ?>">
                                             </div>
                                             <?php
-                      if ($editcl['perqindja_platformave_check'] === "1") {
-                        echo '<div id="perqindja_platformave_message" style="color: green;">Statusi i kesaj perqindje ne sistemin e klientit eshte e vrojtueshme.</div>';
-                      } else {
-                        echo '<div id="perqindja_platformave_message" style="color: red;">JO.</div>';
-                      }
-                      ?>
+                                            if ($editcl['perqindja_platformave_check'] === "1") {
+                                                echo '<div id="perqindja_platformave_message" style="color: green;">Statusi i kesaj perqindje ne sistemin e klientit eshte e vrojtueshme.</div>';
+                                            } else {
+                                                echo '<div id="perqindja_platformave_message" style="color: red;">JO.</div>';
+                                            }
+                                            ?>
                                         </div>
                                         <br>
                                         <div class="col">
@@ -595,40 +596,40 @@ $contractStartDate = mysqli_fetch_array($conn->query("SELECT * FROM kontrata_gje
                                             <select multiple class="form-control border border-2 rounded-5"
                                                 name="emails[]" id="exampleFormControlSelect3">
                                                 <?php
-                        // Fetch all distinct emails from both klientet and ads tables
-                        $getemails_klientet = $conn->query("SELECT emails FROM klientet WHERE id = '$editid'");
-                        $emails_with_access = [];
-                        if ($maillist = mysqli_fetch_array($getemails_klientet)) {
-                          // Split the emails string into an array of individual email addresses
-                          $emails_with_access = explode(',', $maillist['emails']);
-                          $emails_with_access = array_map('trim', $emails_with_access); // Remove leading/trailing whitespace
-                        }
-                        $getemails_ads = $conn->query("SELECT DISTINCT email FROM ads");
-                        while ($row = $getemails_ads->fetch_assoc()) {
-                          $email_ads = $row['email']; // Retrieve the email from the fetched row
-                          // Check if this email is not in the list of emails with access
-                          if (!in_array($email_ads, $emails_with_access)) {
-                            // Email without access
-                        ?>
-                                                <option value="<?php echo $email_ads; ?>"><?php echo $email_ads; ?> (nuk
-                                                    ka akses)</option>
-                                                <?php } else {
-                            // Email with access
-                          ?>
-                                                <option value="<?php echo $email_ads; ?>" selected>
-                                                    <?php echo $email_ads; ?> (ka akses)</option>
+                                                // Fetch all distinct emails from both klientet and ads tables
+                                                $getemails_klientet = $conn->query("SELECT emails FROM klientet WHERE id = '$editid'");
+                                                $emails_with_access = [];
+                                                if ($maillist = mysqli_fetch_array($getemails_klientet)) {
+                                                    // Split the emails string into an array of individual email addresses
+                                                    $emails_with_access = explode(',', $maillist['emails']);
+                                                    $emails_with_access = array_map('trim', $emails_with_access); // Remove leading/trailing whitespace
+                                                }
+                                                $getemails_ads = $conn->query("SELECT DISTINCT email FROM ads");
+                                                while ($row = $getemails_ads->fetch_assoc()) {
+                                                    $email_ads = $row['email']; // Retrieve the email from the fetched row
+                                                    // Check if this email is not in the list of emails with access
+                                                    if (!in_array($email_ads, $emails_with_access)) {
+                                                        // Email without access
+                                                ?>
+                                                        <option value="<?php echo $email_ads; ?>"><?php echo $email_ads; ?> (nuk
+                                                            ka akses)</option>
+                                                    <?php } else {
+                                                        // Email with access
+                                                    ?>
+                                                        <option value="<?php echo $email_ads; ?>" selected>
+                                                            <?php echo $email_ads; ?> (ka akses)</option>
                                                 <?php
-                          }
-                        }
-                        ?>
+                                                    }
+                                                }
+                                                ?>
                                             </select>
                                         </div>
                                         <script>
-                                        new Selectr('#exampleFormControlSelect3', {
-                                            multiple: true,
-                                            searchable: true,
-                                            width: 300
-                                        })
+                                            new Selectr('#exampleFormControlSelect3', {
+                                                multiple: true,
+                                                searchable: true,
+                                                width: 300
+                                            })
                                         </script>
                                         <br>
                                         <div class="col">
@@ -684,6 +685,43 @@ $contractStartDate = mysqli_fetch_array($conn->query("SELECT * FROM kontrata_gje
                                         </div>
                                         <br>
                                         <div class="col">
+                                            <label class="form-label">Shtetsia</label>
+                                            <select class="form-select border border-2 rounded-5" name="shtetsia" id="shtetsia">
+                                                <?php
+                                                // Static options
+                                                $staticOptions = [
+                                                    "Shqipëri",
+                                                    "Kosovë",
+                                                    "Gjermania",
+                                                    "Italia",
+                                                    "Zvicër",
+                                                    "Maqedonia",
+                                                    "Mali i zi"
+                                                ];
+
+                                                // Fetch distinct shtetsia values from the database
+                                                $query = "SELECT DISTINCT shtetsia FROM klientet WHERE id = '$editcl[id]'";
+                                                $result = $conn->query($query);
+
+                                                // Merge static and dynamic options
+                                                $options = array_unique(array_merge($staticOptions, $result ? array_column($result->fetch_all(MYSQLI_ASSOC), 'shtetsia') : []));
+
+                                                // Output options
+                                                foreach ($options as $shtetsia): ?>
+                                                    <option value="<?php echo htmlspecialchars($shtetsia); ?>" <?php echo (isset($editcl['shtetsia']) && $editcl['shtetsia'] == $shtetsia) ? 'selected' : ''; ?>>
+                                                        <?php echo htmlspecialchars($shtetsia); ?>
+                                                    </option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                            <script>
+                                                new Selectr('#shtetsia', {
+
+                                                })
+                                            </script>
+                                        </div>
+
+                                        <br>
+                                        <div class="col">
                                             <label class="form-label" for="info"> Info Shtes&euml;</label>
                                             <textarea class="form-control rounded-5 border border-2" id="simpleMde"
                                                 name="info"
@@ -723,12 +761,12 @@ $contractStartDate = mysqli_fetch_array($conn->query("SELECT * FROM kontrata_gje
 </div>
 <?php include 'partials/footer.php'; ?>
 <script>
-$("#dk").flatpickr({
-    dateFormat: "Y-m-d",
-    maxDate: "today"
-})
-$("#dks").flatpickr({
-    dateFormat: "Y-m-d",
-    minDate: "today"
-})
+    $("#dk").flatpickr({
+        dateFormat: "Y-m-d",
+        maxDate: "today"
+    })
+    $("#dks").flatpickr({
+        dateFormat: "Y-m-d",
+        minDate: "today"
+    })
 </script>
