@@ -470,7 +470,6 @@ $contractStartDate = mysqli_fetch_array($conn->query("SELECT * FROM kontrata_gje
                                                 placeholder="Shëno email-in e platformave te klientit">
                                         </div>
                                         <br>
-
                                         <div class="col">
                                             <label for="perqindja" class="form-label">Përqindja ( Baresha )</label>
                                             <input type="text" name="perqindja"
@@ -698,14 +697,11 @@ $contractStartDate = mysqli_fetch_array($conn->query("SELECT * FROM kontrata_gje
                                                     "Maqedonia",
                                                     "Mali i zi"
                                                 ];
-
                                                 // Fetch distinct shtetsia values from the database
                                                 $query = "SELECT DISTINCT shtetsia FROM klientet WHERE id = '$editcl[id]'";
                                                 $result = $conn->query($query);
-
                                                 // Merge static and dynamic options
                                                 $options = array_unique(array_merge($staticOptions, $result ? array_column($result->fetch_all(MYSQLI_ASSOC), 'shtetsia') : []));
-
                                                 // Output options
                                                 foreach ($options as $shtetsia): ?>
                                                     <option value="<?php echo htmlspecialchars($shtetsia); ?>" <?php echo (isset($editcl['shtetsia']) && $editcl['shtetsia'] == $shtetsia) ? 'selected' : ''; ?>>
@@ -714,12 +710,9 @@ $contractStartDate = mysqli_fetch_array($conn->query("SELECT * FROM kontrata_gje
                                                 <?php endforeach; ?>
                                             </select>
                                             <script>
-                                                new Selectr('#shtetsia', {
-
-                                                })
+                                                new Selectr('#shtetsia', {})
                                             </script>
                                         </div>
-
                                         <br>
                                         <div class="col">
                                             <label class="form-label" for="info"> Info Shtes&euml;</label>
@@ -761,12 +754,16 @@ $contractStartDate = mysqli_fetch_array($conn->query("SELECT * FROM kontrata_gje
 </div>
 <?php include 'partials/footer.php'; ?>
 <script>
+    const flatpickrOptions = {
+        dateFormat: "Y-m-d"
+    };
+
     $("#dk").flatpickr({
-        dateFormat: "Y-m-d",
+        ...flatpickrOptions,
         maxDate: "today"
-    })
+    });
     $("#dks").flatpickr({
-        dateFormat: "Y-m-d",
+        ...flatpickrOptions,
         minDate: "today"
-    })
+    });
 </script>

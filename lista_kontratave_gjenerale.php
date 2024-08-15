@@ -228,6 +228,8 @@ if (isset($_POST['submit'])) {
                                 </div>
                             </body>
                         </html>';
+
+        $mail->CharSet = 'UTF-8';
         // Dërgoni emailin
         $mail->send();
         echo 'Emaili është dërguar me sukses!';
