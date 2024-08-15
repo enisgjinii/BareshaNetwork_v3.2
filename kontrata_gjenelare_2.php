@@ -58,6 +58,7 @@ $conn->close();
                                 'emri_bankes' => 'Emri i bankës',
                                 'adresa_bankes' => 'Adresa e bankës'
                             ];
+
                             foreach ($fields as $name => $label): ?>
                                 <div class="col-md-6">
                                     <label for="<?= $name ?>" class="form-label"><?= $label ?></label>
@@ -65,6 +66,7 @@ $conn->close();
                                         placeholder="Shëno <?= $label ?>" <?= in_array($name, ['emri', 'numri_tel', 'numri_personal', 'email', 'youtube_id', 'pronari_xhiroBanka', 'numri_xhiroBanka', 'tvsh', 'emriartistik']) ? 'readonly' : '' ?>>
                                 </div>
                             <?php endforeach; ?>
+
                             <!-- Duration of the Contract -->
                             <div class="col-md-6">
                                 <label for="kohezgjatja" class="form-label">Kohëzgjatja në muaj</label>
@@ -92,14 +94,50 @@ $conn->close();
                         function showEmail(select) {
                             const values = select.value.split("|");
                             const fields = ['emri', 'email', 'emriartistik', 'youtube_id', 'numri_xhiroBanka', 'tvsh', 'numri_personal', 'numri_tel'];
+
                             fields.forEach((field, index) => {
-                                if (document.getElementById(field)) {
-                                    document.getElementById(field).value = values[index] ? sanitize(values[index]) : '';
+                                const inputElement = document.getElementById(field);
+                                if (inputElement) {
+                                    const value = values[index] ? sanitize(values[index]) : '';
+                                    inputElement.value = value;
+                                    if (value === '') {
+                                        inputElement.removeAttribute('readonly');
+                                    } else {
+                                        inputElement.setAttribute('readonly', 'readonly');
+                                    }
                                 }
                             });
-                            document.getElementById('pronari_xhiroBanka').value = sanitize(values[2] || '');
+
+                            // Handle pronari_xhiroBanka field
+                            const pronariXhiroBankaField = document.getElementById('pronari_xhiroBanka');
+                            const pronariValue = sanitize(values[2] || '');
+                            pronariXhiroBankaField.value = pronariValue;
+                            if (pronariValue === '') {
+                                pronariXhiroBankaField.removeAttribute('readonly');
+                            } else {
+                                pronariXhiroBankaField.setAttribute('readonly', 'readonly');
+                            }
+
+                            // Handle tvsh field
                             const perqindja = parseFloat(values[5]);
-                            document.getElementById('tvsh').value = isNaN(perqindja) ? '' : (100 - perqindja).toFixed(2);
+                            const tvshField = document.getElementById('tvsh');
+                            const tvshValue = isNaN(perqindja) ? '' : (100 - perqindja).toFixed(2);
+                            tvshField.value = tvshValue;
+                            if (tvshValue === '') {
+                                tvshField.removeAttribute('readonly');
+                            } else {
+                                tvshField.setAttribute('readonly', 'readonly');
+                            }
+
+                            // Enable SWIFT, IBAN, Bank Name, and Bank Address fields if they are empty
+                            ['kodi_swift', 'iban', 'emri_bankes', 'adresa_bankes'].forEach((field) => {
+                                const fieldElement = document.getElementById(field);
+                                if (fieldElement.value === '') {
+                                    fieldElement.removeAttribute('readonly');
+                                } else {
+                                    fieldElement.setAttribute('readonly', 'readonly');
+                                }
+                            });
                         }
 
                         function sanitize(value) {
@@ -111,7 +149,7 @@ $conn->close();
                             return fields.every(field => document.getElementById(field).value.trim() !== '' || !document.getElementById(field).hasAttribute('required')) || (alert('Ju lutem plotësoni të gjitha fushat e kërkuara.'), false);
                         }
 
-                    document.addEventListener('DOMContentLoaded', () => new Selectr('#artisti', {
+                        document.addEventListener('DOMContentLoaded', () => new Selectr('#artisti', {
                             searchable: true,
                             width: 300
                         }));
