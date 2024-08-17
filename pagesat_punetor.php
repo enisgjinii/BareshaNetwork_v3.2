@@ -74,9 +74,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 }
 ?>
 <div class="main-panel">
-    <div class="content-wrapper">
-        <div class="container-fluid">
-            <nav class="bg-white px-2 rounded-5" style="width:fit-content;" aria-label="breadcrumb">
+    <div class="content-wrapper text-dark">
+        <div class="container-fluid text-dark">
+            <nav class="bg-white px-2 rounded-5 text-dark" style="width:fit-content;" aria-label="breadcrumb">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item "><a class="text-reset" style="text-decoration: none;">Kontabiliteti</a></li>
                     <li class="breadcrumb-item active" aria-current="page"><a href="<?php echo __FILE__; ?>" class="text-reset" style="text-decoration: none;">Pagesat e punëtoreve</a></li>
@@ -100,15 +100,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     <h1 class="modal-title fs-5" id="deletedRowsLabel">Lista e pagesave të fshira</h1>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
-                                <div class="modal-body">
+                                <div class="modal-body text dark">
                                     <div class="table-responsive">
-                                        <table class="table table-bordered w-100" id="deletedTableData">
+                                        <table class="table table-bordered w-100 text-dark" id="deletedTableData">
                                             <thead class="bg-light">
                                                 <tr>
-                                                    <th>ID e rreshtit</th>
-                                                    <th>Puntori</th>
-                                                    <th>Shuma e paguar</th>
-                                                    <th>Data</th>
+                                                    <th class="text-dark">ID e rreshtit</th>
+                                                    <th class="text-dark">Puntori</th>
+                                                    <th class="text-dark">Shuma e paguar</th>
+                                                    <th class="text-dark">Data</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -175,15 +175,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     </div>
                 </div>
             </div>
-            <div class="p-3 shadow-sm rounded-5 mb-4 card">
+            <div class="p-3 shadow-sm rounded-5 mb-4 card text-dark">
                 <div class="table-responsive">
                     <table class="table table-bordered" id="table">
-                        <thead class="bg-light">
+                        <thead class="bg-light text-dark">
                             <tr>
-                                <th>Puntori</th>
-                                <th>Pagesa</th>
-                                <th>Data</th>
-                                <th>Veprimet</th>
+                                <th class="text-dark">Puntori</th>
+                                <th class="text-dark">Pagesa</th>
+                                <th class="text-dark">Data</th>
+                                <th class="text-dark">Veprimet</th>
                             </tr>
                         </thead>
                         <tbody>

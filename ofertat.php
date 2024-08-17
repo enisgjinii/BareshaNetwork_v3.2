@@ -205,22 +205,22 @@
                     </tbody>
                     <tfoot class="bg-light">
                         <tr>
-                            <th>
+                            <th class="text-dark">
                                 Emri i ofertes
                             </th>
-                            <th>
+                            <th class="text-dark">
                                 Emri klientit
                             </th>
-                            <th>
+                            <th class="text-dark">
                                 Koh&euml;zgjatja
                             </th>
-                            <th>
+                            <th class="text-dark">
                                 P&euml;rshkrimi i ofert&euml;s
                             </th>
-                            <th>
+                            <th class="text-dark">
                                 Data
                             </th>
-                            <th>
+                            <th class="text-dark">
                                 Vepro
                             </th>
                         </tr>
