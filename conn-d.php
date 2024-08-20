@@ -12,7 +12,7 @@ if ($env == "local") {
 } else {
   $db_host = "192.250.231.19";
   $db_user = "bareshao_f";
-  $db_pass = "prishtin134?";
+  $db_pass = "pg07#cN40";
   $db_name = "bareshao_f";
 }
 
@@ -24,3 +24,8 @@ if ($conn->connect_errno) {
   echo "Lidhja me MySQL dështoi: " . $conn->connect_error;
   exit();
 }
+
+// pyinstaller --onefile --windowed --add-data "client.json;." your_script_name.py
+
+
+

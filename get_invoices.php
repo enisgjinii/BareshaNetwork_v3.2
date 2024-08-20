@@ -1,7 +1,10 @@
 <?php
 include 'conn-d.php';
+
 $table = 'invoices';
 $primaryKey = 'id';
+
+// Define columns with necessary details
 $columns = array(
     array('db' => 'id', 'dt' => 'id', 'searchable' => false),
     array('db' => 'invoice_number', 'dt' => 'invoice_number', 'searchable' => true),
@@ -13,11 +16,12 @@ $columns = array(
     array('db' => 'customer_loan', 'dt' => 'customer_loan', 'searchable' => false),
     array('db' => 'customer_email', 'dt' => 'customer_email', 'searchable' => true)
 );
-$sql = "SELECT i.id, i.invoice_number, i.item, i.customer_id, i.state_of_invoice,i.type,
+// Construct the base SQL query
+$sql = "SELECT i.id, i.invoice_number, i.item, i.customer_id, i.state_of_invoice, i.type,
                 i_agg.total_amount,
                 i_agg.total_amount_after_percentage,
                 i.total_amount_in_eur,
-                i.total_amount_in_eur_after_percentage,     
+                i.total_amount_in_eur_after_percentage,
                 i_agg.paid_amount,
                 k.emri AS customer_name,
                 k.emailadd AS customer_email,
@@ -45,47 +49,77 @@ $sql = "SELECT i.id, i.invoice_number, i.item, i.customer_id, i.state_of_invoice
             FROM invoices
             GROUP BY invoice_number
         ) AS i_agg ON i.invoice_number = i_agg.invoice_number";
+
+// Apply filters based on non-null values and klientet.aktiv
 $sql .= " WHERE (
     (i.total_amount_in_eur_after_percentage IS NOT NULL 
      AND (i.total_amount_in_eur_after_percentage - i.paid_amount) > 1)
     OR 
     (COALESCE(i.total_amount_in_eur_after_percentage, i.total_amount_after_percentage) - i.paid_amount) > 1
   )
-  AND (k.lloji_klientit = 'Personal' OR k.lloji_klientit IS NULL)";
+  AND (k.lloji_klientit = 'Personal' OR k.lloji_klientit IS NULL)
+  AND (k.aktiv IS NULL OR k.aktiv = 0)"; // New condition to filter klientet.aktiv
+
+// Handle search functionality
 if (!empty($_REQUEST['search']['value'])) {
     $sql .= " AND (";
     $searchConditions = array();
+    $searchValue = mysqli_real_escape_string($conn, $_REQUEST['search']['value']);
+
     foreach ($columns as $column) {
         if ($column['searchable']) {
             if ($column['dt'] === 'customer_name') {
-                $searchConditions[] = "k.emri LIKE '%" . mysqli_real_escape_string($conn, $_REQUEST['search']['value']) . "%'";
+                $searchConditions[] = "k.emri LIKE '%$searchValue%'";
             } elseif ($column['dt'] === 'customer_email') {
-                $searchConditions[] = "k.emailadd LIKE '%" . mysqli_real_escape_string($conn, $_REQUEST['search']['value']) . "%'";
+                $searchConditions[] = "k.emailadd LIKE '%$searchValue%'";
             } else {
-                $searchConditions[] = "i." . $column['db'] . " LIKE '%" . mysqli_real_escape_string($conn, $_REQUEST['search']['value']) . "%'";
+                $searchConditions[] = "i." . $column['db'] . " LIKE '%$searchValue%'";
             }
         }
     }
     $sql .= implode(" OR ", $searchConditions);
     $sql .= ")";
 }
+
+// Get the total record count before applying pagination
 $sqlCount = "SELECT COUNT(*) as count FROM ($sql) AS countTable";
-$totalRecords = mysqli_fetch_assoc(mysqli_query($conn, $sqlCount))['count'];
-$start = $_REQUEST['start'];
-$length = $_REQUEST['length'];
-$orderColumn = $columns[$_REQUEST['order'][0]['column']]['db'];
-$orderDirection = $_REQUEST['order'][0]['dir'];
-$sql .= " ORDER BY id DESC LIMIT $start, $length";
+$resultCount = mysqli_query($conn, $sqlCount);
+$totalRecords = $resultCount ? mysqli_fetch_assoc($resultCount)['count'] : 0;
+
+// Apply ordering
+$orderColumnIndex = isset($_REQUEST['order'][0]['column']) ? (int)$_REQUEST['order'][0]['column'] : 0;
+$orderDirection = isset($_REQUEST['order'][0]['dir']) && $_REQUEST['order'][0]['dir'] === 'desc' ? 'DESC' : 'ASC';
+$orderColumn = $columns[$orderColumnIndex]['db'];
+
+$sql .= " ORDER BY $orderColumn $orderDirection";
+
+// Apply pagination
+$start = isset($_REQUEST['start']) ? (int)$_REQUEST['start'] : 0;
+$length = isset($_REQUEST['length']) && $_REQUEST['length'] != -1 ? (int)$_REQUEST['length'] : 10;
+$sql .= " LIMIT $start, $length";
+
+// Execute the final query
 $query = mysqli_query($conn, $sql);
+
+if (!$query) {
+    die(json_encode(array(
+        "error" => mysqli_error($conn)
+    )));
+}
+
+// Fetch data
 $data = array();
 while ($row = mysqli_fetch_assoc($query)) {
     $data[] = $row;
 }
+
+// Prepare the response
 $response = array(
     "draw" => intval($_REQUEST['draw']),
     "recordsTotal" => $totalRecords,
     "recordsFiltered" => $totalRecords,
     "data" => $data
 );
+
+// Output response in JSON format
 echo json_encode($response);
-$conn->close();

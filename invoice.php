@@ -219,6 +219,10 @@ require_once 'invoices_trash_modal.php';
           <div class="tab-content text-dark" id="pills-tabContent">
             <div class="tab-pane fade show active" id="pills-lista_e_faturave" role="tabpanel" aria-labelledby="pills-lista_e_faturave-tab">
               <div class="table-responsive">
+                <select id="monthFilter" class="form-select">
+                  <option value="">Zgjidh muajin</option>
+                  <!-- Options will be populated dynamically -->
+                </select>
                 <table id="invoiceList" class="table table-bordered table-sm" data-source="get_invoices.php">
                   <thead class="table-light">
                     <tr>
@@ -392,67 +396,68 @@ require_once 'invoices_trash_modal.php';
     var table = $('#invoiceList').DataTable({
       processing: true,
       serverSide: true,
-      "searching": {
-        "regex": true
+      searching: {
+        regex: true
       },
-      "paging": true,
-      "pageLength": 10,
+      paging: true,
+      pagingType: "full_numbers",
       dom: "<'row'<'col-md-3'l><'col-md-6'B><'col-md-3'f>>" +
         "<'row'<'col-md-12'tr>>" +
         "<'row'<'col-md-6'><'col-md-6'p>>",
-      "ajax": {
-        "url": "get_invoices.php",
-        "type": "POST",
+      ajax: {
+        url: "get_invoices.php",
+        type: "POST"
       },
+      order: [
+        [0, "desc"]
+      ],
+      lengthMenu: [
+        [10, 25, 50, 100, -1],
+        [10, 25, 50, 100, "Te gjitha"]
+      ],
       initComplete: function() {
-        var btns = $(".dt-buttons");
-        btns.addClass("").removeClass("dt-buttons btn-group");
-        var lengthSelect = $("div.dataTables_length select");
-        lengthSelect.addClass("form-select");
-        lengthSelect.css({
+        $(".dt-buttons").removeClass("dt-buttons btn-group");
+        $("div.dataTables_length select").addClass("form-select").css({
           width: "auto",
           margin: "0 8px",
           padding: "0.375rem 1.75rem 0.375rem 0.75rem",
           lineHeight: "1.5",
           border: "1px solid #ced4da",
-          borderRadius: "0.25rem",
+          borderRadius: "0.25rem"
         });
       },
       language: {
-        url: "https://cdn.datatables.net/plug-ins/1.13.1/i18n/sq.json",
+        url: "https://cdn.datatables.net/plug-ins/1.13.1/i18n/sq.json"
       },
       buttons: [{
           extend: "pdf",
-          text: '<i class="fi fi-rr-file-pdf fa-lg"></i>&nbsp;&nbsp; PDF',
-          titleAttr: "Eksporto tabelen ne formatin PDF",
-          className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
+          text: '<i class="fi fi-rr-file-pdf fa-lg"></i> PDF',
+          className: "btn btn-light btn-sm bg-light border me-2 rounded-5"
         },
         {
           extend: "excelHtml5",
-          text: '<i class="fi fi-rr-file-excel fa-lg"></i>&nbsp;&nbsp; Excel',
-          titleAttr: "Eksporto tabelen ne formatin Excel",
+          text: '<i class="fi fi-rr-file-excel fa-lg"></i> Excel',
           className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
           exportOptions: {
             modifier: {
               search: "applied",
               order: "applied",
-              page: "all",
-            },
-          },
+              page: "all"
+            }
+          }
         },
         {
           extend: "print",
-          text: '<i class="fi fi-rr-print fa-lg"></i>&nbsp;&nbsp; Printo',
-          titleAttr: "Printo tabel&euml;n",
-          className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
-        }, {
-          text: '<i class="fi fi-rr-trash fa-lg"></i>&nbsp;&nbsp; Fshij',
+          text: '<i class="fi fi-rr-print fa-lg"></i> Printo',
+          className: "btn btn-light btn-sm bg-light border me-2 rounded-5"
+        },
+        {
+          text: '<i class="fi fi-rr-trash fa-lg"></i> Fshij',
           className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
           action: function() {
-            const selectedIds = [];
-            $('.row-checkbox:checked').each(function() {
-              selectedIds.push($(this).data('id'));
-            });
+            var selectedIds = $('.row-checkbox:checked').map(function() {
+              return $(this).data('id');
+            }).get();
             if (selectedIds.length > 0) {
               Swal.fire({
                 icon: 'warning',
@@ -460,36 +465,25 @@ require_once 'invoices_trash_modal.php';
                 text: 'A jeni i sigurt që dëshironi të fshini elementet e zgjedhura?',
                 showCancelButton: true,
                 confirmButtonText: 'Po, Fshij',
-                cancelButtonText: 'Anulo',
+                cancelButtonText: 'Anulo'
               }).then((result) => {
                 if (result.isConfirmed) {
-                  $.ajax({
-                    url: 'delete_invoice.php',
-                    type: 'POST',
-                    data: {
-                      ids: selectedIds
-                    },
-                    success: function(response) {
-                      Swal.fire({
-                        icon: 'success',
-                        title: 'Fshirja u krye me sukses!',
-                        text: response,
-                      });
-                      const currentPage = table.page.info().page;
-                      // Reload table data
-                      table.ajax.reload(function() {
-                        // After reload, set the table to the saved current page
-                        table.page(currentPage).draw('page');
-                      });
-                    },
-                    error: function(error) {
-                      console.error('Error deleting items:', error);
-                      Swal.fire({
-                        icon: 'error',
-                        title: 'Gabim gjatë fshirjes',
-                        text: 'Dicka shkoi keq gjatë fshirjes. Ju lutem provoni përsëri.',
-                      });
-                    }
+                  $.post('delete_invoice.php', {
+                    ids: selectedIds
+                  }, function(response) {
+                    Swal.fire({
+                      icon: 'success',
+                      title: 'Fshirja u krye me sukses!',
+                      text: response
+                    });
+                    var currentPage = table.page.info().page;
+                    table.ajax.reload(() => table.page(currentPage).draw('page'));
+                  }).fail(() => {
+                    Swal.fire({
+                      icon: 'error',
+                      title: 'Gabim gjatë fshirjes',
+                      text: 'Dicka shkoi keq gjatë fshirjes. Ju lutem provoni përsëri.'
+                    });
                   });
                 }
               });
@@ -497,199 +491,106 @@ require_once 'invoices_trash_modal.php';
               Swal.fire({
                 icon: 'info',
                 title: 'Nuk ke zgjedhur elemente',
-                text: 'Ju lutem zgjedhni elemente për t\'i fshirë.',
+                text: 'Ju lutem zgjedhni elemente për t\'i fshirë.'
               });
             }
-          },
-        },
+          }
+        }
       ],
       stripeClasses: ["stripe-color"],
       columnDefs: [{
-        "targets": [0, 1, 2, 3, 4, 5, 6],
-        "render": function(data, type, row) {
-          return type === 'display' && data !== null ? '<div style="white-space: normal;">' + data + '</div>' : data;
+        targets: [0, 1, 2, 3, 4, 5, 6],
+        render: function(data, type, row) {
+          return type === 'display' && data ? `<div style="white-space: normal;">${data}</div>` : data;
         }
-      }],
+      }, ],
       columns: [{
           data: 'id',
-          render: function(data, type, row) {
-            return '<input type="checkbox" class="row-checkbox" data-id="' + data + '">';
+          render: function(data) {
+            return `<input type="checkbox" class="row-checkbox" data-id="${data}">`;
           }
         },
         {
           data: 'customer_name',
           render: function(data, type, row) {
-            const loanAmount = row.customer_loan_amount;
-            const loanPaid = row.customer_loan_paid;
-            const difference = loanAmount - loanPaid;
-            if (difference > 0) {
-              const dotHTML = '<div class="custom-tooltip" >' +
-                '<div class="custom-dot"></div>' +
-                '<span class="custom-tooltiptext">' + difference + ' €</span>' +
-                '</div>';
-              return '<p style="white-space: normal;">' + data + '</p>' + dotHTML;
-            } else {
-              return '<p style="white-space: normal;">' + data + '</p>';
-            }
+            const difference = row.customer_loan_amount - row.customer_loan_paid;
+            const dotHTML = difference > 0 ? `<div class="custom-tooltip"><div class="custom-dot"></div><span class="custom-tooltiptext">${difference} €</span></div>` : '';
+            return `<p style="white-space: normal;">${data}</p>${dotHTML}`;
           }
         },
         {
           data: 'item',
           render: function(data, type, row) {
-            var stateOfInvoice = row.state_of_invoice || '';
-            var typeOfInvoice = row.type || '';
-            var badgeClass = stateOfInvoice === 'Parregullt' ? 'bg-danger' : stateOfInvoice === 'Rregullt' ? 'bg-success' : '';
-            return `
-    <div class="item-column">${data || ''}</div><br>
-    <div class="badge-column">
-      ${stateOfInvoice && `<span class="badge ${badgeClass} mx-1 rounded-5">${stateOfInvoice}</span>`}
-      ${typeOfInvoice && `<span class="badge bg-secondary mx-1 rounded-5">${typeOfInvoice}</span>`}
-    </div>
-  `;
+            const stateClass = row.state_of_invoice === 'Parregullt' ? 'bg-danger' : row.state_of_invoice === 'Rregullt' ? 'bg-success' : '';
+            return `<div class="item-column">${data || ''}</div><br>
+                    <div class="badge-column">
+                        ${row.state_of_invoice ? `<span class="badge ${stateClass} mx-1 rounded-5">${row.state_of_invoice}</span>` : ''}
+                        ${row.type ? `<span class="badge bg-secondary mx-1 rounded-5">${row.type}</span>` : ''}
+                    </div>`;
           }
         },
         {
           data: null,
           render: function(data, type, row) {
-            const conversionCellId = 'converted-amount-' + row.id;
-            let compactHTML = `
-        <div class="amount-details" style="font-size:12px;">
-          <div class="d-flex justify-content-between">
-            <p>Shuma e për.:</p>
-            <p>${row.total_amount} USD</p>
-          </div>
-          <div class="d-flex justify-content-between">
-            <p>Shuma e për. % :</p>
-            <p>${row.total_amount_after_percentage} USD</p>
-          </div>`;
-            if (row.total_amount_in_eur) {
-              compactHTML += `
-          <div class="d-flex justify-content-between">
-            <p>EUR - Shuma e për. :</p>
-            <p>${row.total_amount_in_eur} EUR</p>
-          </div>`;
-            }
-            if (row.total_amount_in_eur_after_percentage) {
-              compactHTML += `
-          <div class="d-flex justify-content-between">
-            <p>EUR - Shuma e për. % :</p>
-            <p>${row.total_amount_in_eur_after_percentage} EUR</p>
-          </div>`;
-            }
-            // Fetch the converted amount asynchronously
-            const url = 'convert_currency.php?amount=' + row.total_amount_after_percentage;
-            fetch(url)
-              .then(response => response.json())
-              .then(result => {
-                if (result.error) {
-                  document.getElementById(conversionCellId).innerText = 'Error: ' + result.error;
-                } else if (result.result && result.result.EUR) {
-                  document.getElementById(conversionCellId).innerText = result.result.EUR.toFixed(2) + ' EUR';
-                } else {
-                  document.getElementById(conversionCellId).innerText = 'Error fetching rate';
-                }
-              })
-              .catch(error => {
-                document.getElementById(conversionCellId).innerText = 'Error fetching rate';
-              });
-            return compactHTML;
+            const details = [
+              `<div class="d-flex justify-content-between"><p>Shuma e për.:</p><p>${row.total_amount} USD</p></div>`,
+              `<div class="d-flex justify-content-between"><p>Shuma e për. % :</p><p>${row.total_amount_after_percentage} USD</p></div>`,
+              row.total_amount_in_eur ? `<div class="d-flex justify-content-between"><p>EUR - Shuma e për. :</p><p>${row.total_amount_in_eur} EUR</p></div>` : '',
+              row.total_amount_in_eur_after_percentage ? `<div class="d-flex justify-content-between"><p>EUR - Shuma e për. % :</p><p>${row.total_amount_in_eur_after_percentage} EUR</p></div>` : ''
+            ].join('');
+            return `<div class="amount-details" style="font-size:12px;">${details}</div>`;
           }
         },
         {
-          // HERE is paided amount
           data: 'paid_amount',
-          render: function(data, type, row) {
-            return data.toLocaleString(undefined, {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2
-            }) + ' €';
+          render: function(data) {
+            return `${parseFloat(data).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €`;
           }
         },
         {
           data: null,
           render: function(data, type, row) {
-            var fitimiIBareshes = row.total_amount_in_eur - row.total_amount_in_eur_after_percentage;
-            return fitimiIBareshes.toLocaleString(undefined, {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2
-            }) + ' €';
+            const profit = row.total_amount_in_eur - row.total_amount_in_eur_after_percentage;
+            return `${profit.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €`;
           }
         },
         {
           data: 'remaining_amount',
           render: function(data, type, row) {
-            var remainingAmount;
-            if (row.total_amount_in_eur_after_percentage !== null && row.total_amount_in_eur_after_percentage !== undefined) {
-              remainingAmount = row.total_amount_in_eur_after_percentage - row.paid_amount;
-              remainingAmount = remainingAmount.toFixed(2) + ' €';
-            } else {
-              remainingAmount = row.total_amount_after_percentage - row.paid_amount;
-              remainingAmount = remainingAmount.toFixed(2) + ' $';
-            }
-            return remainingAmount.toLocaleString(undefined, {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2
-            });
+            const remaining = row.total_amount_in_eur_after_percentage !== null ?
+              row.total_amount_in_eur_after_percentage - row.paid_amount :
+              row.total_amount_after_percentage - row.paid_amount;
+            return `${remaining.toFixed(2)} ${row.total_amount_in_eur_after_percentage !== null ? '€' : '$'}`;
           }
         },
         {
           data: 'actions',
           render: function(data, type, row) {
-            var totalAmount = row.total_amount_in_eur_after_percentage !== null && row.total_amount_in_eur_after_percentage !== undefined ?
-              row.total_amount_in_eur_after_percentage : row.total_amount_after_percentage;
-            var remainingAmount = totalAmount - row.paid_amount;
-            var html = '<div>';
-            // Payment modal link
-            html += '<a href="#" style="text-decoration:none;" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark open-payment-modal" ' +
-              'data-id="' + row.id + '" ' +
-              'data-invoice-number="' + row.invoice_number + '" ' +
-              'data-customer-id="' + row.customer_id + '" ' +
-              'data-item="' + row.item + '" ' +
-              'data-total-amount="' + totalAmount + '" ' +
-              'data-paid-amount="' + row.paid_amount + '" ' +
-              'data-remaining-amount="' + remainingAmount + '">' +
-              '<i class="fi fi-rr-euro"></i></a>';
-            // Complete invoice link
-            html += '<a target="_blank" style="text-decoration:none;" href="complete_invoice.php?id=' + row.id + '" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark">' +
-              '<i class="fi fi-rr-edit"></i></a>';
-            // Print invoice link
-            html += '<a target="_blank" style="text-decoration:none;" href="print_invoice.php?id=' + row.invoice_number + '" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark">' +
-              '<i class="fi fi-rr-print"></i></a>';
-            // Send invoice to customer
-            if (row.customer_email) {
-              html += '<a href="#" style="text-decoration:none;" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark send-invoice" ' +
-                'data-id="' + row.id + '">' +
-                'Dergo faktur tek kengtari</a>';
-            } else {
-              html += '<button style="text-decoration:none;" class="bg-light border border-1 px-3 py-2 rounded-5 mx-1 text-dark" disabled>' +
-                '<i class="fi fi-rr-file-export"></i></button>' +
-                '<p style="white-space: normal;">' +
-                '<div class="custom-tooltip">' +
-                '<div class="custom-dot"></div>' +
-                '<span class="custom-tooltiptext">Nuk posedon email</span>' +
-                '</div>' +
-                '</p>';
-            }
-            // Send invoice to contablist
-            if (row.email_of_contablist) {
-              html += '<a href="#" style="text-decoration:none;" class="bg-white border border-1 px-3 border-danger py-2 rounded-5 mx-1 text-dark send-invoices" ' +
-                'data-id="' + row.id + '">' +
-                'Dergo faktur tek kontabilisti</a>';
-            } else {
-              html += '<button style="text-decoration:none;" class="bg-light border border-1 px-3 py-2 rounded-5 mx-1 text-dark" disabled>' +
-                '<i class="fi fi-rr-file-export"></i></button>' +
-                '<p style="white-space: normal;">' +
-                '<div class="custom-tooltip">' +
-                '<div class="custom-dot"></div>' +
-                '<span class="custom-tooltiptext">Nuk posedon email</span>' +
-                '</div>' +
-                '</p>';
-            }
-            html += '</div>';
-            return html;
+            const totalAmount = row.total_amount_in_eur_after_percentage !== null ? row.total_amount_in_eur_after_percentage : row.total_amount_after_percentage;
+            const remainingAmount = totalAmount - row.paid_amount;
+            return `
+                <div>
+                    <a href="#" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark open-payment-modal" 
+                       data-id="${row.id}" data-invoice-number="${row.invoice_number}" data-customer-id="${row.customer_id}" 
+                       data-item="${row.item}" data-total-amount="${totalAmount}" data-paid-amount="${row.paid_amount}" 
+                       data-remaining-amount="${remainingAmount}"><i class="fi fi-rr-euro"></i></a>
+                    <a href="complete_invoice.php?id=${row.id}" target="_blank" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark">
+                        <i class="fi fi-rr-edit"></i></a>
+                    <a href="print_invoice.php?id=${row.invoice_number}" target="_blank" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark">
+                        <i class="fi fi-rr-print"></i></a>
+                    ${row.customer_email ? 
+                      `<a href="#" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark send-invoice" data-id="${row.id}">Dergo faktur tek kengtari</a>` : 
+                      `<button class="bg-light border border-1 px-3 py-2 rounded-5 mx-1 text-dark" disabled><i class="fi fi-rr-file-export"></i></button>
+                       <p style="white-space: normal;"><div class="custom-tooltip"><div class="custom-dot"></div><span class="custom-tooltiptext">Nuk posedon email</span></div></p>`}
+                    ${row.email_of_contablist ? 
+                      `<a href="#" class="bg-white border border-1 px-3 border-danger py-2 rounded-5 mx-1 text-dark send-to-contablist" 
+                         data-invoice-number="${row.invoice_number}" data-email="${row.email_of_contablist}">Dergo tek kontablisti</a>` : 
+                      `<button class="bg-light border border-1 px-3 py-2 rounded-5 mx-1 text-dark" disabled><i class="fi fi-rr-envelope"></i></button>
+                       <p style="white-space: normal;"><div class="custom-tooltip"><div class="custom-dot"></div><span class="custom-tooltiptext">Nuk posedon email te kontablistit</span></div></p>`}
+                </div>`;
           }
         }
-      ],
+      ]
     });
     var tableSecond = $('#invoiceListBiznes').DataTable({
       processing: true,
@@ -1265,6 +1166,21 @@ require_once 'invoices_trash_modal.php';
           console.error('Error restoring invoice:', error);
         }
       });
+    });
+    $.ajax({
+      url: 'get_months.php', // The PHP script created above
+      type: 'GET',
+      success: function(data) {
+        var months = JSON.parse(data);
+        months.forEach(function(month) {
+          $('#monthFilter').append(new Option(month, month));
+        });
+      }
+    });
+    $('#monthFilter').change(function() {
+      var selectedMonth = $(this).val();
+      var table = $('#invoiceList').DataTable();
+      table.ajax.url('get_invoices.php?month=' + selectedMonth).load();
     });
   });
 </script>
