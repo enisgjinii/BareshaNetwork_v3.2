@@ -109,8 +109,8 @@ if (isset($_POST['ruaj'])) {
                     </tbody>
                     <tfoot class="bg-light">
                       <tr>
-                        <th>Pershkrimi</th>
-                        <th>Filet</th>
+                        <th class ="text-dark">Pershkrimi</th>
+                        <th class="text-dark">Filet</th>
                         <th></th>
                       </tr>
                     </tfoot>

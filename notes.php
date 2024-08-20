@@ -62,9 +62,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             echo '<div class="row"><table class="table w-100 table-bordered">
                         <thead class="bg-light">
                         <tr>
-                            <th>Shenimi</th>
-                            <th>Data</th>
-                            <th>Perditso</th>
+                            <th class="text-dark">Shenimi</th>
+                            <th class="text-dark">Data</th>
+                            <th class="text-dark">Perditso</th>
                         </tr>
                         </thead>
                         <tbody>';
@@ -78,18 +78,18 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 
                                 echo '<tr>
-                                    <td>' . $decrypted_shenimi . '</td>
-                                    <td>' . $row['data'] . '</td>
-                                    <td>' . $edit_link . ' ' . $delete_link . '</td>
+                                    <td class="text-dark">' . $decrypted_shenimi . '</td>
+                                    <td class="text-dark">' . $row['data'] . '</td>
+                                    <td class="text-dark">' . $edit_link . ' ' . $delete_link . '</td>
 
                                   </tr>';
                             }
 
-                            echo '</tbody><tfoot class="bg-light">
+                            echo '</tbody><tfoot class="bg-light text-dark">
                             <tr>
-                            <th>Shenimi</th>
-                            <th>Data</th>
-                            <th>Perditso</th>
+                            <th class="text-dark">Shenimi</th>
+                            <th class="text-dark">Data</th>
+                            <th class="text-dark">Perditso</th>
                             </tr>
 
                                     </tfoot>
