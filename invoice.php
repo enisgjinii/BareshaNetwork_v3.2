@@ -171,6 +171,7 @@ require_once 'invoices_trash_modal.php';
                 searchable: true,
                 width: 300
               })
+
               function convertToEUR(amount, outputId) {
                 fetch(`https://api.exconvert.com/convert?from=USD&to=EUR&amount=${amount}&access_key=7ac9d0d8-2c2a1729-0a51382b-b85cd112`)
                   .then(response => response.json())
@@ -183,6 +184,7 @@ require_once 'invoices_trash_modal.php';
                   })
                   .catch(error => console.error('Error:', error));
               }
+
               function calculateAmountAfterPercentage() {
                 const totalAmount = parseFloat(document.getElementById("total_amount").value);
                 const percentage = parseFloat(document.getElementById("percentage").value);
@@ -377,6 +379,7 @@ require_once 'invoices_trash_modal.php';
     var totalAmountAfterPercentage = totalAmount - (totalAmount * (percentage / 100));
     document.getElementById('total_amount_after_percentage').value = totalAmountAfterPercentage.toFixed(2);
   });
+
   function getCustomerName(customerId) {
     var customerName = '';
     $.ajax({
@@ -893,35 +896,56 @@ require_once 'invoices_trash_modal.php';
         {
           data: 'actions',
           render: function(data, type, row) {
-            // Determine the total amount
-            var totalAmount = row.total_amount_in_eur_after_percentage ?? row.total_amount_after_percentage;
+            var totalAmount = row.total_amount_in_eur_after_percentage !== null && row.total_amount_in_eur_after_percentage !== undefined ?
+              row.total_amount_in_eur_after_percentage : row.total_amount_after_percentage;
             var remainingAmount = totalAmount - row.paid_amount;
             var html = '<div>';
             // Payment modal link
-            html += `
-      <a href="#" style="text-decoration:none;" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark open-payment-modal" 
-         data-id="${row.id}" 
-         data-invoice-number="${row.invoice_number}" 
-         data-customer-id="${row.customer_id}" 
-         data-item="${row.item}" 
-         data-total-amount="${totalAmount}" 
-         data-paid-amount="${row.paid_amount}" 
-         data-remaining-amount="${remainingAmount}">
-        <i class="fi fi-rr-euro"></i>
-      </a>
-    `;
+            html += '<a href="#" style="text-decoration:none;" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark open-payment-modal" ' +
+              'data-id="' + row.id + '" ' +
+              'data-invoice-number="' + row.invoice_number + '" ' +
+              'data-customer-id="' + row.customer_id + '" ' +
+              'data-item="' + row.item + '" ' +
+              'data-total-amount="' + totalAmount + '" ' +
+              'data-paid-amount="' + row.paid_amount + '" ' +
+              'data-remaining-amount="' + remainingAmount + '">' +
+              '<i class="fi fi-rr-euro"></i></a>';
             // Complete invoice link
-            html += `
-      <a target="_blank" style="text-decoration:none;" href="complete_invoice.php?id=${row.id}" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark">
-        <i class="fi fi-rr-edit"></i>
-      </a>
-    `;
+            html += '<a target="_blank" style="text-decoration:none;" href="complete_invoice.php?id=' + row.id + '" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark">' +
+              '<i class="fi fi-rr-edit"></i></a>';
             // Print invoice link
-            html += `
-      <a target="_blank" style="text-decoration:none;" href="print_invoice.php?id=${row.invoice_number}" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark">
-        <i class="fi fi-rr-print"></i>
-      </a>
-    `;
+            html += '<a target="_blank" style="text-decoration:none;" href="print_invoice.php?id=' + row.invoice_number + '" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark">' +
+              '<i class="fi fi-rr-print"></i></a>';
+            // Send invoice to customer
+            if (row.customer_email) {
+              html += '<a href="#" style="text-decoration:none;" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark send-invoice" ' +
+                'data-id="' + row.id + '">' +
+                'Dergo faktur tek kengtari</a>';
+            } else {
+              html += '<button style="text-decoration:none;" class="bg-light border border-1 px-3 py-2 rounded-5 mx-1 text-dark" disabled>' +
+                '<i class="fi fi-rr-file-export"></i></button>' +
+                '<p style="white-space: normal;">' +
+                '<div class="custom-tooltip">' +
+                '<div class="custom-dot"></div>' +
+                '<span class="custom-tooltiptext">Nuk posedon email</span>' +
+                '</div>' +
+                '</p>';
+            }
+            // Send invoice to contablist
+            if (row.email_of_contablist) {
+              html += '<a href="#" style="text-decoration:none;" class="bg-white border border-1 px-3 border-danger py-2 rounded-5 mx-1 text-dark send-invoices" ' +
+                'data-id="' + row.id + '">' +
+                'Dergo faktur tek kontabilisti</a>';
+            } else {
+              html += '<button style="text-decoration:none;" class="bg-light border border-1 px-3 py-2 rounded-5 mx-1 text-dark" disabled>' +
+                '<i class="fi fi-rr-file-export"></i></button>' +
+                '<p style="white-space: normal;">' +
+                '<div class="custom-tooltip">' +
+                '<div class="custom-dot"></div>' +
+                '<span class="custom-tooltiptext">Nuk posedon email</span>' +
+                '</div>' +
+                '</p>';
+            }
             html += '</div>';
             return html;
           }
@@ -1046,6 +1070,7 @@ require_once 'invoices_trash_modal.php';
         }
       });
     });
+
     function createButtonConfig(extend, icon, text, titleAttr) {
       return {
         extend: extend,
@@ -1122,6 +1147,7 @@ require_once 'invoices_trash_modal.php';
       },
       stripeClasses: ['stripe-color']
     });
+
     function getCurrentDate() {
       var today = new Date();
       var dd = String(today.getDate()).padStart(2, '0');
@@ -1167,21 +1193,7 @@ require_once 'invoices_trash_modal.php';
         }
       });
     });
-    $.ajax({
-      url: 'get_months.php', // The PHP script created above
-      type: 'GET',
-      success: function(data) {
-        var months = JSON.parse(data);
-        months.forEach(function(month) {
-          $('#monthFilter').append(new Option(month, month));
-        });
-      }
-    });
-    $('#monthFilter').change(function() {
-      var selectedMonth = $(this).val();
-      var table = $('#invoiceList').DataTable();
-      table.ajax.url('get_invoices.php?month=' + selectedMonth).load();
-    });
+
   });
 </script>
 <script src="pro_invoice.js"></script>
@@ -1193,4 +1205,5 @@ require_once 'invoices_trash_modal.php';
 <script src="states.js"></script>
 <?php include 'partials/footer.php' ?>
 </body>
+
 </html>
