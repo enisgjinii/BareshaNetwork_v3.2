@@ -1,109 +1,145 @@
 <?php
 ob_start();
 include 'partials/header.php';
-// Get the 'id' parameter from the URL and sanitize it
 $editid = mysqli_real_escape_string($conn, $_GET['id']);
-// Check if the form has been submitted
 if (isset($_POST['ndrysho'])) {
-    // Sanitize and retrieve data from the form
-    $emri = mysqli_real_escape_string($conn, $_POST['emri']);
-    $mon = empty($_POST['min']) ? "JO" : mysqli_real_escape_string($conn, $_POST['min']);
-    $dk = mysqli_real_escape_string($conn, $_POST['dk']);
-    $dks = mysqli_real_escape_string($conn, $_POST['dks']);
-    $yt = mysqli_real_escape_string($conn, $_POST['yt']);
-    $info = mysqli_real_escape_string($conn, $_POST['info']);
-    $np = mysqli_real_escape_string($conn, $_POST['np']);
-    $perq = mysqli_real_escape_string($conn, $_POST['perqindja']);
-    $perq2 = mysqli_real_escape_string($conn, $_POST['perqindja2']);
-    $adsa = mysqli_real_escape_string($conn, $_POST['ads']);
-    $fb = mysqli_real_escape_string($conn, $_POST['fb']);
-    $emailadd = mysqli_real_escape_string($conn, $_POST['emailadd']);
-    $email_kontablist = mysqli_real_escape_string($conn, $_POST['email_kontablist']);
-    $emailp = mysqli_real_escape_string($conn, $_POST['emailp']);
-    $ig = mysqli_real_escape_string($conn, $_POST['ig']);
-    $adresa = mysqli_real_escape_string($conn, $_POST['adresa']);
-    $kategoria = mysqli_real_escape_string($conn, $_POST['kategoria']);
-    $emriart = mysqli_real_escape_string($conn, $_POST['emriart']);
-    $nrllog = mysqli_real_escape_string($conn, $_POST['nrllog']);
-    $bank_info = mysqli_real_escape_string($conn, $_POST['bank_info']);
-    $perdoruesi = mysqli_real_escape_string($conn, $_POST['perdoruesi']);
-    $fjalekalimi = md5(mysqli_real_escape_string($conn, $_POST['fjalkalimi']));
-    $shtetsia = mysqli_real_escape_string($conn, $_POST['shtetsia']);
-    // Convert the array to a comma-separated string
-    $emails = isset($_POST['emails']) ? implode(',', $_POST['emails']) : '';
+    // Define all expected fields
+    $fields = [
+        'emri',
+        'min',
+        'dk',
+        'dks',
+        'yt',
+        'info',
+        'np',
+        'perqindja',
+        'perqindja2',
+        'ads',
+        'fb',
+        'emailadd',
+        'email_kontablist',
+        'emailp',
+        'ig',
+        'adresa',
+        'kategoria',
+        'emriart',
+        'nrllog',
+        'bank_info',
+        'perdoruesi',
+        'fjalkalimi',
+        'shtetsia',
+        'nrtel',
+        'type_of_client'
+    ];
+    // Sanitize and assign POST data
+    foreach ($fields as $field) {
+        $$field = isset($_POST[$field]) ? mysqli_real_escape_string($conn, $_POST[$field]) : '';
+    }
+    // Handle specific cases
+    $mon = empty($min) ? "JO" : $min;
+    $emails = isset($_POST['emails']) ? implode(',', array_map('mysqli_real_escape_string', $_POST['emails'])) : '';
     $perqindja_check = isset($_POST['perqindja_check']) ? '1' : '0';
     $perqindja_e_platformave_check = isset($_POST['perqindja_platformave_check']) ? '1' : '0';
-    // Define the target folder for file uploads
-    $targetfolder = "dokument/";
-    // Initialize a flag for file upload success
-    $ok = 1;
-    // Check if a file has been uploaded
-    if (isset($_FILES['tipi']) && $_FILES['tipi']['error'] == UPLOAD_ERR_OK) {
-        // Set the target path for the uploaded file
-        $targetfolder = $targetfolder . basename($_FILES['tipi']['name']);
-        // Get the file type
+    $fjalekalimi_hashed = md5($fjalkalimi);
+    // File upload handling
+    if (isset($_FILES['tipi']) && $_FILES['tipi']['error'] === UPLOAD_ERR_OK) {
+        $allowed_types = ['application/pdf'];
         $file_type = $_FILES['tipi']['type'];
-        // Check if the file type is PDF
-        if ($file_type == "application/pdf") {
-            // Attempt to move the uploaded file to the target folder
+        $file_name = basename($_FILES['tipi']['name']);
+        $targetfolder = "dokument/" . $file_name;
+        if (in_array($file_type, $allowed_types)) {
             if (move_uploaded_file($_FILES['tipi']['tmp_name'], $targetfolder)) {
-                echo "The file " . basename($_FILES['tipi']['name']) . " has been uploaded.";
+                echo "The file $file_name has been uploaded.";
             } else {
                 echo "Na vjen keq, ka pasur një gabim gjatë ngarkimit të skedarit tuaj.";
             }
         } else {
             echo "Na vjen keq, lejohen vetëm skedarët PDF.";
         }
-    } else {
-        // File upload error handling
-        // echo "Sorry, there was an error uploading your file.";
     }
-    // Sanitize and retrieve the 'nrtel' field
-    $nrtel = mysqli_real_escape_string($conn, $_POST['nrtel']);
-    $type__of_client = mysqli_real_escape_string($conn, $_POST['type_of_client']);
-    // Update the database with the new data
-    if ($conn->query("UPDATE klientet SET emri='$emri', np='$np', monetizuar='$mon', emails='$emails', dk='$dk', dks='$dks', youtube='$yt', info='$info', perqindja='$perq', perqindja2='$perq2', fb='$fb', ig='$ig', adresa='$adresa', kategoria='$kategoria', nrtel='$nrtel', emailp='$emailp', emailadd='$emailadd', emriart='$emriart', nrllog='$nrllog',  bank_name='$bank_info', ads='$adsa', perdoruesi='$perdoruesi', perqindja_check='$perqindja_check', perqindja_platformave_check='$perqindja_e_platformave_check', fjalkalimi='$fjalekalimi', shtetsia='$shtetsia', lloji_klientit='$type__of_client', email_kontablist = '$email_kontablist' WHERE id='$editid'")) {
-        echo '<script>
-            Swal.fire({
-              icon: "success",
-              title: "Të dhënat u perditësuan me sukses",
-              showConfirmButton: false,
-              timer: 1500
-            });
-          </script>';
-        // Prepare data for insertion
+    // Prepare and execute the update query
+    $update_query = "
+        UPDATE klientet SET
+            emri = '$emri',
+            np = '$np',
+            monetizuar = '$mon',
+            emails = '$emails',
+            dk = '$dk',
+            dks = '$dks',
+            youtube = '$yt',
+            info = '$info',
+            perqindja = '$perqindja',
+            perqindja2 = '$perqindja2',
+            fb = '$fb',
+            ig = '$ig',
+            adresa = '$adresa',
+            kategoria = '$kategoria',
+            nrtel = '$nrtel',
+            emailp = '$emailp',
+            emailadd = '$emailadd',
+            emriart = '$emriart',
+            nrllog = '$nrllog',
+            bank_name = '$bank_info',
+            ads = '$ads',
+            perdoruesi = '$perdoruesi',
+            perqindja_check = '$perqindja_check',
+            perqindja_platformave_check = '$perqindja_e_platformave_check',
+            fjalkalimi = '$fjalekalimi_hashed',
+            shtetsia = '$shtetsia',
+            lloji_klientit = '$type_of_client',
+            email_kontablist = '$email_kontablist'
+        WHERE id = '$editid'
+    ";
+    if ($conn->query($update_query)) {
+        echo '
+            <script>
+                Swal.fire({
+                    icon: "success",
+                    title: "Të dhënat u përditësuan me sukses",
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+            </script>
+        ';
+        // Log the update action
         $user_informations = $user_info['givenName'] . ' ' . $user_info['familyName'];
         $log_description = $user_informations . " ka ndryshuar klientin " . $emri;
         $date_information = date('Y-m-d H:i:s');
-        // Prepare the INSERT statement
         $stmt = $conn->prepare("INSERT INTO logs (stafi, ndryshimi, koha) VALUES (?, ?, ?)");
-        $stmt->bind_param("sss", $user_informations, $log_description, $date_information);
-        if ($stmt->execute()) {
+        if ($stmt) {
+            $stmt->bind_param("sss", $user_informations, $log_description, $date_information);
+            $stmt->execute();
+            $stmt->close();
         } else {
-            echo '<script>
-              Swal.fire({
-                icon: "error",
-                title: "' . $conn->error . '",
-                showConfirmButton: false,
-                timer: 1500
-              });
-            </script>';
+            echo '
+                <script>
+                    Swal.fire({
+                        icon: "error",
+                        title: "Gabim gjatë regjistrimit të logut: ' . $conn->error . '",
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                </script>
+            ';
         }
     } else {
-        echo '<script>
-            Swal.fire({
-              icon: "error",
-              title: "' . $conn->error . '",
-              showConfirmButton: false,
-              timer: 1500
-            });
-          </script>';
+        echo '
+            <script>
+                Swal.fire({
+                    icon: "error",
+                    title: "Gabim gjatë përditësimit: ' . $conn->error . '",
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+            </script>
+        ';
     }
 }
-// Retrieve the data for editing
-$editcl = mysqli_fetch_array($conn->query("SELECT * FROM klientet WHERE id='$editid'"));
-// Retrieve the contract start date
-$contractStartDate = mysqli_fetch_array($conn->query("SELECT * FROM kontrata_gjenerale WHERE youtube_id='$editcl[youtube]'"));
+// Retrieve data for editing
+$editcl_result = $conn->query("SELECT * FROM klientet WHERE id = '$editid'");
+$editcl = $editcl_result ? $editcl_result->fetch_assoc() : [];
+$contractStartDate_result = $conn->query("SELECT * FROM kontrata_gjenerale WHERE youtube_id = '{$editcl['youtube']}'");
+$contractStartDate = $contractStartDate_result ? $contractStartDate_result->fetch_assoc() : [];
 ?>
 <div class="main-panel">
     <div class="content-wrapper">
@@ -365,12 +401,18 @@ $contractStartDate = mysqli_fetch_array($conn->query("SELECT * FROM kontrata_gje
                                         <br>
                                         <div class="col">
                                             <label class="form-label" for="yt">Zgjedh kategorinë</label>
-                                            <select class="form-select border border-2 rounded-5 w-100" name="kategoria"
-                                                id="kategoria">
+                                            <select class="form-select border border-2 rounded-5 w-100" name="kategoria" id="kategoria">
                                                 <?php
+                                                // Fetch all categories from the database
                                                 $kg = $conn->query("SELECT * FROM kategorit");
+                                                // Check if the current category is set for pre-selection
+                                                $selectedCategory = isset($editcl['kategoria']) ? $editcl['kategoria'] : '';
+                                                // Loop through each category and create an option element
                                                 while ($kgg = mysqli_fetch_array($kg)) {
-                                                    echo '<option value="' . $kgg['kategorit'] . '">' . $kgg['kategorit'] . '</option>';
+                                                    // Check if the category should be selected
+                                                    $isSelected = $kgg['kategorit'] == $selectedCategory ? 'selected' : '';
+                                                    // Print the option with appropriate attributes
+                                                    echo '<option value="' . htmlspecialchars($kgg['kategorit']) . '" ' . $isSelected . '>' . htmlspecialchars($kgg['kategorit']) . '</option>';
                                                 }
                                                 ?>
                                             </select>
@@ -757,7 +799,6 @@ $contractStartDate = mysqli_fetch_array($conn->query("SELECT * FROM kontrata_gje
     const flatpickrOptions = {
         dateFormat: "Y-m-d"
     };
-
     $("#dk").flatpickr({
         ...flatpickrOptions,
         maxDate: "today"

@@ -273,117 +273,137 @@
       });
     }
   };
-  $('#listaKlientave').DataTable({
-    ...commonConfig,
-    searching: true,
-    processing: true,
-    serverSide: true,
-    lengthMenu: [
-      [10, 25, 50, 100, 500, 1000],
-      [10, 25, 50, 100, 500, 1000]
-    ],
-    ajax: {
-      url: 'get-clients.php',
-      type: 'POST'
-    },
-    columns: [{
-        data: 'emri',
-        render: (data, type, row) => {
-          const status = row.monetizuar == 'PO' ? 'success' : 'danger';
-          const text = row.monetizuar == 'PO' ? 'Klient i monetizuar' : 'Klient i pa-monetizuar';
-          return `<p>${data}</p><span class="text-${status}">${text}</span>`;
-        }
+  $(document).ready(function() {
+    const tables = ['#listaKlientaveTeMonetizuar', '#listaKlientaveTePaMonetizuar', '#listaKlientaveTePasiv'];
+    tables.forEach(table => $(table).DataTable(commonConfig));
+    $('#listaKlientave').DataTable({
+      ...commonConfig,
+      searching: true,
+      processing: true,
+      serverSide: true,
+      lengthMenu: [
+        [10, 25, 50, 100, 500, 1000],
+        [10, 25, 50, 100, 500, 1000],
+      ],
+      ajax: {
+        url: 'get-clients.php',
+        type: 'POST',
       },
-      {
-        data: 'emriart'
-      },
-      {
-        data: 'emailadd'
-      },
-      {
-        data: null,
-        render: (data, type, row) => `${row.dk} - ${row.dks}`
-      },
-      {
-        data: 'data_e_krijimit',
-        render: (data) => {
-          moment.locale('sq');
-          if (!data) return '<span class="text-danger">Nuk u gjet asnjë datë.</span>';
-          const date = moment(data);
-          return date.isValid() ? date.format('dddd, D MMMM YYYY') : '<span class="text-danger">Data e fillimit të kontratës e pavlefshme</span>';
-        }
-      },
-      {
-        data: 'kohezgjatja',
-        render: function(data, type, row) {
-          if (data == null || data === '') {
-            return '<span class="text-danger">Nuk u gjet asnjë datë.</span>';
-          } else {
-            var months = parseInt(data);
-            if (isNaN(months) || months <= 0) {
-              return '<span class="text-danger">Data e skadimit jo-valide</span>';
-            }
-            var years = Math.floor(months / 12);
-            var remainingMonths = months % 12;
-            var durationHTML = '';
-            if (years === 0) {
-              durationHTML = '<p>' + data + ' Muaj</p>';
-            } else if (remainingMonths === 0) {
-              durationHTML = '<p>' + years + ' Vjet</p>';
-            } else {
-              durationHTML = '<p>' + years + ' Vjet ' + remainingMonths + ' Muaj</p>';
-            }
-            var contractDate = moment(row.data_e_krijimit);
-            if (!contractDate.isValid()) {
-              return '<span class="text-danger">Data e fillimit të kontratës e pavlefshme</span>';
-            }
-            var expirationDate = contractDate.clone().add(months, 'months');
-            expirationDate.locale('sq');
-            var expirationDateFormatted = expirationDate.format('dddd, LL');
-            var today = moment();
-            var daysUntilExpiration = expirationDate.diff(today, 'days');
-            var nearExpirationThreshold = 30;
-            var farExpirationThreshold = 90;
-            var contractStatus, statusClass, statusMessage;
-            if (daysUntilExpiration < 0) {
-              contractStatus = 'Skaduar';
-              statusClass = 'text-warning';
-              statusMessage = 'Kontrata është skaduar';
-            } else if (daysUntilExpiration <= nearExpirationThreshold) {
-              contractStatus = 'Afër skadimit';
-              statusClass = 'text-danger';
-              statusMessage = 'Skadon shumë shpejt';
-            } else if (daysUntilExpiration <= farExpirationThreshold) {
-              contractStatus = 'Pranë skadimit';
-              statusClass = 'text-warning';
-              statusMessage = 'Skadon në një të ardhme të afërt';
-            } else {
-              contractStatus = 'Aktive';
-              statusClass = 'text-success';
-              statusMessage = 'Aktive';
-            }
-            if (contractStatus === 'Skaduar') {
-              return durationHTML + '<span class="' + statusClass + '">' + statusMessage + '</span>';
-            } else {
-              return durationHTML + '<span class="' + statusClass + '">' + expirationDateFormatted + ' (' + statusMessage + ')</span>';
-            }
+      columns: [{
+          data: 'emri',
+          render: function(data, type, row) {
+            return `<p>${data}</p><span class="${row.monetizuar === 'PO' ? 'text-success' : 'text-danger rounded-5'}">${row.monetizuar === 'PO' ? 'Klient i monetizuar' : 'Klient i pa-monetizuar'}</span>`;
+          }
+        },
+        {
+          data: 'emriart'
+        },
+        {
+          data: 'emailadd'
+        },
+        {
+          data: null,
+          render: function(data, type, row) {
+            return `${row.dk} - ${row.dks}`;
+          }
+        },
+        {
+          data: 'data_e_krijimit',
+          render: function(data) {
+            moment.locale('sq');
+            if (!data) return '<span class="text-danger">Nuk u gjet asnjë datë.</span>';
+            const contractStartDate = moment(data);
+            if (!contractStartDate.isValid()) return '<span class="text-danger">Data e fillimit të kontratës e pavlefshme</span>';
+            return `<span>${contractStartDate.format('dddd, D MMMM YYYY')}</span>`;
+          }
+        },
+        {
+          data: 'kohezgjatja',
+          render: function(data, type, row) {
+            if (!data) return '<span class="text-danger">Nuk u gjet asnjë datë.</span>';
+            const months = parseInt(data);
+            if (isNaN(months) || months <= 0) return '<span class="text-danger">Data e skadimit jo-valide</span>';
+            const years = Math.floor(months / 12),
+              remainingMonths = months % 12;
+            const durationHTML = years ? (remainingMonths ? `<p>${years} Vjet ${remainingMonths} Muaj</p>` : `<p>${years} Vjet</p>`) : `<p>${data} Muaj</p>`;
+            const contractDate = moment(row.data_e_krijimit);
+            if (!contractDate.isValid()) return '<span class="text-danger">Data e fillimit të kontratës e pavlefshme</span>';
+            const expirationDate = contractDate.clone().add(months, 'months').locale('sq');
+            const daysUntilExpiration = expirationDate.diff(moment(), 'days');
+            const [near, far] = [30, 90];
+            const statusClass = daysUntilExpiration < 0 ? 'text-warning' : daysUntilExpiration <= near ? 'text-danger' : daysUntilExpiration <= far ? 'text-warning' : 'text-success';
+            const statusMessage = daysUntilExpiration < 0 ? 'Kontrata është skaduar' : daysUntilExpiration <= near ? 'Skadon shumë shpejt' : daysUntilExpiration <= far ? 'Skadon në një të ardhme të afërt' : 'Aktive';
+            return `${durationHTML}<span class="${statusClass}">${statusMessage}</span>`;
+          }
+        },
+        {
+          data: 'id',
+          render: function(data) {
+            return `
+              <a style="text-transform: none;text-decoration:none;" class="input-custom-css px-3 py-2" href="editk.php?id=${data}"><i class="fi fi-rr-edit"></i></a>
+              <a style="text-transform: none; text-decoration:none;" class="input-custom-css px-3 py-2" onclick="konfirmoDeaktivizimin(${data})"><i class="fi fi-rr-user-slash"></i></a>
+            `;
           }
         }
-      },
-      {
-        data: 'id',
-        render: (data) => `
-        <a class="input-custom-css px-3 py-2" href="editk.php?id=${data}"><i class="fi fi-rr-edit"></i></a>
-        <a class="input-custom-css px-3 py-2" onclick="konfirmoDeaktivizimin(${data})"><i class="fi fi-rr-user-slash"></i></a>
-      `
-      }
-    ],
-    columnDefs: [{
-      targets: [0, 1, 2, 3, 4, 5, 6],
-      render: (data, type) => type === 'display' && data !== null ? `<div style="white-space: normal;">${data}</div>` : data
-    }]
+      ],
+      columnDefs: [{
+        targets: [0, 1, 2, 3, 4, 5, 6],
+        render: function(data, type) {
+          return type === 'display' && data ? `<div style="white-space: normal;">${data}</div>` : data;
+        }
+      }]
+    });
   });
-  $('#listaKlientaveTeMonetizuar').DataTable(commonConfig);
-  $('#listaKlientaveTePaMonetizuar').DataTable(commonConfig);
-  $('#listaKlientaveTePasiv').DataTable(commonConfig);
+  function confirmActivation(clientId) {
+    Swal.fire({
+      title: 'A jeni i sigurt?',
+      text: 'Jeni duke u përgatitur për të aktivizuar këtë klient!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Po, aktivizo!',
+      cancelButtonText: 'Anulo',
+      reverseButtons: true,
+      showLoaderOnConfirm: true,
+      preConfirm: () => new Promise(resolve => setTimeout(resolve, 2000)),
+      allowOutsideClick: () => !Swal.isLoading()
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire({
+          title: 'Aktivizuar!',
+          text: 'Klienti është aktivizuar me sukses.',
+          icon: 'success',
+          confirmButtonColor: '#3085d6',
+          confirmButtonText: 'OK'
+        }).then(() => window.location.href = `activate_client.php?id=${clientId}`);
+      }
+    });
+  }
+  function konfirmoDeaktivizimin(clientId) {
+    Swal.fire({
+      title: 'A jeni i sigurt?',
+      text: 'Jeni duke u përgatitur për të deaktivizuar këtë klient!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Po, deaktivizoje!',
+      cancelButtonText: 'Anulo',
+      reverseButtons: true,
+      showLoaderOnConfirm: true,
+      preConfirm: () => new Promise(resolve => setTimeout(resolve, 2000)),
+      allowOutsideClick: () => !Swal.isLoading()
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire({
+          title: 'Deaktivizuar!',
+          text: 'Klienti është deaktivizuar me sukses.',
+          icon: 'success',
+          confirmButtonColor: '#3085d6',
+          confirmButtonText: 'OK'
+        }).then(() => window.location.href = `passive_client.php?id=${clientId}`);
+      }
+    });
+  }
 </script>
