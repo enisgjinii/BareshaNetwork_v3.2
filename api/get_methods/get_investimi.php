@@ -1,8 +1,7 @@
 <?php
-// get_investimi_data.php
 
 // Connect to the database
-include 'conn-d.php';
+include '../../conn-d.php';
 
 // Retrieve data from the "investimi" table
 $sql = "SELECT * FROM investimi ORDER BY id DESC";

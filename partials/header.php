@@ -1,38 +1,27 @@
 <?php
 header("X-Frame-Options: DENY");
-// Include necessary files and establish database connection
 include('./config.php');
 include('conn-d.php');
 error_reporting(1);
 ini_set('display_errors', 1);
-// Function to handle authentication errors
 function handleAuthenticationError()
 {
-  // Redirect to denied.php if authentication fails
   header('Location: denied.php');
   exit;
 }
-// Check if refresh token exists
 if (!isset($_COOKIE['refreshToken'])) {
   header('Location: kycu_1.php');
   exit;
 }
-// Attempt to refresh access token
-if (isset($_COOKIE['refreshToken'])) {
-  try {
-    $client->refreshToken($_COOKIE['refreshToken']);
-    $accessToken = $client->getAccessToken();
-    if ($accessToken == null) {
-      handleAuthenticationError();
-    }
-    $_SESSION['token'] = $accessToken;
-  } catch (Exception $e) {
-    handleAuthenticationError();
-  }
+try {
+  $client->refreshToken($_COOKIE['refreshToken']);
+  $accessToken = $client->getAccessToken();
+  if ($accessToken == null) handleAuthenticationError();
+  $_SESSION['token'] = $accessToken;
+} catch (Exception $e) {
+  handleAuthenticationError();
 }
-// Set session token expiration time
 $_SESSION['token']['expires_at'] = time() - 1;
-// Fetch user information
 $google_oauth = new Google\Service\Oauth2($client);
 try {
   $google_oauth->getClient()->setAccessToken($_SESSION['token']);
@@ -40,12 +29,10 @@ try {
 } catch (Google_Service_Exception $e) {
   handleAuthenticationError();
 }
-// Validate user email
-$allowedGmailEmails = array('afrimkolgeci@gmail.com', 'besmirakolgeci1@gmail.com', 'egjini17@gmail.com', 'bareshafinance@gmail.com', 'gjinienis148@gmail.com', 'emrushavdyli9@gmail.com');
+$allowedGmailEmails = ['afrimkolgeci@gmail.com', 'besmirakolgeci1@gmail.com', 'egjini17@gmail.com', 'bareshafinance@gmail.com', 'gjinienis148@gmail.com', 'emrushavdyli9@gmail.com'];
 if (empty($user_info['email']) || !isValidEmailDomain($user_info['email'], $allowedGmailEmails)) {
   handleAuthenticationError();
 }
-// Query the database for user information
 $email = $user_info['email'];
 $sql = "SELECT * FROM googleauth WHERE email = '$email'";
 $result = $conn->query($sql);
@@ -57,159 +44,96 @@ if ($result->num_rows > 0) {
 } else {
   handleAuthenticationError();
 }
-// Function to validate email domain
 function isValidEmailDomain($email, $allowedDomains)
 {
   $domain = substr(strrchr($email, "@"), 1);
   return in_array($email, $allowedDomains) || $domain === 'bareshamusic.com';
 }
+$cssFiles = [
+  'https://cdn-uicons.flaticon.com/2.1.0/uicons-regular-rounded/css/uicons-regular-rounded.css',
+  'https://cdn-uicons.flaticon.com/uicons-brands/css/uicons-brands.css',
+  'https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css',
+  'https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css',
+  'assets/fontawesome-free-6.4.0-web/css/all.min.css',
+  'https://cdn.datatables.net/v/bs5/jq-3.7.0/jszip-3.10.1/dt-1.13.5/af-2.6.0/b-2.4.1/b-colvis-2.4.1/b-html5-2.4.1/b-print-2.4.1/cr-1.7.0/date-1.5.1/fc-4.3.0/fh-3.4.0/kt-2.10.0/r-2.5.0/rg-1.4.0/rr-1.4.1/sc-2.2.0/sb-1.5.0/sp-2.2.0/sl-1.7.0/sr-1.3.0/datatables.min.css',
+  'mdb5/css/mdb.min.css',
+  'vendors/mdi/css/materialdesignicons.min.css',
+  'vendors/base/vendor.bundle.base.css',
+  'css/style.css',
+  'partials/style.css',
+  'https://cdn.datatables.net/datetime/1.4.0/css/dataTables.dateTime.min.css',
+  'https://code.jquery.com/ui/1.13.0/themes/smoothness/jquery-ui.min.css',
+  'https://unpkg.com/mobius1-selectr@latest/dist/selectr.min.css',
+  'https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.5.0/css/flag-icon.min.css',
+  'https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css',
+  'https://fonts.googleapis.com/css2?family=Inter&display=swap'
+];
+$jsFiles = [
+  'https://cdn.jsdelivr.net/npm/pdfmake@0.1.36/build/pdfmake.min.js',
+  'https://cdn.jsdelivr.net/npm/pdfmake@0.1.36/build/vfs_fonts.js',
+  'https://cdn.jsdelivr.net/npm/flatpickr',
+  'https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/list.js/2.3.1/list.min.js',
+  'https://cdn.jsdelivr.net/npm/tinymce/tinymce.min.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/darkreader/4.9.58/darkreader.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js',
+  'https://cdn.datatables.net/v/bs5/jq-3.7.0/jszip-3.10.1/dt-1.13.5/af-2.6.0/b-2.4.1/b-colvis-2.4.1/b-html5-2.4.1/b-print-2.4.1/cr-1.7.0/date-1.5.1/fc-4.3.0/fh-3.4.0/kt-2.10.0/r-2.5.0/rg-1.4.0/rr-1.4.1/sc-2.2.0/sb-1.5.0/sp-2.2.0/sl-1.7.0/sr-1.3.0/datatables.min.js',
+  'https://code.highcharts.com/highcharts.js',
+  'https://code.highcharts.com/highcharts-3d.js',
+  'https://code.highcharts.com/modules/exporting.js',
+  'https://cdn.jsdelivr.net/npm/chart.js@2.9.4',
+  'https://cdn.jsdelivr.net/npm/sweetalert2@11',
+  'https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js',
+  'plugins/dark-reader/darkreader.js',
+  'https://unpkg.com/mobius1-selectr@latest/dist/selectr.min.js',
+  'https://npmcdn.com/flatpickr/dist/l10n/sq.js',
+  'https://cdn.jsdelivr.net/npm/@weavy/dropin-js/dist/weavy-dropin.js',
+  'https://unpkg.com/xlsx/dist/xlsx.full.min.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js',
+  'https://cdn.jsdelivr.net/npm/moment/moment.min.js',
+  'https://cdn.datatables.net/datetime/1.5.1/js/dataTables.dateTime.min.js',
+  'https://cdn.jsdelivr.net/npm/darkreader@4.9.87/darkreader.min.js',
+  'https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js',
+  'https://cdn.jsdelivr.net/npm/sweetalert2@11'
+];
 ?>
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <!-- Meta Tags's -->
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <meta name="description" content="Panel administrativ">
-  <meta name="keywords" content="Panel administrativ">
-  <meta name="author" content="Enis Gjini">
-  <meta name="google-site-verification" content="65Q9V_d_6p9mOYD05AFLNYLveEnM01AOs5cW2-qKrB0" />
-  <!-- Title -->
-  <title>BareshaNetwork - <?php echo date("Y"); ?></title>
-  <!-- UIcons -->
-  <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/2.1.0/uicons-regular-rounded/css/uicons-regular-rounded.css'>
-  <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/uicons-brands/css/uicons-brands.css'>
-  <script src="https://cdn.jsdelivr.net/npm/pdfmake@0.1.36/build/pdfmake.min.js" defer></script>
-  <script src="https://cdn.jsdelivr.net/npm/pdfmake@0.1.36/build/vfs_fonts.js" defer></script>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/2.3.1/list.min.js" integrity="sha512-93wYgwrIFL+b+P3RvYxi/WUFRXXUDSLCT2JQk9zhVGXuS2mHl2axj6d+R6pP+gcU5isMHRj1u0oYE/mWyt/RjA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <script src="https://cdn.jsdelivr.net/npm/tinymce/tinymce.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/darkreader/4.9.58/darkreader.js" integrity="sha512-SVegqt9Q4E2cRDZ5alp9NLqLLJEAh6Ske9I/iU37Jiq0fHSFbkIsIbaIGYPcadf1JBLzdxPrkqfH1cpTuBQJvw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <!-- Material Design Icons -->
-  <!-- <link rel="stylesheet" href="vendors/mdi/css/materialdesignicons.min.css"> -->
-  <!-- Font Awesome 6.0.0 | Local -->
-  <link rel="stylesheet" href="assets/fontawesome-free-6.4.0-web/css/all.min.css">
-  <!-- Datatables | Local files -->
-  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.4/css/dataTables.bootstrap5.min.css">
-  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/autofill/2.3.7/css/autoFill.bootstrap5.min.css">
-  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/2.0.0/css/buttons.bootstrap5.min.css">
-  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/colreorder/1.5.4/css/colReorder.bootstrap5.min.css">
-  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/datetime/1.1.1/css/dataTables.dateTime.min.css">
-  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/fixedheader/3.2.0/css/fixedHeader.bootstrap5.min.css">
-  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/keytable/2.6.4/css/keyTable.bootstrap5.min.css">
-  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/rowreorder/1.2.8/css/rowReorder.bootstrap5.min.css">
-  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/scroller/2.0.5/css/scroller.bootstrap5.min.css">
-  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/searchbuilder/1.3.1/css/searchBuilder.bootstrap5.min.css">
-  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/select/1.3.3/css/select.bootstrap5.min.css">
-  <!-- Fav Icon ne formatin .png -->
   <link rel="shortcut icon" href="images/favicon.png" />
-  <!-- Datatable Min JS -->
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdn.datatables.net/v/bs5/jq-3.7.0/jszip-3.10.1/dt-1.13.5/af-2.6.0/b-2.4.1/b-colvis-2.4.1/b-html5-2.4.1/b-print-2.4.1/cr-1.7.0/date-1.5.1/fc-4.3.0/fh-3.4.0/kt-2.10.0/r-2.5.0/rg-1.4.0/rr-1.4.1/sc-2.2.0/sb-1.5.0/sp-2.2.0/sl-1.7.0/sr-1.3.0/datatables.min.css" rel="stylesheet">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
-  <script src="https://cdn.datatables.net/v/bs5/jq-3.7.0/jszip-3.10.1/dt-1.13.5/af-2.6.0/b-2.4.1/b-colvis-2.4.1/b-html5-2.4.1/b-print-2.4.1/cr-1.7.0/date-1.5.1/fc-4.3.0/fh-3.4.0/kt-2.10.0/r-2.5.0/rg-1.4.0/rr-1.4.1/sc-2.2.0/sb-1.5.0/sp-2.2.0/sl-1.7.0/sr-1.3.0/datatables.min.js"></script>
-  <!-- Material Design Bootstrap 5 | Local -->
-  <link href="mdb5/css/mdb.min.css" rel="stylesheet" />
-  <!-- Highcharts JS | CDN -->
-  <!-- Include Highcharts library -->
-  <script src="https://code.highcharts.com/highcharts.js"></script>
-  <script src="https://code.highcharts.com/highcharts-3d.js"></script>
-  <script src="https://code.highcharts.com/modules/exporting.js"></script>
-  <!-- Import Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4"></script>
-  <!-- Import SweetAlert2 -->
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <!-- Import Signature Pad -->
-  <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
-  <!-- Import Material Design Icons CSS -->
-  <link rel="stylesheet" href="vendors/mdi/css/materialdesignicons.min.css">
-  <!-- Import vendor bundle CSS -->
-  <link rel="stylesheet" href="vendors/base/vendor.bundle.base.css">
-  <!-- External CSS -->
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="partials/style.css">
-  <!-- Import CSS for the DataTables DateTime extension -->
-  <link rel="stylesheet" href="https://cdn.datatables.net/datetime/1.4.0/css/dataTables.dateTime.min.css" />
-  <!-- Import CSS for the jQuery UI library -->
-  <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.0/themes/smoothness/jquery-ui.min.css">
-  <!-- Import jQuery UI library -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js" integrity="sha512-57oZ/vW8ANMjR/KQ6Be9v/+/h6bq9/l3f0Oc7vn6qMqyhvPd1cvKBRWWpzu0QoneImqr2SkmO4MSqU+RpHom3Q==" crossorigin="anonymous" referrerpolicy="no-referrer">
-  </script>
-  <!-- Dark Reader plugin script -->
-  <script src="plugins/dark-reader/darkreader.js"></script>
-  <!-- Mobius1 Selectr CSS -->
-  <link href="https://unpkg.com/mobius1-selectr@latest/dist/selectr.min.css" rel="stylesheet" type="text/css">
-  <!-- Mobius1 Selectr JavaScript -->
-  <script src="https://unpkg.com/mobius1-selectr@latest/dist/selectr.min.js"></script>
-  <!-- Flatpickr CSS -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-  <!-- Flatpickr JavaScript -->
-  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-  <!-- Flatpickr Albanian locale -->
-  <script src="https://npmcdn.com/flatpickr/dist/l10n/sq.js"></script>
-  <!-- Weavy Dropin JavaScript -->
-  <script src="https://cdn.jsdelivr.net/npm/@weavy/dropin-js/dist/weavy-dropin.js" crossorigin="anonymous"></script>
-  <!-- Flag Icon CSS -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.5.0/css/flag-icon.min.css">
-  <!-- XLSX JavaScript -->
-  <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
-  <!-- AOS CSS -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" />
-  <!-- AOS JavaScript -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
-  <!-- Preconnect to Google Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <!-- Inter Font CSS from Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet">
-  <!-- Moment.js for date formatting -->
-  <script src="https://cdn.jsdelivr.net/npm/moment/moment.min.js"></script>
-  <!-- DataTables DateTime Plugin JavaScript -->
-  <script src="https://cdn.datatables.net/datetime/1.5.1/js/dataTables.dateTime.min.js"></script>
-
-  <script src="https://cdn.jsdelivr.net/npm/darkreader@4.9.87/darkreader.min.js"></script>
-  <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js'></script>
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <?php
+  foreach ($cssFiles as $css) echo "<link rel='stylesheet' href='$css'>";
+  foreach ($jsFiles as $js) echo "<script src='$js'></script>";
+  ?>
   <style>
     * {
       font-family: 'Inter', sans-serif;
     }
-
     body {
       transition: background-color 0.3s, color 0.3s;
     }
-
     .btn-icon {
       font-size: 1.5rem;
     }
-
     .nav-item {
       color: #fff;
     }
-
     @keyframes fadeUp {
       from {
         opacity: 0;
         transform: translateY(20px);
       }
-
       to {
         opacity: 1;
         transform: translateY(0);
       }
     }
-
     .fade-up {
       animation: fadeUp 0.5s ease-in-out;
     }
-
     .toggle-button {
       display: flex;
       align-items: center;
@@ -222,16 +146,13 @@ function isValidEmailDomain($email, $allowedDomains)
       padding: 5px;
       background-color: #dddddd;
     }
-
     .toggle-button .toggle-icon {
       font-size: 16px;
       color: #000;
     }
-
     .toggle-button.dark-mode .toggle-icon {
       color: #fff;
     }
-
     .toggle-switch {
       position: relative;
       width: 60px;
@@ -239,11 +160,9 @@ function isValidEmailDomain($email, $allowedDomains)
       background-color: #555;
       border-radius: 15px;
     }
-
     .toggle-switch input[type="checkbox"] {
       display: none;
     }
-
     .toggle-switch input[type="checkbox"]+label {
       position: absolute;
       top: 0;
@@ -256,18 +175,15 @@ function isValidEmailDomain($email, $allowedDomains)
       cursor: pointer;
       transition: transform 0.3s ease-in-out;
     }
-
     .toggle-switch input[type="checkbox"]:checked+label {
       transform: translateX(30px);
     }
-
     .pagination {
       display: flex;
       justify-content: center;
       align-items: center;
       margin-top: 20px;
     }
-
     .pagination a {
       margin: 0 5px;
       padding: 5px 10px;
@@ -276,38 +192,18 @@ function isValidEmailDomain($email, $allowedDomains)
       color: #333;
       border-radius: 5px;
     }
-
     .pagination a.active {
       background-color: #007bff;
       color: #fff;
     }
-
     .pagination a.disabled {
       color: #ccc;
       pointer-events: none;
     }
-
-    .highcharts-contextbutton {
-      background-color: #fff;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      padding: 6px;
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      z-index: 10;
-    }
-
-    .highcharts-button-symbol {
-      font-size: 20px;
-      color: #333;
-    }
-
     [data-toggle="tooltip"] {
       position: relative;
       cursor: pointer;
     }
-
     [data-toggle="tooltip"]::after {
       content: attr(title);
       position: absolute;
@@ -327,112 +223,29 @@ function isValidEmailDomain($email, $allowedDomains)
       transition: opacity 0.5s ease-in-out;
       z-index: 5;
     }
-
     [data-toggle="tooltip"]:hover::after {
       opacity: 1;
     }
-
-    #faturat_Youtube>table {
-      table-layout: fixed;
-    }
-
-    #faturat_Youtube>table>tbody>td {
-      word-wrap: normal;
-      max-width: 500px;
-    }
-
-    #faturat_Youtube td {
-      white-space: inherit;
-    }
-
     @keyframes fadeIn {
       0% {
         opacity: 0;
         transform: translateY(20px);
       }
-
       100% {
         opacity: 1;
         transform: translateY(0);
       }
     }
-
     @keyframes slideIn {
       0% {
         opacity: 0;
         transform: translateX(-20px);
       }
-
       100% {
         opacity: 1;
         transform: translateX(0);
       }
     }
-
-    .fade-in {
-      animation: fadeIn 0.5s ease-in-out;
-    }
-
-    .slide-in {
-      animation: slideIn 0.5s ease-in-out;
-    }
-
-    .button-custom-light {
-      background-color: #fff;
-      position: relative;
-      border: 1px solid #d5d9d9;
-      border-radius: 8px;
-      box-shadow: rgba(213, 217, 217, .5) 0 2px 5px 0;
-      box-sizing: border-box;
-      color: #0f1111;
-      cursor: pointer;
-      display: inline-block;
-      font-size: 15px;
-      line-height: 29px;
-      padding: 2px 12px 0px 12px;
-      text-align: center;
-      text-decoration: none;
-      user-select: none;
-      -webkit-user-select: none;
-      touch-action: manipulation;
-      vertical-align: middle;
-      text-transform: none;
-      flex-grow: 1;
-      margin-right: 5px;
-    }
-
-    .button-custom-light:hover {
-      background-color: #f7fafa;
-    }
-
-    .button-custom-light:focus {
-      border-color: #008296;
-      box-shadow: rgba(213, 217, 217, .5) 0 2px 5px 0;
-      outline: 0;
-    }
-
-    .button-custom-light::before {
-      content: attr(data-tooltip);
-      position: absolute;
-      bottom: 100%;
-      left: 50%;
-      margin-bottom: 5px;
-      transform: translateX(-50%);
-      background-color: #333;
-      color: #fff;
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-size: 12px;
-      opacity: 0;
-      visibility: hidden;
-      transition: opacity 0.2s, visibility 0.2s;
-    }
-
-    .button-custom-light:hover::before {
-      opacity: 1;
-      visibility: visible;
-    }
-
     .dot {
       display: inline-block;
       width: 12px;
@@ -440,7 +253,6 @@ function isValidEmailDomain($email, $allowedDomains)
       border-radius: 75%;
       cursor: pointer;
     }
-
     .dot:hover::before {
       content: attr(title);
       position: absolute;
@@ -454,7 +266,6 @@ function isValidEmailDomain($email, $allowedDomains)
       margin-left: -10px;
       margin-top: -30px;
     }
-
     .input-custom-css {
       background-color: #fff;
       border: 1px solid #d5d9d9;
@@ -468,7 +279,6 @@ function isValidEmailDomain($email, $allowedDomains)
       touch-action: manipulation;
       vertical-align: middle;
     }
-
     .input-custom-css-disabled {
       background-color: #fff;
       opacity: 0.6;
@@ -484,122 +294,21 @@ function isValidEmailDomain($email, $allowedDomains)
       touch-action: manipulation;
       vertical-align: middle;
     }
-
     .input-custom-css:hover {
       background-color: #f7fafa;
     }
-
-    .save-button-custom-css {
-      background-color: #fff;
-      border: 1px solid #d5d9d9;
-      border-radius: 8px;
-      box-shadow: rgba(213, 217, 217, .5) 0 2px 5px 0;
-      box-sizing: border-box;
-      color: #0f1111;
-      cursor: pointer;
-      display: inline-block;
-      font-family: "Amazon Ember", sans-serif;
-      font-size: 13px;
-      line-height: 29px;
-      padding: 0 10px 0 11px;
-      position: relative;
-      text-align: center;
-      text-decoration: none;
-      user-select: none;
-      -webkit-user-select: none;
-      touch-action: manipulation;
-      vertical-align: middle;
-      width: 100px;
-    }
-
-    .save-button-custom-css:hover {
-      background-color: #f7fafa;
-    }
-
-    .save-button-custom-css:focus {
-      border-color: #008296;
-      box-shadow: rgba(213, 217, 217, .5) 0 2px 5px 0;
-      outline: 0;
-    }
-
-    #time_of_token_expiry {
-      display: none;
-    }
-
-    #token-countdown:hover+#time_of_token_expiry {
-      display: inline-block;
-      animation: fadeIn 0.3s;
-    }
-
     @keyframes fadeIn {
       from {
         opacity: 0;
       }
-
       to {
         opacity: 1;
       }
     }
-
-    .button-4 {
-      appearance: none;
-      background-color: #FAFBFC;
-      border: 1px solid rgba(27, 31, 35, 0.15);
-      border-radius: 6px;
-      box-shadow: rgba(27, 31, 35, 0.04) 0 1px 0, rgba(255, 255, 255, 0.25) 0 1px 0 inset;
-      box-sizing: border-box;
-      color: #24292E;
-      cursor: pointer;
-      display: inline-block;
-      font-size: 14px;
-      line-height: 20px;
-      list-style: none;
-      padding: 6px 16px;
-      position: relative;
-      transition: background-color 0.2s cubic-bezier(0.3, 0, 0.5, 1);
-      user-select: none;
-      -webkit-user-select: none;
-      touch-action: manipulation;
-      vertical-align: middle;
-      white-space: nowrap;
-      word-wrap: break-word;
-    }
-
-    .button-4:hover {
-      background-color: #F3F4F6;
-      text-decoration: none;
-      transition-duration: 0.1s;
-    }
-
-    .button-4:disabled {
-      background-color: #FAFBFC;
-      border-color: rgba(27, 31, 35, 0.15);
-      color: #959DA5;
-      cursor: default;
-    }
-
-    .button-4:active {
-      background-color: #EDEFF2;
-      box-shadow: rgba(225, 228, 232, 0.2) 0 1px 0 inset;
-      transition: none 0s;
-    }
-
-    .button-4:focus {
-      outline: 1px transparent;
-    }
-
-    .button-4:before {
-      display: none;
-    }
-
-    .button-4:-webkit-details-marker {
-      display: none;
-    }
   </style>
 </head>
-
 <body>
   <?php include "partials/navbar.php" ?>
   <div class="container-scroller">
     <div class="container-fluid page-body-wrapper">
-      <?php include "sidebar.php" ?>
+      <?php include "partials/sidebar.php" ?>

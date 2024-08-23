@@ -28,6 +28,7 @@ $invoiceDate = str_replace($shortMonth, $albanianMonth, $orderDate);
 ?>
 <!DOCTYPE html>
 <html lang="sq">
+
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -39,42 +40,52 @@ $invoiceDate = str_replace($shortMonth, $albanianMonth, $orderDate);
 			max-width: 150px;
 			margin-bottom: 20px;
 		}
+
 		.invoice-header {
 			background-color: #f8f9fa;
 			padding: 20px;
 		}
+
 		.invoice-header h2 {
 			margin-bottom: 0;
 		}
+
 		.invoice-header p {
 			margin-bottom: 5px;
 		}
+
 		.invoice-details {
 			margin-top: 30px;
 			margin-bottom: 20px;
 		}
+
 		.invoice-details p {
 			margin-bottom: 5px;
 		}
+
 		.invoice-table th,
 		.invoice-table td {
 			vertical-align: middle;
 		}
+
 		.invoice-total {
 			font-weight: bold;
 		}
+
 		/* use media print */
 		@media print {
 			* {
 				margin: 0;
 				border: none;
 			}
+
 			.card {
 				border-style: none;
 			}
 		}
 	</style>
 </head>
+
 <body>
 	<div class="container-fluid">
 		<div class="row justify-content-center mt-5">
@@ -153,11 +164,14 @@ $invoiceDate = str_replace($shortMonth, $albanianMonth, $orderDate);
 				<div class="row" style="margin-top: 80px;">
 					<div class="col-6">
 						<div>
-							<p class="text-center"><?php echo $invoiceValues['note']; ?></p>
+							<p class="text-center "><?php echo $invoiceValues['note']; ?></p>
 						</div>
 						<hr style="width: 75%;" class="mx-auto">
 					</div>
 					<div class="col-6">
+						<div class="text-center">
+							<img src="images/vula.png" class="text-center w-25">
+						</div>
 						<hr style="width: 75%;" class="mx-auto">
 					</div>
 				</div>
@@ -165,4 +179,5 @@ $invoiceDate = str_replace($shortMonth, $albanianMonth, $orderDate);
 		</div>
 	</div>
 </body>
+
 </html>

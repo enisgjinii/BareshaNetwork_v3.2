@@ -23,7 +23,7 @@ foreach ($backupFiles as $backupFile) {
         break;
     }
 }
-include 'check-ip.php';
+// include 'check-ip.php';
 ?>
 <div class="main-panel">
     <div class="content-wrapper">
@@ -191,7 +191,7 @@ include 'check-ip.php';
         }).then((result) => {
             if (result.isConfirmed) {
                 // Përdoruesi ka konfirmuar, dërgo kërkesën për fshirjen
-                fetch('delete_backup.php?backupFile=' + backupFile)
+                fetch('api/delete_methods/delete_backup.php?backupFile=' + backupFile)
                     .then(response => response.text())
                     .then(result => {
                         // Shfaq një mesazh suksesi

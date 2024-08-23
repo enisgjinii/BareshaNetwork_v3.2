@@ -171,7 +171,6 @@ require_once 'invoices_trash_modal.php';
                 searchable: true,
                 width: 300
               })
-
               function convertToEUR(amount, outputId) {
                 fetch(`https://api.exconvert.com/convert?from=USD&to=EUR&amount=${amount}&access_key=7ac9d0d8-2c2a1729-0a51382b-b85cd112`)
                   .then(response => response.json())
@@ -184,7 +183,6 @@ require_once 'invoices_trash_modal.php';
                   })
                   .catch(error => console.error('Error:', error));
               }
-
               function calculateAmountAfterPercentage() {
                 const totalAmount = parseFloat(document.getElementById("total_amount").value);
                 const percentage = parseFloat(document.getElementById("percentage").value);
@@ -221,15 +219,42 @@ require_once 'invoices_trash_modal.php';
           <div class="tab-content text-dark" id="pills-tabContent">
             <div class="tab-pane fade show active" id="pills-lista_e_faturave" role="tabpanel" aria-labelledby="pills-lista_e_faturave-tab">
               <div class="table-responsive">
-                <select id="monthFilter" class="form-select">
-                  <option value="">Zgjidh muajin</option>
-                  <!-- Options will be populated dynamically -->
-                </select>
+                <div class="row">
+                  <!-- Month Filter -->
+                  <div class="mb-3 w-25">
+                    <label for="monthFilter" class="form-label">Filtro sipas muajit</label>
+                    <select id="monthFilter" class="form-select" aria-label="Month Filter">
+                      <option value="">Select a month...</option>
+                      <?php
+                      $sql = "
+                SELECT DISTINCT i.item AS month 
+                FROM invoices i
+                JOIN klientet k ON i.customer_id = k.id
+                WHERE k.lloji_klientit = 'Personal'
+                ORDER BY i.id DESC
+            ";
+                      $result = mysqli_query($conn, $sql);
+                      while ($row = mysqli_fetch_assoc($result)) {
+                        echo "<option value='" . $row['month'] . "'>" . $row['month'] . "</option>";
+                      }
+                      ?>
+                    </select>
+                  </div>
+                  <!-- Amount Filter -->
+                  <div class="mb-3 w-25">
+                    <label for="amountFilter" class="form-label">Filtro sipas shumës</label>
+                    <div class="input-group mb-3 rounded-5">
+                      <span class="input-group-text rounded-5 me-2">$/€</span>
+                      <input type="number" id="amountFilter" class="form-control border border-2 rounded-5" placeholder="Shkruani shumën..." aria-label="Shkruani shumën...">
+                    </div>
+                  </div>
+                </div>
+                <hr>
+                <!-- DataTable -->
                 <table id="invoiceList" class="table table-bordered table-sm" data-source="get_invoices.php">
                   <thead class="table-light">
                     <tr>
                       <th></th>
-                      <!-- <th class="text-sm">ID</th> -->
                       <th class="text-sm text-dark">Emri i klientit</th>
                       <th class="text-sm text-dark">Pershkrimi</th>
                       <th class="text-sm text-dark">Detajet</th>
@@ -379,7 +404,6 @@ require_once 'invoices_trash_modal.php';
     var totalAmountAfterPercentage = totalAmount - (totalAmount * (percentage / 100));
     document.getElementById('total_amount_after_percentage').value = totalAmountAfterPercentage.toFixed(2);
   });
-
   function getCustomerName(customerId) {
     var customerName = '';
     $.ajax({
@@ -407,9 +431,12 @@ require_once 'invoices_trash_modal.php';
       dom: "<'row'<'col-md-3'l><'col-md-6'B><'col-md-3'f>>" +
         "<'row'<'col-md-12'tr>>" +
         "<'row'<'col-md-6'><'col-md-6'p>>",
-      ajax: {
-        url: "get_invoices.php",
-        type: "POST"
+      "ajax": {
+        "url": $('#invoiceList').data('source'),
+        "data": function(d) {
+          d.month = $('#monthFilter').val();
+          d.amount = $('#amountFilter').val();
+        }
       },
       order: [
         [0, "desc"]
@@ -594,6 +621,10 @@ require_once 'invoices_trash_modal.php';
           }
         }
       ]
+    });
+    // Trigger filter on change
+    $('#monthFilter, #amountFilter').on('change keyup', function() {
+      table.draw();
     });
     var tableSecond = $('#invoiceListBiznes').DataTable({
       processing: true,
@@ -1070,7 +1101,6 @@ require_once 'invoices_trash_modal.php';
         }
       });
     });
-
     function createButtonConfig(extend, icon, text, titleAttr) {
       return {
         extend: extend,
@@ -1147,7 +1177,6 @@ require_once 'invoices_trash_modal.php';
       },
       stripeClasses: ['stripe-color']
     });
-
     function getCurrentDate() {
       var today = new Date();
       var dd = String(today.getDate()).padStart(2, '0');
@@ -1193,7 +1222,6 @@ require_once 'invoices_trash_modal.php';
         }
       });
     });
-
   });
 </script>
 <script src="pro_invoice.js"></script>
@@ -1205,5 +1233,4 @@ require_once 'invoices_trash_modal.php';
 <script src="states.js"></script>
 <?php include 'partials/footer.php' ?>
 </body>
-
 </html>

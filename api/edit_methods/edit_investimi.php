@@ -1,6 +1,6 @@
 <?php
 // Include your database connection code (e.g., connect to MySQL)
-include 'conn-d.php';
+include '../../conn-d.php';
 
 class DataHandler
 {

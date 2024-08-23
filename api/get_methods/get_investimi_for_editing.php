@@ -2,7 +2,7 @@
 // get_investimi.php
 
 // Connect to the database
-include 'conn-d.php';
+include '../../conn-d.php';
 
 if (isset($_POST['id'])) {
     $id = $_POST['id'];

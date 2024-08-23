@@ -2,7 +2,7 @@
 // Check if the backup file name is provided
 if (isset($_GET['backupFile'])) {
     // Define the directory where the backup files are stored
-    $backupDirectory = 'backups';
+    $backupDirectory = '../../backups';
 
     // Get the backup file name from the request
     $backupFile = $_GET['backupFile'];

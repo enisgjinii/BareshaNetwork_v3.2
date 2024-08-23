@@ -212,7 +212,7 @@ require_once 'vendor/autoload.php';
                 [0, "desc"]
             ],
             ajax: {
-                url: 'get_investimi_data.php', // Your PHP script to fetch data
+                url: 'api/get_methods/get_investimi.php', // Your PHP script to fetch data
                 dataSrc: '', // Since your response is an array, set this to an empty string
             },
             columns: [{
@@ -271,7 +271,7 @@ require_once 'vendor/autoload.php';
                 if (result.isConfirmed) {
                     // Proceed with the deletion
                     $.ajax({
-                        url: 'delete_investimi.php',
+                        url: 'api/delete_methods/delete_investimi.php',
                         type: 'POST',
                         data: {
                             id: rowId
@@ -310,7 +310,7 @@ require_once 'vendor/autoload.php';
             var rowId = $(this).data('id');
             // Fetch data for the specific row using AJAX
             $.ajax({
-                url: 'get_investimi.php',
+                url: 'api/get_methods/get_investimi_for_editing.php',
                 type: 'POST',
                 data: {
                     id: rowId
@@ -346,7 +346,7 @@ require_once 'vendor/autoload.php';
             // formData.append('shenim', shenimContent); // Append the shenim content to the formData
             formData.append('shenim', shenimContent);
             $.ajax({
-                url: 'update_investimi.php',
+                url: 'api/edit_methods/edit_investimi.php',
                 type: 'POST',
                 data: formData, // Use the FormData object
                 processData: false, // Prevent jQuery from processing the data
@@ -412,7 +412,7 @@ require_once 'vendor/autoload.php';
             event.preventDefault(); // Parandalon formën të dërgojë normalisht
             const formData = new FormData(event.target);
             $.ajax({
-                url: "insert_investim.php",
+                url: "api/post_methods/post_investim.php",
                 type: "POST",
                 data: formData,
                 processData: false,

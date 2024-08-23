@@ -5,18 +5,14 @@
     include 'conn-d.php';
     // Your SQL query
     $sql = "SELECT COUNT(*) as count FROM parapagimtable WHERE EShikuar = 'No'";
-
     // Executing the query
     $result = mysqli_query($conn, $sql);
-
     // Fetching the result
     $row = mysqli_fetch_assoc($result);
-
     // Getting the count
     $count = $row['count'];
     // Enable error reporting (for debugging purposes)
     error_reporting(1);
-
     // Function to generate menu items
     function generateMenuItem($page, $icon, $title)
     {
@@ -28,13 +24,10 @@
             </a>
           </li>";
     }
-
-
     // Check if the 'id' session variable is set
     if (isset($_SESSION['id'])) {
       // You can now use $_SESSION['id'] in this script
       $userName = $_SESSION['id'];
-
       // Define the SQL query to retrieve user roles and associated pages
       $sql = "SELECT roles.name AS role_name, GROUP_CONCAT(DISTINCT role_pages.page) AS pages
             FROM roles
@@ -42,15 +35,12 @@
             LEFT JOIN role_pages ON roles.id = role_pages.role_id
             WHERE user_roles.user_id = '$userName'
             GROUP BY roles.id";
-
       if ($result = $conn->query($sql)) {
         while ($row = $result->fetch_assoc()) {
           $menu_title = $row['role_name'];
           $menu_pages = explode(',', $row['pages']);
-
           // Generate the home menu item
           generateMenuItem('index.php', 'fi fi-rr-home', 'Sht&euml;pia');
-
           // Iterate over menu pages and generate menu items
           foreach ($menu_pages as $page) {
             switch ($page) {
@@ -73,10 +63,7 @@
       echo "<p>User ID is not set in the session.</p>";
     }
     ?>
-
-
     <?php
-
     $menuSections = [
       [
         "title" => "Menaxhimi",
@@ -109,7 +96,6 @@
           "ads.php" => "Llogari të ADS",
           "emails.php" => "Lista e email-ave",
           "klient-avanc.php" => ($count > 0) ? "Lista e avanceve <span class='badge bg-success rounded'><i class='fi fi-rr-eye me-2'></i>   $count</span>" : "Lista e avanceve",
-
           "rating_list.php" => "Lista e vlersimeve",
         ],
       ],
@@ -139,7 +125,6 @@
           "invoice.php" => "Pagesat YouTube <span class='badge bg-success rounded'>New</span>",
           "faturat.php" => "Pagesat YouTube",
           "pagesat.php" => "Pagesat e kryera",
-
           "tatimi.php" => "Tatimi",
           "yinc.php" => "Borxhi",
           "shpenzimep.php" => "Borxhet personale",
@@ -155,7 +140,6 @@
           "ttatimi.php" => "Tatimet",
           "fitimi_pergjithshem.php" => "Fitimi i përgjithshëm",
           "kontabiliteti_pagesat.php" => "Pagesat e kryera (Kont.)",
-
         ],
       ],
       [
@@ -206,7 +190,6 @@
         ],
       ],
     ];
-
     foreach ($menuSections as $section) {
       echo '<li class="nav-item">
           <a class="nav-link" data-bs-toggle="collapse" href="#' . $section['collapseId'] . '" aria-expanded="false" aria-controls="' . $section['collapseId'] . '">
@@ -216,7 +199,6 @@
           </a>
           <div class="collapse" id="' . $section['collapseId'] . '">
             <ul class="nav flex-column sub-menu">';
-
       foreach ($section['menuItems'] as $page => $title) {
         if (in_array($page, $menu_pages)) {
           echo '<li class="nav-item">
@@ -226,12 +208,10 @@
                   </li>';
         }
       }
-
       echo '</ul>
       </div>
     </li>';
     }
-
     foreach ($menu_pages as $page) {
       if ($page == "autor.php") {
         echo '<li class="nav-item">
@@ -242,7 +222,6 @@
               </li>';
       }
     }
-
     foreach ($menu_pages as $page) {
       if ($page == "ascap.php") {
         echo '<li class="nav-item">
@@ -253,7 +232,6 @@
               </li>';
       }
     }
-
     foreach ($menu_pages as $page) {
       if ($page == "invoice_list_2.php") {
         echo '<li class="nav-item">

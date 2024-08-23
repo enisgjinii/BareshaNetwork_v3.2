@@ -4,7 +4,6 @@ include 'conn-d.php';
 $table = 'invoices';
 $primaryKey = 'id';
 
-// Define columns with necessary details
 $columns = array(
     array('db' => 'id', 'dt' => 'id', 'searchable' => false),
     array('db' => 'invoice_number', 'dt' => 'invoice_number', 'searchable' => true),
@@ -16,7 +15,7 @@ $columns = array(
     array('db' => 'customer_loan', 'dt' => 'customer_loan', 'searchable' => false),
     array('db' => 'customer_email', 'dt' => 'customer_email', 'searchable' => true)
 );
-// Construct the base SQL query
+
 $sql = "SELECT i.id, i.invoice_number, i.item, i.customer_id, i.state_of_invoice, i.type,
                 i_agg.total_amount,
                 i_agg.total_amount_after_percentage,
@@ -50,7 +49,6 @@ $sql = "SELECT i.id, i.invoice_number, i.item, i.customer_id, i.state_of_invoice
             GROUP BY invoice_number
         ) AS i_agg ON i.invoice_number = i_agg.invoice_number";
 
-// Apply filters based on non-null values and klientet.aktiv
 $sql .= " WHERE (
     (i.total_amount_in_eur_after_percentage IS NOT NULL 
      AND (i.total_amount_in_eur_after_percentage - i.paid_amount) > 1)
@@ -58,7 +56,22 @@ $sql .= " WHERE (
     (COALESCE(i.total_amount_in_eur_after_percentage, i.total_amount_after_percentage) - i.paid_amount) > 1
   )
   AND (k.lloji_klientit = 'Personal' OR k.lloji_klientit IS NULL)
-  AND (k.aktiv IS NULL OR k.aktiv = 0)"; // New condition to filter klientet.aktiv
+  AND (k.aktiv IS NULL OR k.aktiv = 0)";
+
+// Apply the month filter if selected
+if (isset($_GET['month']) && !empty($_GET['month'])) {
+    $selectedMonth = mysqli_real_escape_string($conn, $_GET['month']);
+    $sql .= " AND i.item LIKE '%$selectedMonth%'";
+}
+
+// Apply the amount filter if entered
+if (isset($_GET['amount']) && !empty($_GET['amount'])) {
+    $enteredAmount = mysqli_real_escape_string($conn, $_GET['amount']);
+    $sql .= " AND (
+        i.total_amount_after_percentage > $enteredAmount 
+        OR i.total_amount_in_eur_after_percentage > $enteredAmount
+    )";
+}
 
 // Handle search functionality
 if (!empty($_REQUEST['search']['value'])) {
@@ -81,7 +94,7 @@ if (!empty($_REQUEST['search']['value'])) {
     $sql .= ")";
 }
 
-// Get the total record count before applying pagination
+// Get total records count before applying pagination
 $sqlCount = "SELECT COUNT(*) as count FROM ($sql) AS countTable";
 $resultCount = mysqli_query($conn, $sqlCount);
 $totalRecords = $resultCount ? mysqli_fetch_assoc($resultCount)['count'] : 0;

@@ -3,7 +3,7 @@ class Invoice
 {
 	private $host  = '192.250.231.19';
 	private $user  = 'bareshao_f';
-	private $password   = "prishtin134?";
+	private $password   = "pg07#cN40";
 	private $database  = "bareshao_f";
 	private $invoiceUserTable = 'invoice_user';
 	private $invoiceOrderTable = 'invoice_order';
