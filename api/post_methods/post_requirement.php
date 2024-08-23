@@ -1,6 +1,6 @@
 <?php
 // Establish a connection to the database
-include 'conn-d.php';
+include '../../conn-d.php';
 // Create a response array
 $response = array();
 // Check if the form is submitted

@@ -1,17 +1,13 @@
 <?php
-
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
-
-include 'conn-d.php';
-include 'send_email_to_employ.php';
-
+include '../../conn-d.php';
+include '../../send_email_to_employ.php';
 $employee_id = $_POST['employee_id'];
 $title = $_POST['title'];
 $start_date = $_POST['start_date'];
 $end_date = $_POST['end_date'];
 $status = $_POST['status'];
-
 // Fetch employee details
 $sql = "SELECT firstName, last_name, email FROM googleauth WHERE id = ?";
 $stmt = $conn->prepare($sql);
@@ -20,17 +16,14 @@ $stmt->execute();
 $result = $stmt->get_result();
 $employee = $result->fetch_assoc();
 $stmt->close();
-
 if (!$employee) {
     echo json_encode(['success' => false, 'message' => 'Employee not found']);
     exit;
 }
-
 // Insert the leave request
 $sql = "INSERT INTO leaves (title, start_date, end_date, status, user_id) VALUES (?, ?, ?, ?, ?)";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("ssssi", $title, $start_date, $end_date, $status, $employee_id);
-
 if ($stmt->execute()) {
     // Send email to employee
     $subject = 'Kërkesë e re për leje';
@@ -43,10 +36,7 @@ if ($stmt->execute()) {
                  <strong>Statusi:</strong> {$status}
              </p>
          </div>";
-
-
     $emailSent = sendEmail($employee['email'], $subject, $body);
-
     if ($emailSent) {
         echo json_encode([
             'success' => true,
@@ -61,6 +51,5 @@ if ($stmt->execute()) {
 } else {
     echo json_encode(['success' => false, 'message' => 'Error: ' . $stmt->error]);
 }
-
 $stmt->close();
 $conn->close();

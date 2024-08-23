@@ -382,7 +382,7 @@ ob_flush();
             "serverSide": true,
             ordering: false,
             "ajax": {
-                "url": "deleted_contracts_of_songs.php", // Specify the URL of your server-side script
+                "url": "api/delete_methods/deleted_contracts_of_songs.php", // Specify the URL of your server-side script
                 "type": "POST" // Use POST method to send data
             },
             dom: "<'row'<'col-md-3'l><'col-md-6'B><'col-md-3'f>>" +
@@ -579,7 +579,7 @@ ob_flush();
             }).then((result) => {
                 if (result.isConfirmed) {
                     // Nëse është konfirmuar, ridrejtohuni te skenari i fshirjes me ID-në e kontratës
-                    window.location.href = "fshij_kontraten.php?id=" + contractId;
+                    window.location.href = "api/delete_methods/delete_kontraten.php?id=" + contractId;
                 }
             });
         });

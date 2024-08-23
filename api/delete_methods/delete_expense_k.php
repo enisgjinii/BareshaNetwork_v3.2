@@ -1,5 +1,5 @@
 <?php
-include 'conn-d.php';
+include '../../conn-d.php';
 
 if (isset($_GET['id'])) {
     $id = $_GET['id'];

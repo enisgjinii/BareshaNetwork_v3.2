@@ -1,5 +1,5 @@
 <?php
-include 'conn-d.php';
+include '../../conn-d.php';
 
 $id = $_POST['id'] ?? null;
 $title = $_POST['title'] ?? null;

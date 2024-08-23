@@ -1,5 +1,5 @@
 <?php
-include 'conn-d.php';
+include '../../conn-d.php';
 
 $sql = "SELECT * FROM requirements ORDER by ID DESC";
 $result = $conn->query($sql);

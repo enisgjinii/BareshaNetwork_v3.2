@@ -1,5 +1,5 @@
 <?php
-include 'conn-d.php';
+include '../../conn-d.php';
 
 $sql = "SELECT * FROM investments ORDER BY id DESC";
 $result = $conn->query($sql);

@@ -1,7 +1,6 @@
 <?php
 include 'partials/header.php';
 include 'conn-d.php';
-
 ?>
 <style>
     .fc * {
@@ -35,7 +34,7 @@ include 'conn-d.php';
                 list: 'Lista'
             },
             events: {
-                url: 'fetch-events.php',
+                url: 'api/get_methods/get_events.php',
                 failure: function() {
                     Swal.fire('Error!', 'Ka pasur problem me marrjen e ngjarjeve.', 'error');
                 },
@@ -164,7 +163,7 @@ include 'conn-d.php';
                 }).then((result) => {
                     if (result.isConfirmed) {
                         // Send leave request to add-leave.php
-                        fetch('add-leave.php', {
+                        fetch('api/post_methods/post_leave.php', {
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/x-www-form-urlencoded',
@@ -229,7 +228,6 @@ include 'conn-d.php';
                     html: true
                 });
                 info.el.style.textTransform = 'capitalize';
-
             },
             datesSet: function(dateInfo) {
                 var events = calendar.getEvents();
@@ -240,9 +238,8 @@ include 'conn-d.php';
             }
         });
         calendar.render();
-
         function updateEvent(updatedData, event) {
-            fetch('update-leave.php', {
+            fetch('api/edit_methods/edit_leave.php', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
@@ -292,9 +289,7 @@ include 'conn-d.php';
                     </ol>
                 </nav>
                 <?php
-
                 // GET THE email from cookie
-
                 if ($user_info['email'] == 'egjini17@gmail.com') : ?>
                     <div class="row g-4">
                         <div class="col-lg-12">
@@ -337,7 +332,6 @@ include 'conn-d.php';
                             </div>
                             <button type="submit" class="input-custom-css px-3 py-2">Dërgo Kërkesën</button>
                         </form>
-
                     </div>
                 <?php endif; ?>
             </div>

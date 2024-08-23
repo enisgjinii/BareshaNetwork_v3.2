@@ -1,7 +1,7 @@
 <?php
 
 // Përfshij konfigurimet dhe lidhjen me bazën e të dhënave të nevojshme këtu
-include 'conn-d.php';
+include '../../conn-d.php';
 
 // Merr parametrat e përcaktuar nga përdoruesi nga kërkesa GET
 $show = isset($_POST['show']) ? $_POST['show'] : 10;

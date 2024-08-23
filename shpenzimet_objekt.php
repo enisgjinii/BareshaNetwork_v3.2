@@ -1,7 +1,6 @@
 <?php
 include 'partials/header.php';
 include 'conn-d.php';
-
 // Fetch data
 $sql = "SELECT DATE(created_at) AS date, SUM(shuma) AS total_shuma FROM expenses GROUP BY DATE(created_at)";
 $stmt = $conn->prepare($sql);
@@ -9,7 +8,6 @@ $stmt->execute();
 $result = $stmt->get_result();
 $expenses = [];
 $total = 0;
-
 if ($result->num_rows > 0) {
     // output data of each row
     while ($row = $result->fetch_assoc()) {
@@ -17,9 +15,8 @@ if ($result->num_rows > 0) {
         $total += $row['total_shuma'];
     }
 } else {
-    echo "0 results";
+    // echo "0 results";
 }
-
 ?>
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <div class="main-panel">
@@ -96,7 +93,6 @@ if ($result->num_rows > 0) {
                             $stmt = $conn->prepare($query);
                             $stmt->execute();
                             $result = $stmt->get_result();
-
                             // Check if there are any rows returned
                             if ($result->num_rows > 0) {
                                 // Iterate over the fetched data and display it in table rows
@@ -108,6 +104,7 @@ if ($result->num_rows > 0) {
                                     echo "<td>" . htmlspecialchars($row['dokumenti']) . "</td>";
                                     echo "<td>" . htmlspecialchars($row['created_at']) . "</td>";
                                     echo "<td>";
+                                    // Action buttons
                                     echo '<button type="button" class="input-custom-css px-3 py-2 edit-btn" data-bs-toggle="modal" data-bs-target="#editModal" data-id="' . $row['id'] . '" data-registruesi="' . htmlspecialchars($row['registruesi']) . '" data-pershkrimi="' . htmlspecialchars($row['pershkrimi']) . '" data-shuma="' . htmlspecialchars($row['shuma']) . '"><i class="fi fi-rr-edit"></i></button>';
                                     echo '<button type="button" class="input-custom-css px-3 py-2 ms-2 delete-btn" data-id="' . $row['id'] . '"><i class="fi fi-rr-trash"></i></button>';
                                     // Check if there is a document before displaying the download button
@@ -117,10 +114,7 @@ if ($result->num_rows > 0) {
                                     echo "</td>";
                                     echo "</tr>";
                                 }
-                            } else {
-                                // If no rows are returned, display a message
-                                echo "<tr><td colspan='6'>No expenses found</td></tr>";
-                            }
+                            } 
                             ?>
                         </tbody>
                     </table>
@@ -341,7 +335,7 @@ if ($result->num_rows > 0) {
                     confirmButtonText: 'Po, fshije!'
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        fetch(`delete_expense_k.php?id=${id}`, {
+                        fetch(`api/delete_methods/delete_expense_k.php?id=${id}`, {
                                 method: 'GET',
                             })
                             .then(response => response.text())

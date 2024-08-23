@@ -1,6 +1,6 @@
 <?php
 // Include your database connection file
-include 'conn-d.php';
+include '../../conn-d.php';
 
 try {
     error_reporting(E_ALL);

@@ -1,12 +1,12 @@
 <?php
 // Include your database connection file
-include 'conn-d.php';
+include '../../conn-d.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ids'])) {
     $ids = $_POST['ids'];
 
     // Use prepared statements to prevent SQL injection
-    $stmt = $conn->prepare("DELETE FROM investments WHERE id = ?");
+    $stmt = $conn->prepare("DELETE FROM requirements WHERE id = ?");
     foreach ($ids as $id) {
         $stmt->bind_param('i', $id);
         $stmt->execute();

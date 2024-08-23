@@ -1,5 +1,5 @@
 <?php
-include 'conn-d.php';
+include '../../conn-d.php';
 
 // ORDER this by ID DESC
 $sql = "SELECT office_damages.*, googleauth.firstName, googleauth.last_name

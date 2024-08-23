@@ -1,6 +1,6 @@
 <?php
 // Include your database connection file
-include 'conn-d.php';
+include '../../conn-d.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ids'])) {
     $ids = $_POST['ids'];

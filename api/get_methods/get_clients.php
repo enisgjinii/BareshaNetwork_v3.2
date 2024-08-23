@@ -1,6 +1,6 @@
 <?php
 // Include database connection
-include 'conn-d.php';
+include '../../conn-d.php';
 // Process DataTables server-side request
 function processDataTablesRequest($conn)
 {

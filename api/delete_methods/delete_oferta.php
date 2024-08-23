@@ -1,6 +1,6 @@
 <?php
 
-include 'conn-d.php';
+include '../../conn-d.php';
 // First, check if the id parameter was passed
 if (isset($_GET['id'])) {
     // Connect to the database
@@ -16,7 +16,7 @@ if (isset($_GET['id'])) {
     mysqli_close($conn);
 
     // Redirect back to the page where the delete button was clicked
-    header("Location: ofertat.php");
+    header("Location: ../../ofertat.php");
     exit();
 } else {
     // If no id parameter was passed, show an error message

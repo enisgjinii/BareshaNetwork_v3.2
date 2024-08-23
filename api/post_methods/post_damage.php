@@ -1,7 +1,7 @@
 <?php
 
 // Connect to the database
-include 'conn-d.php';
+include '../../conn-d.php';
 
 // Create a response array
 $response = array();

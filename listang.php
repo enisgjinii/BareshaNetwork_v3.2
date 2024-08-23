@@ -135,7 +135,7 @@ $tableHeaders = ['Id', 'Këngëtari', 'Informacioni', 'Rrjete sociale', 'Klienti
             ],
             searching: true,
             ajax: {
-                url: 'fetch_music.php',
+                url: 'api/get_methods/get_music.php',
                 type: 'POST',
                 dataType: 'json',
                 dataSrc: 'data'
@@ -214,7 +214,7 @@ $tableHeaders = ['Id', 'Këngëtari', 'Informacioni', 'Rrjete sociale', 'Klienti
             }).then((result) => {
                 if (result.isConfirmed) {
                     $.ajax({
-                        url: 'delete_ngarkimi.php',
+                        url: 'api/delete_methods/delete_ngarkimi.php',
                         method: 'POST',
                         data: {
                             id: id

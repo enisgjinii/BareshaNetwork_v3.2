@@ -293,7 +293,7 @@ include('partials/footer.php');
             allowOutsideClick: false,
             showLoaderOnConfirm: true,
             preConfirm: () => {
-                return fetch(`fshij_kontraten_gjenerale.php?id=${id}`)
+                return fetch(`api/delete_methods/delete_kontrata_gjenerale.php?id=${id}`)
                     .then(response => {
                         if (!response.ok) {
                             throw new Error(response.statusText);

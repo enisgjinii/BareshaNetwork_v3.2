@@ -1,37 +1,28 @@
 <?php
 include 'partials/header.php';
-
 function handleAction($conn, $user_info, $action, $channel_id, $note = '')
 {
   $user_name = $user_info['givenName'] . ' ' . $user_info['familyName'];
   $date = date('Y-m-d H:i:s');
   $log_description = "$user_name ka $action Whitelist kanalin me id $channel_id me datë: $date";
-
   $stmt = $conn->prepare("INSERT INTO logs (stafi, ndryshimi, koha) VALUES (?, ?, ?)");
   $stmt->bind_param("sss", $user_name, $log_description, $date);
-
   $result = $stmt->execute() ? ['success', 'Sukses', 'Veprimi u krye me sukses.'] : ['error', 'Gabim', 'Gabimi: ' . $conn->error];
   $stmt->close();
-
   $api_url = $action == 'shtuar në'
     ? "https://bareshamusic.sourceaudio.com/api/contentid/whitelistChannel?token=6636-66f549fbe813b2087a8748f2b8243dbc&channel[0][channel_id]=$channel_id&channel[0][note]=$note"
     : "https://bareshamusic.sourceaudio.com/api/contentid/whitelistRemove?token=6636-66f549fbe813b2087a8748f2b8243dbc&channel[channel_id]=$channel_id";
-
   $api_response = json_decode(file_get_contents($api_url), true);
   $api_result = isset($api_response['error']) && $api_response['error']
     ? ['error', 'Gabim', 'Gabimi: ' . $api_response['error']]
     : ['success', 'Sukses', 'Operacioni është kryer me sukses.'];
-
   echo "<script>Swal.fire({icon:'{$result[0]}',title:'{$result[1]}',text:'{$result[2]}'});</script>";
   echo "<script>Swal.fire({icon:'{$api_result[0]}',title:'{$api_result[1]}',text:'{$api_result[2]}'});</script>";
 }
-
 if (isset($_POST['channel_id'])) handleAction($conn, $user_info, 'shtuar në', $_POST['channel_id'], $_POST['note']);
 if (isset($_GET['remove'])) handleAction($conn, $user_info, 'fshirë nga', $_GET['remove']);
-
 $whitelist_data = json_decode(file_get_contents('https://bareshamusic.sourceaudio.com/api/contentid/whitelist?token=6636-66f549fbe813b2087a8748f2b8243dbc'), true);
 ?>
-
 <div class="main-panel">
   <div class="content-wrapper">
     <div class="container-fluid">
@@ -77,7 +68,6 @@ $whitelist_data = json_decode(file_get_contents('https://bareshamusic.sourceaudi
     </div>
   </div>
 </div>
-
 <div class="modal fade" id="shtochannel" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
@@ -104,9 +94,7 @@ $whitelist_data = json_decode(file_get_contents('https://bareshamusic.sourceaudi
     </div>
   </div>
 </div>
-
 <?php include 'partials/footer.php'; ?>
-
 <script>
   $('#example').DataTable({
     searching: true,

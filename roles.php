@@ -603,7 +603,7 @@ include 'partials/header.php'; ?>
                 }).then((result) => {
                     if (result.isConfirmed) {
                         $.ajax({
-                            url: 'delete_row.php',
+                            url: 'api/delete_methods/delete_row.php',
                             type: 'POST',
                             data: {
                                 role_id: roleId
@@ -640,7 +640,7 @@ include 'partials/header.php'; ?>
                 var roleId = $(this).val();
                 // Send an AJAX request to get the pages for the selected role
                 $.ajax({
-                    url: 'get_pages.php',
+                    url: 'api/get_methods/get_pages.php',
                     type: 'post',
                     data: {
                         role_id: roleId

@@ -11,14 +11,6 @@
             </a>
           </li>
       </nav>
-      <ul class="nav nav-pills mb-3 bg-white me-auto justify-content-center justify-content-md-start rounded-5" id="pills-tab" role="tablist" style="width: fit-content;">
-        <li class="nav-item" role="presentation">
-          <button class="nav-link rounded-5 active" id="pills-tabelaStafit-tab" data-bs-toggle="pill" data-bs-target="#pills-tabelaStafit" style="text-transform: none;text-decoration: none;" type="button" role="tab" aria-controls="pills-tabelaStafit" aria-selected="true">Stafi</button>
-        </li>
-        <li class="nav-item" role="presentation">
-          <button class="nav-link rounded-5" id="pills-listaETentativave-tab" data-bs-toggle="pill" data-bs-target="#pills-listaETentativave" type="button" role="tab" aria-controls="pills-listaETentativave" style="text-transform: none;text-decoration: none;" aria-selected="false">Lista e tentativave</button>
-        </li>
-      </ul>
       <div class="tab-content" id="pills-tabContent">
         <div class="tab-pane fade show active" id="pills-tabelaStafit" role="tabpanel" aria-labelledby="pills-tabelaStafit-tab" tabindex="0">
           <div class="card rounded-5 shadow-sm  d-none d-md-none d-lg-block">
@@ -259,200 +251,6 @@
             });
           });
         </script>
-        <div class="tab-pane fade" id="pills-listaETentativave" role="tabpanel" aria-labelledby="pills-listaETentativave-tab" tabindex="0">
-          <div class="card rounded-5 shadow-sm d-none d-md-none d-lg-block">
-            <div class="card-body">
-              <div class="row">
-                <div class="col-12">
-                  <table id="access_denial_logs" class="table table-bordered w-full">
-                    <thead class="bg-light">
-                      <tr>
-                        <th>ID</th>
-                        <th>Ip Address</th>
-                        <th>Email attempted</th>
-                        <th>User Agent</th>
-                        <th>Timestamp</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <?php
-                      $kueri = $conn->query("SELECT * FROM access_denial_logs ORDER BY id DESC");
-                      while ($k = mysqli_fetch_array($kueri)) {
-                      ?>
-                        <tr>
-                          <td><?php echo $k['id']; ?></td>
-                          <td>
-                            <!-- Button to trigger modal -->
-                            <button type="button" class="input-custom-css px-3 py-2" data-bs-toggle="modal" data-bs-target="#modal<?php echo $k['id']; ?>">
-                              <i class="fi fi-rr-info"></i>
-                            </button>
-                          </td>
-                          <td><?php echo $k['email_attempted']; ?></td>
-                          <td>
-                            <?php echo $k['user_agent']; ?> <br><br>
-                            <!-- Button trigger modal -->
-                            <button type="button" class="input-custom-css px-3 py-2" data-bs-toggle="modal" data-bs-target="#userAgentModal<?php echo $k['id']; ?>">
-                              <i class="fi fi-rr-info"></i>
-                            </button>
-                            <!-- Modal -->
-                            <div class="modal fade" id="userAgentModal<?php echo $k['id']; ?>" tabindex="-1" aria-labelledby="userAgentModalLabel<?php echo $k['id']; ?>" aria-hidden="true">
-                              <div class="modal-dialog">
-                                <div class="modal-content">
-                                  <div class="modal-header">
-                                    <h5 class="modal-title" id="userAgentModalLabel<?php echo $k['id']; ?>">Të dhënat e agjentit të përdoruesit</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                  </div>
-                                  <div class="modal-body">
-                                    <?php
-                                    $curl = curl_init();
-                                    // Encode the user agent string before appending it to the URL
-                                    $userAgent = urlencode($k['user_agent']);
-                                    $url = "https://user-agent-parser4.p.rapidapi.com/user-agent/useragent.php?ua={$userAgent}";
-                                    curl_setopt_array($curl, [
-                                      CURLOPT_URL => $url,
-                                      CURLOPT_RETURNTRANSFER => true,
-                                      CURLOPT_ENCODING => "",
-                                      CURLOPT_MAXREDIRS => 10,
-                                      CURLOPT_TIMEOUT => 30,
-                                      CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                                      CURLOPT_CUSTOMREQUEST => "GET",
-                                      CURLOPT_HTTPHEADER => [
-                                        "X-RapidAPI-Host: user-agent-parser4.p.rapidapi.com",
-                                        "X-RapidAPI-Key: 335200c4afmsh64cfbbf7fdf4cf2p1aae94jsn05a3bad585de"
-                                      ],
-                                    ]);
-                                    $response = curl_exec($curl);
-                                    $err = curl_error($curl);
-                                    curl_close($curl);
-                                    if ($err) {
-                                      echo "cURL Error #: " . $err;
-                                    } else {
-                                      $data = json_decode($response, true);
-                                      // Display user agent information
-                                      echo "User Agent: " . $data['user_agent'] . "<br>";
-                                      echo "Is Bot: " . ($data['isBot'] ? 'Yes' : 'No') . "<br>";
-                                      echo "Device: " . $data['device'] . "<br>";
-                                      echo "Browser Family: " . $data['browserFamily'] . "<br>";
-                                      echo "OS Family: " . $data['osFamily'] . "<br>";
-                                      echo "Browser: " . $data['clientInfo']['name'] . "<br>";
-                                      echo "Browser Version: " . $data['clientInfo']['version'] . "<br>";
-                                      echo "OS: " . $data['osInfo']['name'] . "<br>";
-                                      echo "OS Version: " . $data['osInfo']['version'] . "<br>";
-                                    }
-                                    ?>
-                                  </div>
-                                  <div class="modal-footer">
-                                    <button type="button" class="input-custom-css px-3 py-2" data-bs-dismiss="modal">Mbylle</button>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </td>
-                          <td><?php echo $k['timestamp']; ?></td>
-                        </tr>
-                        <!-- Modal Structure -->
-                        <div class="modal fade" id="modal<?php echo $k['id']; ?>" tabindex="-1" aria-labelledby="modalLabel<?php echo $k['id']; ?>" aria-hidden="true">
-                          <div class="modal-dialog">
-                            <div class="modal-content">
-                              <div class="modal-header">
-                                <h5 class="modal-title" id="modalLabel<?php echo $k['id']; ?>">IP Address Details</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                              </div>
-                              <div class="modal-body">
-                                IP Address: <?php echo $k['ip_address']; ?> <br />
-                                <?php
-                                $curl = curl_init();
-                                curl_setopt_array($curl, [
-                                  CURLOPT_URL => "https://ip-location5.p.rapidapi.com/get_geo_info",
-                                  CURLOPT_RETURNTRANSFER => true,
-                                  CURLOPT_ENCODING => "",
-                                  CURLOPT_MAXREDIRS => 10,
-                                  CURLOPT_TIMEOUT => 30,
-                                  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                                  CURLOPT_CUSTOMREQUEST => "POST",
-                                  CURLOPT_POSTFIELDS => "ip=" . $k['ip_address'], // Use the IP address from your data
-                                  CURLOPT_HTTPHEADER => [
-                                    "X-RapidAPI-Host: ip-location5.p.rapidapi.com",
-                                    "X-RapidAPI-Key: 335200c4afmsh64cfbbf7fdf4cf2p1aae94jsn05a3bad585de",
-                                    "Content-Type: application/x-www-form-urlencoded"
-                                  ],
-                                ]);
-                                $response = curl_exec($curl);
-                                $err = curl_error($curl);
-                                curl_close($curl);
-                                if ($err) {
-                                  echo "cURL Error #:" . $err;
-                                } else {
-                                  // Decode the JSON response
-                                  $data = json_decode($response, true);
-                                  // Check if response contains data and is not an error
-                                  if (isset($data['country']) && !isset($data['error'])) {
-                                    // Output the desired IP address details
-                                    echo "Country: ";
-                                    if (is_array($data['country'])) {
-                                      echo implode(', ', $data['country']);
-                                    } else {
-                                      echo $data['country'];
-                                    }
-                                    echo "<br>";
-                                    // Output other details as needed
-                                    echo "City: " . $data['city'] . "<br>";
-                                    echo "ISP: " . $data['isp'] . "<br>";
-                                    // Add more details as needed
-                                  } else {
-                                    echo "Unable to retrieve IP address details.";
-                                  }
-                                }
-                                ?>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      <?php
-                      }
-                      ?>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="d-block d-md-block d-lg-none">
-            <!-- List presentation for tablets and mobile -->
-            <ul class="list-group">
-              <!-- PHP loop for list content -->
-              <?php
-              $kueri = $conn->query("SELECT * FROM access_denial_logs ORDER BY id DESC");
-              while ($k = mysqli_fetch_array($kueri)) {
-              ?>
-                <!-- Display list items -->
-                <li class="list-group-item">
-                  <div class="row">
-                    <div class="col-md-3">
-                      <strong>ID:</strong> <?php echo $k['id']; ?>
-                    </div>
-                    <div class="col-md-3">
-                      <strong>Ip Address:</strong> <?php echo $k['ip_address']; ?>
-                    </div>
-                    <div class="col-md-3">
-                      <strong>Email attempted:</strong> <?php echo $k['email_attempted']; ?>
-                    </div>
-                    <div class="col-md-3">
-                      <strong>User Agent:</strong> <?php echo $k['user_agent']; ?>
-                    </div>
-                  </div>
-                  <div class="row">
-                    <div class="col-md-12">
-                      <strong>Timestamp:</strong> <?php echo $k['timestamp']; ?>
-                    </div>
-                  </div>
-                </li>
-              <?php
-              }
-              ?>
-            </ul>
-          </div>
-        </div>
       </div>
     </div>
   </div>
@@ -464,7 +262,7 @@
     const newSalary = document.getElementById(`salary_${employeeId}`).value;
     // Send AJAX request to update salary
     const xhr = new XMLHttpRequest();
-    xhr.open('POST', 'update_salary.php', true);
+    xhr.open('POST', 'api/edit_methods/edit_salary.php', true);
     xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
     // Handle the response from update_salary.php
     xhr.onload = function() {
@@ -494,7 +292,6 @@
     // Send the request with the employee ID and salary
     xhr.send('id=' + employeeId + '&salary=' + newSalary);
   }
-
   function editEmployee(employeeId, currentSalary) {
     // Set the dynamic ID for the offcanvas and form
     const offcanvasId = `offcanvasRightEdit_${employeeId}`;
@@ -532,7 +329,7 @@
       // Send AJAX request to delete_employ.php
       $.ajax({
         type: 'POST',
-        url: 'delete_employ.php',
+        url: 'api/delete_methods/delete_employ.php',
         data: {
           id: employeeId
         },
@@ -613,60 +410,6 @@
         borderRadius: "0.25rem",
       });
     },
-    fixedHeader: true,
-    language: {
-      url: "https://cdn.datatables.net/plug-ins/1.13.1/i18n/sq.json",
-    },
-    stripeClasses: ['stripe-color']
-  })
-</script>
-<script>
-  $('#access_denial_logs').DataTable({
-    searching: true,
-    dom: "<'row'<'col-md-3'l><'col-md-6'B><'col-md-3'f>>" +
-      "<'row'<'col-md-12'tr>>" +
-      "<'row'<'col-md-6'><'col-md-6'p>>",
-    buttons: [{
-      extend: 'pdfHtml5',
-      text: '<i class="fi fi-rr-file-pdf fa-lg"></i>&nbsp;&nbsp; PDF',
-      titleAttr: 'Eksporto tabelen ne formatin PDF',
-      className: 'btn btn-light btn-sm bg-light border me-2 rounded-5'
-    }, {
-      extend: 'copyHtml5',
-      text: '<i class="fi fi-rr-copy fa-lg"></i>&nbsp;&nbsp; Kopjo',
-      titleAttr: 'Kopjo tabelen ne formatin Clipboard',
-      className: 'btn btn-light btn-sm bg-light border me-2 rounded-5'
-    }, {
-      extend: 'excelHtml5',
-      text: '<i class="fi fi-rr-file-excel fa-lg"></i>&nbsp;&nbsp; Excel',
-      titleAttr: 'Eksporto tabelen ne formatin CSV',
-      className: 'btn btn-light btn-sm bg-light border me-2 rounded-5'
-    }, {
-      extend: 'print',
-      text: '<i class="fi fi-rr-print fa-lg"></i>&nbsp;&nbsp; Printo',
-      titleAttr: 'Printo tabel&euml;n',
-      className: 'btn btn-light btn-sm bg-light border me-2 rounded-5'
-    }],
-    initComplete: function() {
-      var btns = $(".dt-buttons");
-      btns.addClass("").removeClass("dt-buttons btn-group");
-      var lengthSelect = $("div.dataTables_length select");
-      lengthSelect.addClass("form-select");
-      lengthSelect.css({
-        width: "auto",
-        margin: "0 8px",
-        padding: "0.375rem 1.75rem 0.375rem 0.75rem",
-        lineHeight: "1.5",
-        border: "1px solid #ced4da",
-        borderRadius: "0.25rem",
-      });
-    },
-    columnDefs: [{
-      "targets": [0, 1, 2, 3, 4],
-      "render": function(data, type, row) {
-        return type === 'display' && data !== null ? '<div style="white-space: normal;">' + data + '</div>' : data;
-      }
-    }],
     fixedHeader: true,
     language: {
       url: "https://cdn.datatables.net/plug-ins/1.13.1/i18n/sq.json",

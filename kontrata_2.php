@@ -1,7 +1,6 @@
 <?php
 include 'partials/header.php';
 include 'page_access_controller.php';
-
 // Fetch clients data
 $sql = "SELECT * FROM klientet ORDER BY emri ASC";
 $result = $conn->query($sql);
@@ -57,7 +56,6 @@ $clients = $result->num_rows > 0 ? $result->fetch_all(MYSQLI_ASSOC) : [];
                                 ["label" => "Përqindja (Klienti)", "name" => "perqindja_other", "type" => "number", "readonly" => true],
                                 ["label" => "Shënime", "name" => "shenime", "type" => "textarea", "rows" => 5, "placeholder" => "Shëno..."]
                             ];
-
                             foreach ($additionalFields as $field) {
                                 if ($field['type'] == 'textarea') {
                                     echo "<div class='col-md-12 mb-3'>
@@ -74,7 +72,6 @@ $clients = $result->num_rows > 0 ? $result->fetch_all(MYSQLI_ASSOC) : [];
                                 }
                             }
                             ?>
-
                             <button type="submit" class="input-custom-css px-3 py-2 rounded-5">
                                 <i class="fi fi-rr-paper-plane me-2"></i>Dërgo
                             </button>
@@ -93,20 +90,17 @@ $clients = $result->num_rows > 0 ? $result->fetch_all(MYSQLI_ASSOC) : [];
     document.querySelectorAll('#contractForm input, #contractForm select, #contractForm textarea').forEach(input => {
         input.addEventListener('input', updatePreview);
     });
-
     function showEmail(select) {
         const [_, email, emriartistik] = select.value.split("|");
         document.getElementById("email").value = email || "Klienti që keni zgjedhur nuk ka adresë te emailit";
         document.getElementById("emriartistik").value = emriartistik || "";
         updatePreview();
     }
-
     function updatePerqindjaOther() {
         const perqindja = parseFloat(document.getElementById('perqindja').value);
         document.getElementById('perqindja_other').value = isNaN(perqindja) ? "" : 100 - perqindja;
         updatePreview();
     }
-
     function updatePreview() {
         const formData = new FormData(document.getElementById('contractForm'));
         fetch('preview-contract.php', {
@@ -119,16 +113,13 @@ $clients = $result->num_rows > 0 ? $result->fetch_all(MYSQLI_ASSOC) : [];
             })
             .catch(error => console.error('Error:', error));
     }
-
     new Selectr('#klienti22', {
         searchable: true
     });
-
     $("input[name='data']").flatpickr({
         dateFormat: "Y-m-d",
         maxDate: new Date().fp_incr(0),
     });
-
     function validateFile(input) {
         const file = input.files[0];
         const maxSize = 10 * 1024 * 1024; // 10MB

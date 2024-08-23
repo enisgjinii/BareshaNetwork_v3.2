@@ -134,7 +134,7 @@
             // Serialize the form data
             var formData = new FormData(this);
             // Send an AJAX request to process_damage.php
-            fetch('process_damage.php', {
+            fetch('api/post_methods/post_damage.php', {
                     method: 'POST',
                     body: formData
                 })
@@ -193,7 +193,7 @@
             ],
             stripeClasses: ['stripe-color'],
             ajax: {
-                url: 'fetch_damages.php', // Replace with your server-side script to fetch data
+                url: 'api/get_methods/get_damages.php', // Replace with your server-side script to fetch data
                 type: 'POST',
                 dataSrc: ''
             },
@@ -259,7 +259,7 @@
                 if (result.isConfirmed) {
                     // If the user confirms, perform the deletion using AJAX
                     $.ajax({
-                        url: 'delete_damage.php',
+                        url: 'api/delete_methods/delete_damage.php',
                         method: 'POST',
                         data: {
                             ids: ids

@@ -1,6 +1,6 @@
 <?php
 // Establish a connection to the database
-include 'conn-d.php';
+include '../../conn-d.php';
 
 // Create a response array
 $response = array();
@@ -15,7 +15,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $paymentStatus = mysqli_real_escape_string($conn, $_POST["payment_status"]);
 
     // Handle file upload
-    $uploadDir = "investimet_e_objektit/";
+    $uploadDir = "../../investimet_e_objektit/";
     $uploadFile = $uploadDir . basename($_FILES["invoice_scan"]["name"]);
 
     // Validate file type and size

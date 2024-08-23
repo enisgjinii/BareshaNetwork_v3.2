@@ -321,7 +321,7 @@
         }).then((result) => {
             if (result.isConfirmed) {
                 // Nëse është konfirmuar, vazhdo me fshirjen
-                window.location.href = "deleteOferta.php?id=" + id;
+                window.location.href = "api/delete_methods/delete_oferta.php?id=" + id;
             }
         });
         // Parandalon veprimin parazgjedhës të lidhjes

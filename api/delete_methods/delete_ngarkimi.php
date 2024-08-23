@@ -1,6 +1,6 @@
 <?php
 // Include the database connection
-include 'conn-d.php';
+include '../../conn-d.php';
 
 // Check if the ID parameter is set and is a valid integer
 if (isset($_POST['id']) && filter_var($_POST['id'], FILTER_VALIDATE_INT)) {

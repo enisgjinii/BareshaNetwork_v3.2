@@ -1,6 +1,6 @@
 <?php
 // Include your database connection file
-include 'conn-d.php';
+include '../../conn-d.php';
 
 // Check if ID is provided and is numeric
 if (isset($_GET['id']) && is_numeric($_GET['id'])) {
@@ -37,15 +37,15 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
         mysqli_stmt_close($delete_stmt);
 
         // Redirect to the main page
-        header('Location: lista_kontratave.php');
+        header('Location: ../../lista_kontratave.php');
         exit(); // Stop further execution
     } else {
         // Record not found, redirect to error page or handle accordingly
-        header('Location: error.php');
+        header('Location: ../../error.php');
         exit(); // Stop further execution
     }
 } else {
     // ID is missing or not numeric, redirect to error page or handle accordingly
-    header('Location: error.php');
+    header('Location: ../../error.php');
     exit(); // Stop further execution
 }

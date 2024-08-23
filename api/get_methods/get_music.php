@@ -1,5 +1,5 @@
 <?php
-include 'conn-d.php';
+include '../../conn-d.php';
 
 $query = "SELECT n.*, k.emri AS klienti_emri, u.name AS postuar_nga
     FROM ngarkimi n

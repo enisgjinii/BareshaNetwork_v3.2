@@ -79,7 +79,7 @@
             // Serialize the form data
             var formData = new FormData(this);
             // Send an AJAX request to process_requirement.php
-            fetch('process_requirement.php', {
+            fetch('api/post_methods/post_requirement.php', {
                     method: 'POST',
                     body: formData
                 })
@@ -137,7 +137,7 @@
             ],
             stripeClasses: ['stripe-color'],
             ajax: {
-                url: 'fetch_requirements.php', // Replace with your server-side script to fetch data
+                url: 'api/get_methods/get_requirements.php', // Replace with your server-side script to fetch data
                 type: 'POST',
                 dataSrc: ''
             },
@@ -274,7 +274,7 @@
             }).get();
             // Perform deletion using AJAX
             $.ajax({
-                url: 'delete_requirement.php',
+                url: 'api/delete_methods/delete_requirement.php',
                 method: 'POST',
                 data: {
                     ids: ids

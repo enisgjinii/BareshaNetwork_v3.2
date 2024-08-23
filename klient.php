@@ -286,7 +286,7 @@
         [10, 25, 50, 100, 500, 1000],
       ],
       ajax: {
-        url: 'get-clients.php',
+        url: 'api/get_methods/get_clients.php',
         type: 'POST',
       },
       columns: [{

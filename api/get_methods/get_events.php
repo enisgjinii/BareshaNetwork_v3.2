@@ -1,5 +1,5 @@
 <?php
-require_once 'conn-d.php';
+require_once '../../conn-d.php';
 
 header('Content-Type: application/json');
 header('X-Content-Type-Options: nosniff');
