@@ -73,6 +73,8 @@ if (isset($_GET['amount']) && !empty($_GET['amount'])) {
     )";
 }
 
+
+
 // Handle search functionality
 if (!empty($_REQUEST['search']['value'])) {
     $sql .= " AND (";
