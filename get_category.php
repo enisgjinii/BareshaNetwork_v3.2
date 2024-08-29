@@ -1,5 +1,6 @@
 
 <?php
+include 'conn-d.php';
 $category = $_GET['category'];
 $payments = $conn->query("SELECT * FROM pagesat WHERE kategoria='$category' ORDER BY data DESC");
 $table_html = "";

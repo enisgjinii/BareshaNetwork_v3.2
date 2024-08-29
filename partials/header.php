@@ -102,38 +102,53 @@ $jsFiles = [
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <link rel="shortcut icon" href="images/favicon.png" />
   <?php
   foreach ($cssFiles as $css) echo "<link rel='stylesheet' href='$css'>";
   foreach ($jsFiles as $js) echo "<script src='$js'></script>";
   ?>
+  <!-- Get the page name -->
+  <?php
+  $current_page = basename($_SERVER['PHP_SELF'], '.php');
+  $page_title = ucwords(str_replace('_', ' ', $current_page));
+  ?>
+
+  <title><?= $page_title ?> | Baresha Network</title>
   <style>
     * {
       font-family: 'Inter', sans-serif;
     }
+
     body {
       transition: background-color 0.3s, color 0.3s;
     }
+
     .btn-icon {
       font-size: 1.5rem;
     }
+
     .nav-item {
       color: #fff;
     }
+
     @keyframes fadeUp {
       from {
         opacity: 0;
         transform: translateY(20px);
       }
+
       to {
         opacity: 1;
         transform: translateY(0);
       }
     }
+
     .fade-up {
       animation: fadeUp 0.5s ease-in-out;
     }
+
     .toggle-button {
       display: flex;
       align-items: center;
@@ -146,13 +161,16 @@ $jsFiles = [
       padding: 5px;
       background-color: #dddddd;
     }
+
     .toggle-button .toggle-icon {
       font-size: 16px;
       color: #000;
     }
+
     .toggle-button.dark-mode .toggle-icon {
       color: #fff;
     }
+
     .toggle-switch {
       position: relative;
       width: 60px;
@@ -160,9 +178,11 @@ $jsFiles = [
       background-color: #555;
       border-radius: 15px;
     }
+
     .toggle-switch input[type="checkbox"] {
       display: none;
     }
+
     .toggle-switch input[type="checkbox"]+label {
       position: absolute;
       top: 0;
@@ -175,15 +195,18 @@ $jsFiles = [
       cursor: pointer;
       transition: transform 0.3s ease-in-out;
     }
+
     .toggle-switch input[type="checkbox"]:checked+label {
       transform: translateX(30px);
     }
+
     .pagination {
       display: flex;
       justify-content: center;
       align-items: center;
       margin-top: 20px;
     }
+
     .pagination a {
       margin: 0 5px;
       padding: 5px 10px;
@@ -192,18 +215,22 @@ $jsFiles = [
       color: #333;
       border-radius: 5px;
     }
+
     .pagination a.active {
       background-color: #007bff;
       color: #fff;
     }
+
     .pagination a.disabled {
       color: #ccc;
       pointer-events: none;
     }
+
     [data-toggle="tooltip"] {
       position: relative;
       cursor: pointer;
     }
+
     [data-toggle="tooltip"]::after {
       content: attr(title);
       position: absolute;
@@ -223,29 +250,35 @@ $jsFiles = [
       transition: opacity 0.5s ease-in-out;
       z-index: 5;
     }
+
     [data-toggle="tooltip"]:hover::after {
       opacity: 1;
     }
+
     @keyframes fadeIn {
       0% {
         opacity: 0;
         transform: translateY(20px);
       }
+
       100% {
         opacity: 1;
         transform: translateY(0);
       }
     }
+
     @keyframes slideIn {
       0% {
         opacity: 0;
         transform: translateX(-20px);
       }
+
       100% {
         opacity: 1;
         transform: translateX(0);
       }
     }
+
     .dot {
       display: inline-block;
       width: 12px;
@@ -253,6 +286,7 @@ $jsFiles = [
       border-radius: 75%;
       cursor: pointer;
     }
+
     .dot:hover::before {
       content: attr(title);
       position: absolute;
@@ -266,6 +300,7 @@ $jsFiles = [
       margin-left: -10px;
       margin-top: -30px;
     }
+
     .input-custom-css {
       background-color: #fff;
       border: 1px solid #d5d9d9;
@@ -279,6 +314,7 @@ $jsFiles = [
       touch-action: manipulation;
       vertical-align: middle;
     }
+
     .input-custom-css-disabled {
       background-color: #fff;
       opacity: 0.6;
@@ -294,19 +330,23 @@ $jsFiles = [
       touch-action: manipulation;
       vertical-align: middle;
     }
+
     .input-custom-css:hover {
       background-color: #f7fafa;
     }
+
     @keyframes fadeIn {
       from {
         opacity: 0;
       }
+
       to {
         opacity: 1;
       }
     }
   </style>
 </head>
+
 <body>
   <?php include "partials/navbar.php" ?>
   <div class="container-scroller">

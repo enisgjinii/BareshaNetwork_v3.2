@@ -198,7 +198,7 @@ $text = 'Madhësia e dosjes: ' . $fileSize;
         [0, "desc"]
       ],
       ajax: {
-        url: 'fetch_expenses.php', // Replace with your server-side script to fetch data
+        url: 'api/get_methods/get_expenses.php', // Replace with your server-side script to fetch data
         type: 'POST',
         dataSrc: ''
       },

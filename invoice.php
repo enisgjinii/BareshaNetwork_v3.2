@@ -76,12 +76,9 @@ require_once 'invoices_trash_modal.php';
                       <select class="form-control rounded-5 shadow-sm py-3" id="customer_id" name="customer_id" required>
                         <?php
                         require_once "conn-d.php";
-                        $sql = "SELECT id,emri, perqindja FROM klientet ORDER BY id DESC";
-                        $result = mysqli_query($conn, $sql);
-                        if (mysqli_num_rows($result) > 0) {
-                          while ($row = mysqli_fetch_assoc($result)) {
-                            echo "<option value='" . $row["id"] . "' data-percentage='" . $row["perqindja"] . "'>" . $row["emri"] . "</option>";
-                          }
+                        $result = mysqli_query($conn, "SELECT id,emri, perqindja FROM klientet ORDER BY id DESC");
+                        while ($row = mysqli_fetch_assoc($result)) {
+                          echo "<option value='{$row['id']}' data-percentage='{$row['perqindja']}'>{$row['emri']}</option>";
                         }
                         ?>
                       </select>
@@ -157,33 +154,21 @@ require_once 'invoices_trash_modal.php';
             </div>
           </div>
           <script>
-            $("#created_date").flatpickr({
-              dateFormat: "Y-m-d",
-              maxDate: "today",
-              locale: "sq"
-            })
-            document.addEventListener('DOMContentLoaded', function() {
-              new Selectr('#customer_id', {
-                searchable: true,
-                width: 300
-              });
-              new Selectr('#invoice_status', {
-                searchable: true,
-                width: 300
-              })
-              function convertToEUR(amount, outputId) {
-                fetch(`https://api.exconvert.com/convert?from=USD&to=EUR&amount=${amount}&access_key=7ac9d0d8-2c2a1729-0a51382b-b85cd112`)
-                  .then(response => response.json())
-                  .then(data => {
-                    if (data.result && data.result.EUR) {
-                      document.getElementById(outputId).value = data.result.EUR.toFixed(2);
-                    } else {
-                      console.error('Invalid API response:', data);
-                    }
-                  })
-                  .catch(error => console.error('Error:', error));
-              }
-              function calculateAmountAfterPercentage() {
+            document.addEventListener('DOMContentLoaded', () => {
+              const convertToEUR = async (amount, outputId) => {
+                try {
+                  const response = await fetch(`https://api.exconvert.com/convert?from=USD&to=EUR&amount=${amount}&access_key=7ac9d0d8-2c2a1729-0a51382b-b85cd112`);
+                  const data = await response.json();
+                  if (data.result?.EUR) {
+                    document.getElementById(outputId).value = data.result.EUR.toFixed(2);
+                  } else {
+                    console.error('Invalid API response:', data);
+                  }
+                } catch (error) {
+                  console.error('Error:', error);
+                }
+              };
+              const calculateAmountAfterPercentage = () => {
                 const totalAmount = parseFloat(document.getElementById("total_amount").value);
                 const percentage = parseFloat(document.getElementById("percentage").value);
                 if (isNaN(totalAmount) || isNaN(percentage)) {
@@ -194,25 +179,41 @@ require_once 'invoices_trash_modal.php';
                 document.getElementById("total_amount_after_percentage").value = amountAfterPercentage.toFixed(2);
                 convertToEUR(totalAmount, "total_amount_in_eur");
                 convertToEUR(amountAfterPercentage, "total_amount_after_percentage_in_eur");
-              }
+              };
               document.getElementById("total_amount").addEventListener("input", calculateAmountAfterPercentage);
               document.getElementById("percentage").addEventListener("input", calculateAmountAfterPercentage);
-              document.getElementById('customer_id').addEventListener('change', function() {
+              document.getElementById('customer_id').addEventListener('change', async function() {
                 const customerId = this.value;
                 if (customerId) {
-                  fetch('check_client_type.php', {
+                  try {
+                    const response = await fetch('check_client_type.php', {
                       method: 'POST',
                       headers: {
                         'Content-Type': 'application/x-www-form-urlencoded'
                       },
-                      body: 'customer_id=' + customerId
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                      document.getElementById('type').value = data.status === 'success' ? data.type : 'individual';
-                    })
-                    .catch(error => console.error('Error:', error));
+                      body: new URLSearchParams({
+                        customer_id: customerId
+                      })
+                    });
+                    const data = await response.json();
+                    document.getElementById('type').value = data.status === 'success' ? data.type : 'individual';
+                  } catch (error) {
+                    console.error('Error:', error);
+                  }
                 }
+              });
+              $("#created_date").flatpickr({
+                dateFormat: "Y-m-d",
+                maxDate: "today",
+                locale: "sq"
+              });
+              new Selectr('#customer_id', {
+                searchable: true,
+                width: 300
+              });
+              new Selectr('#invoice_status', {
+                searchable: true,
+                width: 300
               });
             });
           </script>
@@ -766,19 +767,19 @@ require_once 'invoices_trash_modal.php';
             let uploadButton = '';
             if (row.file_path && row.file_path !== '') {
               fileDisplay = `
-        <div class="file-info d-flex align-items-center">
-          <i class="fi fi-rr-check-circle text-success me-2"></i>
-          <a class="input-custom-css px-3 py-2" style="text-decoration: none; text-transform: none;" href="${row.file_path}" download>
-            <i class="fi fi-rr-download"></i>
-          </a>
-        </div>
-      `;
+                <div class="file-info d-flex align-items-center">
+                  <i class="fi fi-rr-check-circle text-success me-2"></i>
+                  <a class="input-custom-css px-3 py-2" style="text-decoration: none; text-transform: none;" href="${row.file_path}" download>
+                    <i class="fi fi-rr-download"></i>
+                  </a>
+                </div>
+              `;
             } else {
               uploadButton = `
-        <button type="button" class="input-custom-css px-3 py-2" style="text-decoration: none; text-transform: none;" data-bs-toggle="modal" data-bs-target="#fileUploadModal-${row.id}">
-          <i class="fi fi-rr-upload"></i>
-        </button>
-      `;
+                <button type="button" class="input-custom-css px-3 py-2" style="text-decoration: none; text-transform: none;" data-bs-toggle="modal" data-bs-target="#fileUploadModal-${row.id}">
+                  <i class="fi fi-rr-upload"></i>
+                </button>
+              `;
             }
             let tooltipHTML = '';
             if (difference > 0) {
@@ -819,7 +820,7 @@ require_once 'invoices_trash_modal.php';
           </div>
         </div>
       </div>
-    `;
+      `;
           }
         },
         {
@@ -846,45 +847,55 @@ require_once 'invoices_trash_modal.php';
           render: function(data, type, row) {
             const conversionCellId = 'converted-amount-' + row.id;
             let compactHTML = `
-        <div class="amount-details" style="font-size:12px;">
-          <div class="d-flex justify-content-between">
-            <p>Shuma e për.:</p>
-            <p>${row.total_amount} USD</p>
-          </div>
-          <div class="d-flex justify-content-between">
-            <p>Shuma e për. % :</p>
-            <p>${row.total_amount_after_percentage} USD</p>
-          </div>`;
+      <div class="amount-details" style="font-size:12px;">
+        <div class="d-flex justify-content-between">
+          <p>Shuma e për.:</p>
+          <p>${row.total_amount} USD</p>
+        </div>
+        <div class="d-flex justify-content-between">
+          <p>Shuma e për. % :</p>
+          <p>${row.total_amount_after_percentage} USD</p>
+        </div>`;
             if (row.total_amount_in_eur) {
               compactHTML += `
-          <div class="d-flex justify-content-between">
-            <p>EUR - Shuma e për. :</p>
-            <p>${row.total_amount_in_eur} EUR</p>
-          </div>`;
+        <div class="d-flex justify-content-between">
+          <p>EUR - Shuma e për. :</p>
+          <p>${row.total_amount_in_eur} EUR</p>
+        </div>`;
             }
             if (row.total_amount_in_eur_after_percentage) {
               compactHTML += `
-          <div class="d-flex justify-content-between">
-            <p>EUR - Shuma e për. % :</p>
-            <p>${row.total_amount_in_eur_after_percentage} EUR</p>
-          </div>`;
+        <div class="d-flex justify-content-between">
+          <p>EUR - Shuma e për. % :</p>
+          <p>${row.total_amount_in_eur_after_percentage} EUR</p>
+        </div>`;
             }
-            // Fetch the converted amount asynchronously
-            const url = 'convert_currency.php?amount=' + row.total_amount_after_percentage;
-            fetch(url)
-              .then(response => response.json())
-              .then(result => {
-                if (result.error) {
-                  document.getElementById(conversionCellId).innerText = 'Error: ' + result.error;
-                } else if (result.result && result.result.EUR) {
-                  document.getElementById(conversionCellId).innerText = result.result.EUR.toFixed(2) + ' EUR';
-                } else {
+            compactHTML += `
+      <div class="d-flex justify-content-between">
+        <p>Converted Amount (to EUR):</p>
+        <p id="${conversionCellId}">Loading...</p>
+      </div>
+    </div>`;
+            // Return the compactHTML before initiating the fetch to ensure the cell is rendered
+            setTimeout(() => {
+              // Fetch the converted amount asynchronously
+              const url = 'api/get_methods/get_currency.php?amount=' + row.total_amount_after_percentage;
+              fetch(url)
+                .then(response => response.json())
+                .then(result => {
+                  const conversionCell = document.getElementById(conversionCellId);
+                  if (result.error) {
+                    conversionCell.innerText = 'Error: ' + result.error;
+                  } else if (result.result && result.result.EUR) {
+                    conversionCell.innerText = result.result.EUR.toFixed(2) + ' EUR';
+                  } else {
+                    conversionCell.innerText = 'Error fetching rate';
+                  }
+                })
+                .catch(error => {
                   document.getElementById(conversionCellId).innerText = 'Error fetching rate';
-                }
-              })
-              .catch(error => {
-                document.getElementById(conversionCellId).innerText = 'Error fetching rate';
-              });
+                });
+            }, 0);
             return compactHTML;
           }
         },

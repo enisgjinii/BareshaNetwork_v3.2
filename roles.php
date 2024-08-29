@@ -42,7 +42,7 @@ include 'partials/header.php'; ?>
             </ul>
             <div class="tab-content" id="pills-tabContent">
                 <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
-                    <form method="post" action="create_role.php" class="my-3">
+                    <form method="post" action="api/post_methods/post_roles.php" class="my-3">
                         <div class="card  rounded-5 p-5">
                             <div class="table-responsive">
                                 <label class="text-dark">Shkruani emrin e rolit</label>
@@ -490,7 +490,7 @@ include 'partials/header.php'; ?>
                     <div class="card  rounded-5 p-5 my-3">
                         <div class="table-responsive">
                             <div class="container">
-                                <form method="post" action="save_user_role.php">
+                                <form method="post" action="api/post_methods/post_save_user_role.php">
                                     <!-- CSRF Token Field -->
                                     <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8'); ?>">
                                     <!-- Rest of the form -->
