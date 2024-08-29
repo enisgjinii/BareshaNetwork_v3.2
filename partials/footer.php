@@ -1,13 +1,18 @@
-</div>
-</div>
+</div> <!-- Closing a content wrapper or container -->
+</div> <!-- Closing another wrapper or container -->
+
 <footer class="footer">
   <div class="d-sm-flex justify-content-between justify-content-sm-between">
-    <span class="text-muted">Copyright ©
-      <?php echo date("Y"); ?> <a href="" target="_blank">BareshaNetwork</a>. All rights reserved.
+    <span class="text-muted">
+      Copyright © <?php echo date("Y"); ?>
+      <a href="" target="_blank">BareshaNetwork</a>. All rights reserved.
     </span>
-    <span><b>Version: </b> 3.2 </span>
+    <span>
+      <b>Version: </b> 3.2
+    </span>
   </div>
 </footer>
+
 <!-- JavaScript libraries and custom scripts -->
 <script src="https://code.jquery.com/jquery-3.6.3.js" defer integrity="sha256-nQLuAZGRRcILA+6dMBOvcRh5Pe310sBpanc6+QBmyVM=" crossorigin="anonymous"></script>
 <script src="vendors/chart.js/Chart.min.js" defer></script>
@@ -16,14 +21,16 @@
 <script src="js/template.js" defer></script>
 <script src="js/dashboard.js" defer></script>
 <script src="js/data-table.js" defer></script>
-<!-- <script src="js/jquery.dataTables.js" defer></script> -->
-<script src="js/dataTables.bootstrap4.js" defer></script>
+<!-- Optional: <script src="js/jquery.dataTables.js" defer></script> -->
+<!-- <script src="js/dataTables.bootstrap4.js" defer></script> -->
 <script src="js/jquery.cookie.js" defer type="text/javascript"></script>
-<script src="https://cdn.datatables.net/plug-ins/1.13.1/i18n/sq.json" defer></script>
-<script src="https://cdn.jsdelivr.net/npm/pdfmake@0.1.36/build/pdfmake.min.js" defer></script>
-<script src="https://cdn.jsdelivr.net/npm/pdfmake@0.1.36/build/vfs_fonts.js" defer></script>
+
+<!-- DataTables and related plugins -->
 <script src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js" defer></script>
 <script src="https://cdn.datatables.net/1.13.1/js/dataTables.bootstrap5.min.js" defer></script>
+<script src="https://cdn.datatables.net/plug-ins/1.13.1/i18n/sq.json" defer></script>
+
+<!-- DataTables extensions -->
 <script src="https://cdn.datatables.net/autofill/2.5.1/js/dataTables.autoFill.min.js" defer></script>
 <script src="https://cdn.datatables.net/autofill/2.5.1/js/autoFill.bootstrap5.min.js" defer></script>
 <script src="https://cdn.datatables.net/buttons/2.3.3/js/dataTables.buttons.min.js" defer></script>
@@ -46,7 +53,12 @@
 <script src="https://cdn.datatables.net/searchpanes/2.1.0/js/dataTables.searchPanes.min.js" defer></script>
 <script src="https://cdn.datatables.net/searchpanes/2.1.0/js/searchPanes.bootstrap5.min.js" defer></script>
 <script src="https://cdn.datatables.net/select/1.5.0/js/dataTables.select.min.js" defer></script>
-<script src="https://cdn.jsdelivr.net/npm/moment/moment.min.js"></script>
+
+<!-- Additional libraries -->
+<script src="https://cdn.jsdelivr.net/npm/pdfmake@0.1.36/build/pdfmake.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/pdfmake@0.1.36/build/vfs_fonts.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/moment/moment.min.js" defer></script>
+
 <script>
   // Function to enable dark mode
   function enableDarkMode() {
@@ -94,6 +106,3 @@
   // Toggle dark mode on button click
   document.getElementById('darkModeButton').addEventListener('click', toggleDarkMode);
 </script>
-</body>
-
-</html>
