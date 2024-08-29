@@ -44,7 +44,7 @@ if (
     }
 
     // Connect to the database
-    require_once 'conn-d.php';
+    require_once '../../conn-d.php';
 
     // Check the database connection
     if ($conn->connect_error) {
@@ -112,7 +112,7 @@ if (
             $stmt2->close();
             $conn->close();
             // Redirect to the invoice page
-            header("Location: invoice.php");
+            header("Location: ../../invoice.php");
             exit;
         } else {
             error_log("Error inserting invoice: " . $stmt->error);

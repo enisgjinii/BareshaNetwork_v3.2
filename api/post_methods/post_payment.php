@@ -16,7 +16,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     } elseif (empty($bankInfo)) {
         echo 'Invalid bank information. Please select a valid bank.';
     } else {
-        include('conn-d.php');
+        include('../../conn-d.php');
 
         // Retrieve the current invoice details
         $sql = "SELECT * FROM invoices WHERE id = $invoiceId";

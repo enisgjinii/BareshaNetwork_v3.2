@@ -1,7 +1,7 @@
 <?php
 // Include your database connection here
 
-include('conn-d.php');
+include('../../conn-d.php');
 
 // Get the customer_id from the POST request
 $customer_id = $_POST['customer_id'];

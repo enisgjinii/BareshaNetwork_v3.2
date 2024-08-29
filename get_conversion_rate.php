@@ -1,5 +1,4 @@
 <?php
-// get_conversion_rate.php
 
 $amount = 1; // converting 1 USD to get the rate
 $apiUrl = "https://api.exconvert.com/convert?from=USD&to=EUR&amount=" . $amount . "&access_key=YOUR_ACCESS_KEY";

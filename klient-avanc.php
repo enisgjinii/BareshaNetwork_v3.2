@@ -1,11 +1,8 @@
 <?php include 'partials/header.php';
-
 ?>
-
 <div class="main-panel">
     <div class="content-wrapper">
         <div class="container-fluid">
-
             <nav class="bg-white px-2 rounded-5" style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='currentColor'/%3E%3C/svg%3E&#34;);width:fit-content;border-style:1px solid black;" aria-label="breadcrumb">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item "><a class="text-reset" style="text-decoration: none;">Klientët</a>
@@ -36,28 +33,21 @@
                                 <tbody>
                                     <?php
                                     $kueri = $conn->query("SELECT * FROM parapagimtable ORDER BY id DESC");
-
                                     while ($k = mysqli_fetch_assoc($kueri)) {
                                         $emri_id = $k['emri_id'];
                                         $klientQuery = $conn->query("SELECT * FROM klientet WHERE id = '$emri_id'");
-
                                         if (!$klientQuery) {
                                             // Display the SQL error message
                                             die("Error in klientQuery: " . mysqli_error($conn));
                                         }
-
                                         $klientData = mysqli_fetch_array($klientQuery);
-
                                         $get_loan = $conn->query("SELECT SUM(pagoi) AS total_payment, SUM(shuma) AS total_loan FROM yinc WHERE kanali = '" . $klientData['id'] . "'");
                                         $loan_info = mysqli_fetch_assoc($get_loan);
-
                                         // Sum up the payments made and the loan amount for this entry
                                         $loan_payment_total = $loan_info['total_payment'];
                                         $loan_total = $loan_info['total_loan'];
-
                                         // Calculate the remaining loan amount
                                         $loan = $loan_total - $loan_payment_total;
-
                                     ?>
                                         <tr>
                                             <td><?php echo $k['id']; ?></td>
@@ -76,8 +66,6 @@
                                         </tr>
                                     <?php } ?>
                                 </tbody>
-
-
                             </table>
                         </div>
                     </div>
@@ -87,14 +75,7 @@
     </div>
 </div>
 </div>
-
-
-
-
-
-
 <?php include 'partials/footer.php'; ?>
-
 <script>
     $(document).ready(function() {
         $('#example').DataTable({
@@ -123,7 +104,6 @@
                     'border-radius': '0.25rem', // add border radius to match Bootstrap's styles
                 }); // adjust width to fit content
             },
-
             buttons: [{
                 extend: 'pdfHtml5',
                 text: '<i class="fi fi-rr-file-pdf fa-lg"></i>&nbsp;&nbsp; PDF',

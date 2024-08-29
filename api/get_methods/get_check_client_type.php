@@ -1,5 +1,5 @@
 <?php
-require_once "conn-d.php";
+require_once "../../conn-d.php";
 
 if (isset($_POST['customer_id'])) {
     $customerId = $_POST['customer_id'];

@@ -1,6 +1,6 @@
 <?php
 // Connect to the database
-require_once 'conn-d.php';
+require_once '../../conn-d.php';
 
 // Define DataTables request parameters
 $start = $_POST['start'];
