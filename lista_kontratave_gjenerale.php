@@ -18,7 +18,7 @@ include('partials/header.php');
             </nav>
             <div class="card shadow-sm rounded-5">
                 <div class="card-body">
-                    <form method="POST" action="delete_contracts.php">
+                    <form method="POST" action="api/delete_methods/delete_contracts.php">
                         <button type="submit" id="deleteButton" name="delete_selected" class="btn btn-danger rounded-5 mb-4 text-white btn-sm" disabled>
                             <i class="fi fi-rr-trash"></i> Fshij
                         </button>
@@ -153,7 +153,7 @@ include('partials/header.php');
                                                     <td>
                                                         <!-- Add edit and delete buttons -->
                                                         <a href="modifiko-kontraten-gjenerale.php?id=<?php echo $k['id']; ?>" class="btn btn-primary rounded-5 py-1 text-white"><i class="fi fi-rr-edit"></i></a>
-                                                        <a href="fshij_kontraten_gjenerale.php?id=<?php echo $k['id']; ?>" class="btn btn-danger rounded-5 py-1 text-white" onclick="confirmDelete(event, '<?php echo $k['id']; ?>')">
+                                                        <a href="api/delete_methods/delete_fshij_kontraten_gjenerale.php?id=<?php echo $k['id']; ?>" class="btn btn-danger rounded-5 py-1 text-white" onclick="confirmDelete(event, '<?php echo $k['id']; ?>')">
                                                             <i class="fi fi-rr-trash"></i>
                                                         </a>
                                                         <?php if ($k['nenshkrimi'] == !null) { ?>

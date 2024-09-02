@@ -138,7 +138,7 @@ $csrf_token = generateCsrfToken();
               <input type="text" name="kengtari" id="term" class="form-control border border-2 rounded-5" placeholder="Shëno emrin e këngëtarit" required>
               <script type="text/javascript">
                 $("#term").autocomplete({
-                  source: 'ajax-db-search.php',
+                  source: 'api/get_methods/get_kengtari.php',
                 });
               </script>
             </div>

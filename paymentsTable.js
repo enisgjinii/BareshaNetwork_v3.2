@@ -154,8 +154,8 @@ $(document).ready(function () {
     });
 
     // Initialize DataTables
-    const table = $('#paymentsTable').DataTable(dataTableOptions("complete_invoices.php", '#start_date1', '#end_date1', false));
-    const table_off_payment_biznes = $('#paymentsTableBiznes').DataTable(dataTableOptions("complete_invoices_biznes.php", '#startDateBiznes', '#endDateBiznes', true));
+    const table = $('#paymentsTable').DataTable(dataTableOptions("api/get_methods/get_complete_invoices.php", '#start_date1', '#end_date1', false));
+    const table_off_payment_biznes = $('#paymentsTableBiznes').DataTable(dataTableOptions("api/get_methods/get_complete_invoices_biznes.php", '#startDateBiznes', '#endDateBiznes', true));
 
     // Refresh table on date change
     const refreshTable = table => table.ajax.reload();

@@ -118,7 +118,7 @@ if (isset($_POST['submit'])) {
                 <div class="tab-content" id="pills-tabContent">
                     <div class="tab-pane fade <?php if (!isset($_GET['tab']) || $_GET['tab'] == 'register')
                                                     echo 'show active'; ?>" id="pills-register" role="tabpanel" aria-labelledby="pills-register-tab" tabindex="0">
-                        <form method="POST" action="add-client.php">
+                        <form method="POST" action="api/post_methods/post_add_client.php">
                             <div class="p-5 shadow-sm rounded-5 mb-4 card">
                                 <h6 class="card-title" style="text-transform:none;">Plotso formularin per krijimin e
                                     nje klienti te ri ne grupin Facebook</h6>
@@ -316,7 +316,7 @@ if (isset($_POST['submit'])) {
                     <div class="tab-pane fade <?php if (!isset($_GET['tab']) || $_GET['tab'] == 'adsregister')
                                                     echo 'show active'; ?>" id="pills-adsregister" role="tabpanel" aria-labelledby="pills-adsregister-tab" tabindex="0">
                         <div class="p-5 shadow-sm rounded-5 mb-4 card">
-                            <form action="facebook_ads.php" method="post" onsubmit="return validateForm()">
+                            <form action="api/post_methods/post_facebook_ads.php" method="post" onsubmit="return validateForm()">
                                 <!-- CSRF Token -->
                                 <input type="hidden" id="csrf_token" name="csrf_token" value="<?php echo generate_csrf_token(); ?>">
                                 <div class="row">
@@ -385,7 +385,7 @@ if (isset($_POST['submit'])) {
                     <div class="tab-pane fade <?php if (!isset($_GET['tab']) || $_GET['tab'] == 'emailadd')
                                                     echo 'show active'; ?>" id="pills-emailadd" role="tabpanel" aria-labelledby="pills-emailadd-tab" tabindex="0">
                         <div class="p-5 shadow-sm rounded-5 mb-4 card">
-                            <form action="add-email.php" method="post">
+                            <form action="api/post_methods/post_email.php" method="post">
                                 <label for="email_facebook" class="form-label">Email-i</label>
                                 <input type="text" name="email_facebook" id="email_facebook" class="form-control shadow-sm rounded-5">
                                 <br>
@@ -415,7 +415,7 @@ if (isset($_POST['submit'])) {
                                         echo "<tr>";
                                         echo "<td>" . $row['email'] . "</td>";
                                         echo "<td><a class='btn btn-primary' data-bs-toggle='modal' data-bs-target='#editModal" . $row['id'] . "'><i class='fi fi-rr-edit'></i></a></td>";
-                                        echo "<td><a class='btn btn-danger' href='delete-email.php?id=" . $row['id'] . "'><i class='fi fi-rr-trash'></i></a></td>";
+                                        echo "<td><a class='btn btn-danger' href='api/delete_methods/delete_email.php?id=" . $row['id'] . "'><i class='fi fi-rr-trash'></i></a></td>";
                                         echo "</tr>";
                                         // Edit Modal for each email
                                         echo "<div class='modal fade' id='editModal" . $row['id'] . "' tabindex='-1' aria-labelledby='editModalLabel" . $row['id'] . "' aria-hidden='true'>";
@@ -426,7 +426,7 @@ if (isset($_POST['submit'])) {
                                         echo "<button type='button' class='btn-close' data-bs-dismiss='modal' aria-label='Close'></button>";
                                         echo "</div>";
                                         echo "<div class='modal-body'>";
-                                        echo "<form action='edit-email.php' method='post'>";
+                                        echo "<form action='api/edit_methods/edit_email.php' method='post'>";
                                         echo "<input type='hidden' name='id' value='" . $row['id'] . "'>";
                                         echo "<label for='email_edit' class='form-label'>Email</label>";
                                         echo "<input type='text' name='email_edit' id='email_edit' class='form-control shadow-sm rounded-5' value='" . $row['email'] . "'>";
@@ -449,7 +449,7 @@ if (isset($_POST['submit'])) {
                     <div class="tab-pane fade <?php if (!isset($_GET['tab']) || $_GET['tab'] == 'kategoria')
                                                     echo 'show active'; ?>" id="pills-kategoria" role="tabpanel" aria-labelledby="pills-kategoria-tab" tabindex="0">
                         <div class="p-5 shadow-sm rounded-5 mb-4 card">
-                            <form action="add-category.php" method="POST">
+                            <form action="api/post_methods/post_category.php" method="POST">
                                 <label class="form-label" for="kategori">Kategori e re</label>
                                 <input type="text" name="kategori" id="kategori" class="form-control shadow-sm rounded-5">
                                 <br>
@@ -479,7 +479,7 @@ if (isset($_POST['submit'])) {
                                         echo "<td>" . $row['kategoria'] . "</td>";
                                         echo "<td>";
                                         echo "<a class='btn btn-primary' data-bs-toggle='modal' data-bs-target='#editModal" . $row['id'] . "'><i class='fi fi-rr-edit'></i></a> &nbsp;";
-                                        echo "<a class='btn btn-danger' href='delete-category.php?id=" . $row['id'] . "'><i class='fi fi-rr-trash'></i></a>";
+                                        echo "<a class='btn btn-danger' href='api/delete_methods/delete_category.php?id=" . $row['id'] . "'><i class='fi fi-rr-trash'></i></a>";
                                         echo "</td>";
                                         echo "</tr>";
                                         // Edit Modal

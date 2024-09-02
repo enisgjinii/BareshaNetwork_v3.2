@@ -100,7 +100,7 @@
         var platformTable = $('#platformTable').DataTable({
             "processing": true,
             "serverSide": true,
-            "ajax": "process_platform_table.php",
+            "ajax": "api/post_methods/post_platform_table.php",
             columnDefs: [{
                 "targets": [0, 1, 2, 3, 4],
                 "render": function(data, type, row) {

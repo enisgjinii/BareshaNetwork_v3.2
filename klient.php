@@ -44,13 +44,10 @@
                   <table id="listaKlientave" class="table">
                     <thead class="bg-light">
                       <tr>
+                        <th class="text-dark">Informatat nga Youtube</th>
                         <th class="text-dark">Emri & Mbiemri</th>
                         <th class="text-dark">Emri artistik</th>
                         <th class="text-dark">Adresa e email-it</th>
-                        <th class="text-dark">Datat e kontrates ( Fillim - Skadim )</th>
-                        <th class="text-dark">Data e kontrates ( Versioni i ri )</th>
-                        <th class="text-dark">Data e skadimit ( Versioni i ri )</th>
-                        <th class="text-dark">Veprim</th>
                       </tr>
                     </thead>
                     <tbody></tbody>
@@ -240,28 +237,12 @@
     },
     stripeClasses: ['stripe-color'],
     dom: "<'row'<'col-md-3'l><'col-md-6'B><'col-md-3'f>><'row'<'col-md-12'tr>><'row'<'col-md-6'i><'col-md-6'p>>",
-    buttons: [{
-        extend: 'pdfHtml5',
-        text: '<i class="fi fi-rr-file-pdf fa-lg"></i> PDF',
-        className: 'btn btn-light btn-sm bg-light border me-2 rounded-5'
-      },
-      {
-        extend: 'excelHtml5',
-        text: '<i class="fi fi-rr-file-excel fa-lg"></i> Excel',
-        className: 'btn btn-light btn-sm bg-light border me-2 rounded-5'
-      },
-      {
-        extend: 'copyHtml5',
-        text: '<i class="fi fi-rr-copy fa-lg"></i> Kopjo',
-        className: 'btn btn-light btn-sm bg-light border me-2 rounded-5'
-      },
-      {
-        extend: 'print',
-        text: '<i class="fi fi-rr-print fa-lg"></i> Printo',
-        className: 'btn btn-light btn-sm bg-light border me-2 rounded-5'
-      }
-    ],
-    initComplete: function() {
+    buttons: ['pdfHtml5', 'excelHtml5', 'copyHtml5', 'print'].map(type => ({
+      extend: type,
+      text: `<i class="fi fi-rr-file-${type.split('Html5')[0]} fa-lg"></i> ${type.split('Html5')[0].toUpperCase()}`,
+      className: 'btn btn-light btn-sm bg-light border me-2 rounded-5'
+    })),
+    initComplete: () => {
       $(".dt-buttons").removeClass("dt-buttons btn-group");
       $("div.dataTables_length select").addClass("form-select").css({
         width: "auto",
@@ -273,7 +254,7 @@
       });
     }
   };
-  $(document).ready(function() {
+  $(document).ready(() => {
     const tables = ['#listaKlientaveTeMonetizuar', '#listaKlientaveTePaMonetizuar', '#listaKlientaveTePasiv'];
     tables.forEach(table => $(table).DataTable(commonConfig));
     $('#listaKlientave').DataTable({
@@ -281,18 +262,112 @@
       searching: true,
       processing: true,
       serverSide: true,
-      lengthMenu: [
-        [10, 25, 50, 100, 500, 1000],
-        [10, 25, 50, 100, 500, 1000],
-      ],
+      lengthMenu: [10, 25, 50, 100, 500, 1000],
       ajax: {
         url: 'api/get_methods/get_clients.php',
-        type: 'POST',
+        type: 'POST'
       },
       columns: [{
+          data: 'youtube',
+          render: (data, type, row, meta) => {
+            const containerId = `youtube-pic-${meta.row}`;
+            const apiKey = 'AIzaSyBQD3hhckJv5uxPcbRk3b8nlNogG9781Lk';
+            const youtubeLink = `https://www.youtube.com/channel/${data}`;
+            // Immediately return the HTML with placeholders and the edit button
+            const editButtonHTML = `
+            <div class="mt-3">
+                <a style="text-decoration: none;" class="input-custom-css px-3 py-2 mx-1" href="editk.php?id=${row.id}"><i class="fi fi-rr-edit"></i></a>
+                <a style="text-decoration: none;" class="input-custom-css px-3 py-2" onclick="konfirmoDeaktivizimin(${row.id})"><i class="fi fi-rr-user-slash"></i></a>
+            </div>
+        `;
+            if (!/^[a-zA-Z0-9_-]{24}$/.test(data)) {
+              return `
+                <div id="${containerId}">
+                    <span class="text-muted">Invalid Channel ID</span>
+                    ${editButtonHTML}
+                </div>
+            `;
+            }
+            // Asynchronously fetch YouTube data
+            setTimeout(() => {
+              fetch(`https://www.googleapis.com/youtube/v3/channels?part=snippet,statistics&id=${data}&key=${apiKey}`)
+                .then(response => response.json())
+                .then(data => {
+                  const channel = data.items?.[0];
+                  if (channel?.snippet) {
+                    const {
+                      thumbnails,
+                      title: channelName,
+                      description = 'No description available'
+                    } = channel.snippet;
+                    const {
+                      subscriberCount = 'N/A', videoCount = 'N/A'
+                    } = channel.statistics;
+                    const profilePicUrl = thumbnails?.default?.url || '';
+                    document.getElementById(containerId).innerHTML = `
+                            <div class="d-flex flex-column align-items-center">
+                                <img src="${profilePicUrl}" class="rounded-circle" style="width: 50px; height: 50px;" />
+                                ${editButtonHTML}
+                            </div>
+                        `;
+                  } else {
+                    document.getElementById(containerId).innerHTML = `
+                            <span class="text-warning">Channel data not available</span>
+                            ${editButtonHTML}
+                        `;
+                  }
+                })
+                .catch(error => {
+                  console.error(`YouTube API Error: ${error}`);
+                  document.getElementById(containerId).innerHTML = `
+                        <span class="text-danger">Failed to load channel data</span>
+                        ${editButtonHTML}
+                    `;
+                });
+            }, 200);
+            // Initial HTML with placeholder and buttons
+            return `
+            <div id="${containerId}">
+                <div class="d-flex flex-column align-items-center">
+                    <div class="placeholder" style="width: 50px; height: 50px; border-radius: 50%; background: #f0f0f0;"></div>
+                    ${editButtonHTML}
+                </div>
+            </div>
+        `;
+          }
+        },
+        {
           data: 'emri',
-          render: function(data, type, row) {
-            return `<p>${data}</p><span class="${row.monetizuar === 'PO' ? 'text-success' : 'text-danger rounded-5'}">${row.monetizuar === 'PO' ? 'Klient i monetizuar' : 'Klient i pa-monetizuar'}</span>`;
+          render: (data, type, row) => {
+            try {
+              // Determine the icon and its color based on the statusi_i_kontrates value
+              let contractIcon;
+              if (row.statusi_i_kontrates === 'Kontratë fizike') {
+                contractIcon = '<i class="fi fi-rr-document-signed text-success" style="font-size: 1.5rem;"></i>';
+              } else if (row.statusi_i_kontrates === "S'ka kontratë" || row.has_contract === 'JO') {
+                contractIcon = '<i class="fi fi-rr-document-signed text-danger" style="font-size: 1.5rem;"></i>';
+              } else {
+                contractIcon = ''; // Empty string if there's no relevant status or contract
+              }
+
+              // Generate the output HTML for monetization status and contract icon with improved layout
+              return `
+        <div class="d-flex flex-column align-items-start">
+          <div class="d-flex justify-content-between w-100">
+            <strong>${data}</strong>
+            ${contractIcon}
+          </div>
+          <div class="mt-1">
+            <span class="badge rounded-pill ${row.monetizuar === 'PO' ? 'bg-success' : 'bg-danger'}">
+              ${row.monetizuar === 'PO' ? 'Klient i Monetizuar' : 'Klient i Pa-Monetizuar'}
+            </span>
+          </div>
+        </div>
+      `;
+            } catch (error) {
+              console.error('Gabim gjatë renderimit të rreshtit:', error);
+              return `<p>Gabim gjatë renderimit të të dhënave</p>`;
+            }
           }
         },
         {
@@ -301,59 +376,14 @@
         {
           data: 'emailadd'
         },
-        {
-          data: null,
-          render: function(data, type, row) {
-            return `${row.dk} - ${row.dks}`;
-          }
-        },
-        {
-          data: 'data_e_krijimit',
-          render: function(data) {
-            moment.locale('sq');
-            if (!data) return '<span class="text-danger">Nuk u gjet asnjë datë.</span>';
-            const contractStartDate = moment(data);
-            if (!contractStartDate.isValid()) return '<span class="text-danger">Data e fillimit të kontratës e pavlefshme</span>';
-            return `<span>${contractStartDate.format('dddd, D MMMM YYYY')}</span>`;
-          }
-        },
-        {
-          data: 'kohezgjatja',
-          render: function(data, type, row) {
-            if (!data) return '<span class="text-danger">Nuk u gjet asnjë datë.</span>';
-            const months = parseInt(data);
-            if (isNaN(months) || months <= 0) return '<span class="text-danger">Data e skadimit jo-valide</span>';
-            const years = Math.floor(months / 12),
-              remainingMonths = months % 12;
-            const durationHTML = years ? (remainingMonths ? `<p>${years} Vjet ${remainingMonths} Muaj</p>` : `<p>${years} Vjet</p>`) : `<p>${data} Muaj</p>`;
-            const contractDate = moment(row.data_e_krijimit);
-            if (!contractDate.isValid()) return '<span class="text-danger">Data e fillimit të kontratës e pavlefshme</span>';
-            const expirationDate = contractDate.clone().add(months, 'months').locale('sq');
-            const daysUntilExpiration = expirationDate.diff(moment(), 'days');
-            const [near, far] = [30, 90];
-            const statusClass = daysUntilExpiration < 0 ? 'text-warning' : daysUntilExpiration <= near ? 'text-danger' : daysUntilExpiration <= far ? 'text-warning' : 'text-success';
-            const statusMessage = daysUntilExpiration < 0 ? 'Kontrata është skaduar' : daysUntilExpiration <= near ? 'Skadon shumë shpejt' : daysUntilExpiration <= far ? 'Skadon në një të ardhme të afërt' : 'Aktive';
-            return `${durationHTML}<span class="${statusClass}">${statusMessage}</span>`;
-          }
-        },
-        {
-          data: 'id',
-          render: function(data) {
-            return `
-              <a style="text-transform: none;text-decoration:none;" class="input-custom-css px-3 py-2" href="editk.php?id=${data}"><i class="fi fi-rr-edit"></i></a>
-              <a style="text-transform: none; text-decoration:none;" class="input-custom-css px-3 py-2" onclick="konfirmoDeaktivizimin(${data})"><i class="fi fi-rr-user-slash"></i></a>
-            `;
-          }
-        }
       ],
       columnDefs: [{
-        targets: [0, 1, 2, 3, 4, 5, 6],
-        render: function(data, type) {
-          return type === 'display' && data ? `<div style="white-space: normal;">${data}</div>` : data;
-        }
+        targets: [0, 1, 2, 3],
+        render: (data, type) => (type === 'display' && data) ? `<div style="white-space: normal;">${data}</div>` : data
       }]
     });
   });
+
   function confirmActivation(clientId) {
     Swal.fire({
       title: 'A jeni i sigurt?',
@@ -380,6 +410,7 @@
       }
     });
   }
+
   function konfirmoDeaktivizimin(clientId) {
     Swal.fire({
       title: 'A jeni i sigurt?',

@@ -43,7 +43,7 @@ if ($result->num_rows > 0) {
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
-                                    <form id="expense-form" method="post" action="save_expense.php" enctype="multipart/form-data">
+                                    <form id="expense-form" method="post" action="api/post_methods/post_expense.php" enctype="multipart/form-data">
                                         <div class="mb-3">
                                             <label for="recipient-name" class="col-form-label">Emri i regjistruesit:</label>
                                             <input type="text" class="form-control rounded-5 border border-2" id="recipient-name" name="recipient-name" value="<?php echo $user_info['givenName'] . ' ' . $user_info['familyName']; ?>">

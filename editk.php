@@ -33,6 +33,7 @@ if (isset($_POST['ndrysho'])) {
     $emails = isset($_POST['emails']) ? implode(',', $_POST['emails']) : '';
     $perqindja_check = isset($_POST['perqindja_check']) ? '1' : '0';
     $perqindja_e_platformave_check = isset($_POST['perqindja_platformave_check']) ? '1' : '0';
+    $statusi_i_kontrates = mysqli_real_escape_string($conn, $_POST['statusi_i_kontrates']);
     // Define the target folder for file uploads
     $targetfolder = "dokument/";
     // Initialize a flag for file upload success
@@ -62,7 +63,7 @@ if (isset($_POST['ndrysho'])) {
     $nrtel = mysqli_real_escape_string($conn, $_POST['nrtel']);
     $type__of_client = mysqli_real_escape_string($conn, $_POST['type_of_client']);
     // Update the database with the new data
-    if ($conn->query("UPDATE klientet SET emri='$emri', np='$np', monetizuar='$mon', emails='$emails', dk='$dk', dks='$dks', youtube='$yt', info='$info', perqindja='$perq', perqindja2='$perq2', fb='$fb', ig='$ig', adresa='$adresa', kategoria='$kategoria', nrtel='$nrtel', emailp='$emailp', emailadd='$emailadd', emriart='$emriart', nrllog='$nrllog',  bank_name='$bank_info', ads='$adsa', perdoruesi='$perdoruesi', perqindja_check='$perqindja_check', perqindja_platformave_check='$perqindja_e_platformave_check', fjalkalimi='$fjalekalimi', shtetsia='$shtetsia', lloji_klientit='$type__of_client', email_kontablist = '$email_kontablist' WHERE id='$editid'")) {
+    if ($conn->query("UPDATE klientet SET emri='$emri', np='$np', monetizuar='$mon', emails='$emails', dk='$dk', dks='$dks', youtube='$yt', info='$info', perqindja='$perq', perqindja2='$perq2', fb='$fb', ig='$ig', adresa='$adresa', kategoria='$kategoria', nrtel='$nrtel', emailp='$emailp', emailadd='$emailadd', emriart='$emriart', nrllog='$nrllog',  bank_name='$bank_info', ads='$adsa', perdoruesi='$perdoruesi', perqindja_check='$perqindja_check', perqindja_platformave_check='$perqindja_e_platformave_check', fjalkalimi='$fjalekalimi', shtetsia='$shtetsia', lloji_klientit='$type__of_client', statusi_i_kontrates='$statusi_i_kontrates' , email_kontablist = '$email_kontablist' WHERE id='$editid'")) {
         echo '<script>
             Swal.fire({
               icon: "success",
@@ -363,6 +364,30 @@ $contractStartDate = mysqli_fetch_array($conn->query("SELECT * FROM kontrata_gje
                                                 value="<?php echo $expirationDate->format('Y-m-d'); ?>">
                                         </div>
                                         <br>
+                                        <?php
+                                        // Fetch the youtube_id from kontrata_gjenerale where it matches the youtube from klientet
+                                        $sql = "SELECT kg.youtube_id FROM kontrata_gjenerale kg 
+            JOIN klientet k ON kg.youtube_id = k.youtube 
+            WHERE k.youtube = '$editcl[youtube]'";
+                                        $result = $conn->query($sql);
+                                        if ($result->num_rows == 0) {
+                                            // <label class="form-label" for="dks">Statusi i kontrates</label>
+                                            echo '<div class="col"><label class="form-label" for="statusi_i_kontrates">Statusi i kontrates</label>';
+                                            // If no match is found, display the select dropdown
+                                            echo '<select class="form-select border border-2 rounded-5 w-100" name="statusi_i_kontrates" id="statusi_i_kontrates">';
+                                            echo '<option value="Kontratë fizike">Kontratë fizike</option>';
+                                            echo '<option value="S\'ka kontratë">S\'ka kontratë</option>';
+                                            echo '</select> </div> <br>';
+                                        }
+                                        ?>
+                                        <script>
+                                            // Initialize the Selectr plugin if the select element exists
+                                            <?php if ($result->num_rows == 0) : ?>
+                                                new Selectr('#statusi_i_kontrates', {
+                                                    searchable: true,
+                                                });
+                                            <?php endif; ?>
+                                        </script>
                                         <div class="col">
                                             <label class="form-label" for="yt">Zgjedh kategorinë</label>
                                             <select class="form-select border border-2 rounded-5 w-100" name="kategoria"
@@ -757,7 +782,6 @@ $contractStartDate = mysqli_fetch_array($conn->query("SELECT * FROM kontrata_gje
     const flatpickrOptions = {
         dateFormat: "Y-m-d"
     };
-
     $("#dk").flatpickr({
         ...flatpickrOptions,
         maxDate: "today"

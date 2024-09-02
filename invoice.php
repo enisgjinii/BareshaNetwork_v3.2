@@ -6,7 +6,6 @@ require_once 'partials/header.php';
 require_once 'modalPayment.php';
 require_once 'loan_modal.php';
 require_once 'invoices_trash_modal.php';
-// require_once 'check-ip.php';
 ?>
 <link rel="stylesheet" href="invoice_style.css">
 <div class="main-panel">
@@ -22,37 +21,74 @@ require_once 'invoices_trash_modal.php';
       </nav>
       <div class="row mb-2">
         <div>
-          <button style="text-transform: none;" class="input-custom-css px-3 py-2" data-bs-toggle="modal" data-bs-target="#newInvoice">
-            <i class="fi fi-rr-add-document fa-lg"></i>&nbsp; Fatur&euml; e re
-          </button>
-          <button style="text-transform: none;" class="input-custom-css px-3 py-2" data-bs-toggle="modal" data-bs-target="#listOfLoansModal">
-            <i class="fi fi-rr-hand-holding-usd fa-lg"></i>&nbsp; Borgjet
-          </button>
-          <button style="text-transform: none;" class="input-custom-css px-3 py-2 " data-bs-toggle="modal" data-bs-target="#trashInvoices">
-            <i class="fi fi-rr-delete-document fa-lg"></i>&nbsp; Faturat e fshira
-          </button>
+          <?php
+          // Define an array for the buttons
+          $buttons = [
+            [
+              'icon' => 'fi fi-rr-add-document fa-lg',
+              'text' => 'Fatur&euml; e re',
+              'target' => '#newInvoice',
+            ],
+            [
+              'icon' => 'fi fi-rr-hand-holding-usd fa-lg',
+              'text' => 'Borgjet',
+              'target' => '#listOfLoansModal',
+            ],
+            [
+              'icon' => 'fi fi-rr-delete-document fa-lg',
+              'text' => 'Faturat e fshira',
+              'target' => '#trashInvoices',
+            ]
+          ];
+          // Iterate over the array to generate the buttons
+          foreach ($buttons as $button) {
+            echo '<button style="text-transform: none;" class="input-custom-css px-3 py-2 mx-1" data-bs-toggle="modal" data-bs-target="' . $button['target'] . '">';
+            echo '<i class="' . $button['icon'] . '"></i>&nbsp; ' . $button['text'];
+            echo '</button>';
+          }
+          ?>
           <ul class="nav nav-pills bg-white my-3 mx-0 rounded-5" style="width: fit-content; border: 1px solid lightgrey;" id="pills-tab" role="tablist">
-            <li class="nav-item" role="presentation">
-              <button class="nav-link rounded-5 active" style="text-transform: none" id="pills-lista_e_faturave-tab" data-bs-toggle="pill" data-bs-target="#pills-lista_e_faturave" type="button" role="tab" aria-controls="pills-lista_e_faturave" aria-selected="true">Lista e faturave ( Personale ) </button>
-            </li>
-            <li class="nav-item" role="presentation">
-              <button class="nav-link rounded-5 active" style="text-transform: none" id="pills-lista_e_faturave_biznes-tab" data-bs-toggle="pill" data-bs-target="#pills-lista_e_faturave_biznes" type="button" role="tab" aria-controls="pills-lista_e_faturave_biznes" aria-selected="true">
-                Lista e faturave ( Biznes )
-              </button>
-            </li>
-            <?php if (!($user_info['email'] == 'lirie@bareshamusic.com')) { ?>
-              <li class="nav-item" role="presentation">
-                <button class="nav-link rounded-5" style="text-transform: none" id="pills-lista_e_faturave_te_kryera-tab" data-bs-toggle="pill" data-bs-target="#pills-lista_e_faturave_te_kryera" type="button" role="tab" aria-controls="pills-lista_e_faturave_te_kryera" aria-selected="false">Pagesat e kryera ( Personal )</button>
-              </li>
-              <li class="nav-item" role="presentation">
-                <button class="nav-link rounded-5" style="text-transform: none" id="pills-lista_e_faturave_te_kryera_biznes-tab" data-bs-toggle="pill" data-bs-target="#pills-lista_e_faturave_te_kryera_biznes" type="button" role="tab" aria-controls="pills-lista_e_faturave_te_kryera_biznes" aria-selected="false">Pagesa e kryera (Biznese)</button>
-              </li>
-            <?php } ?>
-            <li class="nav-item" role="presentation">
-              <button class="nav-link rounded-5 active" style="text-transform: none" id="pills-lista_e_splitinvoices-tab" data-bs-toggle="pill" data-bs-target="#pills-lista_e_splitinvoices" type="button" role="tab" aria-controls="pills-lista_e_splitinvoices" aria-selected="true">
-                Lista e faturave të ndara
-              </button>
-            </li>
+            <?php
+            // Define an array for the tabs
+            $tabs = [
+              [
+                'id' => 'pills-lista_e_faturave',
+                'text' => 'Lista e faturave ( Personale )',
+                'active' => true,
+              ],
+              [
+                'id' => 'pills-lista_e_faturave_biznes',
+                'text' => 'Lista e faturave ( Biznes )',
+                'active' => true,
+              ],
+              [
+                'id' => 'pills-lista_e_splitinvoices',
+                'text' => 'Lista e faturave të ndara',
+                'active' => true,
+              ]
+            ];
+            // Conditionally add additional tabs if the email doesn't match
+            if ($user_info['email'] !== 'lirie@bareshamusic.com') {
+              $tabs = array_merge($tabs, [
+                [
+                  'id' => 'pills-lista_e_faturave_te_kryera',
+                  'text' => 'Pagesat e kryera ( Personal )',
+                  'active' => false,
+                ],
+                [
+                  'id' => 'pills-lista_e_faturave_te_kryera_biznes',
+                  'text' => 'Pagesa e kryera (Biznese)',
+                  'active' => false,
+                ]
+              ]);
+            }
+            // Iterate over the array to generate the tabs
+            foreach ($tabs as $tab) {
+              echo '<li class="nav-item" role="presentation">';
+              echo '<button class="nav-link rounded-5 ' . ($tab['active'] ? 'active' : '') . '" style="text-transform: none" id="' . $tab['id'] . '-tab" data-bs-toggle="pill" data-bs-target="#' . $tab['id'] . '" type="button" role="tab" aria-controls="' . $tab['id'] . '" aria-selected="' . ($tab['active'] ? 'true' : 'false') . '">' . $tab['text'] . '</button>';
+              echo '</li>';
+            }
+            ?>
           </ul>
         </div>
       </div>
@@ -66,7 +102,7 @@ require_once 'invoices_trash_modal.php';
                   <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body text-dark">
-                  <form action="create_invoice.php" method="POST" enctype="multipart/form-data">
+                  <form action="api/post_methods/post_create_invoice.php" method="POST" enctype="multipart/form-data">
                     <div class="mb-3">
                       <label for="invoice_number" class="form-label">Numri i faturës:</label>
                       <input type="text" class="form-control rounded-5 shadow-sm py-3" id="invoice_number" name="invoice_number" value="<?php echo generateInvoiceNumber(); ?>" required readonly>
@@ -76,12 +112,9 @@ require_once 'invoices_trash_modal.php';
                       <select class="form-control rounded-5 shadow-sm py-3" id="customer_id" name="customer_id" required>
                         <?php
                         require_once "conn-d.php";
-                        $sql = "SELECT id,emri, perqindja FROM klientet ORDER BY id DESC";
-                        $result = mysqli_query($conn, $sql);
-                        if (mysqli_num_rows($result) > 0) {
-                          while ($row = mysqli_fetch_assoc($result)) {
-                            echo "<option value='" . $row["id"] . "' data-percentage='" . $row["perqindja"] . "'>" . $row["emri"] . "</option>";
-                          }
+                        $result = mysqli_query($conn, "SELECT id,emri, perqindja FROM klientet ORDER BY id DESC");
+                        while ($row = mysqli_fetch_assoc($result)) {
+                          echo "<option value='{$row['id']}' data-percentage='{$row['perqindja']}'>{$row['emri']}</option>";
                         }
                         ?>
                       </select>
@@ -157,33 +190,21 @@ require_once 'invoices_trash_modal.php';
             </div>
           </div>
           <script>
-            $("#created_date").flatpickr({
-              dateFormat: "Y-m-d",
-              maxDate: "today",
-              locale: "sq"
-            })
-            document.addEventListener('DOMContentLoaded', function() {
-              new Selectr('#customer_id', {
-                searchable: true,
-                width: 300
-              });
-              new Selectr('#invoice_status', {
-                searchable: true,
-                width: 300
-              })
-              function convertToEUR(amount, outputId) {
-                fetch(`https://api.exconvert.com/convert?from=USD&to=EUR&amount=${amount}&access_key=7ac9d0d8-2c2a1729-0a51382b-b85cd112`)
-                  .then(response => response.json())
-                  .then(data => {
-                    if (data.result && data.result.EUR) {
-                      document.getElementById(outputId).value = data.result.EUR.toFixed(2);
-                    } else {
-                      console.error('Invalid API response:', data);
-                    }
-                  })
-                  .catch(error => console.error('Error:', error));
-              }
-              function calculateAmountAfterPercentage() {
+            document.addEventListener('DOMContentLoaded', () => {
+              const convertToEUR = async (amount, outputId) => {
+                try {
+                  const response = await fetch(`https://api.exconvert.com/convert?from=USD&to=EUR&amount=${amount}&access_key=7ac9d0d8-2c2a1729-0a51382b-b85cd112`);
+                  const data = await response.json();
+                  if (data.result?.EUR) {
+                    document.getElementById(outputId).value = data.result.EUR.toFixed(2);
+                  } else {
+                    console.error('Invalid API response:', data);
+                  }
+                } catch (error) {
+                  console.error('Error:', error);
+                }
+              };
+              const calculateAmountAfterPercentage = () => {
                 const totalAmount = parseFloat(document.getElementById("total_amount").value);
                 const percentage = parseFloat(document.getElementById("percentage").value);
                 if (isNaN(totalAmount) || isNaN(percentage)) {
@@ -194,25 +215,41 @@ require_once 'invoices_trash_modal.php';
                 document.getElementById("total_amount_after_percentage").value = amountAfterPercentage.toFixed(2);
                 convertToEUR(totalAmount, "total_amount_in_eur");
                 convertToEUR(amountAfterPercentage, "total_amount_after_percentage_in_eur");
-              }
+              };
               document.getElementById("total_amount").addEventListener("input", calculateAmountAfterPercentage);
               document.getElementById("percentage").addEventListener("input", calculateAmountAfterPercentage);
-              document.getElementById('customer_id').addEventListener('change', function() {
+              document.getElementById('customer_id').addEventListener('change', async function() {
                 const customerId = this.value;
                 if (customerId) {
-                  fetch('check_client_type.php', {
+                  try {
+                    const response = await fetch('api/get_methods/get_check_client_type.php', {
                       method: 'POST',
                       headers: {
                         'Content-Type': 'application/x-www-form-urlencoded'
                       },
-                      body: 'customer_id=' + customerId
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                      document.getElementById('type').value = data.status === 'success' ? data.type : 'individual';
-                    })
-                    .catch(error => console.error('Error:', error));
+                      body: new URLSearchParams({
+                        customer_id: customerId
+                      })
+                    });
+                    const data = await response.json();
+                    document.getElementById('type').value = data.status === 'success' ? data.type : 'individual';
+                  } catch (error) {
+                    console.error('Error:', error);
+                  }
                 }
+              });
+              $("#created_date").flatpickr({
+                dateFormat: "Y-m-d",
+                maxDate: "today",
+                locale: "sq"
+              });
+              new Selectr('#customer_id', {
+                searchable: true,
+                width: 300
+              });
+              new Selectr('#invoice_status', {
+                searchable: true,
+                width: 300
               });
             });
           </script>
@@ -251,7 +288,7 @@ require_once 'invoices_trash_modal.php';
                 </div>
                 <hr>
                 <!-- DataTable -->
-                <table id="invoiceList" class="table table-bordered table-sm" data-source="get_invoices.php">
+                <table id="invoiceList" class="table table-bordered table-sm" data-source="api/get_methods/get_invoices.php">
                   <thead class="table-light">
                     <tr>
                       <th></th>
@@ -404,10 +441,11 @@ require_once 'invoices_trash_modal.php';
     var totalAmountAfterPercentage = totalAmount - (totalAmount * (percentage / 100));
     document.getElementById('total_amount_after_percentage').value = totalAmountAfterPercentage.toFixed(2);
   });
+
   function getCustomerName(customerId) {
     var customerName = '';
     $.ajax({
-      url: 'get_customer_name.php',
+      url: 'api/get_methods/get_customer_name.php',
       type: 'POST',
       data: {
         'customer_id': customerId
@@ -498,7 +536,7 @@ require_once 'invoices_trash_modal.php';
                 cancelButtonText: 'Anulo'
               }).then((result) => {
                 if (result.isConfirmed) {
-                  $.post('delete_invoice.php', {
+                  $.post('api/delete_methods/delete_invoice.php', {
                     ids: selectedIds
                   }, function(response) {
                     Swal.fire({
@@ -638,7 +676,7 @@ require_once 'invoices_trash_modal.php';
         "<'row'<'col-md-12'tr>>" +
         "<'row'<'col-md-6'><'col-md-6'p>>",
       ajax: {
-        url: 'get_invoices_biznes.php',
+        url: 'api/get_methods/get_invoices_biznes.php',
         type: 'POST',
       },
       initComplete: function() {
@@ -701,7 +739,7 @@ require_once 'invoices_trash_modal.php';
               }).then((result) => {
                 if (result.isConfirmed) {
                   $.ajax({
-                    url: 'delete_invoice.php',
+                    url: 'api/delete_methods/delete_invoice.php',
                     type: 'POST',
                     data: {
                       ids: selectedIds
@@ -747,6 +785,7 @@ require_once 'invoices_trash_modal.php';
           return type === 'display' && data !== null ? '<div style="white-space: normal;">' + data + '</div>' : data;
         }
       }],
+
       columns: [{
           data: 'id',
           render: function(data, type, row) {
@@ -766,19 +805,19 @@ require_once 'invoices_trash_modal.php';
             let uploadButton = '';
             if (row.file_path && row.file_path !== '') {
               fileDisplay = `
-        <div class="file-info d-flex align-items-center">
-          <i class="fi fi-rr-check-circle text-success me-2"></i>
-          <a class="input-custom-css px-3 py-2" style="text-decoration: none; text-transform: none;" href="${row.file_path}" download>
-            <i class="fi fi-rr-download"></i>
-          </a>
-        </div>
-      `;
+                <div class="file-info d-flex align-items-center">
+                  <i class="fi fi-rr-check-circle text-success me-2"></i>
+                  <a class="input-custom-css px-3 py-2" style="text-decoration: none; text-transform: none;" href="${row.file_path}" download>
+                    <i class="fi fi-rr-download"></i>
+                  </a>
+                </div>
+              `;
             } else {
               uploadButton = `
-        <button type="button" class="input-custom-css px-3 py-2" style="text-decoration: none; text-transform: none;" data-bs-toggle="modal" data-bs-target="#fileUploadModal-${row.id}">
-          <i class="fi fi-rr-upload"></i>
-        </button>
-      `;
+                <button type="button" class="input-custom-css px-3 py-2" style="text-decoration: none; text-transform: none;" data-bs-toggle="modal" data-bs-target="#fileUploadModal-${row.id}">
+                  <i class="fi fi-rr-upload"></i>
+                </button>
+              `;
             }
             let tooltipHTML = '';
             if (difference > 0) {
@@ -819,7 +858,7 @@ require_once 'invoices_trash_modal.php';
           </div>
         </div>
       </div>
-    `;
+      `;
           }
         },
         {
@@ -846,45 +885,55 @@ require_once 'invoices_trash_modal.php';
           render: function(data, type, row) {
             const conversionCellId = 'converted-amount-' + row.id;
             let compactHTML = `
-        <div class="amount-details" style="font-size:12px;">
-          <div class="d-flex justify-content-between">
-            <p>Shuma e për.:</p>
-            <p>${row.total_amount} USD</p>
-          </div>
-          <div class="d-flex justify-content-between">
-            <p>Shuma e për. % :</p>
-            <p>${row.total_amount_after_percentage} USD</p>
-          </div>`;
+      <div class="amount-details" style="font-size:12px;">
+        <div class="d-flex justify-content-between">
+          <p>Shuma e për.:</p>
+          <p>${row.total_amount} USD</p>
+        </div>
+        <div class="d-flex justify-content-between">
+          <p>Shuma e për. % :</p>
+          <p>${row.total_amount_after_percentage} USD</p>
+        </div>`;
             if (row.total_amount_in_eur) {
               compactHTML += `
-          <div class="d-flex justify-content-between">
-            <p>EUR - Shuma e për. :</p>
-            <p>${row.total_amount_in_eur} EUR</p>
-          </div>`;
+        <div class="d-flex justify-content-between">
+          <p>EUR - Shuma e për. :</p>
+          <p>${row.total_amount_in_eur} EUR</p>
+        </div>`;
             }
             if (row.total_amount_in_eur_after_percentage) {
               compactHTML += `
-          <div class="d-flex justify-content-between">
-            <p>EUR - Shuma e për. % :</p>
-            <p>${row.total_amount_in_eur_after_percentage} EUR</p>
-          </div>`;
+        <div class="d-flex justify-content-between">
+          <p>EUR - Shuma e për. % :</p>
+          <p>${row.total_amount_in_eur_after_percentage} EUR</p>
+        </div>`;
             }
-            // Fetch the converted amount asynchronously
-            const url = 'convert_currency.php?amount=' + row.total_amount_after_percentage;
-            fetch(url)
-              .then(response => response.json())
-              .then(result => {
-                if (result.error) {
-                  document.getElementById(conversionCellId).innerText = 'Error: ' + result.error;
-                } else if (result.result && result.result.EUR) {
-                  document.getElementById(conversionCellId).innerText = result.result.EUR.toFixed(2) + ' EUR';
-                } else {
+            compactHTML += `
+      <div class="d-flex justify-content-between">
+        <p>Converted Amount (to EUR):</p>
+        <p id="${conversionCellId}">Loading...</p>
+      </div>
+    </div>`;
+            // Return the compactHTML before initiating the fetch to ensure the cell is rendered
+            setTimeout(() => {
+              // Fetch the converted amount asynchronously
+              const url = 'api/get_methods/get_currency.php?amount=' + row.total_amount_after_percentage;
+              fetch(url)
+                .then(response => response.json())
+                .then(result => {
+                  const conversionCell = document.getElementById(conversionCellId);
+                  if (result.error) {
+                    conversionCell.innerText = 'Error: ' + result.error;
+                  } else if (result.result && result.result.EUR) {
+                    conversionCell.innerText = result.result.EUR.toFixed(2) + ' EUR';
+                  } else {
+                    conversionCell.innerText = 'Error fetching rate';
+                  }
+                })
+                .catch(error => {
                   document.getElementById(conversionCellId).innerText = 'Error fetching rate';
-                }
-              })
-              .catch(error => {
-                document.getElementById(conversionCellId).innerText = 'Error fetching rate';
-              });
+                });
+            }, 0);
             return compactHTML;
           }
         },
@@ -1043,7 +1092,7 @@ require_once 'invoices_trash_modal.php';
       }
       // All fields are filled, proceed with the AJAX request
       $.ajax({
-        url: 'make_payment.php',
+        url: 'api/post_methods/post_payment.php',
         method: 'POST',
         data: {
           invoiceId: invoiceId,
@@ -1101,6 +1150,7 @@ require_once 'invoices_trash_modal.php';
         }
       });
     });
+
     function createButtonConfig(extend, icon, text, titleAttr) {
       return {
         extend: extend,
@@ -1132,7 +1182,7 @@ require_once 'invoices_trash_modal.php';
         "<'row'<'col-md-6'><'col-md-6'p>>",
       buttons: buttonsConfig,
       ajax: {
-        url: 'invoices_trash_server.php',
+        url: 'api/get_methods/get_invoices_trash_server.php',
         type: 'POST',
       },
       columns: [{
@@ -1177,6 +1227,7 @@ require_once 'invoices_trash_modal.php';
       },
       stripeClasses: ['stripe-color']
     });
+
     function getCurrentDate() {
       var today = new Date();
       var dd = String(today.getDate()).padStart(2, '0');
@@ -1184,44 +1235,6 @@ require_once 'invoices_trash_modal.php';
       var yyyy = today.getFullYear();
       return yyyy + mm + dd;
     }
-    $('#invoices_trash tbody').on('click', '.restore-btn', function() {
-      var invoiceId = $(this).data('id');
-      $.ajax({
-        url: 'restore_invoice.php',
-        type: 'POST',
-        data: {
-          id: invoiceId
-        },
-        success: function(response) {
-          var result = JSON.parse(response);
-          if (result.success) {
-            Swal.fire({
-              icon: 'success',
-              title: 'Sukses!',
-              text: result.message,
-              timer: 3000,
-              showConfirmButton: false
-            }).then(function() {
-              currentPage = invoice_trash.page.info().page;
-              currentTablePage = table.page.info().page;
-              invoice_trash.ajax.reload(function() {
-                invoice_trash.page(currentPage).draw(false);
-                table.page(currentTablePage).draw(false);
-              });
-            });
-          } else {
-            Swal.fire({
-              icon: 'error',
-              title: 'Gabim!',
-              text: result.message
-            });
-          }
-        },
-        error: function(error) {
-          console.error('Error restoring invoice:', error);
-        }
-      });
-    });
   });
 </script>
 <script src="pro_invoice.js"></script>
@@ -1229,8 +1242,8 @@ require_once 'invoices_trash_modal.php';
 <script src="create_manual_invoice.js"></script>
 <script src="paymentsTable.js"></script>
 <script src="invoice_trash.js"></script>
-<script src="delete_buton_invoice.js"></script>
 <script src="states.js"></script>
 <?php include 'partials/footer.php' ?>
 </body>
+
 </html>

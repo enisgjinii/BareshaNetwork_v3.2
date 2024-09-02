@@ -7,7 +7,6 @@ if (isset($_POST['ruaj'])) {
     $emri = mysqli_real_escape_string($conn, $_POST['emri']);
     $merreperemer = $conn->query("SELECT * FROM klientet WHERE id='$emri'");
     $merreperemer2 = mysqli_fetch_array($merreperemer);
-
     $emrifull = $merreperemer2['emri'];
     $data = mysqli_real_escape_string($conn, $_POST['data']);
     $fatura = mysqli_real_escape_string($conn, $_POST['fatura']);
@@ -46,7 +45,6 @@ if (isset($_GET['fshij'])) {
         echo '<script>alert("' . $conn->error . '");</script>';
     }
 }
-
 ?>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js" type="text/javascript"></script>
 <link rel="stylesheet" type="text/css" href="tcal.css" />
@@ -60,7 +58,6 @@ if (isset($_GET['fshij'])) {
             </div>
             <div class="modal-body">
                 <form method="POST" action="">
-
                     <label for="emri">Emri & Mbiemri</label>
                     <select name="emri" class="form-select shadow-sm rounded-5 my-2">
                         <?php
@@ -69,14 +66,11 @@ if (isset($_GET['fshij'])) {
                         ?>
                             <option value="<?php echo $gst['id']; ?>"><?php echo $gst['emri']; ?></option>
                         <?php } ?>
-
                     </select>
                     <label for="datas">Data:</label>
                     <input type="text" name="data" class="form-control shadow-sm rounded-5 my-2" value="<?php echo date("Y-m-d"); ?>">
                     <label for="imei">Fatura:</label>
-
                     <input type="text" name="fatura" class="form-control shadow-sm rounded-5 my-2" value="<?php echo date('dmYhis'); ?>" readonly>
-
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Mbylle</button>
@@ -86,7 +80,6 @@ if (isset($_GET['fshij'])) {
         </div>
     </div>
 </div>
-
 <div class="main-panel">
     <div class="content-wrapper">
         <div class="container-fluid">
@@ -103,7 +96,6 @@ if (isset($_GET['fshij'])) {
                             <button type="button" class="btn btn-sm btn-primary text-white rounded-5 shadow-sm mt-3" data-bs-toggle="modal" data-bs-target="#videoUdhezuese">
                                 <i class="fi fi-rr-info"></i>
                             </button>
-
                             <!-- Modal -->
                             <div class="modal fade" id="videoUdhezuese" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                                 <div class="modal-dialog modal-xl">
@@ -117,7 +109,6 @@ if (isset($_GET['fshij'])) {
                                                 <source src="assets/video-udhëzuese.mp4" type="video/mp4">
                                                 Your browser does not support the video tag.
                                             </video>
-
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -180,8 +171,6 @@ if (isset($_GET['fshij'])) {
                         <button style="text-transform: none;" class="btn btn-sm btn-primary mt-3 text-white shadow-sm rounded-5 mt-2" data-bs-toggle="modal" data-bs-target="#pagesmodal"><i class="fi fi-rr-badge-dollar fa-lg"></i>&nbsp; Pagesë e re</button>
                     </div>
                 </div>
-
-
                 <div class="card shadow-sm rounded-5">
                     <div class="card-body">
                         <div class="table-responsive">
@@ -200,7 +189,6 @@ if (isset($_GET['fshij'])) {
                                         </tr>
                                     </thead>
                                     <tbody></tbody>
-
                                     <tfoot class="bg-light">
                                         <tr>
                                             <th class="text-dark">Emri</th>
@@ -237,14 +225,10 @@ if (isset($_GET['fshij'])) {
             </div>
         </div>
     </div>
-
-
 </div>
 <?php include 'partials/footer.php'; ?>
-
 <script>
     $(document).ready(function() {
-
         var dataTables = $('#employeeList').DataTable({
             responsive: false,
             "order": [
@@ -279,8 +263,6 @@ if (isset($_GET['fshij'])) {
                     "data": "aksion"
                 }
             ],
-
-
             lengthMenu: [
                 [10, 25, 50, -1],
                 [10, 25, 50, "Të gjitha"]
@@ -349,9 +331,7 @@ if (isset($_GET['fshij'])) {
                 url: "https://cdn.datatables.net/plug-ins/1.13.1/i18n/sq.json",
             },
             stripeClasses: ['stripe-color'],
-
         });
-
         $(document).on('click', '.delete', function() {
             var id = $(this).attr("id");
             if (confirm("A jeni i sigurt që doni ta hiqni këtë?")) {
@@ -372,24 +352,19 @@ if (isset($_GET['fshij'])) {
                 }, 5000);
             }
         });
-
         // Make this table employeeList to be reloaded when i press button Ruaj
         $('#btnruaj').click(function() {
             $('#employeeList').DataTable().ajax.reload();
         });
     });
-
-
     // Add a click event listener to buttons with the class "open-modal"
     $(document).on('click', '.open-modal', function() {
         // Get the fatura value from the parent table cell's text
         var fatura = $(this).parent().text().trim();
         var obli = $(this).parent().next().next().text().trim();
-
         // Fill the fatura input field with the retrieved data
         $('#fatura').val(fatura);
         $('#shuma').val(obli);
-
         // Show the modal - this depends on the version of Bootstrap you are using
         // Bootstrap 4:
         // $('#myModal').modal('show');
@@ -398,12 +373,8 @@ if (isset($_GET['fshij'])) {
         myModal.show();
     });
 </script>
-
-
 <!-- 
 <?php
-
-
 while ($row = mysqli_fetch_array($result)) {
     $id = $row['id'];
     // $emri = $row['emri']; - Kjo eshte rubrik per emer por po e shfaq pjesen e ID-së
@@ -413,37 +384,27 @@ while ($row = mysqli_fetch_array($result)) {
     $totali = $row['mbetja'];
     $pagesa = $row['totali'];
     $data = $row['data'];
-
     $dda = $row['data'];
     $date = date_create($dda);
     $dats = date_format($date, 'Y-m-d');
     $sid = $row['fatura'];
-
     $q4 = $conn->query("SELECT SUM(`totali`) as `sum` FROM `shitje` WHERE fatura='$sid'");
     $qq4 = mysqli_fetch_array($q4);
-
     $merrpagesen = $conn->query("SELECT SUM(`shuma`) as `sum` FROM `pagesat` WHERE fatura='$sid'");
     $merrep = mysqli_fetch_array($merrpagesen);
-
     $klientiid = $row['emri'];
-
     $queryy = "SELECT * FROM klientet WHERE id=" . $klientiid . " ";
     $mkl = $conn->query($queryy);
     $k4 = mysqli_fetch_array($mkl);
-
     $obli = $qq4['sum'] - $merrep['sum'];
-
     if ($qq4['sum'] > $merrep['sum']) {
         $pagesaaa = $row["emrifull"];
     } else {
         $pagesaaa =  $row["emrifull"];
     }
-
     $shuma = $qq4["sum"];
     $shuma_e_paguar = $merrep['sum'];
-
     if ($obli !== 0 && $obli > 0) {
-
         echo "
                               <tr class='table-row'>
                                   <td>$pagesaaa</td>
@@ -456,7 +417,6 @@ while ($row = mysqli_fetch_array($result)) {
                                   <td>$shuma</td>
                                   <td>$shuma_e_paguar</td>
                                   <td>$obli</td>
-
                                   <td>
                                   <a class='btn btn-primary btn-sm py-2' href='shitje.php?fatura=$sid' target='_blank'><i class='fi fi-rr-edit'></i></a>
                                   <a class='btn btn-success btn-sm py-2' target='_blank' href='fatura.php?invoice=$sid'><i class='fi fi-rr-print'></i></a> 
@@ -466,5 +426,4 @@ while ($row = mysqli_fetch_array($result)) {
                               ";
     }
 }
-
 ?> -->

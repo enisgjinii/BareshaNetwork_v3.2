@@ -4,11 +4,9 @@
         position: relative;
         overflow: hidden;
     }
-
     .btn-facebook:hover .icon {
         transform: translateY(-140%);
     }
-
     .btn-facebook .icon {
         position: absolute;
         top: 100%;
@@ -71,24 +69,19 @@
                                     <tbody>
                                         <?php
                                         include 'conn-d.php';
-
                                         // Check if the 'del' parameter is set in the URL
                                         // Check if the 'del' parameter is set in the URL
                                         if (isset($_GET['del'])) {
                                             $id = $_GET['del'];
-
                                             // Retrieve the name of the row before deleting
                                             $nameQuery = "SELECT emriDheMbiemriAutorit FROM autori WHERE id = '$id'";
                                             $nameResult = mysqli_query($conn, $nameQuery);
                                             $row = mysqli_fetch_assoc($nameResult);
-
                                             if ($row) {
                                                 $name = $row['emriDheMbiemriAutorit'];
-
                                                 // Delete the row with the given ID from the "autori" table
                                                 $deleteQuery = "DELETE FROM autori WHERE id = '$id'";
                                                 $deleteResult = mysqli_query($conn, $deleteQuery);
-
                                                 if ($deleteResult) {
                                                 }
                                             }
@@ -108,11 +101,9 @@
                                                     <?php
                                                     $filePath = $row['dokument'];
                                                     $fileName = basename($filePath); // Get the file name from the file path
-
                                                     echo "<a class='btn btn-primary py-2 rounded-5 shadow-sm text-white' href='$filePath' download='$fileName'><i class='fi fi-rr-download'></i></a>";
                                                     ?>
                                                 </td>
-
                                                 <td> <?php echo $row['kompania'] ?></td>
                                                 <td> <?php echo $row['ipiNumber'] ?></td>
                                                 <td>
@@ -125,7 +116,7 @@
                                                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                                 </div>
                                                                 <div class="modal-body">
-                                                                    <form id="editForm" action="edit_author.php" method="post">
+                                                                    <form id="editForm" action="api/edit_methods/edit_author.php" method="post">
                                                                         <input type="hidden" name="id" value="<?php echo $row['id']; ?>">
                                                                         <div class="row my-3">
                                                                             <div class="col">
@@ -137,7 +128,6 @@
                                                                                 <select name="kategoria" id="kategoria" class="form-select shadow-sm rounded-5 p-3">
                                                                                     <?php
                                                                                     $kategoria = $conn->query("SELECT kategoria FROM autori");
-
                                                                                     while ($merre_kategorin = mysqli_fetch_array($kategoria)) {
                                                                                         $selected = ($merre_kategorin['id'] == $editcl['merre_kategorin']) ? "selected" : "";
                                                                                         echo '<option>' . $merre_kategorin['kategoria'] . '</option>';
@@ -213,19 +203,15 @@
                                         // Check if the 'del' parameter is set in the URL
                                         if (isset($_GET['del'])) {
                                             $id = $_GET['del'];
-
                                             // Retrieve the name of the row before deleting
                                             $nameQuery = "SELECT emri_autorit FROM kenget_autori WHERE id = '$id'";
                                             $nameResult = mysqli_query($conn, $nameQuery);
                                             $row = mysqli_fetch_assoc($nameResult);
-
                                             if ($row) {
                                                 $name = $row['emri_autorit'];
-
                                                 // Delete the row with the given ID from the "facebook" table
                                                 $deleteQuery = "DELETE FROM kenget_autori WHERE id = '$id'";
                                                 $deleteResult = mysqli_query($conn, $deleteQuery);
-
                                                 if ($deleteResult) {
                                                     echo "<p class='text-success p-2 rounded-5 shadow-sm border w-25'>Rreshti i fshir&euml;: $name</p>";
                                                 } else {
@@ -238,7 +224,6 @@
                                         // Query p&euml;r t&euml; nxjerr&euml; t&euml; dh&euml;nat nga tabela "kenget_autori"
                                         $query = "SELECT * FROM kenget_autori ORDER BY id DESC";
                                         $result = mysqli_query($conn, $query);
-
                                         if (mysqli_num_rows($result) > 0) {
                                             while ($row = mysqli_fetch_assoc($result)) {
                                         ?>
@@ -338,7 +323,6 @@
                                         } else {
                                             // echo "<tr><td colspan='10'>Nuk ka rekorda t&euml; disponueshme.</td></tr>";
                                         }
-
                                         mysqli_close($conn);
                                         ?>
                                     </tbody>
@@ -346,7 +330,7 @@
                             </div>
                         </div>
                         <div class="tab-pane fade <?php if (!isset($_GET['tab']) || $_GET['tab'] == 'register') echo 'show active'; ?>" id="pills-register" role="tabpanel" aria-labelledby="pills-register-tab" tabindex="0">
-                            <form action="create_author.php" method="POST" enctype="multipart/form-data">
+                            <form action="api/post_methods/post_author.php" method="POST" enctype="multipart/form-data">
                                 <div class="p-5 shadow-sm text-start rounded-5 mb-4 card">
                                     <h6 class="card-title" style="text-transform:none;">Plotso formularin per krijimin e nje autori</h6>
                                     <div class="row my-3">
@@ -388,7 +372,6 @@
                                             <input type="text" name="ipiNumber" id="ipiNumber" class="form-control shadow-sm rounded-5">
                                         </div>
                                     </div>
-
                                     <div>
                                         <button type="submit" class="btn rounded-5 btn-facebook px-5" style="text-transform: none;" name="submit">
                                             <i class="fa-solid fa-plus icon" style="display: inline-block; vertical-align: middle;"></i>
@@ -399,7 +382,7 @@
                             </form>
                         </div>
                         <div class="tab-pane fade <?php if (!isset($_GET['tab']) || $_GET['tab'] == 'kenge') echo 'show active'; ?>" id="pills-kenge" role="tabpanel" aria-labelledby="pills-kenge-tab" tabindex="0">
-                            <form action="create_trackAuthor.php" method="POST" enctype="multipart/form-data">
+                            <form action="api/post_methods/post_trackAuthor.php" method="POST" enctype="multipart/form-data">
                                 <div class="p-5 shadow-sm text-start rounded-5 mb-4 card">
                                     <h6 class="card-title" style="text-transform:none;">Plotso formularin p&euml;r krijimin e nj&euml; kenge ne kuader te autorit</h6>
                                     <div class="row my-3">
@@ -463,36 +446,10 @@
     </div>
 </div>
 <?php include 'partials/footer.php'; ?>
-<!-- <script>
-   function confirmDelete() {
-       // Show the Sweet Alert confirmation dialog
-       Swal.fire({
-           title: 'Are you sure?',
-           text: 'You are about to delete this record. This action cannot be undone.',
-           icon: 'warning',
-           showCancelButton: true,
-           confirmButtonColor: '#dc3545',
-           cancelButtonColor: '#6c757d',
-           confirmButtonText: 'Delete',
-           cancelButtonText: 'Cancel'
-       }).then((result) => {
-           // If the user confirms the deletion, proceed with the action
-           if (result.isConfirmed) {
-               return true; // Continue with the link action
-           } else {
-               return false; // Cancel the link action
-           }
-       });
-   }
-   </script> -->
 <script>
     function fetchData(id) {
-        // Send an AJAX request to fetch the data based on the ID
-        // Replace 'fetchData.php' with the appropriate URL that handles the data retrieval
-
-        // Example using jQuery AJAX
         $.ajax({
-            url: 'fetch_autor.php',
+            url: 'api/get_methods/get_autor.php',
             type: 'GET',
             data: {
                 id: id
@@ -506,11 +463,9 @@
             }
         });
     }
-
     function populateForm(data) {
         // Parse the response data (assuming it's in JSON format)
         const parsedData = JSON.parse(data);
-
         // Access the form fields and set their values based on the fetched data
         const emriMbiemriField = document.getElementById('emri_mbiemri');
         const kategoriaField = document.getElementById('kategoria');
@@ -520,7 +475,6 @@
         const kompaniaField = document.getElementById('Kompania');
         const ipiNumberField = document.getElementById('ipiNumber');
         // Set other form field values similarly
-
         // Set the form field values
         emriMbiemriField.value = parsedData.emriDheMbiemriAutorit;
         kategoriaField.value = parsedData.kategoria;
@@ -529,7 +483,6 @@
         dokumentField.value = parsedData.dokument;
         kompaniaField.value = parsedData.kompania;
         ipiNumberField.value = parsedData.ipiNumber;
-
         // Set other form field values similarly
     }
 </script>
@@ -542,7 +495,6 @@
         const tabPanes = document.querySelectorAll('.tab-pane');
         tabs.forEach(tab => tab.classList.remove('active'));
         tabPanes.forEach(pane => pane.classList.remove('show', 'active'));
-
         // Add the 'active' class to the previously active tab and tab pane
         const activeTabButton = document.querySelector(`#${activeTab}-tab`);
         const activeTabPane = document.querySelector(`#${activeTab}`);
@@ -551,7 +503,6 @@
             activeTabPane.classList.add('show', 'active');
         }
     }
-
     // Save the active tab to local storage when a tab is clicked
     const tabButtons = document.querySelectorAll('.nav-link');
     tabButtons.forEach(button => {
@@ -565,7 +516,6 @@
     $('#example').DataTable({
         responsive: false,
         order: false,
-
         lengthMenu: [
             [10, 25, 50, -1],
             [10, 25, 50, "Te gjitha"]
@@ -613,7 +563,6 @@
             url: "https://cdn.datatables.net/plug-ins/1.13.1/i18n/sq.json",
         },
         stripeClasses: ['stripe-color'],
-
     });
 </script>
 <script>
@@ -667,6 +616,5 @@
             url: "https://cdn.datatables.net/plug-ins/1.13.1/i18n/sq.json",
         },
         stripeClasses: ['stripe-color'],
-
     });
 </script>
