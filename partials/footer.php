@@ -35,7 +35,7 @@
 <script src="https://cdn.datatables.net/autofill/2.5.1/js/autoFill.bootstrap5.min.js" defer></script>
 <script src="https://cdn.datatables.net/buttons/2.3.3/js/dataTables.buttons.min.js" defer></script>
 <script src="https://cdn.datatables.net/buttons/2.3.3/js/buttons.bootstrap5.min.js" defer></script>
-<script src="https://cdn.datatables.net/buttons/2.3.3/js/buttons.colVis.min.js" defer></script>
+<script src="https://cdn.datatables.net/buttons/3.1.2/js/buttons.colVis.min.js" defer></script>
 <script src="https://cdn.datatables.net/buttons/2.3.3/js/buttons.html5.min.js" defer></script>
 <script src="https://cdn.datatables.net/buttons/2.3.3/js/buttons.print.min.js" defer></script>
 <script src="https://cdn.datatables.net/colreorder/1.6.1/js/dataTables.colReorder.min.js" defer></script>
