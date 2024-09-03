@@ -97,7 +97,8 @@ $jsFiles = [
   'https://cdn.jsdelivr.net/npm/darkreader@4.9.87/darkreader.min.js',
   'https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js',
   'https://cdn.jsdelivr.net/npm/sweetalert2@11',
-  'https://cdn.datatables.net/buttons/1.7.1/js/buttons.colVis.min.js'
+  'https://cdn.datatables.net/buttons/1.7.1/js/buttons.colVis.min.js',
+  'https://cdn.jsdelivr.net/npm/apexcharts'
 ];
 ?>
 <!DOCTYPE html>
