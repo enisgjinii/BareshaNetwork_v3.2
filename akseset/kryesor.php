@@ -1,36 +1,9 @@
 <div class="main-panel">
   <div class="content-wrapper">
     <div class="container-fluid">
-      <?php
-      // Function to fetch a random quote from the Quotable API
-      function fetchQuoteFromAPI()
-      {
-        $api_url = 'https://api.quotable.io/random';
-        $ch = curl_init();
-        // Set the options for the cURL request
-        curl_setopt($ch, CURLOPT_URL, $api_url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        // Execute the request
-        $response = curl_exec($ch);
-        // Check for errors
-        if (curl_errno($ch)) {
-          // Handle error
-          return "Error fetching quote: " . curl_error($ch);
-        }
-        // Close the cURL session
-        curl_close($ch);
-        // Decode the JSON response
-        $data = json_decode($response, true);
-        // Return the quote and author from the response
-        return $data['content'] . ' - ' . $data['author'];
-      }
-      // Fetch a random quote
-      $random_quote = fetchQuoteFromAPI();
-      ?>
       <!-- Main content -->
       <div>
         <h1 class="h2">Mirë se vini <?php echo $user_info['givenName'] . ' ' . $user_info['familyName']; ?></h1>
-        <p><?php echo $random_quote; ?></p>
       </div>
       <br>
       <div class=" row mb-4">

@@ -379,7 +379,7 @@
             data: 'youtube',
             render: (data, type, row, meta) => {
               const containerId = `youtube-pic-${meta.row}`;
-              const apiKey = 'AIzaSyBQD3hhckJv5uxPcbRk3b8nlNogG9781Lk';
+              const apiKey = 'AIzaSyCRFtIfiEyeYmCrCZ8Bvy8Z4IPBy1v2iwo';
               const youtubeLink = `https://www.youtube.com/channel/${data}`;
               // Immediately return the HTML with placeholders and the edit button
               const editButtonHTML = `

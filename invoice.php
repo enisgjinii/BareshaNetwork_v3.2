@@ -362,6 +362,7 @@ require_once 'invoices_trash_modal.php';
                       <!-- <th style="white-space: normal;font-size: 12px;">Lloji</th> -->
                       <th class="text-dark" style="white-space: normal;font-size: 12px;width: 10px;">Përshkrimi</th>
                       <th class="text-dark" style="white-space: normal;font-size: 12px;width: 10px;">Shuma e paguar</th>
+                      <th class="text-dark" style="white-space: normal;font-size: 12px;width: 10px;">F. EUR</th>
                       <th class="text-dark" style="white-space: normal;font-size: 12px;width: 10px;">Veprim</th>
                     </tr>
                   </thead>
