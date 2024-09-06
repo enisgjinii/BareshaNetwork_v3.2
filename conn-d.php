@@ -25,7 +25,4 @@ if ($conn->connect_errno) {
   exit();
 }
 
-// pyinstaller --onefile --windowed --add-data "client.json;." your_script_name.py
-
-
 
