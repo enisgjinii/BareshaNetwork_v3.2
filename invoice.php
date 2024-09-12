@@ -407,6 +407,7 @@ require_once 'invoices_trash_modal.php';
                       <!-- <th style="white-space: normal;font-size: 12px;">Lloji</th> -->
                       <th class="text-dark" style="white-space: normal;font-size: 12px;width: 10px;">Përshkrimi</th>
                       <th class="text-dark" style="white-space: normal;font-size: 12px;width: 10px;">Shuma e paguar</th>
+                      <th class="text-dark" style="white-space: normal;font-size: 12px;width: 10px;">F. EUR</th>
                       <th class="text-dark" style="white-space: normal;font-size: 12px;width: 10px;">Veprim</th>
                     </tr>
                   </thead>
@@ -442,7 +443,6 @@ require_once 'invoices_trash_modal.php';
     var totalAmountAfterPercentage = totalAmount - (totalAmount * (percentage / 100));
     document.getElementById('total_amount_after_percentage').value = totalAmountAfterPercentage.toFixed(2);
   });
-
   function getCustomerName(customerId) {
     var customerName = '';
     $.ajax({
@@ -786,7 +786,6 @@ require_once 'invoices_trash_modal.php';
           return type === 'display' && data !== null ? '<div style="white-space: normal;">' + data + '</div>' : data;
         }
       }],
-
       columns: [{
           data: 'id',
           render: function(data, type, row) {
@@ -1151,7 +1150,6 @@ require_once 'invoices_trash_modal.php';
         }
       });
     });
-
     function createButtonConfig(extend, icon, text, titleAttr) {
       return {
         extend: extend,
@@ -1228,7 +1226,6 @@ require_once 'invoices_trash_modal.php';
       },
       stripeClasses: ['stripe-color']
     });
-
     function getCurrentDate() {
       var today = new Date();
       var dd = String(today.getDate()).padStart(2, '0');
@@ -1246,5 +1243,4 @@ require_once 'invoices_trash_modal.php';
 <script src="states.js"></script>
 <?php include 'partials/footer.php' ?>
 </body>
-
 </html>

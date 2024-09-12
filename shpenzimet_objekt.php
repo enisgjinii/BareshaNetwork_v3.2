@@ -30,342 +30,357 @@ if ($result->num_rows > 0) {
             </nav>
             <div class="row mb-2">
                 <div>
-                    <!-- Button trigger modal -->
-                    <button type="button" class="input-custom-css px-3 py-2" data-bs-toggle="modal" data-bs-target="#pagesmodal">
+                    <a type="button" style="text-decoration: none" class="input-custom-css px-3 py-2 position-relative" href="post_newKont.php">
                         Shto shpenzim
-                    </button>
-                    <!-- Modal -->
-                    <div class="modal fade" id="pagesmodal" tabindex="-1" aria-labelledby="pagesmodalLabel" aria-hidden="true">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="pagesmodalLabel">Shto shpenzim</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <form id="expense-form" method="post" action="api/post_methods/post_expense.php" enctype="multipart/form-data">
-                                        <div class="mb-3">
-                                            <label for="recipient-name" class="col-form-label">Emri i regjistruesit:</label>
-                                            <input type="text" class="form-control rounded-5 border border-2" id="recipient-name" name="recipient-name" value="<?php echo $user_info['givenName'] . ' ' . $user_info['familyName']; ?>">
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="message-text" class="col-form-label">Pershkrimi:</label>
-                                            <textarea class="form-control rounded-5 border border-2" id="message-text" name="message"></textarea>
-                                        </div>
-                                        <!-- Add input for amount -->
-                                        <div class="mb-3">
-                                            <label for="amount" class="col-form-label">Shuma e shpenzimit:</label>
-                                            <input type="number" class="form-control rounded-5 border border-2" id="amount" name="amount">
-                                        </div>
-                                        <!-- Add input for adding a file -->
-                                        <div class="mb-3">
-                                            <label for="expense-file" class="col-form-label">Dokumenti i shpenzimit:</label>
-                                            <input type="file" class="form-control rounded-5 border border-2" id="expense-file" name="file">
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="input-custom-css px-3 py-2" data-bs-dismiss="modal">Mbyll</button>
-                                            <button type="submit" class="input-custom-css px-3 py-2">Ruaj</button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                            BETA
+                            <span class="visually-hidden">unread messages</span>
+                        </span>
+                    </a>
                 </div>
             </div>
             <div class="p-3 shadow-sm rounded-5 mb-4 card">
-                <div class="table-responsive">
-                    <table class="table table-bordered" id="expenses-table">
-                        <thead class="bg-light">
-                            <tr>
-                                <th class="text-dark">Registruesi</th>
-                                <th class="text-dark">Pershkrimi</th>
-                                <th class="text-dark">Shuma</th>
-                                <th class="text-dark">Dokumenti</th>
-                                <th class="text-dark">Data e krijuar</th>
-                                <th class="text-dark">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody class="text-dark">
-                            <?php
-                            // Fetch data from the database
-                            $query = "SELECT * FROM expenses";
-                            $stmt = $conn->prepare($query);
-                            $stmt->execute();
-                            $result = $stmt->get_result();
-                            // Check if there are any rows returned
+                <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link rounded-5 active" style="text-decoration: none;text-transform: none" id="pills-all-tab" data-bs-toggle="pill" data-bs-target="#pills-all" type="button" role="tab" aria-controls="pills-all" aria-selected="true">Të gjitha</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link rounded-5" style="text-decoration: none;text-transform: none" id="pills-investime-tab" data-bs-toggle="pill" data-bs-target="#pills-investime" type="button" role="tab" aria-controls="pills-investime" aria-selected="true">Investime</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link rounded-5" style="text-decoration: none;text-transform: none" id="pills-obligimet-tab" data-bs-toggle="pill" data-bs-target="#pills-obligimet" type="button" role="tab" aria-controls="pills-obligimet" aria-selected="false">Obligime</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link rounded-5" style="text-decoration: none;text-transform: none" id="pills-shpenzimet-tab" data-bs-toggle="pill" data-bs-target="#pills-shpenzimet" type="button" role="tab" aria-controls="pills-shpenzimet" aria-selected="false">Shpenzimet</button>
+                    </li>
+                    <!-- Tjeter -->
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link rounded-5" style="text-decoration: none;text-transform: none" id="pills-tjeter-tab" data-bs-toggle="pill" data-bs-target="#pills-tjeter" type="button" role="tab" aria-controls="pills-tjeter" aria-selected="false">Tjetër</button>
+                    </li>
+                </ul>
+                <div class="tab-content" id="pills-tabContent">
+                    <?php
+                    // Define tabs and queries
+                    $tabs = [
+                        'all' => ['name' => 'All', 'query' => "SELECT * FROM invoices_kont", 'active' => true],
+                        'investime' => ['name' => 'Investimet', 'query' => "SELECT * FROM invoices_kont WHERE category = 'Investimet'"],
+                        'obligimet' => ['name' => 'Obligime', 'query' => "SELECT * FROM invoices_kont WHERE category = 'Obligime'"],
+                        'shpenzimet' => ['name' => 'Shpenzimet', 'query' => "SELECT * FROM invoices_kont WHERE category = 'Shpenzimet'"],
+                        'tjeter' => ['name' => 'Tjetër', 'query' => "SELECT * FROM invoices_kont WHERE category = 'Tjetër'"]
+                    ];
+                    // Define column labels
+                    $columns = [
+                        'id' => 'ID',
+                        'invoice_date' => 'Data e faturës',
+                        'description' => 'Përshkrimi',
+                        'category' => 'Kategoria',
+                        'company_name' => 'Emri i kompanisë',
+                        'document_path' => 'Path-i i dokumentit',
+                        // 'created_at' => 'Krijuar në',
+                        'vlera_faktura' => 'Vlera e fatures',
+                        'action' => 'Veprim'
+                    ];
+                    // Function to render table rows
+                    function renderRow($row, $columns)
+                    {
+                        foreach (array_keys($columns) as $column) {
+                            if ($column == 'document_path') {
+                                echo "<td><a href='uploads/{$row[$column]}' target='_blank' style='text-decoration: none;text-transform: none' class='input-custom-css px-3 py-2'>View</a></td>";
+                            } elseif ($column != 'action') {
+                                echo "<td>" . htmlspecialchars($row[$column], ENT_QUOTES, 'UTF-8') . "</td>";
+                            }
+                        }
+                        // Action buttons
+                        echo "<td>";
+                        echo "<button onclick='confirmDelete({$row['id']})' style='text-decoration: none;text-transform: none' class='input-custom-css px-3 py-2'><i class='fi fi-rr-trash'></i></button>";
+                        echo "</td>";
+                    }
+                    // Loop through tabs to render content
+                    foreach ($tabs as $key => $tab) {
+                        $activeClass = $tab['active'] ? 'show active' : '';
+                        echo "<div class='tab-pane fade {$activeClass}' id='pills-{$key}' role='tabpanel' aria-labelledby='pills-{$key}-tab' tabindex='0'>";
+                        try {
+                            $result = $conn->query($tab['query']);
+                            if (!$result) {
+                                throw new Exception("Database query failed: " . $conn->error);
+                            }
+                            // Render table headers
+                            echo "<table class='table table-border' id='table-{$key}'>";
+                            echo "<thead class='table-light'><tr>";
+                            foreach ($columns as $columnName) {
+                                echo "<th>{$columnName}</th>";
+                            }
+                            echo "</tr></thead><tbody>";
+                            // Render table rows
                             if ($result->num_rows > 0) {
-                                // Iterate over the fetched data and display it in table rows
                                 while ($row = $result->fetch_assoc()) {
                                     echo "<tr>";
-                                    echo "<td>" . htmlspecialchars($row['registruesi']) . "</td>";
-                                    echo "<td>" . htmlspecialchars($row['pershkrimi']) . "</td>";
-                                    echo "<td>" . htmlspecialchars($row['shuma']) . "</td>";
-                                    echo "<td>" . htmlspecialchars($row['dokumenti']) . "</td>";
-                                    echo "<td>" . htmlspecialchars($row['created_at']) . "</td>";
-                                    echo "<td>";
-                                    // Action buttons
-                                    echo '<button type="button" class="input-custom-css px-3 py-2 edit-btn" data-bs-toggle="modal" data-bs-target="#editModal" data-id="' . $row['id'] . '" data-registruesi="' . htmlspecialchars($row['registruesi']) . '" data-pershkrimi="' . htmlspecialchars($row['pershkrimi']) . '" data-shuma="' . htmlspecialchars($row['shuma']) . '"><i class="fi fi-rr-edit"></i></button>';
-                                    echo '<button type="button" class="input-custom-css px-3 py-2 ms-2 delete-btn" data-id="' . $row['id'] . '"><i class="fi fi-rr-trash"></i></button>';
-                                    // Check if there is a document before displaying the download button
-                                    if (!empty($row['dokumenti'])) {
-                                        echo '<a style="text-decoration: none;" href="uploads/' . htmlspecialchars($row['dokumenti']) . '" download="' . htmlspecialchars($row['dokumenti']) . '" class="input-custom-css px-3 py-2 ms-2"><i class="fi fi-rr-download"></i></a>';
-                                    }
-                                    echo "</td>";
+                                    renderRow($row, $columns); // Call reusable function to render row
                                     echo "</tr>";
                                 }
-                            } 
-                            ?>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            <div class="row mb-3 text-center">
-                <div class="col-12 my-3">
-                    <div class="rounded-5 border border-1 bg-white px-3 d-inline-block">
-                        <h2 class="display-4 text-primary">Shpenzimet totale: $<?php echo number_format($total, 2); ?></h2>
-                    </div>
-                </div>
-                <div class="col-12">
-                    <div class="card p-5 w-100 mb-2 rounded-5 shadow-sm">
-                        <div class="card-body">
-                            <div id="chart"></div>
-                        </div>
-                    </div>
+                            }
+                            echo "</tbody></table></div>";
+                        } catch (Exception $e) {
+                            echo "<div class='alert alert-danger'>Ndodhi një gabim: " . $e->getMessage() . "</div>";
+                        }
+                    }
+                    ?>
                 </div>
             </div>
         </div>
     </div>
 </div>
-<!-- Edit Expense Modal -->
-<div class="modal fade text-dark" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="editModalLabel">Edit Expense</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="edit-expense-form" method="post" action="update_expense.php">
-                    <input type="hidden" id="edit-expense-id" name="id">
-                    <div class="mb-3">
-                        <label for="edit-recipient-name" class="col-form-label">Emri i regjistruesit:</label>
-                        <input type="text" class="form-control rounded-5 border border-2" id="edit-recipient-name" name="recipient-name">
-                    </div>
-                    <div class="mb-3">
-                        <label for="edit-message-text" class="col-form-label">Pershkrimi:</label>
-                        <textarea class="form-control rounded-5 border border-2" id="edit-message-text" name="message"></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label for="edit-amount" class="col-form-label">Shuma e shpenzimit:</label>
-                        <input type="number" class="form-control rounded-5 border border-2" id="edit-amount" name="amount">
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="input-custom-css px-3 py-2" data-bs-dismiss="modal">Mbylle</button>
-                        <button type="submit" class="input-custom-css px-3 py-2">Ruaj</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-<script>
-    var options = {
-        chart: {
-            type: 'bar',
-            height: 350,
-            toolbar: {
-                show: true
-            }
-        },
-        plotOptions: {
-            bar: {
-                borderRadius: 10,
-                horizontal: false,
-                columnWidth: '55%',
-                endingShape: 'rounded',
-            },
-        },
-        dataLabels: {
-            enabled: true,
-            formatter: function(val) {
-                return val + " €";
-            },
-            offsetY: -20,
-            style: {
-                fontSize: '12px',
-                colors: ["#fff"]
-            }
-        },
-        stroke: {
-            show: true,
-            width: 2,
-            colors: ['transparent']
-        },
-        series: [{
-            name: 'Shpenzimet',
-            data: [
-                <?php
-                foreach ($expenses as $expense) {
-                    echo $expense['total_shuma'] . ', ';
-                }
-                ?>
-            ]
-        }],
-        xaxis: {
-            categories: [
-                <?php
-                foreach ($expenses as $expense) {
-                    echo "'" . $expense['date'] . "', ";
-                }
-                ?>
-            ],
-            title: {
-                text: 'Data'
-            }
-        },
-        yaxis: {
-            title: {
-                text: 'Shuma (€)'
-            }
-        },
-        fill: {
-            opacity: 1
-        },
-        tooltip: {
-            y: {
-                formatter: function(val) {
-                    return "€ " + val.toFixed(2);
-                }
-            }
-        },
-        title: {
-            text: 'Përmbledhje e shpenzimeve sipas datës',
-            align: 'center',
-            style: {
-                fontSize: '20px',
-                fontWeight: 'bold',
-                color: '#263238'
-            }
-        }
-    }
-    var chart = new ApexCharts(document.querySelector("#chart"), options);
-    chart.render();
-</script>
 <?php include 'partials/footer.php'; ?>
 <script>
-    // data table
-    $(document).ready(function() {
-        $('#expenses-table').DataTable({
-            dom: "<'row'<'col-md-3'l><'col-md-6'B><'col-md-3'f>>" +
-                "<'row'<'col-md-12'tr>>" +
-                "<'row'<'col-md-6'><'col-md-6'p>>",
-            stripeClasses: ["stripe-color"],
-            initComplete: function() {
-                var btns = $(".dt-buttons");
-                btns.addClass("").removeClass("dt-buttons btn-group");
-                var lengthSelect = $("div.dataTables_length select");
-                lengthSelect.addClass("form-select");
-                lengthSelect.css({
-                    width: "auto",
-                    margin: "0 8px",
-                    padding: "0.375rem 1.75rem 0.375rem 0.75rem",
-                    lineHeight: "1.5",
-                    border: "1px solid #ced4da",
-                    borderRadius: "0.25rem",
-                });
-            },
-            language: {
-                url: "https://cdn.datatables.net/plug-ins/1.13.1/i18n/sq.json",
-            },
-            buttons: [{
-                    extend: "pdf",
-                    text: '<i class="fi fi-rr-file-pdf fa-lg"></i>&nbsp;&nbsp; PDF',
-                    titleAttr: "Eksporto tabelen ne formatin PDF",
-                    className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
-                },
-                {
-                    extend: "excelHtml5",
-                    text: '<i class="fi fi-rr-file-excel fa-lg"></i>&nbsp;&nbsp; Excel',
-                    titleAttr: "Eksporto tabelen ne formatin Excel",
-                    className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
-                    exportOptions: {
-                        modifier: {
-                            search: "applied",
-                            order: "applied",
-                            page: "all",
-                        },
-                    },
-                },
-                {
-                    extend: "print",
-                    text: '<i class="fi fi-rr-print fa-lg"></i>&nbsp;&nbsp; Printo',
-                    titleAttr: "Printo tabel&euml;n",
-                    className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
-                },
-            ],
-        });
-    });
-    document.addEventListener('DOMContentLoaded', function() {
-        // Handle edit button click
-        document.querySelectorAll('.edit-btn').forEach(button => {
-            button.addEventListener('click', function() {
-                const id = this.dataset.id;
-                const registruesi = this.dataset.registruesi;
-                const pershkrimi = this.dataset.pershkrimi;
-                const shuma = this.dataset.shuma;
-                document.getElementById('edit-expense-id').value = id;
-                document.getElementById('edit-recipient-name').value = registruesi;
-                document.getElementById('edit-message-text').value = pershkrimi;
-                document.getElementById('edit-amount').value = shuma;
-            });
-        });
-        // Handle delete button click
-        document.querySelectorAll('.delete-btn').forEach(button => {
-            button.addEventListener('click', function() {
-                const id = this.dataset.id;
-                Swal.fire({
-                    title: 'A jeni i sigurt?',
-                    text: "Nuk mund ta ktheni atë që fshini!",
-                    icon: 'Kujdes',
-                    showCancelButton: true,
-                    confirmButtonColor: '#3085d6',
-                    cancelButtonColor: '#d33',
-                    cancelButtonText: 'Anulo',
-                    confirmButtonText: 'Po, fshije!'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        fetch(`api/delete_methods/delete_expense_k.php?id=${id}`, {
-                                method: 'GET',
-                            })
-                            .then(response => response.text())
-                            .then(data => {
-                                if (data === 'success') {
-                                    Swal.fire(
-                                        'Deleted!',
-                                        'Your file has been deleted.',
-                                        'success'
-                                    ).then(() => {
-                                        location.reload();
-                                    });
-                                } else {
-                                    Swal.fire(
-                                        'Error!',
-                                        'There was a problem deleting the expense.',
-                                        'error'
-                                    );
-                                }
-                            })
-                            .catch(error => {
-                                Swal.fire(
-                                    'Error!',
-                                    'There was a problem deleting the expense.',
-                                    'error'
-                                );
+    // Global variable to store DataTables instances
+    var dataTables = {};
+    function confirmDelete(id) {
+        Swal.fire({
+            title: 'A jeni i sigurt?',
+            text: "Ju nuk do të jeni në gjendje ta ktheni këtë!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Po, fshijeni!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // First, fetch all information
+                fetch(`api/delete_methods/delete_newKont.php?id=${id}&action=fetch`)
+                    .then(response => response.json())
+                    .then(data => {
+                        // Now delete the record
+                        return fetch(`api/delete_methods/delete_newKont.php?id=${id}&action=delete`);
+                    })
+                    .then(response => response.json())
+                    .then(result => {
+                        if (result.success) {
+                            Swal.fire(
+                                'U fshi!',
+                                'Skedari juaj është fshirë.',
+                                'success'
+                            ).then(() => {
+                                // Refresh the table instead of reloading the page
+                                refreshTable();
                             });
+                        } else {
+                            Swal.fire(
+                                'Error!',
+                                'Pati një problem me fshirjen e skedarit.',
+                                'error'
+                            );
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        Swal.fire(
+                            'Error!',
+                            'Kishte një problem me kërkesën.',
+                            'error'
+                        );
+                    });
+            }
+        });
+    }
+    function refreshTable() {
+        var activeTab = $('ul.nav-pills .active').attr('id');
+        var tableId = 'table-' + activeTab.replace('pills-', '').replace('-tab', '');
+        var dataTable = dataTables[tableId];
+        if (dataTable) {
+            dataTable.ajax.reload(null, false);
+        } else {
+            console.error('Tabela e të dhënave nuk është gjetur për', tableId);
+        }
+    }
+    $(document).ready(function() {
+        var tableIds = ['table-all', 'table-investime', 'table-obligimet', 'table-shpenzimet', 'table-tjeter'];
+        tableIds.forEach(function(tableId) {
+            dataTables[tableId] = $('#' + tableId).DataTable({
+                dom: "<'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
+                    "<'row'<'col-sm-12'tr>>" +
+                    "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+                stripeClasses: ["stripe-color"],
+                responsive: true,
+                ajax: {
+                    url: 'api/get_methods/get_table_data.php',
+                    data: function(d) {
+                        d.category = tableId.replace('table-', '');
+                    },
+                    dataSrc: ''
+                },
+                columns: [{
+                        data: 'id'
+                    },
+                    {
+                        data: 'invoice_date',
+                        render: function(data, type, row) {
+                            if (type === 'display') {
+                                return '<span class="editable" data-column="invoice_date" data-id="' + row.id + '">' + data + '</span>';
+                            }
+                            return data;
+                        }
+                    },
+                    {
+                        data: 'description',
+                        render: function(data, type, row) {
+                            if (type === 'display') {
+                                return '<span class="editable" data-column="description" data-id="' + row.id + '">' + data + '</span>';
+                            }
+                            return data;
+                        }
+                    },
+                    {
+                        data: 'category',
+                        render: function(data, type, row) {
+                            if (type === 'display') {
+                                return '<span class="editable" data-column="category" data-id="' + row.id + '">' + data + '</span>';
+                            }
+                            return data;
+                        }
+                    },
+                    {
+                        data: 'company_name',
+                        render: function(data, type, row) {
+                            if (type === 'display') {
+                                return '<span class="editable" data-column="company_name" data-id="' + row.id + '">' + data + '</span>';
+                            }
+                            return data;
+                        }
+                    },
+                    {
+                        data: 'document_path',
+                        render: function(data, type, row) {
+                            return '<a href="uploads/' + data + '" target="_blank" style="text-decoration: none;text-transform: none" class="input-custom-css px-3 py-2">View</a>';
+                        }
+                    },
+                    {
+                        data: 'vlera_faktura'
+                    },
+                    {
+                        data: null,
+                        render: function(data, type, row) {
+                            return '<button onclick="confirmDelete(' + row.id + ')" style="text-decoration: none;text-transform: none" class="input-custom-css px-3 py-2"><i class="fi fi-rr-trash"></i></button>';
+                        }
                     }
+                ],
+                initComplete: function() {
+                    var lengthSelect = $("div.dataTables_length select");
+                    lengthSelect.addClass("form-select").css({
+                        width: "auto",
+                        margin: "0 8px",
+                        padding: "0.375rem 1.75rem 0.375rem 0.75rem",
+                        lineHeight: "1.5",
+                        border: "1px solid #ced4da",
+                        borderRadius: "0.25rem",
+                    });
+                },
+                language: {
+                    url: "https://cdn.datatables.net/plug-ins/1.13.1/i18n/sq.json",
+                },
+                buttons: [ /* Buttons Configuration */ ]
+            });
+        });
+        $('body').on('click', '.editable', function() {
+            var $this = $(this);
+            var currentValue = $this.text().trim(); // Ensuring there's no extra whitespace
+            var column = $this.data('column');
+            var id = $this.data('id');
+            var columnHeader = getColumnHeader(column); // Ensure this function is defined to fetch the column header
+            Swal.fire({
+                title: 'Ndrysho ' + columnHeader,
+                html: `
+                <div class="form-group">
+                    <label for="swal-input" class="form-label">${columnHeader}</label>
+                    <input id="swal-input" class="swal2-input form-control" placeholder="Enter ${columnHeader}" value="${currentValue}">
+                    <small class="form-text text-muted">Ndryshoni vlerën në fushën e tekstit dhe klikoni ruaj.</small>
+                </div>
+            `,
+                showCancelButton: true,
+                confirmButtonText: 'Ruaj',
+                cancelButtonText: 'Anulo',
+                showLoaderOnConfirm: true,
+                preConfirm: () => {
+                    return new Promise((resolve, reject) => {
+                        const newValue = document.getElementById('swal-input').value;
+                        if (newValue) {
+                            updateValue(id, column, newValue, $this, resolve);
+                        } else {
+                            reject(new Error('Vlera nuk mund të jetë bosh.'));
+                        }
+                    });
+                },
+                allowOutsideClick: () => !Swal.isLoading(),
+                customClass: {
+                    popup: 'custom-swal-popup',
+                    confirmButton: 'input-custom-css px-3 py-2 me-2',
+                    cancelButton: 'input-custom-css px-3 py-2'
+                },
+                buttonsStyling: false
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Updated!',
+                        text: 'Vlera është përditësuar me sukses.',
+                        icon: 'success',
+                        customClass: {
+                            confirmButton: 'input-custom-css px-3 py-2'
+                        },
+                        buttonsStyling: false
+                    });
+                }
+            }).catch(error => {
+                Swal.fire({
+                    title: 'Error!',
+                    text: error.message,
+                    icon: 'error',
+                    customClass: {
+                        confirmButton: 'input-custom-css px-3 py-2'
+                    },
+                    buttonsStyling: false
                 });
             });
         });
+        // Function to get the correct column header
+        function getColumnHeader(column) {
+            var headers = {
+                'id': 'ID',
+                'invoice_date': 'Data e faturës',
+                'description': 'Përshkrimi',
+                'category': 'Kategoria',
+                'company_name': 'Emri i kompanisë',
+                'document_path': 'Path-i i dokumentit',
+                'vlera_faktura': 'Vlera e fatures'
+            };
+            return headers[column] || column;
+        }
+        $('a[data-bs-toggle="pill"]').on('shown.bs.tab', function(e) {
+            var targetTable = $(e.target).attr("href").replace("#pills-", "table-");
+            if (dataTables[targetTable]) {
+                dataTables[targetTable].ajax.reload();
+                dataTables[targetTable].columns.adjust().responsive.recalc();
+            }
+        });
     });
+    function updateValue(id, column, value, $element, resolve) {
+        $.ajax({
+            url: 'api/edit_methods/update_newKont.php',
+            method: 'POST',
+            data: {
+                id: id,
+                column: column,
+                value: value
+            },
+            success: function(response) {
+                if (response.success) {
+                    $element.text(value);
+                    resolve();
+                } else {
+                    Swal.showValidationMessage('Dështoi përditësimi: ' + response.message);
+                }
+            },
+            error: function() {
+                Swal.showValidationMessage('Ndodhi një gabim gjatë përditësimit.');
+            }
+        });
+    }
 </script>

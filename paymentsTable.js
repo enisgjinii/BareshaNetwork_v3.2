@@ -64,6 +64,16 @@ $(document).ready(function () {
             { data: "total_payment_amount" },
             {
                 data: null,
+                render: function (data, type, row) {
+                    // Calculate the remaining amount by subtracting total payment amount from total amount after percentage
+                    const remainingAmount = row.total_invoice_amount - row.total_payment_amount;
+
+                    // Handle any formatting if necessary (e.g., rounding to two decimal places)
+                    return remainingAmount.toFixed(2); // Optional: Adjust decimal places as needed
+                }
+            },            
+            {
+                data: null,
                 render: (data, type, row) => {
                     let buttons = [
                         `<a href="print_invoice.php?id=${data.invoice_number}" style="text-decoration: none; text-transform: none;" class="input-custom-css px-3 py-2 mx-1"><i class="fi fi-rr-print"></i></a>`,

@@ -381,15 +381,17 @@
               const containerId = `youtube-pic-${meta.row}`;
               const apiKey = 'AIzaSyCRFtIfiEyeYmCrCZ8Bvy8Z4IPBy1v2iwo';
               const youtubeLink = `https://www.youtube.com/channel/${data}`;
-              // Immediately return the HTML with placeholders and the edit button
+              const deleteButtonHTML = `
+                <a style="text-decoration: none;" class="input-custom-css px-3 py-2 mx-1" onclick="confirmDelete(${row.id})"><i class="fi fi-rr-trash"></i></a>
+              `;
               const editButtonHTML = `
-            <div class="mt-3">
-                
-                <a style="text-decoration: none;" class="input-custom-css px-3 py-2 mx-1" href="editk.php?id=${row.id}"><i class="fi fi-rr-edit"></i></a>
-                <a style="text-decoration: none;" class="input-custom-css px-3 py-2" onclick="konfirmoDeaktivizimin(${row.id})"><i class="fi fi-rr-user-slash"></i></a>
-                <a style="text-decoration: none;" class="input-custom-css px-3 py-2" href="${youtubeLink}" target="_blank"><i class="fi fi-brands-youtube"></i></a>
-            </div>
-        `;
+                <div class="mt-3">
+                  <a style="text-decoration: none;" class="input-custom-css px-3 py-2 mx-1" href="editk.php?id=${row.id}"><i class="fi fi-rr-edit"></i></a>
+                  <a style="text-decoration: none;" class="input-custom-css px-3 py-2 mx-1" onclick="konfirmoDeaktivizimin(${row.id})"><i class="fi fi-rr-user-slash"></i></a>
+                  <a style="text-decoration: none;" class="input-custom-css px-3 py-2 mx-1" href="${youtubeLink}" target="_blank"><i class="fi fi-brands-youtube"></i></a>
+                  ${deleteButtonHTML}
+                </div>
+              `;
               if (!/^[a-zA-Z0-9_-]{24}$/.test(data)) {
                 return `
                 <div id="${containerId}">
@@ -491,7 +493,12 @@
           render: (data, type) => (type === 'display' && data) ? `<div style="white-space: normal;">${data}</div>` : data
         }]
       });
+      // Ensure columns are adjusted and responsiveness recalculated when the window is resized
+      $(window).on('resize', () => {
+        mainTable.columns.adjust().responsive.recalc();
+      });
     });
+
     function confirmActivation(clientId) {
       Swal.fire({
         title: 'A jeni i sigurt?',
@@ -518,6 +525,7 @@
         }
       });
     }
+
     function konfirmoDeaktivizimin(clientId) {
       Swal.fire({
         title: 'A jeni i sigurt?',
@@ -542,6 +550,43 @@
             confirmButtonText: 'OK'
           }).then(() => window.location.href = `passive_client.php?id=${clientId}`);
         }
+      });
+    }
+
+    function confirmDelete(clientId) {
+      Swal.fire({
+        title: 'A jeni i sigurt?',
+        text: 'Jeni duke u përgatitur për të fshirë këtë klient!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Po, fshije!',
+        cancelButtonText: 'Anulo',
+        reverseButtons: true,
+        showLoaderOnConfirm: true,
+        preConfirm: () => {
+          return fetch(`delete_client.php?id=${clientId}`, {
+              method: 'POST'
+            })
+            .then(response => {
+              if (!response.ok) {
+                throw new Error(response.statusText);
+              }
+              return response.json();
+            })
+            .then(result => {
+              if (result.success) {
+                Swal.fire('Fshirë!', 'Klienti është fshirë me sukses.', 'success');
+                // Reload the DataTable without refreshing the whole page
+                $('#listaKlientave').DataTable().ajax.reload(null, false); // false = keep current page
+              } else {
+                Swal.fire('Gabim!', 'Diçka shkoi keq.', 'error');
+              }
+            })
+            .catch(error => Swal.fire('Gabim!', 'Fshirja dështoi.', 'error'));
+        },
+        allowOutsideClick: () => !Swal.isLoading()
       });
     }
   </script>
