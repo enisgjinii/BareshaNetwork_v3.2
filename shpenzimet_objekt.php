@@ -1,7 +1,8 @@
 <?php
 include 'partials/header.php';
 include 'conn-d.php';
-// Fetch data
+
+// Fetch data for expenses chart
 $sql = "SELECT DATE(created_at) AS date, SUM(shuma) AS total_shuma FROM expenses GROUP BY DATE(created_at)";
 $stmt = $conn->prepare($sql);
 $stmt->execute();
@@ -9,15 +10,18 @@ $result = $stmt->get_result();
 $expenses = [];
 $total = 0;
 if ($result->num_rows > 0) {
-    // output data of each row
     while ($row = $result->fetch_assoc()) {
         $expenses[] = $row;
         $total += $row['total_shuma'];
     }
-} else {
-    // echo "0 results";
 }
 ?>
+<!-- Include Bootstrap CSS and JS if not already included in header.php -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<!-- Optionally include PDF.js if handling PDFs more robustly -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.14.305/pdf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <div class="main-panel">
     <div class="content-wrapper">
@@ -39,7 +43,7 @@ if ($result->num_rows > 0) {
                     </a>
                 </div>
             </div>
-            <div class="p-3 shadow-sm rounded-5 mb-4 card">
+            <div class="p-3 shadow-sm mb-4 card">
                 <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
                     <li class="nav-item" role="presentation">
                         <button class="nav-link rounded-5 active" style="text-decoration: none;text-transform: none" id="pills-all-tab" data-bs-toggle="pill" data-bs-target="#pills-all" type="button" role="tab" aria-controls="pills-all" aria-selected="true">Të gjitha</button>
@@ -80,12 +84,23 @@ if ($result->num_rows > 0) {
                         'vlera_faktura' => 'Vlera e fatures',
                         'action' => 'Veprim'
                     ];
-                    // Function to render table rows
+                    // Function to render table rows with modal triggers
                     function renderRow($row, $columns)
                     {
                         foreach (array_keys($columns) as $column) {
                             if ($column == 'document_path') {
-                                echo "<td><a href='uploads/{$row[$column]}' target='_blank' style='text-decoration: none;text-transform: none' class='input-custom-css px-3 py-2'>View</a></td>";
+                                $filePath = htmlspecialchars($row[$column], ENT_QUOTES, 'UTF-8');
+                                $fileName = htmlspecialchars($row[$column], ENT_QUOTES, 'UTF-8');
+                                echo "<td>
+                                        <a href='#' 
+                                           class='view-document input-custom-css px-3 py-2' 
+                                           data-bs-toggle='modal' 
+                                           data-bs-target='#documentModal' 
+                                           data-file='{$filePath}' 
+                                           data-name='{$fileName}'>
+                                            View
+                                        </a>
+                                      </td>";
                             } elseif ($column != 'action') {
                                 echo "<td>" . htmlspecialchars($row[$column], ENT_QUOTES, 'UTF-8') . "</td>";
                             }
@@ -130,10 +145,42 @@ if ($result->num_rows > 0) {
         </div>
     </div>
 </div>
+
 <?php include 'partials/footer.php'; ?>
+
+<!-- Document Preview Modal -->
+<div class="modal fade" id="documentModal" tabindex="-1" aria-labelledby="documentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><span id="documentName">Document</span> Preview</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Content will be injected here -->
+                <div id="documentContent" class="text-center">
+                    <!-- For images -->
+                    <img id="documentImage" src="" alt="Document Image" class="img-fluid" style="display: none; max-height: 80vh;">
+
+                    <!-- For PDFs -->
+                    <iframe id="documentPDF" src="" width="100%" height="600px" style="display: none;"></iframe>
+
+                    <!-- For other types -->
+                    <p id="documentMessage" style="display: none;">Preview not available. <a id="downloadLink" href="#" download>Download</a></p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a id="downloadLinkFooter" href="#" class="btn btn-primary" download>Download</a>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     // Global variable to store DataTables instances
     var dataTables = {};
+
     function confirmDelete(id) {
         Swal.fire({
             title: 'A jeni i sigurt?',
@@ -182,6 +229,7 @@ if ($result->num_rows > 0) {
             }
         });
     }
+
     function refreshTable() {
         var activeTab = $('ul.nav-pills .active').attr('id');
         var tableId = 'table-' + activeTab.replace('pills-', '').replace('-tab', '');
@@ -250,11 +298,17 @@ if ($result->num_rows > 0) {
                     {
                         data: 'document_path',
                         render: function(data, type, row) {
-                            return '<a href="uploads/' + data + '" target="_blank" style="text-decoration: none;text-transform: none" class="input-custom-css px-3 py-2">View</a>';
+                            return '<a href="#" style="text-decoration: none;text-transform: none" class="view-document input-custom-css px-3 py-2" data-bs-toggle="modal" data-bs-target="#documentModal" data-file="' + data + '" data-name="' + data + '">Shiko dokumentin</a>';
                         }
                     },
                     {
-                        data: 'vlera_faktura'
+                        data: 'vlera_faktura',
+                        render: function(data, type, row) {
+                            if (type === 'display') {
+                                return '<span class="editable" data-column="vlera_faktura" data-id="' + row.id + '">' + data + '</span>';
+                            }
+                            return data;
+                        }
                     },
                     {
                         data: null,
@@ -289,12 +343,12 @@ if ($result->num_rows > 0) {
             Swal.fire({
                 title: 'Ndrysho ' + columnHeader,
                 html: `
-                <div class="form-group">
-                    <label for="swal-input" class="form-label">${columnHeader}</label>
-                    <input id="swal-input" class="swal2-input form-control" placeholder="Enter ${columnHeader}" value="${currentValue}">
-                    <small class="form-text text-muted">Ndryshoni vlerën në fushën e tekstit dhe klikoni ruaj.</small>
-                </div>
-            `,
+            <div class="form-group">
+                <label for="swal-input" class="form-label">${columnHeader}</label>
+                <input id="swal-input" class="swal2-input form-control" placeholder="Enter ${columnHeader}" value="${currentValue}">
+                <small class="form-text text-muted">Ndryshoni vlerën në fushën e tekstit dhe klikoni ruaj.</small>
+            </div>
+        `,
                 showCancelButton: true,
                 confirmButtonText: 'Ruaj',
                 cancelButtonText: 'Anulo',
@@ -361,6 +415,7 @@ if ($result->num_rows > 0) {
             }
         });
     });
+    // Function to update editable fields via AJAX
     function updateValue(id, column, value, $element, resolve) {
         $.ajax({
             url: 'api/edit_methods/update_newKont.php',
@@ -384,3 +439,63 @@ if ($result->num_rows > 0) {
         });
     }
 </script>
+
+<!-- JavaScript for handling the document preview modal -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const documentModal = document.getElementById('documentModal');
+        const documentName = document.getElementById('documentName');
+        const documentImage = document.getElementById('documentImage');
+        const documentPDF = document.getElementById('documentPDF');
+        const documentMessage = document.getElementById('documentMessage');
+        const downloadLink = document.getElementById('downloadLink');
+        const downloadLinkFooter = document.getElementById('downloadLinkFooter');
+
+        documentModal.addEventListener('show.bs.modal', function(event) {
+            const triggerLink = event.relatedTarget;
+            const filePath = triggerLink.getAttribute('data-file');
+            const fileName = triggerLink.getAttribute('data-name');
+
+            // Update modal title
+            documentName.textContent = fileName;
+
+            // Reset modal content
+            documentImage.style.display = 'none';
+            documentPDF.style.display = 'none';
+            documentMessage.style.display = 'none';
+
+            // Set download links
+            downloadLink.href = filePath;
+            downloadLinkFooter.href = filePath;
+
+            // Determine file type
+            const fileExtension = filePath.split('.').pop().toLowerCase();
+
+            if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg'].includes(fileExtension)) {
+                // It's an image
+                documentImage.src = filePath;
+                documentImage.style.display = 'block';
+            } else if (fileExtension === 'pdf') {
+                // It's a PDF
+                documentPDF.src = filePath;
+                documentPDF.style.display = 'block';
+            } else {
+                // Other file types
+                documentMessage.style.display = 'block';
+                documentMessage.querySelector('#downloadLink').href = filePath;
+            }
+        });
+    });
+</script>
+
+<style>
+    /* Optional: Custom styles for the modal */
+    #documentImage {
+        max-height: 80vh;
+        object-fit: contain;
+    }
+
+    #documentMessage {
+        text-align: center;
+    }
+</style>
