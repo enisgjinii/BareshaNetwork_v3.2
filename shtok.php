@@ -25,7 +25,8 @@ if (isset($_POST['ruaj'])) {
     'bank_info',
     'perdoruesi',
     'password',
-    'shtetsia'
+    'shtetsia',
+    'shtetsiaKontabiliteti'
   ];
   $data = [];
   foreach ($fields as $field) {
@@ -46,19 +47,19 @@ if (isset($_POST['ruaj'])) {
     if (!move_uploaded_file($_FILES['tipi']['tmp_name'], $targetfolder)) {
       // Handle the error if needed
     }
-  } else {
+} else {
     // Handle the error if needed
   }
   if ($conn->query(
     "INSERT INTO klientet 
-        (emri, np, monetizuar, dk, dks, youtube, info, perqindja, perqindja2, kontrata, ads, fb, ig, adresa, kategoria, nrtel, emailadd, emailp, emriart, nrllog, bank_name ,fjalkalimi, perdoruesi, emails, blocked, perqindja_check, perqindja_platformave_check, lloji_klientit, email_kontablist, shtetsia) 
+        (emri, np, monetizuar, dk, dks, youtube, info, perqindja, perqindja2, kontrata, ads, fb, ig, adresa, kategoria, nrtel, emailadd, emailp, emriart, nrllog, bank_name ,fjalkalimi, perdoruesi, emails, blocked, perqindja_check, perqindja_platformave_check, lloji_klientit, email_kontablist, shtetsia, shtetsiaKontabiliteti) 
         VALUES (
             '{$data['emri']}', '{$data['np']}', '{$data['mon']}', '{$data['dk']}', '{$data['dks']}', '{$data['yt']}', 
             '{$data['info']}', '{$data['perqindja']}', '{$data['perqindja2']}', '$targetfolder', '{$data['ads']}', 
             '{$data['fb']}', '{$data['ig']}', '{$data['adresa']}', '{$data['kategoria']}', '{$data['nrtel']}', 
             '{$data['emailadd']}', '{$data['emailp']}', '{$data['emriart']}', '{$data['nrllog']}', '{$data['bank_info']}', 
             '{$data['password']}', '{$data['perdoruesi']}', '{$data['emails']}', '0', '$perqindja_check', 
-            '$perqindja_e_platformave_check', '$type_of_client', '{$data['email_kontablist']}', '$shtetsia'
+            '$perqindja_e_platformave_check', '$type_of_client', '{$data['email_kontablist']}', '$shtetsia' , '{$data['shtetsiaKontabiliteti']}' 
         )"
   )) {
     $kueri = $conn->query("SELECT * FROM klientet ORDER BY id DESC");
@@ -430,6 +431,23 @@ if (isset($_POST['ruaj'])) {
                       </select>
                       <script>
                         new Selectr('#shtetsia', {
+                          searchable: true
+                        })
+                      </script>
+                    </div>
+                    <!-- Create another select with states like : Kosovë, Shqipëri, Gjermania,France,Slloveni -->
+                    <br>
+                    <div class="col">
+                      <label class="form-label" for="shtetsiaKontabiliteti">Shtetsia ( Kontabilitet )</label>
+                      <select class="form-control border border-2 rounded-5" name="shtetsiaKontabiliteti" id="shtetsiaKontabiliteti">
+                        <option value="Kosova">Kosova</option>
+                        <option value="Shqipëri">Shqipëri</option>
+                        <option value="Gjermania">Gjermania</option>
+                        <option value="Francë">Francë</option>
+                        <option value="Slloveni">Slloveni</option>
+                      </select>
+                      <script>
+                        new Selectr('#shtetsiaKontabiliteti', {
                           searchable: true
                         })
                       </script>

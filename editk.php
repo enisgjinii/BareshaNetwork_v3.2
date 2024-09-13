@@ -34,6 +34,7 @@ if (isset($_POST['ndrysho'])) {
     $perqindja_check = isset($_POST['perqindja_check']) ? '1' : '0';
     $perqindja_e_platformave_check = isset($_POST['perqindja_platformave_check']) ? '1' : '0';
     $statusi_i_kontrates = mysqli_real_escape_string($conn, $_POST['statusi_i_kontrates']);
+    $shtetsiaKontabiliteti = mysqli_real_escape_string($conn, $_POST['shtetsiaKontabiliteti']);
     // Define the target folder for file uploads
     $targetfolder = "dokument/";
     // Initialize a flag for file upload success
@@ -63,7 +64,7 @@ if (isset($_POST['ndrysho'])) {
     $nrtel = mysqli_real_escape_string($conn, $_POST['nrtel']);
     $type__of_client = mysqli_real_escape_string($conn, $_POST['type_of_client']);
     // Update the database with the new data
-    if ($conn->query("UPDATE klientet SET emri='$emri', np='$np', monetizuar='$mon', emails='$emails', dk='$dk', dks='$dks', youtube='$yt', info='$info', perqindja='$perq', perqindja2='$perq2', fb='$fb', ig='$ig', adresa='$adresa', kategoria='$kategoria', nrtel='$nrtel', emailp='$emailp', emailadd='$emailadd', emriart='$emriart', nrllog='$nrllog',  bank_name='$bank_info', ads='$adsa', perdoruesi='$perdoruesi', perqindja_check='$perqindja_check', perqindja_platformave_check='$perqindja_e_platformave_check', fjalkalimi='$fjalekalimi', shtetsia='$shtetsia', lloji_klientit='$type__of_client', statusi_i_kontrates='$statusi_i_kontrates' , email_kontablist = '$email_kontablist' WHERE id='$editid'")) {
+    if ($conn->query("UPDATE klientet SET emri='$emri', np='$np', monetizuar='$mon', emails='$emails', dk='$dk', dks='$dks', youtube='$yt', info='$info', perqindja='$perq', perqindja2='$perq2', fb='$fb', ig='$ig', adresa='$adresa', kategoria='$kategoria', nrtel='$nrtel', emailp='$emailp', emailadd='$emailadd', emriart='$emriart', nrllog='$nrllog',  bank_name='$bank_info', ads='$adsa', perdoruesi='$perdoruesi', perqindja_check='$perqindja_check', perqindja_platformave_check='$perqindja_e_platformave_check', fjalkalimi='$fjalekalimi', shtetsia='$shtetsia', lloji_klientit='$type__of_client', statusi_i_kontrates='$statusi_i_kontrates' , email_kontablist = '$email_kontablist', shtetsiaKontabiliteti = '$shtetsiaKontabiliteti' WHERE id='$editid'")) {
         echo '<script>
             Swal.fire({
               icon: "success",
@@ -736,6 +737,37 @@ $contractStartDate = mysqli_fetch_array($conn->query("SELECT * FROM kontrata_gje
                                             </select>
                                             <script>
                                                 new Selectr('#shtetsia', {})
+                                            </script>
+                                        </div>
+                                        <br>
+                                        <div class="col">
+                                            <label class="form-label">Shtetsia ( Kontabilitet )</label>
+                                            <select class="form-select border border-2 rounded-5" name="shtetsiaKontabiliteti" id="shtetsiaKontabiliteti">
+                                                <?php
+                                                // Static options
+                                                $staticOptions = [
+                                                    "Kosova",
+                                                    "Shqipëri",
+                                                    "Gjermania",
+                                                    "Francë",
+                                                    "Slloveni"
+                                                ];
+                                                // Fetch distinct shtetsia values from the database
+                                                $query = "SELECT DISTINCT shtetsiaKontabiliteti FROM klientet WHERE id = '$editcl[id]'";
+                                                $result = $conn->query($query);
+                                                // Merge static and dynamic options
+                                                $dbOptions = $result ? array_column($result->fetch_all(MYSQLI_ASSOC), 'shtetsiaKontabiliteti') : [];
+                                                $options = array_unique(array_merge($staticOptions, $dbOptions));
+                                                // Output options
+                                                foreach ($options as $shtetsiaKontabiliteti): ?>
+                                                    <option value="<?php echo htmlspecialchars($shtetsiaKontabiliteti); ?>"
+                                                        <?php echo (isset($editcl['shtetsiaKontabiliteti']) && $editcl['shtetsiaKontabiliteti'] == $shtetsiaKontabiliteti) ? 'selected' : ''; ?>>
+                                                        <?php echo htmlspecialchars($shtetsiaKontabiliteti); ?>
+                                                    </option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                            <script>
+                                                new Selectr('#shtetsiaKontabiliteti', {});
                                             </script>
                                         </div>
                                         <br>
