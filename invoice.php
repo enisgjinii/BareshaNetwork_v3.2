@@ -112,12 +112,18 @@ require_once 'invoices_trash_modal.php';
                       <select class="form-control rounded-5 shadow-sm py-3" id="customer_id" name="customer_id" required>
                         <?php
                         require_once "conn-d.php";
-                        $result = mysqli_query($conn, "SELECT id,emri, perqindja FROM klientet ORDER BY id DESC");
+                        $result = mysqli_query($conn, "SELECT id,emri, perqindja,emriart FROM klientet ORDER BY id DESC");
                         while ($row = mysqli_fetch_assoc($result)) {
-                          echo "<option value='{$row['id']}' data-percentage='{$row['perqindja']}'>{$row['emri']}</option>";
+                          echo "<option value='{$row['id']}' data-percentage='{$row['perqindja']}'>{$row['emri']} ({$row['emriart']})</option>";
                         }
                         ?>
                       </select>
+                      <script>
+                        new Selectr('#customer_id', {
+                          searchable: true,
+                          width: 300
+                        })
+                      </script>
                     </div>
                     <div class="mb-3">
                       <label for="item" class="form-label">Përshkrimi:</label>

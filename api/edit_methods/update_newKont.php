@@ -1,34 +1,42 @@
 <?php
+// update_newKont.php
+
 include '../../conn-d.php';
 
-header('Content-Type: application/json');
+$response = array('success' => false);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $id = $_POST['id'];
     $column = $_POST['column'];
     $value = $_POST['value'];
 
-    // Validate and sanitize inputs
-    $id = filter_var($id, FILTER_VALIDATE_INT);
-    $column = filter_var($column, FILTER_SANITIZE_STRING);
-    $value = filter_var($value, FILTER_SANITIZE_STRING);
+    // Validate inputs as necessary
 
-    // List of allowed columns to update
     $allowedColumns = ['invoice_date', 'description', 'category', 'company_name', 'vlera_faktura'];
-
-    if ($id && in_array($column, $allowedColumns)) {
-        $sql = "UPDATE invoices_kont SET $column = ? WHERE id = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("si", $value, $id);
-
-        if ($stmt->execute()) {
-            echo json_encode(['success' => true]);
-        } else {
-            echo json_encode(['success' => false, 'message' => $conn->error]);
-        }
-    } else {
-        echo json_encode(['success' => false, 'message' => 'Invalid input']);
+    if (!in_array($column, $allowedColumns)) {
+        $response['message'] = 'Invalid column specified.';
+        echo json_encode($response);
+        exit;
     }
+
+    $sql = "UPDATE invoices_kont SET $column = ? WHERE id = ?";
+    $stmt = $conn->prepare($sql);
+    if (!$stmt) {
+        $response['message'] = 'Database error: ' . $conn->error;
+        echo json_encode($response);
+        exit;
+    }
+
+    $stmt->bind_param('si', $value, $id);
+    if ($stmt->execute()) {
+        $response['success'] = true;
+    } else {
+        $response['message'] = 'Failed to update the record.';
+    }
+    $stmt->close();
 } else {
-    echo json_encode(['success' => false, 'message' => 'Invalid request method']);
+    $response['message'] = 'Invalid request method.';
 }
+
+echo json_encode($response);
+?>

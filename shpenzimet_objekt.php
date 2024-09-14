@@ -1,7 +1,6 @@
 <?php
 include 'partials/header.php';
 include 'conn-d.php';
-
 // Fetch data for expenses chart
 $sql = "SELECT DATE(created_at) AS date, SUM(shuma) AS total_shuma FROM expenses GROUP BY DATE(created_at)";
 $stmt = $conn->prepare($sql);
@@ -21,7 +20,6 @@ if ($result->num_rows > 0) {
 <!-- Optionally include PDF.js if handling PDFs more robustly -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.14.305/pdf.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <div class="main-panel">
     <div class="content-wrapper">
@@ -107,7 +105,9 @@ if ($result->num_rows > 0) {
                         }
                         // Action buttons
                         echo "<td>";
-                        echo "<button onclick='confirmDelete({$row['id']})' style='text-decoration: none;text-transform: none' class='input-custom-css px-3 py-2'><i class='fi fi-rr-trash'></i></button>";
+                        echo "<button onclick='confirmDelete({$row['id']})' class='input-custom-css px-3 py-2'><i class='fi fi-rr-trash'></i></button>";
+                        // New button for replacing document
+                        echo "<button onclick='showReplaceModal({$row['id']})' class='input-custom-css px-3 py-2'><i class='fi fi-rr-pencil'></i></button>";
                         echo "</td>";
                     }
                     // Loop through tabs to render content
@@ -145,9 +145,7 @@ if ($result->num_rows > 0) {
         </div>
     </div>
 </div>
-
 <?php include 'partials/footer.php'; ?>
-
 <!-- Document Preview Modal -->
 <div class="modal fade" id="documentModal" tabindex="-1" aria-labelledby="documentModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered">
@@ -161,22 +159,43 @@ if ($result->num_rows > 0) {
                 <div id="documentContent" class="text-center">
                     <!-- For images -->
                     <img id="documentImage" src="" alt="Document Image" class="img-fluid" style="display: none; max-height: 80vh;">
-
                     <!-- For PDFs -->
                     <iframe id="documentPDF" src="" width="100%" height="600px" style="display: none;"></iframe>
-
                     <!-- For other types -->
                     <p id="documentMessage" style="display: none;">Preview not available. <a id="downloadLink" href="#" download>Download</a></p>
                 </div>
             </div>
             <div class="modal-footer">
                 <a id="downloadLinkFooter" href="#" class="btn btn-primary" download>Download</a>
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Mbyll</button>
             </div>
         </div>
     </div>
 </div>
-
+<!-- Replace Document Modal -->
+<div class="modal fade" id="replaceDocumentModal" tabindex="-1" aria-labelledby="replaceDocumentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form id="replaceDocumentForm">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="replaceDocumentModalLabel">Zëvendëso Dokumentin</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Mbyll"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="replaceDocumentId" name="id" value="">
+                    <div class="mb-3">
+                        <label for="newDocument" class="form-label">Zgjidh Dokumentin e Ri</label>
+                        <input class="form-control" type="file" id="newDocument" name="newDocument" accept="image/*,application/pdf">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Zëvendëso</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anulo</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 <script>
     // Global variable to store DataTables instances
     var dataTables = {};
@@ -187,9 +206,10 @@ if ($result->num_rows > 0) {
             text: "Ju nuk do të jeni në gjendje ta ktheni këtë!",
             icon: 'warning',
             showCancelButton: true,
+            confirmButtonText: 'Po, fshijeni!',
+            cancelButtonText: 'Anulo',
             confirmButtonColor: '#3085d6',
             cancelButtonColor: '#d33',
-            confirmButtonText: 'Po, fshijeni!'
         }).then((result) => {
             if (result.isConfirmed) {
                 // First, fetch all information
@@ -204,7 +224,7 @@ if ($result->num_rows > 0) {
                         if (result.success) {
                             Swal.fire(
                                 'U fshi!',
-                                'Skedari juaj është fshirë.',
+                                'Rekordi është fshirë me sukses.',
                                 'success'
                             ).then(() => {
                                 // Refresh the table instead of reloading the page
@@ -212,8 +232,8 @@ if ($result->num_rows > 0) {
                             });
                         } else {
                             Swal.fire(
-                                'Error!',
-                                'Pati një problem me fshirjen e skedarit.',
+                                'Gabim!',
+                                'Pati një problem me fshirjen e rekordit.',
                                 'error'
                             );
                         }
@@ -221,7 +241,7 @@ if ($result->num_rows > 0) {
                     .catch(error => {
                         console.error('Error:', error);
                         Swal.fire(
-                            'Error!',
+                            'Gabim!',
                             'Kishte një problem me kërkesën.',
                             'error'
                         );
@@ -240,7 +260,59 @@ if ($result->num_rows > 0) {
             console.error('Tabela e të dhënave nuk është gjetur për', tableId);
         }
     }
+    // Function to show the Replace Document Modal
+    function showReplaceModal(id) {
+        $('#replaceDocumentId').val(id);
+        $('#replaceDocumentModal').modal('show');
+    }
+    // Handle the form submission for replacing the document
     $(document).ready(function() {
+        $('#replaceDocumentForm').on('submit', function(e) {
+            e.preventDefault();
+            var formData = new FormData(this);
+            var id = $('#replaceDocumentId').val();
+            $.ajax({
+                url: 'api/edit_methods/replace_document.php',
+                type: 'POST',
+                data: formData,
+                contentType: false,
+                processData: false,
+                dataType: 'json', // Ensure the response is parsed as JSON
+                success: function(response) {
+                    console.log('AJAX response:', response);
+                    console.log('Type of response:', typeof response);
+                    console.log('response.success:', response.success);
+                    $('#replaceDocumentModal').modal('hide');
+                    if (response.success) {
+                        Swal.fire({
+                            title: 'Sukses',
+                            text: 'Dokumenti u zëvendësua me sukses.',
+                            icon: 'success'
+                        }).then(() => {
+                            // Refresh the table
+                            refreshTable();
+                        });
+                    } else {
+                        Swal.fire({
+                            title: 'Gabim',
+                            text: response.message || 'Ndodhi një gabim.',
+                            icon: 'error'
+                        });
+                    }
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    $('#replaceDocumentModal').modal('hide');
+                    console.error('AJAX error:', textStatus, errorThrown);
+                    Swal.fire({
+                        title: 'Gabim',
+                        text: 'Ndodhi një gabim gjatë zëvendësimit të dokumentit: ' + textStatus,
+                        icon: 'error'
+                    });
+                }
+            });
+
+        });
+        // Initialize DataTables
         var tableIds = ['table-all', 'table-investime', 'table-obligimet', 'table-shpenzimet', 'table-tjeter'];
         tableIds.forEach(function(tableId) {
             dataTables[tableId] = $('#' + tableId).DataTable({
@@ -298,7 +370,7 @@ if ($result->num_rows > 0) {
                     {
                         data: 'document_path',
                         render: function(data, type, row) {
-                            return '<a href="#" style="text-decoration: none;text-transform: none" class="view-document input-custom-css px-3 py-2" data-bs-toggle="modal" data-bs-target="#documentModal" data-file="' + data + '" data-name="' + data + '">Shiko dokumentin</a>';
+                            return '<a href="#" class="view-document input-custom-css px-3 py-2" data-bs-toggle="modal" data-bs-target="#documentModal" data-file="' + data + '" data-name="' + data + '">Shiko dokumentin</a>';
                         }
                     },
                     {
@@ -313,7 +385,14 @@ if ($result->num_rows > 0) {
                     {
                         data: null,
                         render: function(data, type, row) {
-                            return '<button onclick="confirmDelete(' + row.id + ')" style="text-decoration: none;text-transform: none" class="input-custom-css px-3 py-2"><i class="fi fi-rr-trash"></i></button>';
+                            return `
+                                <button onclick="confirmDelete(${row.id})" class="input-custom-css px-3 py-2">
+                                    <i class="fi fi-rr-trash"></i>
+                                </button>
+                                <button onclick="showReplaceModal(${row.id})" class="input-custom-css px-3 py-2">
+                                    <i class="fi fi-rr-pencil"></i>
+                                </button>
+                            `;
                         }
                     }
                 ],
@@ -331,24 +410,24 @@ if ($result->num_rows > 0) {
                 language: {
                     url: "https://cdn.datatables.net/plug-ins/1.13.1/i18n/sq.json",
                 },
-                buttons: [ /* Buttons Configuration */ ]
             });
         });
+        // Editable fields handling
         $('body').on('click', '.editable', function() {
             var $this = $(this);
-            var currentValue = $this.text().trim(); // Ensuring there's no extra whitespace
+            var currentValue = $this.text().trim();
             var column = $this.data('column');
             var id = $this.data('id');
-            var columnHeader = getColumnHeader(column); // Ensure this function is defined to fetch the column header
+            var columnHeader = getColumnHeader(column);
             Swal.fire({
                 title: 'Ndrysho ' + columnHeader,
                 html: `
-            <div class="form-group">
-                <label for="swal-input" class="form-label">${columnHeader}</label>
-                <input id="swal-input" class="swal2-input form-control" placeholder="Enter ${columnHeader}" value="${currentValue}">
-                <small class="form-text text-muted">Ndryshoni vlerën në fushën e tekstit dhe klikoni ruaj.</small>
-            </div>
-        `,
+                    <div class="form-group">
+                        <label for="swal-input" class="form-label">${columnHeader}</label>
+                        <input id="swal-input" class="swal2-input form-control" placeholder="Enter ${columnHeader}" value="${currentValue}">
+                        <small class="form-text text-muted">Ndryshoni vlerën dhe klikoni ruaj.</small>
+                    </div>
+                `,
                 showCancelButton: true,
                 confirmButtonText: 'Ruaj',
                 cancelButtonText: 'Anulo',
@@ -373,7 +452,7 @@ if ($result->num_rows > 0) {
             }).then((result) => {
                 if (result.isConfirmed) {
                     Swal.fire({
-                        title: 'Updated!',
+                        title: 'Përditësuar!',
                         text: 'Vlera është përditësuar me sukses.',
                         icon: 'success',
                         customClass: {
@@ -384,7 +463,7 @@ if ($result->num_rows > 0) {
                 }
             }).catch(error => {
                 Swal.fire({
-                    title: 'Error!',
+                    title: 'Gabim!',
                     text: error.message,
                     icon: 'error',
                     customClass: {
@@ -402,8 +481,8 @@ if ($result->num_rows > 0) {
                 'description': 'Përshkrimi',
                 'category': 'Kategoria',
                 'company_name': 'Emri i kompanisë',
-                'document_path': 'Path-i i dokumentit',
-                'vlera_faktura': 'Vlera e fatures'
+                'document_path': 'Dokumenti',
+                'vlera_faktura': 'Vlera e faturës'
             };
             return headers[column] || column;
         }
@@ -438,10 +517,7 @@ if ($result->num_rows > 0) {
             }
         });
     }
-</script>
-
-<!-- JavaScript for handling the document preview modal -->
-<script>
+    // JavaScript for handling the document preview modal
     document.addEventListener('DOMContentLoaded', function() {
         const documentModal = document.getElementById('documentModal');
         const documentName = document.getElementById('documentName');
@@ -450,27 +526,21 @@ if ($result->num_rows > 0) {
         const documentMessage = document.getElementById('documentMessage');
         const downloadLink = document.getElementById('downloadLink');
         const downloadLinkFooter = document.getElementById('downloadLinkFooter');
-
         documentModal.addEventListener('show.bs.modal', function(event) {
             const triggerLink = event.relatedTarget;
             const filePath = triggerLink.getAttribute('data-file');
             const fileName = triggerLink.getAttribute('data-name');
-
             // Update modal title
             documentName.textContent = fileName;
-
             // Reset modal content
             documentImage.style.display = 'none';
             documentPDF.style.display = 'none';
             documentMessage.style.display = 'none';
-
             // Set download links
             downloadLink.href = filePath;
             downloadLinkFooter.href = filePath;
-
             // Determine file type
             const fileExtension = filePath.split('.').pop().toLowerCase();
-
             if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg'].includes(fileExtension)) {
                 // It's an image
                 documentImage.src = filePath;
@@ -487,7 +557,6 @@ if ($result->num_rows > 0) {
         });
     });
 </script>
-
 <style>
     /* Optional: Custom styles for the modal */
     #documentImage {

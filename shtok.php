@@ -438,7 +438,7 @@ if (isset($_POST['ruaj'])) {
                     <!-- Create another select with states like : Kosovë, Shqipëri, Gjermania,France,Slloveni -->
                     <br>
                     <div class="col">
-                      <label class="form-label" for="shtetsiaKontabiliteti">Shtetsia ( Kontabilitet )</label>
+                      <label class="form-label" for="shtetsiaKontabiliteti">Kontabilitet</label>
                       <select class="form-control border border-2 rounded-5" name="shtetsiaKontabiliteti" id="shtetsiaKontabiliteti">
                         <option value="Kosova">Kosova</option>
                         <option value="Shqipëri">Shqipëri</option>

@@ -741,7 +741,7 @@ $contractStartDate = mysqli_fetch_array($conn->query("SELECT * FROM kontrata_gje
                                         </div>
                                         <br>
                                         <div class="col">
-                                            <label class="form-label">Shtetsia ( Kontabilitet )</label>
+                                            <label class="form-label">Kontabilitet</label>
                                             <select class="form-select border border-2 rounded-5" name="shtetsiaKontabiliteti" id="shtetsiaKontabiliteti">
                                                 <?php
                                                 // Static options
