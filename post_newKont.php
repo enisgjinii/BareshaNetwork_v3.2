@@ -45,21 +45,24 @@ function isDuplicateInvoiceNumber($conn, $invoiceNumber)
     $row = $result->fetch_assoc();
     return $row['count'] > 0;
 }
-function handleFileUpload($file)
+function handleMultipleFileUpload($files)
 {
     $target_dir = "uploads/";
-    $target_file = $target_dir . basename($file["name"]);
-    $fileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
-    if (!in_array($fileType, ['pdf', 'png', 'jpg', 'jpeg'])) {
-        displayError('Lejohen vetëm skedarët PDF, PNG, JPG ose JPEG.');
-        return false;
+    $uploadedFiles = [];
+    foreach ($files["name"] as $key => $name) {
+        $target_file = $target_dir . basename($name);
+        $fileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
+        if (!in_array($fileType, ['pdf', 'png', 'jpg', 'jpeg'])) {
+            displayError('Lejohen vetëm skedarët PDF, PNG, JPG ose JPEG.');
+            continue; // Skip invalid file
+        }
+        if (move_uploaded_file($files["tmp_name"][$key], $target_file)) {
+            $uploadedFiles[] = $target_file;
+        } else {
+            displayError('Ka pasur një gabim gjatë ngarkimit të skedarit: ' . $name);
+        }
     }
-    if (move_uploaded_file($file["tmp_name"], $target_file)) {
-        return $target_file;
-    } else {
-        displayError('Ka pasur një gabim gjatë ngarkimit të skedarit tuaj.');
-        return false;
-    }
+    return $uploadedFiles;
 }
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -82,19 +85,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     } else {
         $companyName = sanitizeInput($_POST['company_name']);
     }
-    // Handle file upload
-    $document_path = null;
-    if (!empty($_FILES["document"]["name"])) {
-        $document_path = handleFileUpload($_FILES["document"]);
-        if (!$document_path) {
-            exit;
+    // Handle multiple file uploads
+    $document_paths = [];
+    if (!empty($_FILES["documents"]["name"][0])) { // Check if at least one file is selected
+        $document_paths = handleMultipleFileUpload($_FILES["documents"]);
+        if (empty($document_paths)) {
+            exit; // Stop execution if no valid files were uploaded
         }
     }
+    // Convert the array of file paths to a comma-separated string for storage
+    $document_paths_str = implode(',', $document_paths);
     // Insert data into MySQL database
     $sql = "INSERT INTO invoices_kont (invoice_creation_date, invoice_date, description, more_details, registrant, category, company_name, invoice_number, document_path, vlera_faktura)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("ssssssssss", $invoice_creation_date, $invoice_date, $description, $more_details, $registrant, $category, $companyName, $invoice_number, $document_path, $valueOfInvoice);
+    $stmt->bind_param("ssssssssss", $invoice_creation_date, $invoice_date, $description, $more_details, $registrant, $category, $companyName, $invoice_number, $document_paths_str, $valueOfInvoice);
     if ($stmt->execute()) {
         displaySuccess('Fatura u shtua me sukses!');
     } else {
@@ -117,35 +122,36 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <div class="card-body">
                             <span class='badge bg-danger rounded mb-3'>BETA VERSION</span>
                             <h4 class="card-title">Shto Faturë të Re</h4>
-                            <form method="POST" enctype="multipart/form-data">
+                            <form method="POST" enctype="multipart/form-data" onsubmit="return validateForm();">
                                 <div class="form-group">
-                                    <label>Data e faturës <i class="fi fi-rr-interrogation text-info ml-1" data-toggle="tooltip" title="Data kur është lëshuar fatura nga furnitori"></i></label>
-                                    <input type="date" class="form-control rounded-5 border border-2" name="invoice_date" id="invoice_date" required oninput="updatePreview()">
+                                    <label>Data e faturës</label>
+                                    <input type="date" class="form-control rounded-5 border border-2" name="invoice_date" id="invoice_date" required>
                                 </div>
                                 <div class="form-group">
-                                    <label>Përshkrimi <i class="fi fi-rr-interrogation text-info ml-1" data-toggle="tooltip" title="Një përshkrim i shkurtër i faturës"></i></label>
-                                    <input type="text" class="form-control rounded-5 border border-2" name="description" id="description" required oninput="updatePreview()">
+                                    <label>Përshkrimi</label>
+                                    <input type="text" class="form-control rounded-5 border border-2" name="description" id="description" required>
                                 </div>
                                 <div class="form-group">
-                                    <label>Detaje shtesë <i class="fi fi-rr-interrogation text-info ml-1" data-toggle="tooltip" title="Informacione shtesë për faturën"></i></label>
-                                    <textarea class="form-control rounded-5 border border-2" name="more_details" id="more_details" rows="3" oninput="updatePreview()"></textarea>
-                                </div>
-                                <div class="form-group" hidden>
-                                    <label>Regjistruesi <i class="fi fi-rr-interrogation text-info ml-1" data-toggle="tooltip" title="Personi që po regjistron faturën"></i></label>
-                                    <input type="text" class="form-control rounded-5 border border-2" name="registrant" id="registrant" value="<?php echo $user_info['givenName'] . ' ' . $user_info['familyName']; ?>" readonly oninput="updatePreview()">
+                                    <label>Detaje shtesë</label>
+                                    <textarea class="form-control rounded-5 border border-2" name="more_details" id="more_details" rows="3"></textarea>
                                 </div>
                                 <div class="form-group">
-                                    <label>Kategoria <i class="fi fi-rr-interrogation text-info ml-1" data-toggle="tooltip" title="Kategoria e faturës"></i></label>
-                                    <select class="form-control rounded-5 border border-2" name="category" id="category" oninput="updatePreview()">
+                                    <label>Kategoria</label>
+                                    <select class="form-control rounded-5 border border-2" name="category" id="category">
                                         <option value="Shpenzimet">Shpenzimet</option>
                                         <option value="Investimet">Investimet</option>
                                         <option value="Obligime">Obligime</option>
                                         <option value="Tjetër">Tjetër</option>
                                     </select>
+                                    <script>
+                                        new Selectr('select[name="category"]', {
+                                            searchable: true
+                                        })
+                                    </script>
                                 </div>
                                 <div class="form-group">
-                                    <label>Emri i firmës <i class="fi fi-rr-interrogation text-info ml-1" data-toggle="tooltip" title="Emri i kompanisë që ka lëshuar faturën"></i></label>
-                                    <select class="form-control rounded-5 border border-2" name="company_name" id="company_name_select" required onchange="checkNewCompany(); updatePreview();">
+                                    <label>Emri i firmës</label>
+                                    <select class="form-control rounded-5 border border-2" name="company_name" id="company_name_select" required onchange="checkNewCompany()">
                                         <option value="">Zgjidh një kompani ekzistuese</option>
                                         <?php
                                         $sql = "SELECT DISTINCT company_name FROM invoices_kont";
@@ -155,21 +161,27 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                         }
                                         ?>
                                         <option value="new">Shto një kompani të re</option>
+                                        <script>
+                                            new Selectr('select[name="company_name"]', {
+                                                searchable: true
+                                            })
+                                        </script>
                                     </select>
                                     <input type="text" class="form-control rounded-5 border border-2 mt-2" name="new_company_name" id="new_company_name" placeholder="Shkruaj një kompani të re" style="display:none;">
                                 </div>
                                 <div class="form-group">
-                                    <label>Numri i faturës <i class="fi fi-rr-interrogation text-info ml-1" data-toggle="tooltip" title="Numri unik i faturës"></i></label>
-                                    <input type="text" class="form-control rounded-5 border border-2" name="invoice_number" id="invoice_number" required oninput="updatePreview()">
+                                    <label>Numri i faturës</label>
+                                    <input type="text" class="form-control rounded-5 border border-2" name="invoice_number" id="invoice_number" required>
                                 </div>
                                 <div class="form-group">
-                                    <label>Vlera e fatures <i class="fi fi-rr-interrogation text-info ml-1" data-toggle="tooltip" title="Vlera e fatures"></i></label>
-                                    <input type="text" class="form-control rounded-5 border border-2" name="valueOfInvoice" id="valueOfInvoice" required oninput="updatePreview()">
+                                    <label>Vlera e fatures</label>
+                                    <input type="text" class="form-control rounded-5 border border-2" name="valueOfInvoice" id="valueOfInvoice" required>
                                 </div>
                                 <div class="form-group">
-                                    <label>Ngarko dokument <i class="fi fi-rr-interrogation text-info ml-1" data-toggle="tooltip" title="Ngarko një kopje të faturës (pdf, png, jpg, jpeg)"></i></label>
-                                    <input type="file" class="form-control rounded-5 border border-2-5" name="document" accept=".pdf,.png,.jpg,.jpeg">
+                                    <label>Ngarko dokumente</label>
+                                    <input type="file" class="form-control rounded-5 border border-2-5" name="documents[]" accept=".pdf,.png,.jpg,.jpeg" multiple onchange="previewFiles()">
                                 </div>
+                                <div id="filePreview"></div>
                                 <button type="submit" class="input-custom-css px-3 py-2">Ruaj të dhënat</button>
                             </form>
                         </div>
@@ -198,10 +210,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                         </div>
                                     </div>
                                     <div class="row">
-                                        <!-- <div class="col-md-6">
-                                            <strong>Data e Krijimit:</strong>
-                                            <p id="preview_invoice_creation_date">[Data e Krijimit]</p>
-                                        </div> -->
                                         <div class="col-md-6 text-right">
                                             <strong>Data e Faturës:</strong>
                                             <p id="preview_invoice_date">[Data e Faturës]</p>
@@ -226,9 +234,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                         </tbody>
                                     </table>
                                 </div>
-                                <!-- <div class="invoice-footer">
-                                    <p><strong>Regjistruar nga:</strong> <span id="preview_registrant"><?php echo $user_info['givenName'] . ' ' . $user_info['familyName']; ?></span></p>
-                                </div> -->
                             </div>
                         </div>
                     </div>
@@ -238,23 +243,48 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
-<!-- JavaScript për Përditësimin e Parapamjes së Faturës -->
 <script>
     function checkNewCompany() {
         var selectBox = document.getElementById("company_name_select");
         var newCompanyInput = document.getElementById("new_company_name");
         newCompanyInput.style.display = (selectBox.value === "new") ? "block" : "none";
     }
+
+    function previewFiles() {
+        var preview = document.getElementById('filePreview');
+        preview.innerHTML = ""; // Clear existing preview content
+        var files = document.querySelector('input[type=file]').files;
+
+        for (var i = 0; i < files.length; i++) {
+            var file = files[i];
+            var reader = new FileReader();
+            reader.onload = (function(theFile) {
+                return function(e) {
+                    var fileType = theFile.type.split('/')[0];
+                    var span = document.createElement('span');
+                    span.style.marginRight = "15px";
+
+                    if (fileType === "image") {
+                        span.innerHTML = '<img src="' + e.target.result + '" width="450px" height="100px" />';
+                    } else if (theFile.type === "application/pdf") {
+                        span.innerHTML = '<embed src="' + e.target.result + '" type="application/pdf" width="100px" height="100px">';
+                    }
+                    preview.appendChild(span);
+                };
+            })(file);
+            reader.readAsDataURL(file);
+        }
+    }
+
     function updatePreview() {
-        // Define Albanian month names
         const albanianMonths = [
             'Janar', 'Shkurt', 'Mars', 'Prill', 'Maj', 'Qershor',
             'Korrik', 'Gusht', 'Shtator', 'Tetor', 'Nëntor', 'Dhjetor'
         ];
-        // Function to format date
+
         function formatDate(dateString) {
             if (dateString) {
-                var parts = dateString.split('-'); // Expecting yyyy-mm-dd format
+                var parts = dateString.split('-');
                 var day = parts[2];
                 var month = albanianMonths[parseInt(parts[1], 10) - 1];
                 var year = parts[0];
@@ -262,41 +292,44 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
             return '';
         }
-        // Update invoice issue date
         var invoiceDateInput = document.getElementById('invoice_date').value;
         var formattedInvoiceDate = formatDate(invoiceDateInput);
         document.getElementById('preview_invoice_date').innerText = formattedInvoiceDate || '[Data e Faturës]';
-        // Update other fields in the preview
         document.getElementById('preview_description').innerText = document.getElementById('description').value || '[Përshkrimi]';
         document.getElementById('preview_more_details').innerText = document.getElementById('more_details').value || '[Detaje Shtesë]';
         document.getElementById('preview_category').innerText = document.getElementById('category').value || '[Kategoria]';
         document.getElementById('preview_invoice_number').innerText = document.getElementById('invoice_number').value || '[Numri i Faturës]';
-        // Update company name in preview based on whether a new company is selected or an existing one
+
         var companyNameSelect = document.getElementById('company_name_select').value;
         if (companyNameSelect === 'new') {
-            // If "new" is selected, use the value of the new company input field
             var newCompanyNameInput = document.getElementById('new_company_name').value;
             document.getElementById('preview_company_name').innerText = newCompanyNameInput || '[Emri i Firmës]';
         } else {
-            // Otherwise, use the selected existing company name from the dropdown
             var selectedCompany = document.getElementById('company_name_select').options[document.getElementById('company_name_select').selectedIndex].text;
             document.getElementById('preview_company_name').innerText = selectedCompany || '[Emri i Firmës]';
         }
     }
-    // Initialize tooltips
-    $(function() {
-        $('[data-toggle="tooltip"]').tooltip();
-    });
 </script>
 <style>
     .card {
         border-radius: 15px;
         overflow: hidden;
     }
+
     .form-control,
     .btn {
         border-radius: 10px;
     }
+
+    #filePreview img,
+    #filePreview embed {
+        margin: 5px;
+        border: 1px solid #ddd;
+        padding: 5px;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+    }
+
     .invoice-preview {
         background-color: #fff;
         border: 1px solid #ddd;
@@ -304,27 +337,24 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         border-radius: 15px;
         box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
     }
+
     .invoice-header {
         border-bottom: 2px solid #333;
         padding-bottom: 15px;
         margin-bottom: 20px;
     }
+
     .invoice-number {
         font-size: 18px;
         color: #666;
     }
+
     .invoice-details {
         margin-bottom: 20px;
     }
+
     .invoice-body {
         margin-bottom: 20px;
-    }
-    .invoice-footer {
-        border-top: 1px solid #ddd;
-        padding-top: 15px;
-    }
-    .fi-rr-interrogation {
-        cursor: help;
     }
 </style>
 <?php include('partials/footer.php'); ?>

@@ -47,7 +47,7 @@ if ($result->num_rows > 0) {
                         <button class="nav-link rounded-5 active" style="text-decoration: none;text-transform: none" id="pills-all-tab" data-bs-toggle="pill" data-bs-target="#pills-all" type="button" role="tab" aria-controls="pills-all" aria-selected="true">Të gjitha</button>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link rounded-5" style="text-decoration: none;text-transform: none" id="pills-investime-tab" data-bs-toggle="pill" data-bs-target="#pills-investime" type="button" role="tab" aria-controls="pills-investime" aria-selected="true">Investime</button>
+                        <button class="nav-link rounded-5" style="text-decoration: none;text-transform: none" id="pills-investime-tab" data-bs-toggle="pill" data-bs-target="#pills-investime" type="button" role="tab" aria-controls="pills-investime" aria-selected="false">Investime</button>
                     </li>
                     <li class="nav-item" role="presentation">
                         <button class="nav-link rounded-5" style="text-decoration: none;text-transform: none" id="pills-obligimet-tab" data-bs-toggle="pill" data-bs-target="#pills-obligimet" type="button" role="tab" aria-controls="pills-obligimet" aria-selected="false">Obligime</button>
@@ -74,70 +74,34 @@ if ($result->num_rows > 0) {
                     $columns = [
                         'id' => 'ID',
                         'invoice_date' => 'Data e faturës',
+                        'invoice_number' => 'Numri i faturës',
                         'description' => 'Përshkrimi',
                         'category' => 'Kategoria',
                         'company_name' => 'Emri i kompanisë',
                         'document_path' => 'Path-i i dokumentit',
+
                         // 'created_at' => 'Krijuar në',
                         'vlera_faktura' => 'Vlera e fatures',
                         'action' => 'Veprim'
                     ];
-                    // Function to render table rows with modal triggers
+                    // Function to render table rows with modal triggers (Removed as we are using DataTables)
+                    /*
                     function renderRow($row, $columns)
                     {
-                        foreach (array_keys($columns) as $column) {
-                            if ($column == 'document_path') {
-                                $filePath = htmlspecialchars($row[$column], ENT_QUOTES, 'UTF-8');
-                                $fileName = htmlspecialchars($row[$column], ENT_QUOTES, 'UTF-8');
-                                echo "<td>
-                                        <a href='#' 
-                                           class='view-document input-custom-css px-3 py-2' 
-                                           data-bs-toggle='modal' 
-                                           data-bs-target='#documentModal' 
-                                           data-file='{$filePath}' 
-                                           data-name='{$fileName}'>
-                                            View
-                                        </a>
-                                      </td>";
-                            } elseif ($column != 'action') {
-                                echo "<td>" . htmlspecialchars($row[$column], ENT_QUOTES, 'UTF-8') . "</td>";
-                            }
-                        }
-                        // Action buttons
-                        echo "<td>";
-                        echo "<button onclick='confirmDelete({$row['id']})' class='input-custom-css px-3 py-2'><i class='fi fi-rr-trash'></i></button>";
-                        // New button for replacing document
-                        echo "<button onclick='showReplaceModal({$row['id']})' class='input-custom-css px-3 py-2'><i class='fi fi-rr-pencil'></i></button>";
-                        echo "</td>";
+                        // ... (removed for brevity)
                     }
+                    */
                     // Loop through tabs to render content
                     foreach ($tabs as $key => $tab) {
                         $activeClass = $tab['active'] ? 'show active' : '';
                         echo "<div class='tab-pane fade {$activeClass}' id='pills-{$key}' role='tabpanel' aria-labelledby='pills-{$key}-tab' tabindex='0'>";
-                        try {
-                            $result = $conn->query($tab['query']);
-                            if (!$result) {
-                                throw new Exception("Database query failed: " . $conn->error);
-                            }
-                            // Render table headers
-                            echo "<table class='table table-border' id='table-{$key}'>";
-                            echo "<thead class='table-light'><tr>";
-                            foreach ($columns as $columnName) {
-                                echo "<th>{$columnName}</th>";
-                            }
-                            echo "</tr></thead><tbody>";
-                            // Render table rows
-                            if ($result->num_rows > 0) {
-                                while ($row = $result->fetch_assoc()) {
-                                    echo "<tr>";
-                                    renderRow($row, $columns); // Call reusable function to render row
-                                    echo "</tr>";
-                                }
-                            }
-                            echo "</tbody></table></div>";
-                        } catch (Exception $e) {
-                            echo "<div class='alert alert-danger'>Ndodhi një gabim: " . $e->getMessage() . "</div>";
+                        // Only include the table structure without data
+                        echo "<table class='table table-border' id='table-{$key}'>";
+                        echo "<thead class='table-light'><tr>";
+                        foreach ($columns as $columnName) {
+                            echo "<th>{$columnName}</th>";
                         }
+                        echo "</tr></thead><tbody></tbody></table></div>";
                     }
                     ?>
                 </div>
@@ -162,7 +126,10 @@ if ($result->num_rows > 0) {
                     <!-- For PDFs -->
                     <iframe id="documentPDF" src="" width="100%" height="600px" style="display: none;"></iframe>
                     <!-- For other types -->
-                    <p id="documentMessage" style="display: none;">Preview not available. <a id="downloadLink" href="#" download>Download</a></p>
+                    <p id="documentMessage" style="display: none;">
+                        Preview not available.
+                        <a id="downloadLinkBody" href="#" download>Download</a>
+                    </p>
                 </div>
             </div>
             <div class="modal-footer">
@@ -341,6 +308,15 @@ if ($result->num_rows > 0) {
                         }
                     },
                     {
+                        data: 'invoice_number',
+                        render: function(data, type, row) {
+                            if (type === 'display') {
+                                return '<span class="editable" data-column="invoice_number" data-id="' + row.id + '">' + data + '</span>';
+                            }
+                            return data;
+                        }
+                    },
+                    {
                         data: 'description',
                         render: function(data, type, row) {
                             if (type === 'display') {
@@ -370,7 +346,8 @@ if ($result->num_rows > 0) {
                     {
                         data: 'document_path',
                         render: function(data, type, row) {
-                            return '<a href="#" class="view-document input-custom-css px-3 py-2" data-bs-toggle="modal" data-bs-target="#documentModal" data-file="' + data + '" data-name="' + data + '">Shiko dokumentin</a>';
+                            var fileName = data.split('/').pop(); // Extract basename
+                            return '<a href="#" class="view-document input-custom-css px-3 py-2" data-bs-toggle="modal" data-bs-target="#documentModal" data-file="' + data + '" data-name="' + fileName + '">Shiko dokumentin</a>';
                         }
                     },
                     {
@@ -478,6 +455,7 @@ if ($result->num_rows > 0) {
             var headers = {
                 'id': 'ID',
                 'invoice_date': 'Data e faturës',
+                'invoice_number' : 'Numri i faturës',
                 'description': 'Përshkrimi',
                 'category': 'Kategoria',
                 'company_name': 'Emri i kompanisë',
@@ -504,19 +482,33 @@ if ($result->num_rows > 0) {
                 column: column,
                 value: value
             },
+            dataType: 'json',
             success: function(response) {
                 if (response.success) {
-                    $element.text(value);
-                    resolve();
+                    // Successfully updated
+                    $element.text(value); // Update the UI
+                    resolve(); // Resolve the Swal promise
+                    // Display success alert
+                    Swal.fire({
+                        title: 'Sukses!',
+                        text: 'Vlera është përditësuar me sukses.',
+                        icon: 'success',
+                        customClass: {
+                            confirmButton: 'input-custom-css px-3 py-2'
+                        },
+                        buttonsStyling: false
+                    });
                 } else {
-                    Swal.showValidationMessage('Dështoi përditësimi: ' + response.message);
+                    // If update fails, handle error
+                    Swal.showValidationMessage('Dështoi përditësimi: ' + (response.message || 'Ndodhi një gabim i panjohur.'));
                 }
             },
-            error: function() {
-                Swal.showValidationMessage('Ndodhi një gabim gjatë përditësimit.');
+            error: function(jqXHR, textStatus, errorThrown) {
+                Swal.showValidationMessage('Ndodhi një gabim gjatë përditësimit: ' + textStatus);
             }
         });
     }
+
     // JavaScript for handling the document preview modal
     document.addEventListener('DOMContentLoaded', function() {
         const documentModal = document.getElementById('documentModal');
@@ -524,23 +516,28 @@ if ($result->num_rows > 0) {
         const documentImage = document.getElementById('documentImage');
         const documentPDF = document.getElementById('documentPDF');
         const documentMessage = document.getElementById('documentMessage');
-        const downloadLink = document.getElementById('downloadLink');
+        const downloadLinkBody = document.getElementById('downloadLinkBody');
         const downloadLinkFooter = document.getElementById('downloadLinkFooter');
+
         documentModal.addEventListener('show.bs.modal', function(event) {
             const triggerLink = event.relatedTarget;
             const filePath = triggerLink.getAttribute('data-file');
             const fileName = triggerLink.getAttribute('data-name');
+
             // Update modal title
             documentName.textContent = fileName;
+
             // Reset modal content
             documentImage.style.display = 'none';
             documentPDF.style.display = 'none';
             documentMessage.style.display = 'none';
+
             // Set download links
-            downloadLink.href = filePath;
             downloadLinkFooter.href = filePath;
+
             // Determine file type
             const fileExtension = filePath.split('.').pop().toLowerCase();
+
             if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg'].includes(fileExtension)) {
                 // It's an image
                 documentImage.src = filePath;
@@ -552,7 +549,7 @@ if ($result->num_rows > 0) {
             } else {
                 // Other file types
                 documentMessage.style.display = 'block';
-                documentMessage.querySelector('#downloadLink').href = filePath;
+                downloadLinkBody.href = filePath;
             }
         });
     });
