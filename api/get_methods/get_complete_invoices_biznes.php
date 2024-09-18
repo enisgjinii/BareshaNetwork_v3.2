@@ -46,7 +46,9 @@ $sql = "SELECT invoices.id, invoices.customer_id, invoices.invoice_number,
                payments.invoice_id, SUM(payments.payment_amount) AS total_payment_amount, 
                MIN(payments.payment_date) AS payment_date, MIN(payments.bank_info) AS bank_info, 
                MIN(payments.type_of_pay) AS type_of_pay, MIN(payments.description) AS description, 
-               invoices.total_amount_after_percentage AS total_invoice_amount,
+               invoices.total_amount AS total_invoice_amount,
+               invoices.total_amount_after_percentage AS total_amount_after_percentage,
+
                invoices.file_path AS file_path,
                invoices.file_description AS file_description
         $baseQuery

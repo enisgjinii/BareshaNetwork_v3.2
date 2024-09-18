@@ -64,14 +64,24 @@ $(document).ready(function () {
             { data: "total_payment_amount" },
             {
                 data: null,
+                title: "F. EUR",
                 render: function (data, type, row) {
-                    // Calculate the remaining amount by subtracting total payment amount from total amount after percentage
-                    const remainingAmount = row.total_invoice_amount - row.total_payment_amount;
+                    // Parse the necessary fields to ensure they are numbers
+                    const totalInvoiceAmount = parseFloat(row.total_invoice_amount) || 0;
+                    const totalAmountAfterPercentage = parseFloat(row.total_amount_after_percentage) || 0;
 
-                    // Handle any formatting if necessary (e.g., rounding to two decimal places)
-                    return remainingAmount.toFixed(2); // Optional: Adjust decimal places as needed
+                    // Calculate the remaining amount by subtracting total_amount_after_percentage from total_invoice_amount
+                    const remainingAmount = totalInvoiceAmount - totalAmountAfterPercentage;
+
+                    // If the render type is 'display', format the number to two decimal places
+                    if (type === 'display') {
+                        return remainingAmount.toFixed(2);
+                    }
+
+                    // For other types (e.g., 'sort', 'filter'), return the raw number
+                    return remainingAmount;
                 }
-            },            
+            },
             {
                 data: null,
                 render: (data, type, row) => {
