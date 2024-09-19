@@ -68,14 +68,7 @@ function sanitizeInput($input)
 {
     return htmlspecialchars(trim($input), ENT_QUOTES, 'UTF-8');
 }
-function isDuplicateInvoiceNumber($conn, $invoiceNumber)
-{
-    $stmt = $conn->prepare("SELECT COUNT(*) as count FROM invoices_kont WHERE invoice_number = ?");
-    $stmt->bind_param("s", $invoiceNumber);
-    $stmt->execute();
-    $result = $stmt->get_result()->fetch_assoc()['count'];
-    return $result > 0;
-}
+
 function handleFileUpload($file)
 {
     global $trans;
@@ -137,11 +130,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $invoiceNumber = sanitizeInput($_POST['invoice_number'] ?? '');
     $valueOfInvoice = sanitizeInput($_POST['valueOfInvoice'] ?? '');
     $userEmail = $_SESSION['user_email'] ?? 'user@example.com';
-    // Check for duplicate invoice number
-    if (isDuplicateInvoiceNumber($conn, $invoiceNumber)) {
-        displayMessage('error', $trans['duplicate_invoice']);
-        exit();
-    }
+
     // Handle Company Name
     $companyName = ($_POST['company_name'] === 'new') ? sanitizeInput($_POST['new_company_name'] ?? '') : sanitizeInput($_POST['company_name'] ?? '');
     // Handle File Upload

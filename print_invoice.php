@@ -1,24 +1,49 @@
 <?php
 include 'conn-d.php';
-// Get the ID from the URL or any other source
-$invoiceId = $_GET['id'];
-// Prepare and execute the SQL query for invoice details
-$sql = "SELECT * FROM invoices WHERE invoice_number = '$invoiceId'";
-$result = $conn->query($sql);
-// Check if there is a result
+// Function to safely retrieve GET parameters
+function get_safe_param($conn, $param)
+{
+    return isset($_GET[$param]) ? $conn->real_escape_string($_GET[$param]) : '';
+}
+// Retrieve the Invoice ID securely
+$invoiceId = get_safe_param($conn, 'id');
+// Prepare and execute the SQL query for invoice details using prepared statements for security
+$stmt = $conn->prepare("SELECT * FROM invoices WHERE invoice_number = ?");
+$stmt->bind_param("s", $invoiceId);
+$stmt->execute();
+$result = $stmt->get_result();
+// Check if the invoice exists
 if ($result->num_rows > 0) {
-    // Fetch data from the result set
-    $row = $result->fetch_assoc();
-    $customerID = $row['customer_id'];
-    $idofinvoice = $row['id'];
-    // Get customer details
-    $sql2 = "SELECT * FROM klientet WHERE id = '$customerID'";
-    $result2 = $conn->query($sql2);
-    $clientRow = $result2->fetch_assoc();
-    $customerName = $clientRow['emri'];
+    // Fetch invoice data
+    $invoiceRow = $result->fetch_assoc();
+    $customerID = $invoiceRow['customer_id'];
+    $idOfInvoice = $invoiceRow['id'];
+    // Get customer details securely
+    $stmt2 = $conn->prepare("SELECT * FROM klientet WHERE id = ?");
+    $stmt2->bind_param("i", $customerID);
+    $stmt2->execute();
+    $result2 = $stmt2->get_result();
+    // Check if customer exists
+    if ($result2->num_rows > 0) {
+        $clientRow = $result2->fetch_assoc();
+        $customerName = htmlspecialchars($clientRow['emri']);
+        $customerEmail = htmlspecialchars($clientRow['emailadd']);
+        $customerAddress = htmlspecialchars($clientRow['adresa']);
+        $customerPhone = htmlspecialchars($clientRow['nrtel']);
+        $customerPercentage = floatval($clientRow['perqindja']); // Assuming this is the base percentage
+    } else {
+        // Handle case where customer is not found
+        $customerName = "N/A";
+        $customerEmail = "N/A";
+        $customerAddress = "N/A";
+        $customerPhone = "N/A";
+        $customerPercentage = 0;
+    }
     // Get all payments for this invoice
-    $sqlforpayments = "SELECT * FROM payments WHERE invoice_id = '$idofinvoice' ORDER BY payment_date";
-    $resultforpayments = $conn->query($sqlforpayments);
+    $stmtPayments = $conn->prepare("SELECT * FROM payments WHERE invoice_id = ? ORDER BY payment_date");
+    $stmtPayments->bind_param("i", $idOfInvoice);
+    $stmtPayments->execute();
+    $resultForPayments = $stmtPayments->get_result();
 ?>
     <!DOCTYPE html>
     <html lang="en">
@@ -41,6 +66,7 @@ if ($result->num_rows > 0) {
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet">
         <style>
+            /* [CSS Styles remain unchanged] */
             * {
                 font-family: 'Inter', sans-serif;
             }
@@ -140,17 +166,39 @@ if ($result->num_rows > 0) {
                     display: none;
                 }
             }
+
+            /* Additional Styles for Payment Cards */
+            .payment-card {
+                border: 1px solid #ddd;
+                border-radius: 10px;
+                padding: 15px;
+                margin-bottom: 10px;
+                background-color: #fff;
+            }
+
+            .payment-title {
+                font-size: 18px;
+                font-weight: bold;
+            }
+
+            .payment-description {
+                font-size: 16px;
+            }
         </style>
-        <title>Fatura - <?php echo $_GET['id']; ?></title>
+        <title>Fatura - <?php echo htmlspecialchars($invoiceId); ?></title>
     </head>
 
     <body>
         <div class="btn-container fixed-top px-3 py-2 bg-light rounded-5 border ms-1" style="width: fit-content;">
-            <a href="invoice.php" class="btn btn-sm btn-light border shadow-0 rounded-5" style="text-transform: none;"><i class="fa fa-angle-left me-2"></i>Kthehu</a>
-            <a href="javascript:window.print()" style="text-transform: none;" class="btn btn-sm btn-success shadow-0 rounded-5"><i class="fa fa-print"></i> Printo</a>
+            <a href="invoice.php" class="btn btn-sm btn-light border shadow-0 rounded-5" style="text-transform: none;">
+                <i class="fa fa-angle-left me-2"></i>Kthehu
+            </a>
+            <a href="javascript:window.print()" style="text-transform: none;" class="btn btn-sm btn-success shadow-0 rounded-5">
+                <i class="fa fa-print"></i> Printo
+            </a>
             <button type="button" class="btn btn-sm btn-primary shadow-0 rounded-5" style="text-transform: none;" data-mdb-toggle="modal" data-mdb-target="#dergoFaturen">
-                <i class="fi fi-rr-paper-plane"></i>
-                D&euml;rgo</button>
+                <i class="fi fi-rr-paper-plane"></i> Dërgo
+            </button>
         </div>
         <!-- Modal -->
         <div class="modal fade" id="dergoFaturen" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -158,7 +206,7 @@ if ($result->num_rows > 0) {
                 <div class="modal-content">
                     <div class="modal-header">
                         <div>
-                            <h5 class="modal-title p-0 m-0" id="exampleModalLabel" style="font-size: 16px;">Dërgo faturën <?php echo $_GET['id']; ?></h5>
+                            <h5 class="modal-title p-0 m-0" id="exampleModalLabel" style="font-size: 16px;">Dërgo faturën <?php echo htmlspecialchars($invoiceId); ?></h5>
                         </div>
                         <button type="button" class="btn-close" data-mdb-dismiss="modal" aria-label="Close"></button>
                     </div>
@@ -166,7 +214,9 @@ if ($result->num_rows > 0) {
                         <form action="send_email.php" method="POST" enctype="multipart/form-data">
                             <div class="form-group">
                                 <label for="to" style="font-size: 14px;">Email i marrësit</label>
-                                <p class="text-muted p-0 m-0" style="font-size: 12px;">Këtu është emaili i marrësit: <span id="recipient-email"></span></p>
+                                <p class="text-muted p-0 m-0" style="font-size: 12px;">
+                                    Këtu është emaili i marrësit: <span id="recipient-email"></span>
+                                </p>
                                 <input type="email" class="form-control" name="to_email" id="to" required>
                             </div>
                             <div class="form-group my-2">
@@ -194,13 +244,12 @@ if ($result->num_rows > 0) {
             // JavaScript to copy the email into the input field and paragraph
             document.addEventListener('DOMContentLoaded', function() {
                 // Replace 'row.emailadd' with the actual PHP variable that holds the email address
-                var recipientEmail = "<?php echo $row['emailadd']; ?>";
-                var invoiceId = "<?php echo $_GET['invoice']; ?>";
+                var recipientEmail = "<?php echo $customerEmail; ?>";
+                var invoiceId = "<?php echo htmlspecialchars($invoiceId); ?>";
                 // Update the paragraph and input field with the recipient's email
                 document.getElementById('recipient-email').textContent = recipientEmail;
                 document.getElementById('to').value = recipientEmail;
-                document.getElementById('subject').textContent = invoiceId;
-                document.getElementById('subject').value = 'Fatura juaj nga Baresha Network , #' + invoiceId;
+                document.getElementById('subject').value = 'Fatura juaj nga Baresha Network, #' + invoiceId;
             });
         </script>
         <div class="container">
@@ -217,197 +266,132 @@ if ($result->num_rows > 0) {
                     </div>
                 </div>
                 <div class="col text-end">
-                    <h4 class="text-muted text-left my-3">Numri i fatur&euml;s </h4>
+                    <h4 class="text-muted text-left my-3">Numri i faturës </h4>
                     <div class="address text-end">
-                        <p># <?php echo $row['invoice_number']; ?></p>
+                        <p># <?php echo htmlspecialchars($invoiceRow['invoice_number']); ?></p>
                     </div>
                     <h4 class="text-muted text-left my-3">Lloji i faturës </h4>
                     <div class="address text-end">
                         <p>
                             <?php
-                            if ($row['type'] == 'grupor') {
-                                echo "Fatura e ndarë";
-                            } else if ($row['type'] == "individual") {
-                                echo "Fatura individual";
+                            if ($invoiceRow['type'] == 'grupor') {
+                                echo "<p class='badge bg-success text-white'>Fatura e ndarë</p>";
+
+                                // Fetch subaccounts for the customer
+                                $stmtSub = $conn->prepare("SELECT name FROM client_subaccounts WHERE client_id = ?");
+                                $stmtSub->bind_param("i", $customerID);
+                                $stmtSub->execute();
+                                $resultSub = $stmtSub->get_result();
+
+                                if ($resultSub->num_rows > 0) {
+                                    echo "<ul class='list-unstyled'>";
+                                    while ($sub = $resultSub->fetch_assoc()) {
+                                        echo "<li>" . htmlspecialchars($sub['name'], ENT_QUOTES, 'UTF-8') . "</li>";
+                                    }
+                                    echo "</ul>";
+                                } else {
+                                    echo "Nuk u gjetën nënllogari për këtë klient.";
+                                }
+                            } elseif ($invoiceRow['type'] == "individual") {
+                                echo "<p class='badge bg-primary text-white'>Fatura individuale</p>";
+                            } else {
+                                echo "Lloji i faturës nuk është përcaktuar.";
                             }
                             ?>
+                        </p>
                     </div>
+
                 </div>
             </div>
             <hr style="border: 1px dashed red;">
             <div class="row">
                 <div class="col">
                     <div>
-                        <!-- <h1>Invoice Details</h1>
-                        <p>Invoice ID: <?php echo $row['id']; ?></p>
-                        <p>Customer Name: <?php echo $row['customer_id']; ?></p> -->
-                        <?php if (!empty($row['customer_id'])) : ?>
-                            <p class="text-muted m-0 p-0" style="font-size: 12px;">Faturuar p&euml;r :</p>
-                            <h6 class="text-dark"><?php echo $customerName ?></h6>
+                        <?php if (!empty($customerName)) : ?>
+                            <p class="text-muted m-0 p-0" style="font-size: 12px;">Faturuar për :</p>
+                            <h6 class="text-dark"><?php echo $customerName; ?></h6>
                         <?php endif; ?>
-                        <?php if (!empty($row['adresa'])) : ?>
+                        <?php if (!empty($customerAddress)) : ?>
                             <p class="text-muted m-0 p-0" style="font-size: 12px;">Adresa :</p>
-                            <h6 class="text-dark"><?php echo $row['adresa']; ?></h6>
+                            <h6 class="text-dark"><?php echo $customerAddress; ?></h6>
                         <?php endif; ?>
-                        <?php if (!empty($row['emailadd'])) : ?>
+                        <?php if (!empty($customerEmail)) : ?>
                             <p class="text-muted m-0 p-0" style="font-size: 12px;">Email-i :</p>
-                            <h6 class="text-dark"><?php echo $row['emailadd']; ?></h6>
+                            <h6 class="text-dark"><?php echo $customerEmail; ?></h6>
                         <?php endif; ?>
-                        <?php if (!empty($row['nrtel'])) : ?>
+                        <?php if (!empty($customerPhone)) : ?>
                             <p class="text-muted m-0 p-0" style="font-size: 12px;">Numri i telefonit :</p>
-                            <h6 class="text-dark"><?php echo $row['nrtel']; ?></h6>
+                            <h6 class="text-dark"><?php echo $customerPhone; ?></h6>
                         <?php endif; ?>
                     </div>
                 </div>
                 <div class="col text-end">
-                    <p class="text-muted m-0 p-0" style="font-size: 12px;">Numri i fatur&euml;s :</p>
-                    <h6 class="text-dark"><?php echo $row['invoice_number']; ?></h6>
-                    <p class="text-muted m-0 p-0" style="font-size: 12px;">Data e fatur&euml;s :</p>
-                    <h6 class="text-dark"><?php echo $row['created_date']; ?></h6>
-                    <p class="text-muted m-0 p-0" style="font-size: 12px;">Numri rendit&euml;s :</p>
-                    <h6 class="text-dark"><?php echo $row['id']; ?></h6>
+                    <p class="text-muted m-0 p-0" style="font-size: 12px;">Numri i faturës :</p>
+                    <h6 class="text-dark"><?php echo htmlspecialchars($invoiceRow['invoice_number']); ?></h6>
+                    <p class="text-muted m-0 p-0" style="font-size: 12px;">Data e faturës :</p>
+                    <h6 class="text-dark"><?php echo htmlspecialchars($invoiceRow['created_date']); ?></h6>
+                    <p class="text-muted m-0 p-0" style="font-size: 12px;">Numri renditës :</p>
+                    <h6 class="text-dark"><?php echo htmlspecialchars($invoiceRow['id']); ?></h6>
                 </div>
             </div>
             <?php
             // Reset the data seek pointer to the beginning of the result set
             $result->data_seek(0);
             ?>
+            <!-- Updated Sales Table with Rounded and Formatted Values -->
             <table class="sales-table">
                 <thead>
                     <tr>
                         <th>ID</th>
                         <th>Emërtimi</th>
-                        <th>Çmimi</th>
-                        <th>Totali pas konvertimit</th>
-                        <th>Shuma</th>
-                        <th>Mbetja</th>
-                        <th>Totali</th>
+                        <th>Çmimi (USD)</th>
+                        <th>Totali pas konvertimit (EUR)</th>
+                        <th>Shuma (USD)</th>
+                        <th>Mbetja (EUR)</th>
+                        <th>Totali (EUR)</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php
+                    // Initialize total amount for footer calculation
+                    $totalAmountEUR = 0;
                     // Loop through the result set
-                    $totalAmount = 0;
                     while ($row = $result->fetch_assoc()) {
                         // Get percentage from klientet table
-                        $percentageQuery = "SELECT perqindja FROM klientet WHERE id = " . $row['customer_id'];
-                        $percentageResult = $conn->query($percentageQuery);
-                        $percentageRow = $percentageResult->fetch_assoc();
-                        $percentage = $percentageRow['perqindja'];
-                        $totalInUsd = number_format($row['total_amount'], 2, '.', '');
-                        // Calculate remaining amount after percentage
-                        $remains = $row['total_amount'] - $row['total_amount_after_percentage'];
+                        $percentage = $customerPercentage; // Retrieved earlier
+                        // Apply rounding and formatting
+                        // Round down the total_amount in USD
+                        $total_amount_usd = floor($row['total_amount']);
+                        $formatted_total_amount_usd = number_format($total_amount_usd, 2) . " $";
+                        // Round down the total_amount_in_eur
+                        $total_amount_eur = floor($row['total_amount_in_eur']);
+                        $formatted_total_amount_eur = number_format($total_amount_eur, 2) . " €";
+                        // Calculate remains (total_amount - total_amount_after_percentage) in USD
+                        $remains_usd = floor($row['total_amount'] - $row['total_amount_after_percentage']);
+                        $formatted_remains_usd = number_format($remains_usd, 2) . " $";
+                        // Round down the total_amount_in_eur_after_percentage
+                        $total_amount_eur_after_percentage = floor($row['total_amount_in_eur_after_percentage']);
+                        $formatted_total_amount_eur_after_percentage = number_format($total_amount_eur_after_percentage, 2) . " €";
+                        // Update total amount for footer
+                        $totalAmountEUR += $total_amount_eur_after_percentage;
                         // Display data in table rows
                         echo "<tr>";
-                        echo "<td>{$row['id']}</td>";
-                        echo "<td>{$row['item']}</td>";
-                        echo "<td>" . number_format($row['total_amount'], 2) . "</td>";
-                        echo "<td>{$row['total_amount_in_eur']}</td>";
-                        echo "<td>" . number_format($remains, 2) . "</td>";
-                        echo "<td>{$row['total_amount_in_eur_after_percentage']}</td><td>{$row['total_amount_in_eur_after_percentage']}</td></tr>";
+                        echo "<td>" . htmlspecialchars($row['id']) . "</td>";
+                        echo "<td>" . htmlspecialchars($row['item']) . "</td>";
+                        echo "<td>" . htmlspecialchars($formatted_total_amount_usd) . "</td>";
+                        echo "<td>" . htmlspecialchars($formatted_total_amount_eur) . "</td>";
+                        echo "<td>" . htmlspecialchars($formatted_remains_usd) . "</td>";
+                        echo "<td>" . htmlspecialchars($formatted_total_amount_eur_after_percentage) . "</td>";
+                        echo "<td>" . htmlspecialchars($formatted_total_amount_eur_after_percentage) . "</td>"; // Assuming this is intentional
+                        echo "</tr>";
                     }
                     ?>
                 </tbody>
             </table>
             <br>
-            <?php
-            // ... (previous code remains the same)
-            // Fetch the subaccounts for the customer
-            $subaccountQuery = "SELECT * FROM client_subaccounts WHERE client_id = " . $customerID;
-            $subaccountResult = $conn->query($subaccountQuery);
-            $subaccounts = $subaccountResult->fetch_all(MYSQLI_ASSOC);
-            // Reset the data seek pointer to the beginning of the result set
-            $result->data_seek(0);
-            ?>
-            <!-- <table class="sales-table">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Emërtimi</th>
-                        <th>Çmimi</th>
-                        <th>Totali pas konvertimit</th>
-                        <th>Shuma pas -15%</th>
-                        <?php foreach ($subaccounts as $subaccount) : ?>
-                            <th><?php echo htmlspecialchars($subaccount['name']); ?> (<?php echo $subaccount['percentage']; ?>%)</th>
-                        <?php endforeach; ?>
-                        <th>Mbetja</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php
-                    // Loop through the result set
-                    $totalAmount = 0;
-                    while ($row = $result->fetch_assoc()) {
-                        $totalInEur = $row['total_amount_in_eur'];
-                        $afterFifteenPercent = $totalInEur * 0.85; // 15% reduction
-                        echo "<tr>";
-                        echo "<td>{$row['id']}</td>";
-                        echo "<td>{$row['item']}</td>";
-                        echo "<td>" . number_format($row['total_amount'], 2) . "</td>";
-                        echo "<td>" . number_format($totalInEur, 2) . "</td>";
-                        echo "<td>" . number_format($afterFifteenPercent, 2) . "</td>";
-                        $remainingAmount = $afterFifteenPercent;
-                        foreach ($subaccounts as $subaccount) {
-                            $subaccountAmount = $afterFifteenPercent * ($subaccount['percentage'] / 100);
-                            $remainingAmount -= $subaccountAmount;
-                            echo "<td>" . number_format($subaccountAmount, 2) . "</td>";
-                        }
-                        echo "<td>" . number_format($remainingAmount, 2) . "</td>";
-                        echo "</tr>";
-                        $totalAmount += $totalInEur;
-                    }
-                    ?>
-                </tbody>
-                <tfoot>
-                    <tr>
-                        <td colspan="3"><strong>Totali</strong></td>
-                        <td><strong><?php echo number_format($totalAmount, 2); ?></strong></td>
-                        <td><strong><?php echo number_format($totalAmount * 0.85, 2); ?></strong></td>
-                        <?php
-                        $remainingTotal = $totalAmount * 0.85;
-                        foreach ($subaccounts as $subaccount) :
-                            $subaccountTotal = $totalAmount * 0.85 * ($subaccount['percentage'] / 100);
-                            $remainingTotal -= $subaccountTotal;
-                        ?>
-                            <td><strong><?php echo number_format($subaccountTotal, 2); ?></strong></td>
-                        <?php endforeach; ?>
-                        <td><strong><?php echo number_format($remainingTotal, 2); ?></strong></td>
-                    </tr>
-                </tfoot>
-            </table> -->
-            <style>
-                .payment-card {
-                    border: 1px solid #ddd;
-                    border-radius: 10px;
-                    padding: 15px;
-                    margin-bottom: 10px;
-                    background-color: #fff;
-                }
-
-                .payment-title {
-                    font-size: 18px;
-                    font-weight: bold;
-                }
-
-                .payment-description {
-                    font-size: 16px;
-                }
-            </style>
-
-            <div class="payments-container">
-                <?php
-                while ($payment = $resultforpayments->fetch_assoc()) {
-                    if (!empty($payment['description'])) {
-                        echo "<div class='payment-card'>";
-                        echo "<div class='payment-title'>Përshkrimi</div>";
-                        echo "<div class='payment-description'>{$payment['description']}</div>";
-                        echo "</div>";
-                    }
-                }
-                ?>
+            <div class="total">
+                <strong>Totali i Faturës: <?php echo number_format($totalAmountEUR, 2); ?> €</strong>
             </div>
-
-
         </div>
         <!-- MDB -->
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.4.1/mdb.min.js"></script>
@@ -416,8 +400,8 @@ if ($result->num_rows > 0) {
     </html>
 <?php
 } else {
-    echo "Invoice not found";
+    // Handle case where invoice is not found
+    echo "Fatura nuk u gjet.";
 }
-// Close the database connection
 $conn->close();
 ?>

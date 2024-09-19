@@ -449,6 +449,7 @@ require_once 'invoices_trash_modal.php';
     var totalAmountAfterPercentage = totalAmount - (totalAmount * (percentage / 100));
     document.getElementById('total_amount_after_percentage').value = totalAmountAfterPercentage.toFixed(2);
   });
+
   function getCustomerName(customerId) {
     var customerName = '';
     $.ajax({
@@ -464,7 +465,27 @@ require_once 'invoices_trash_modal.php';
     });
     return customerName;
   }
+
+
   $(document).ready(function() {
+    // Helper function to format and round numbers with dynamic currency symbols
+    function formatRoundedNumber(data, currencySymbol = '€') {
+      // Convert data to a float
+      let number = parseFloat(data);
+
+      // Check if the conversion was successful
+      if (isNaN(number)) {
+        return data; // Return the original data if it's not a number
+      }
+
+      // Round down to the nearest integer
+      let rounded = Math.floor(number);
+
+      // Format the number with two decimal places and locale-specific separators
+      return `${rounded.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${currencySymbol}`;
+    }
+
+    // Initialize the DataTable
     var table = $('#invoiceList').DataTable({
       processing: true,
       serverSide: true,
@@ -476,9 +497,9 @@ require_once 'invoices_trash_modal.php';
       dom: "<'row'<'col-md-3'l><'col-md-6'B><'col-md-3'f>>" +
         "<'row'<'col-md-12'tr>>" +
         "<'row'<'col-md-6'><'col-md-6'p>>",
-      "ajax": {
-        "url": $('#invoiceList').data('source'),
-        "data": function(d) {
+      ajax: {
+        url: $('#invoiceList').data('source'),
+        data: function(d) {
           d.month = $('#monthFilter').val();
           d.amount = $('#amountFilter').val();
         }
@@ -578,7 +599,7 @@ require_once 'invoices_trash_modal.php';
         render: function(data, type, row) {
           return type === 'display' && data ? `<div style="white-space: normal;">${data}</div>` : data;
         }
-      }, ],
+      }],
       columns: [{
           data: 'id',
           render: function(data) {
@@ -598,35 +619,39 @@ require_once 'invoices_trash_modal.php';
           render: function(data, type, row) {
             const stateClass = row.state_of_invoice === 'Parregullt' ? 'bg-danger' : row.state_of_invoice === 'Rregullt' ? 'bg-success' : '';
             return `<div class="item-column">${data || ''}</div><br>
-                    <div class="badge-column">
-                        ${row.state_of_invoice ? `<span class="badge ${stateClass} mx-1 rounded-5">${row.state_of_invoice}</span>` : ''}
-                        ${row.type ? `<span class="badge bg-secondary mx-1 rounded-5">${row.type}</span>` : ''}
-                    </div>`;
+                        <div class="badge-column">
+                            ${row.state_of_invoice ? `<span class="badge ${stateClass} mx-1 rounded-5">${row.state_of_invoice}</span>` : ''}
+                            ${row.type ? `<span class="badge bg-secondary mx-1 rounded-5">${row.type}</span>` : ''}
+                        </div>`;
           }
         },
         {
           data: null,
           render: function(data, type, row) {
             const details = [
-              `<div class="d-flex justify-content-between"><p>Shuma e për.:</p><p>${row.total_amount} USD</p></div>`,
-              `<div class="d-flex justify-content-between"><p>Shuma e për. % :</p><p>${row.total_amount_after_percentage} USD</p></div>`,
-              row.total_amount_in_eur ? `<div class="d-flex justify-content-between"><p>EUR - Shuma e për. :</p><p>${row.total_amount_in_eur} EUR</p></div>` : '',
-              row.total_amount_in_eur_after_percentage ? `<div class="d-flex justify-content-between"><p>EUR - Shuma e për. % :</p><p>${row.total_amount_in_eur_after_percentage} EUR</p></div>` : ''
+              `<div class="d-flex justify-content-between"><p>Shuma e për.:</p><p>${formatRoundedNumber(row.total_amount, row.total_amount_currency || 'USD')}</p></div>`,
+              `<div class="d-flex justify-content-between"><p>Shuma e për. % :</p><p>${formatRoundedNumber(row.total_amount_after_percentage, row.total_amount_after_percentage_currency || 'USD')}</p></div>`,
+              row.total_amount_in_eur ? `<div class="d-flex justify-content-between"><p>EUR - Shuma e për. :</p><p>${formatRoundedNumber(row.total_amount_in_eur, '€')}</p></div>` : '',
+              row.total_amount_in_eur_after_percentage ? `<div class="d-flex justify-content-between"><p>EUR - Shuma e për. % :</p><p>${formatRoundedNumber(row.total_amount_in_eur_after_percentage, '€')}</p></div>` : ''
             ].join('');
             return `<div class="amount-details" style="font-size:12px;">${details}</div>`;
           }
         },
         {
           data: 'paid_amount',
-          render: function(data) {
-            return `${parseFloat(data).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €`;
+          render: function(data, type, row) {
+            // Assuming 'paid_amount_currency' exists; adjust if different
+            let currency = row.paid_amount_currency || '€';
+            return formatRoundedNumber(data, currency);
           }
         },
         {
           data: null,
           render: function(data, type, row) {
             const profit = row.total_amount_in_eur - row.total_amount_in_eur_after_percentage;
-            return `${profit.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €`;
+            // Assuming profit is always in EUR; adjust if necessary
+            let currency = '€';
+            return formatRoundedNumber(profit, currency);
           }
         },
         {
@@ -635,7 +660,8 @@ require_once 'invoices_trash_modal.php';
             const remaining = row.total_amount_in_eur_after_percentage !== null ?
               row.total_amount_in_eur_after_percentage - row.paid_amount :
               row.total_amount_after_percentage - row.paid_amount;
-            return `${remaining.toFixed(2)} ${row.total_amount_in_eur_after_percentage !== null ? '€' : '$'}`;
+            const currency = row.total_amount_in_eur_after_percentage !== null ? '€' : '$';
+            return formatRoundedNumber(remaining, currency);
           }
         },
         {
@@ -644,29 +670,30 @@ require_once 'invoices_trash_modal.php';
             const totalAmount = row.total_amount_in_eur_after_percentage !== null ? row.total_amount_in_eur_after_percentage : row.total_amount_after_percentage;
             const remainingAmount = totalAmount - row.paid_amount;
             return `
-                <div>
-                    <a href="#" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark open-payment-modal" 
-                       data-id="${row.id}" data-invoice-number="${row.invoice_number}" data-customer-id="${row.customer_id}" 
-                       data-item="${row.item}" data-total-amount="${totalAmount}" data-paid-amount="${row.paid_amount}" 
-                       data-remaining-amount="${remainingAmount}"><i class="fi fi-rr-euro"></i></a>
-                    <a href="complete_invoice.php?id=${row.id}" target="_blank" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark">
-                        <i class="fi fi-rr-edit"></i></a>
-                    <a href="print_invoice.php?id=${row.invoice_number}" target="_blank" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark">
-                        <i class="fi fi-rr-print"></i></a>
-                    ${row.customer_email ? 
-                      `<a href="#" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark send-invoice" data-id="${row.id}">Dergo faktur tek kengtari</a>` : 
-                      `<button class="bg-light border border-1 px-3 py-2 rounded-5 mx-1 text-dark" disabled><i class="fi fi-rr-file-export"></i></button>
-                       <p style="white-space: normal;"><div class="custom-tooltip"><div class="custom-dot"></div><span class="custom-tooltiptext">Nuk posedon email</span></div></p>`}
-                    ${row.email_of_contablist ? 
-                      `<a href="#" class="bg-white border border-1 px-3 border-danger py-2 rounded-5 mx-1 text-dark send-to-contablist" 
-                         data-invoice-number="${row.invoice_number}" data-email="${row.email_of_contablist}">Dergo tek kontablisti</a>` : 
-                      `<button class="bg-light border border-1 px-3 py-2 rounded-5 mx-1 text-dark" disabled><i class="fi fi-rr-envelope"></i></button>
-                       <p style="white-space: normal;"><div class="custom-tooltip"><div class="custom-dot"></div><span class="custom-tooltiptext">Nuk posedon email te kontablistit</span></div></p>`}
-                </div>`;
+                    <div>
+                        <a href="#" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark open-payment-modal" 
+                           data-id="${row.id}" data-invoice-number="${row.invoice_number}" data-customer-id="${row.customer_id}" 
+                           data-item="${row.item}" data-total-amount="${totalAmount}" data-paid-amount="${row.paid_amount}" 
+                           data-remaining-amount="${remainingAmount}"><i class="fi fi-rr-euro"></i></a>
+                        <a href="complete_invoice.php?id=${row.id}" target="_blank" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark">
+                            <i class="fi fi-rr-edit"></i></a>
+                        <a href="print_invoice.php?id=${row.invoice_number}" target="_blank" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark">
+                            <i class="fi fi-rr-print"></i></a>
+                        ${row.customer_email ? 
+                            `<a href="#" class="bg-white border border-1 px-3 py-2 rounded-5 mx-1 text-dark send-invoice" data-id="${row.id}">Dergo faktur tek kengtari</a>` : 
+                            `<button class="bg-light border border-1 px-3 py-2 rounded-5 mx-1 text-dark" disabled><i class="fi fi-rr-file-export"></i></button>
+                             <p style="white-space: normal;"><div class="custom-tooltip"><div class="custom-dot"></div><span class="custom-tooltiptext">Nuk posedon email</span></div></p>`}
+                        ${row.email_of_contablist ? 
+                            `<a href="#" class="bg-white border border-1 px-3 border-danger py-2 rounded-5 mx-1 text-dark send-to-contablist" 
+                               data-invoice-number="${row.invoice_number}" data-email="${row.email_of_contablist}">Dergo tek kontablisti</a>` : 
+                            `<button class="bg-light border border-1 px-3 py-2 rounded-5 mx-1 text-dark" disabled><i class="fi fi-rr-envelope"></i></button>
+                             <p style="white-space: normal;"><div class="custom-tooltip"><div class="custom-dot"></div><span class="custom-tooltiptext">Nuk posedon email te kontablistit</span></div></p>`}
+                    </div>`;
           }
         }
       ]
     });
+
     // Trigger filter on change
     $('#monthFilter, #amountFilter').on('change keyup', function() {
       table.draw();
@@ -1041,6 +1068,8 @@ require_once 'invoices_trash_modal.php';
     var currentPage = 0;
     $(document).on('click', '.open-payment-modal', function(e) {
       e.preventDefault();
+
+      // Retrieve data attributes from the clicked element
       var id = $(this).data('id');
       var invoiceNumber = $(this).data('invoice-number');
       var customerId = $(this).data('customer-id');
@@ -1048,33 +1077,41 @@ require_once 'invoices_trash_modal.php';
       var totalAmount = $(this).data('total-amount');
       var paidAmount = $(this).data('paid-amount');
       var remainingAmount = $(this).data('remaining-amount');
+
+      // Assuming you have a function to get the customer's name
       var customerName = getCustomerName(customerId);
-      var titleOfInvoice = $(this).data('invoice-number');
+
+      var titleOfInvoice = invoiceNumber; // Simplified assignment
+
+      // Determine the currency symbol
+      // You can adjust this logic based on how your data specifies currency
+      // For example, if you have a data attribute for currency:
+      var currency = $(this).data('currency') || '€'; // Default to '€' if not specified
+
       // Clear any previous error messages
       $('.error-message').text('');
+
+      // Populate modal fields with formatted values
       $('#invoiceId').val(id);
       $('#invoiceNumber').text(invoiceNumber);
       $('#customerName').text(customerName);
       $('#item').text(item);
-      $('#totalAmount').text(totalAmount);
-      $('#paidAmount').text(paidAmount);
-      $('#remainingAmount').text(remainingAmount.toFixed(2));
+      $('#totalAmount').text(formatRoundedNumber(totalAmount, currency));
+      $('#paidAmount').text(formatRoundedNumber(paidAmount, currency));
+      $('#remainingAmount').text(formatRoundedNumber(remainingAmount, currency));
+
+      // Show the payment modal
       $('#paymentModal').modal('show');
+
+      // Additional fields
       $("#customerId").text(customerId);
       $('#titleOfInvoice').text('Fatura: ' + titleOfInvoice);
-      $('#paymentAmount').val(remainingAmount); // Update paymentAmount with converted amoun
+
+      // Set the payment amount input with the rounded remaining amount
+      // Ensure it's a number without currency symbols for calculations
+      $('#paymentAmount').val(Math.floor(remainingAmount).toFixed(2));
     });
-    $('#paymentAmount').on('input', function() {
-      var paymentAmount = parseFloat($(this).val());
-      var remainingAmount = parseFloat($('#remainingAmount').text());
-      if (paymentAmount > remainingAmount) {
-        $('#paymentAmountError').text('Shuma e pagesës nuk mund të kalojë shumën e obligimit.');
-        $('#submitPayment').prop('disabled', true);
-      } else {
-        $('#paymentAmountError').text('');
-        $('#submitPayment').prop('disabled', false);
-      }
-    });
+
     $('#submitPayment').click(function(e) {
       e.preventDefault();
       var invoiceId = $('#invoiceId').val();
@@ -1156,6 +1193,7 @@ require_once 'invoices_trash_modal.php';
         }
       });
     });
+
     function createButtonConfig(extend, icon, text, titleAttr) {
       return {
         extend: extend,
@@ -1232,6 +1270,7 @@ require_once 'invoices_trash_modal.php';
       },
       stripeClasses: ['stripe-color']
     });
+
     function getCurrentDate() {
       var today = new Date();
       var dd = String(today.getDate()).padStart(2, '0');
@@ -1249,4 +1288,5 @@ require_once 'invoices_trash_modal.php';
 <script src="states.js"></script>
 <?php include 'partials/footer.php' ?>
 </body>
+
 </html>

@@ -5,7 +5,7 @@ session_start();
 // 1. Authorization Check
 // ==================================
 // Define the authorized email address
-$authorized_email = 'egjini17@gmail.com';
+$authorized_email = 'info@bareshamusic.com';
 // Sanitize the user's email to prevent SQL injection
 $email = isset($user_info['email']) ? $conn->real_escape_string($user_info['email']) : '';
 // Initialize a flag to determine if the user is authorized
@@ -32,7 +32,7 @@ function format_page_name($page)
           <?php
           // Define the summary cards to display
           $cards = [
-            ['title' => 'Total Revenue', 'id' => 'totalRevenue', 'value' => '€0.00', 'icon' => 'bi-cash-stack', 'bg' => 'bg-light'],
+            ['title' => 'Total Revenue', 'id' => 'toNtalRevenue', 'value' => '€0.00', 'icon' => 'bi-cash-stack', 'bg' => 'bg-light'],
             ['title' => 'Total Profit', 'id' => 'totalProfit', 'value' => '€0.00', 'icon' => 'bi-graph-up-arrow', 'bg' => 'bg-light'],
             ];
           foreach ($cards as $card): ?>
