@@ -389,23 +389,48 @@ $contractStartDate = mysqli_fetch_array($conn->query("SELECT * FROM kontrata_gje
                                                 });
                                             <?php endif; ?>
                                         </script>
+                                        <?php
+                                        $id = isset($_GET['id']) ? intval($_GET['id']) : 0;
+                                        $userCategory = '';
+                                        if ($id > 0) {
+                                            $stmt = $conn->prepare("SELECT kategoria FROM klientet WHERE id = ?");
+                                            $stmt->bind_param("i", $id);
+                                            $stmt->execute();
+                                            $stmt->bind_result($userCategory);
+                                            $stmt->fetch();
+                                            $stmt->close();
+                                        }
+                                        $categories = [];
+                                        if ($userCategory) {
+                                            $categories[] = $userCategory;
+                                        }
+                                        $catQuery = $conn->query("SELECT kategorit FROM kategorit");
+                                        if ($catQuery && $catQuery->num_rows > 0) {
+                                            while ($row = $catQuery->fetch_assoc()) {
+                                                $categories[] = $row['kategorit'];
+                                            }
+                                        }
+                                        $categories = array_unique($categories);
+                                        ?>
                                         <div class="col">
-                                            <label class="form-label" for="yt">Zgjedh kategorinë</label>
-                                            <select class="form-select border border-2 rounded-5 w-100" name="kategoria"
-                                                id="kategoria">
-                                                <?php
-                                                $kg = $conn->query("SELECT * FROM kategorit");
-                                                while ($kgg = mysqli_fetch_array($kg)) {
-                                                    echo '<option value="' . $kgg['kategorit'] . '">' . $kgg['kategorit'] . '</option>';
-                                                }
-                                                ?>
+                                            <label class="form-label" for="kategoria">Zgjedh kategorinë</label>
+                                            <select class="form-select border border-2 rounded-5 w-100" name="kategoria" id="kategoria">
+                                                <?php foreach ($categories as $category): ?>
+                                                    <option value="<?= htmlspecialchars($category); ?>" <?= ($userCategory == $category) ? 'selected' : ''; ?>>
+                                                        <?= htmlspecialchars($category); ?>
+                                                    </option>
+                                                <?php endforeach; ?>
+                                                <?php if (!$userCategory && empty($categories)): ?>
+                                                    <option value="Kengetar">Kengetar</option>
+                                                <?php endif; ?>
                                             </select>
                                             <script>
                                                 new Selectr('#kategoria', {
-                                                    searchable: true,
-                                                })
+                                                    searchable: true
+                                                });
                                             </script>
                                         </div>
+
                                         <br>
                                         <div class="col">
                                             <label class="form-label" for="tel">Monetizuar ? </label><br>

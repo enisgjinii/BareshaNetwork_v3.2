@@ -15,12 +15,6 @@ if ($result->num_rows > 0) {
     }
 }
 ?>
-<!-- Include Bootstrap CSS and JS if not already included in header.php -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-<!-- Optionally include PDF.js if handling PDFs more robustly -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.14.305/pdf.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <div class="main-panel">
     <div class="content-wrapper">
         <div class="container-fluid">
@@ -47,7 +41,7 @@ if ($result->num_rows > 0) {
                         <button class="nav-link rounded-5 active" style="text-decoration: none;text-transform: none" id="pills-all-tab" data-bs-toggle="pill" data-bs-target="#pills-all" type="button" role="tab" aria-controls="pills-all" aria-selected="true">Të gjitha</button>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link rounded-5" style="text-decoration: none;text-transform: none" id="pills-investime-tab" data-bs-toggle="pill" data-bs-target="#pills-investime" type="button" role="tab" aria-controls="pills-investime" aria-selected="false">Investime</button>
+                        <button class="nav-link rounded-5" style="text-decoration: none;text-transform: none" id="pills-investimet-tab" data-bs-toggle="pill" data-bs-target="#pills-investimet" type="button" role="tab" aria-controls="pills-investimet" aria-selected="false">Investimet</button>
                     </li>
                     <li class="nav-item" role="presentation">
                         <button class="nav-link rounded-5" style="text-decoration: none;text-transform: none" id="pills-obligimet-tab" data-bs-toggle="pill" data-bs-target="#pills-obligimet" type="button" role="tab" aria-controls="pills-obligimet" aria-selected="false">Obligime</button>
@@ -62,13 +56,28 @@ if ($result->num_rows > 0) {
                 </ul>
                 <div class="tab-content" id="pills-tabContent">
                     <?php
-                    // Define tabs and queries
                     $tabs = [
-                        'all' => ['name' => 'All', 'query' => "SELECT * FROM invoices_kont", 'active' => true],
-                        'investime' => ['name' => 'Investimet', 'query' => "SELECT * FROM invoices_kont WHERE category = 'Investimet'"],
-                        'obligimet' => ['name' => 'Obligime', 'query' => "SELECT * FROM invoices_kont WHERE category = 'Obligime'"],
-                        'shpenzimet' => ['name' => 'Shpenzimet', 'query' => "SELECT * FROM invoices_kont WHERE category = 'Shpenzimet'"],
-                        'tjeter' => ['name' => 'Tjetër', 'query' => "SELECT * FROM invoices_kont WHERE category = 'Tjetër'"]
+                        'all' => [
+                            'name' => 'All',
+                            'query' => "SELECT * FROM invoices_kont",
+                            'active' => true
+                        ],
+                        'investimet' => [
+                            'name' => 'Investimet',
+                            'query' => "SELECT * FROM invoices_kont WHERE category = 'Investimet'"
+                        ],
+                        'obligimet' => [
+                            'name' => 'Obligime',
+                            'query' => "SELECT * FROM invoices_kont WHERE category = 'Obligime'"
+                        ],
+                        'shpenzimet' => [
+                            'name' => 'Shpenzimet',
+                            'query' => "SELECT * FROM invoices_kont WHERE category = 'Shpenzimet'"
+                        ],
+                        'tjeter' => [
+                            'name' => 'Tjetër',
+                            'query' => "SELECT * FROM invoices_kont WHERE category = 'Tjetër'"
+                        ]
                     ];
                     // Define column labels
                     $columns = [
@@ -79,7 +88,6 @@ if ($result->num_rows > 0) {
                         'category' => 'Kategoria',
                         'company_name' => 'Emri i kompanisë',
                         'document_path' => 'Path-i i dokumentit',
-
                         // 'created_at' => 'Krijuar në',
                         'vlera_faktura' => 'Vlera e fatures',
                         'action' => 'Veprim'
@@ -277,17 +285,16 @@ if ($result->num_rows > 0) {
                     });
                 }
             });
-
         });
         // Initialize DataTables
-        var tableIds = ['table-all', 'table-investime', 'table-obligimet', 'table-shpenzimet', 'table-tjeter'];
+        var tableIds = ['table-all', 'table-investimet', 'table-obligimet', 'table-shpenzimet', 'table-tjeter'];
         tableIds.forEach(function(tableId) {
             dataTables[tableId] = $('#' + tableId).DataTable({
                 dom: "<'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
                     "<'row'<'col-sm-12'tr>>" +
                     "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+
                 stripeClasses: ["stripe-color"],
-                responsive: true,
                 ajax: {
                     url: 'api/get_methods/get_table_data.php',
                     data: function(d) {
@@ -295,6 +302,12 @@ if ($result->num_rows > 0) {
                     },
                     dataSrc: ''
                 },
+                columnDefs: [{
+                    "targets": [0, 1, 2, 3, 4, 5, 6, 7],
+                    "render": function(data, type, row) {
+                        return type === 'display' && data !== null ? '<div style="white-space: normal;">' + data + '</div>' : data;
+                    }
+                }],
                 columns: [{
                         data: 'id'
                     },
@@ -347,7 +360,7 @@ if ($result->num_rows > 0) {
                         data: 'document_path',
                         render: function(data, type, row) {
                             var fileName = data.split('/').pop(); // Extract basename
-                            return '<a href="#" class="view-document input-custom-css px-3 py-2" data-bs-toggle="modal" data-bs-target="#documentModal" data-file="' + data + '" data-name="' + fileName + '">Shiko dokumentin</a>';
+                            return '<a href="#" style="text-decoration:none;" class="view-document input-custom-css px-3 py-2" data-bs-toggle="modal" data-bs-target="#documentModal" data-file="' + data + '" data-name="' + fileName + '"><i class="fi fi-rr-file"></i></a>';
                         }
                     },
                     {
@@ -373,6 +386,11 @@ if ($result->num_rows > 0) {
                         }
                     }
                 ],
+                columnDefs: [{
+                    // Make less width
+                    targets: 0,
+                    width: '2%',
+                }],
                 initComplete: function() {
                     var lengthSelect = $("div.dataTables_length select");
                     lengthSelect.addClass("form-select").css({
@@ -455,7 +473,7 @@ if ($result->num_rows > 0) {
             var headers = {
                 'id': 'ID',
                 'invoice_date': 'Data e faturës',
-                'invoice_number' : 'Numri i faturës',
+                'invoice_number': 'Numri i faturës',
                 'description': 'Përshkrimi',
                 'category': 'Kategoria',
                 'company_name': 'Emri i kompanisë',
@@ -508,7 +526,6 @@ if ($result->num_rows > 0) {
             }
         });
     }
-
     // JavaScript for handling the document preview modal
     document.addEventListener('DOMContentLoaded', function() {
         const documentModal = document.getElementById('documentModal');
@@ -518,26 +535,20 @@ if ($result->num_rows > 0) {
         const documentMessage = document.getElementById('documentMessage');
         const downloadLinkBody = document.getElementById('downloadLinkBody');
         const downloadLinkFooter = document.getElementById('downloadLinkFooter');
-
         documentModal.addEventListener('show.bs.modal', function(event) {
             const triggerLink = event.relatedTarget;
             const filePath = triggerLink.getAttribute('data-file');
             const fileName = triggerLink.getAttribute('data-name');
-
             // Update modal title
             documentName.textContent = fileName;
-
             // Reset modal content
             documentImage.style.display = 'none';
             documentPDF.style.display = 'none';
             documentMessage.style.display = 'none';
-
             // Set download links
             downloadLinkFooter.href = filePath;
-
             // Determine file type
             const fileExtension = filePath.split('.').pop().toLowerCase();
-
             if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg'].includes(fileExtension)) {
                 // It's an image
                 documentImage.src = filePath;

@@ -219,8 +219,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     [
                                         'label' => 'Vlera e Faturës',
                                         'name' => 'valueOfInvoice',
-                                        'type' => 'number',
-                                        'attributes' => 'step="0.01"',
+                                        'type' => 'text',
                                         'required' => true,
                                         'help' => 'Shkruani vlerën totale të faturës.'
                                     ],
