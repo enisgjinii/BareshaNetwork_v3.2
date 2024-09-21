@@ -103,7 +103,7 @@ require_once 'invoices_trash_modal.php';
                 </div>
                 <div class="modal-body text-dark">
                   <form action="api/post_methods/post_create_invoice.php" method="POST" enctype="multipart/form-data">
-                    <div class="mb-3">
+                    <div class="mb-3 " hidden>
                       <label for="invoice_number" class="form-label">Numri i faturës:</label>
                       <input type="text" class="form-control rounded-5 shadow-sm py-3" id="invoice_number" name="invoice_number" value="<?php echo generateInvoiceNumber(); ?>" required readonly>
                     </div>
@@ -144,14 +144,14 @@ require_once 'invoices_trash_modal.php';
                       <div class="col">
                         <label for="total_amount" class="form-label">Shuma e përgjithshme:</label>
                         <div class="input-group">
-                          <span class="input-group-text bg-white border-1 me-2 rounded-start">$</span>
+                          <span class="input-group-text bg-white border-1 me-2 rounded-5">$</span>
                           <input type="text" class="form-control rounded-end shadow-none py-3" id="total_amount" name="total_amount" required>
                         </div>
                       </div>
                       <div class="col">
                         <label for="total_amount_after_percentage" class="form-label">Shuma e përgjithshme pas përqindjes:</label>
                         <div class="input-group">
-                          <span class="input-group-text bg-white border-1 me-2 rounded-start">$</span>
+                          <span class="input-group-text bg-white border-1 me-2 rounded-5">$</span>
                           <input type="text" class="form-control rounded-end shadow-none py-3" id="total_amount_after_percentage" name="total_amount_after_percentage" required>
                         </div>
                       </div>
@@ -160,14 +160,14 @@ require_once 'invoices_trash_modal.php';
                       <div class="col">
                         <label for="total_amount_in_eur" class="form-label">Shuma e përgjithshme - EUR:</label>
                         <div class="input-group">
-                          <span class="input-group-text bg-white border-1 me-2 rounded-start">€</span>
+                          <span class="input-group-text bg-white border-1 me-2 rounded-5">€</span>
                           <input type="text" class="form-control rounded-end shadow-none py-3" id="total_amount_in_eur" name="total_amount_in_eur" required>
                         </div>
                       </div>
                       <div class="col">
                         <label for="total_amount_after_percentage_in_eur" class="form-label">Shuma e përgjithshme pas përqindjes - EUR:</label>
                         <div class="input-group">
-                          <span class="input-group-text bg-white border-1 me-2 rounded-start">€</span>
+                          <span class="input-group-text bg-white border-1 me-2 rounded-5">€</span>
                           <input type="text" class="form-control rounded-end shadow-none py-3" id="total_amount_after_percentage_in_eur" name="total_amount_after_percentage_in_eur" required>
                         </div>
                       </div>
@@ -182,8 +182,8 @@ require_once 'invoices_trash_modal.php';
                       <div class="col">
                         <div class="mb-3">
                           <label for="invoice_status" class="form-label">Gjendja e fatures:</label>
-                          <select class="form-control rounded-5 border border-2 py-3" id="invoice_status" name="invoice_status" required>
-                            <option value="Rregullt" selected>Rregullt</option>
+                          <select class="form-select rounded-5" id="invoice_status" name="invoice_status" required>
+                            <option value="Rregullt">Rregullt</option>
                             <option value="Parregullt">Parregullt</option>
                           </select>
                         </div>
@@ -244,19 +244,15 @@ require_once 'invoices_trash_modal.php';
                   }
                 }
               });
-              $("#created_date").flatpickr({
-                dateFormat: "Y-m-d",
-                maxDate: "today",
-                locale: "sq"
-              });
-              new Selectr('#customer_id', {
-                searchable: true,
-                width: 300
-              });
-              new Selectr('#invoice_status', {
-                searchable: true,
-                width: 300
-              });
+            });
+            $("#created_dateOfInvoice").flatpickr({
+              dateFormat: "Y-m-d",
+              maxDate: "today"
+              
+            });
+            new Selectr('#invoice_status', {
+              searchable: true,
+              width: 300
             });
           </script>
           <div class="tab-content text-dark" id="pills-tabContent">
@@ -449,7 +445,6 @@ require_once 'invoices_trash_modal.php';
     var totalAmountAfterPercentage = totalAmount - (totalAmount * (percentage / 100));
     document.getElementById('total_amount_after_percentage').value = totalAmountAfterPercentage.toFixed(2);
   });
-
   function getCustomerName(customerId) {
     var customerName = '';
     $.ajax({
@@ -465,26 +460,20 @@ require_once 'invoices_trash_modal.php';
     });
     return customerName;
   }
-
-
   $(document).ready(function() {
     // Helper function to format and round numbers with dynamic currency symbols
     function formatRoundedNumber(data, currencySymbol = '€') {
       // Convert data to a float
       let number = parseFloat(data);
-
       // Check if the conversion was successful
       if (isNaN(number)) {
         return data; // Return the original data if it's not a number
       }
-
       // Round down to the nearest integer
       let rounded = Math.floor(number);
-
       // Format the number with two decimal places and locale-specific separators
       return `${rounded.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${currencySymbol}`;
     }
-
     // Initialize the DataTable
     var table = $('#invoiceList').DataTable({
       processing: true,
@@ -609,9 +598,25 @@ require_once 'invoices_trash_modal.php';
         {
           data: 'customer_name',
           render: function(data, type, row) {
+            // Calculate the difference between loan amount and paid amount
             const difference = row.customer_loan_amount - row.customer_loan_paid;
-            const dotHTML = difference > 0 ? `<div class="custom-tooltip"><div class="custom-dot"></div><span class="custom-tooltiptext">${difference} €</span></div>` : '';
-            return `<p style="white-space: normal;">${data}</p>${dotHTML}`;
+            // Tooltip HTML if there is a difference
+            const dotHTML = difference > 0 ?
+              `<div class="custom-tooltip">
+           <div class="custom-dot"></div>
+           <span class="custom-tooltiptext">${difference} €</span>
+         </div>` :
+              '';
+            // Subaccount display with a lighter font or smaller size
+            const subaccountHTML = row.subaccount_name ?
+              `<small style="display: block; color: #666;">(${row.subaccount_name})</small>` :
+              '';
+            // Return the final HTML with customer name, subaccount, and tooltip
+            return `<div style="white-space: normal;">
+              <p class="mb-2">${data}</p>
+              ${subaccountHTML}
+              ${dotHTML}
+            </div>`;
           }
         },
         {
@@ -693,7 +698,6 @@ require_once 'invoices_trash_modal.php';
         }
       ]
     });
-
     // Trigger filter on change
     $('#monthFilter, #amountFilter').on('change keyup', function() {
       table.draw();
@@ -1068,7 +1072,6 @@ require_once 'invoices_trash_modal.php';
     var currentPage = 0;
     $(document).on('click', '.open-payment-modal', function(e) {
       e.preventDefault();
-
       // Retrieve data attributes from the clicked element
       var id = $(this).data('id');
       var invoiceNumber = $(this).data('invoice-number');
@@ -1077,20 +1080,15 @@ require_once 'invoices_trash_modal.php';
       var totalAmount = $(this).data('total-amount');
       var paidAmount = $(this).data('paid-amount');
       var remainingAmount = $(this).data('remaining-amount');
-
       // Assuming you have a function to get the customer's name
       var customerName = getCustomerName(customerId);
-
       var titleOfInvoice = invoiceNumber; // Simplified assignment
-
       // Determine the currency symbol
       // You can adjust this logic based on how your data specifies currency
       // For example, if you have a data attribute for currency:
       var currency = $(this).data('currency') || '€'; // Default to '€' if not specified
-
       // Clear any previous error messages
       $('.error-message').text('');
-
       // Populate modal fields with formatted values
       $('#invoiceId').val(id);
       $('#invoiceNumber').text(invoiceNumber);
@@ -1099,19 +1097,15 @@ require_once 'invoices_trash_modal.php';
       $('#totalAmount').text(formatRoundedNumber(totalAmount, currency));
       $('#paidAmount').text(formatRoundedNumber(paidAmount, currency));
       $('#remainingAmount').text(formatRoundedNumber(remainingAmount, currency));
-
       // Show the payment modal
       $('#paymentModal').modal('show');
-
       // Additional fields
       $("#customerId").text(customerId);
       $('#titleOfInvoice').text('Fatura: ' + titleOfInvoice);
-
       // Set the payment amount input with the rounded remaining amount
       // Ensure it's a number without currency symbols for calculations
       $('#paymentAmount').val(Math.floor(remainingAmount).toFixed(2));
     });
-
     $('#submitPayment').click(function(e) {
       e.preventDefault();
       var invoiceId = $('#invoiceId').val();
@@ -1193,7 +1187,6 @@ require_once 'invoices_trash_modal.php';
         }
       });
     });
-
     function createButtonConfig(extend, icon, text, titleAttr) {
       return {
         extend: extend,
@@ -1270,7 +1263,6 @@ require_once 'invoices_trash_modal.php';
       },
       stripeClasses: ['stripe-color']
     });
-
     function getCurrentDate() {
       var today = new Date();
       var dd = String(today.getDate()).padStart(2, '0');
@@ -1288,5 +1280,4 @@ require_once 'invoices_trash_modal.php';
 <script src="states.js"></script>
 <?php include 'partials/footer.php' ?>
 </body>
-
 </html>

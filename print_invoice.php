@@ -18,6 +18,8 @@ if ($result->num_rows > 0) {
     $invoiceRow = $result->fetch_assoc();
     $customerID = $invoiceRow['customer_id'];
     $idOfInvoice = $invoiceRow['id'];
+    // Get subaccount_name
+    $subaccountName = $invoiceRow['subaccount_name'];
     // Get customer details securely
     $stmt2 = $conn->prepare("SELECT * FROM klientet WHERE id = ?");
     $stmt2->bind_param("i", $customerID);
@@ -271,35 +273,25 @@ if ($result->num_rows > 0) {
                         <p># <?php echo htmlspecialchars($invoiceRow['invoice_number']); ?></p>
                     </div>
                     <h4 class="text-muted text-left my-3">Lloji i faturës </h4>
-                    <div class="address text-end">
-                        <p>
-                            <?php
-                            if ($invoiceRow['type'] == 'grupor') {
-                                echo "<p class='badge bg-success text-white'>Fatura e ndarë</p>";
+                    <div>
+                        <?php
+                        if ($invoiceRow['type'] == 'grupor') {
+                            // Display "Fatura e ndarë" badge
+                            echo "<span class='badge bg-success text-white'>Fatura e ndarë</span> ";
 
-                                // Fetch subaccounts for the customer
-                                $stmtSub = $conn->prepare("SELECT name FROM client_subaccounts WHERE client_id = ?");
-                                $stmtSub->bind_param("i", $customerID);
-                                $stmtSub->execute();
-                                $resultSub = $stmtSub->get_result();
-
-                                if ($resultSub->num_rows > 0) {
-                                    echo "<ul class='list-unstyled'>";
-                                    while ($sub = $resultSub->fetch_assoc()) {
-                                        echo "<li>" . htmlspecialchars($sub['name'], ENT_QUOTES, 'UTF-8') . "</li>";
-                                    }
-                                    echo "</ul>";
-                                } else {
-                                    echo "Nuk u gjetën nënllogari për këtë klient.";
-                                }
-                            } elseif ($invoiceRow['type'] == "individual") {
-                                echo "<p class='badge bg-primary text-white'>Fatura individuale</p>";
-                            } else {
-                                echo "Lloji i faturës nuk është përcaktuar.";
-                            }
-                            ?>
-                        </p>
+                            // Display the subaccount name badge, ensuring it's properly escaped
+                            $subaccountName = htmlspecialchars($invoiceRow['subaccount_name'], ENT_QUOTES, 'UTF-8');
+                            echo "<span class='badge bg-primary text-white'>{$subaccountName}</span>";
+                        } elseif ($invoiceRow['type'] == "individual") {
+                            // Display "Fatura individuale" badge
+                            echo "<span class='badge bg-primary text-white'>Fatura individuale</span>";
+                        } else {
+                            // Display a message if the invoice type is not defined
+                            echo "Lloji i faturës nuk është përcaktuar.";
+                        }
+                        ?>
                     </div>
+
 
                 </div>
             </div>

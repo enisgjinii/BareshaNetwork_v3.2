@@ -16,7 +16,7 @@ $columns = array(
     array('db' => 'customer_email', 'dt' => 'customer_email', 'searchable' => true)
 );
 
-$sql = "SELECT i.id, i.invoice_number, i.item, i.customer_id, i.state_of_invoice, i.type,
+$sql = "SELECT i.id, i.invoice_number, i.item, i.customer_id, i.state_of_invoice, i.type,i.subaccount_name,
                 i_agg.total_amount,
                 i_agg.total_amount_after_percentage,
                 i.total_amount_in_eur,
@@ -45,6 +45,7 @@ $sql = "SELECT i.id, i.invoice_number, i.item, i.customer_id, i.state_of_invoice
                 SUM(total_amount) AS total_amount,
                 SUM(total_amount_after_percentage) AS total_amount_after_percentage,
                 SUM(paid_amount) AS paid_amount
+
             FROM invoices
             GROUP BY invoice_number
         ) AS i_agg ON i.invoice_number = i_agg.invoice_number";
