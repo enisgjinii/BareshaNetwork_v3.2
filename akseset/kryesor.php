@@ -32,9 +32,9 @@ function format_page_name($page)
           <?php
           // Define the summary cards to display
           $cards = [
-            ['title' => 'Total Revenue', 'id' => 'toNtalRevenue', 'value' => '€0.00', 'icon' => 'bi-cash-stack', 'bg' => 'bg-light'],
+            ['title' => 'Total Revenue', 'id' => 'totalRevenue', 'value' => '€0.00', 'icon' => 'bi-cash-stack', 'bg' => 'bg-light'],
             ['title' => 'Total Profit', 'id' => 'totalProfit', 'value' => '€0.00', 'icon' => 'bi-graph-up-arrow', 'bg' => 'bg-light'],
-            ];
+          ];
           foreach ($cards as $card): ?>
             <div class="col-6">
               <div class="card rounded-5 text-white <?= htmlspecialchars($card['bg']) ?> h-100">
@@ -378,4 +378,5 @@ function format_page_name($page)
   </script>
 <?php endif; ?>
 </body>
+
 </html>
