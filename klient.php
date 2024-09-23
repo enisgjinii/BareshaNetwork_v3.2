@@ -379,7 +379,7 @@
             data: 'youtube',
             render: (data, type, row, meta) => {
               const containerId = `youtube-pic-${meta.row}`;
-              const apiKey = 'AIzaSyCRFtIfiEyeYmCrCZ8Bvy8Z4IPBy1v2iwo';
+              const apiKey = 'AIzaSyBQD3hhckJv5uxPcbRk3b8nlNogG9781Lk';
               const youtubeLink = `https://www.youtube.com/channel/${data}`;
               const deleteButtonHTML = `
                 <a style="text-decoration: none;" class="input-custom-css px-3 py-2 mx-1" onclick="confirmDelete(${row.id})"><i class="fi fi-rr-trash"></i></a>
