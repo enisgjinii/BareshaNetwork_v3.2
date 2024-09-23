@@ -50,7 +50,8 @@ $sql = "SELECT i.id, i.invoice_number, i.item, i.customer_id, i.state_of_invoice
             GROUP BY invoice_number
         ) AS i_agg ON i.invoice_number = i_agg.invoice_number";
 
-$sql .= " WHERE (
+$sql .= " WHERE 
+  i.type != 'grupor' OR i.type IS NULL AND (
     (i.total_amount_in_eur_after_percentage IS NOT NULL 
      AND (i.total_amount_in_eur_after_percentage - i.paid_amount) > 1)
     OR 
