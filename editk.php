@@ -611,9 +611,10 @@ $contractStartDate = mysqli_fetch_array($conn->query("SELECT * FROM kontrata_gje
                                                 placeholder="https://instagram.com/...."
                                                 value="<?php echo $editcl['ig']; ?>">
                                         </div>
+                                        <br>
                                         <div class="col">
-                                            <a href="perqindjet_klient.php?id=<?php echo $editcl['id']; ?>"
-                                                class="btn btn-primary mt-4">Ndrysho përqindjet</a>
+                                            <a style="text-decoration: none;" href="perqindjet_klient.php?id=<?php echo $editcl['id']; ?>"
+                                                class="input-custom-css px-3 py-2 mt-4">Ndrysho përqindjet</a>
                                         </div>
                                     </div>
                                 </div>

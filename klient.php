@@ -415,7 +415,7 @@
                       const {
                         subscriberCount = 'N/A', videoCount = 'N/A'
                       } = channel.statistics;
-                      const profilePicUrl = thumbnails?.default?.url || '';
+                      const profilePicUrl = thumbnails?.high?.url;
                       document.getElementById(containerId).innerHTML = `
                             <div class="d-flex flex-column align-items-center">
                                 <img src="${profilePicUrl}" class="rounded-circle" style="width: 50px; height: 50px;" />
