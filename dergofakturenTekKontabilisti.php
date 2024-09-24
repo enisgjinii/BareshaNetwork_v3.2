@@ -90,7 +90,7 @@ try {
     $mail->Host = 'smtp.gmail.com';
     $mail->SMTPAuth = true;
     $mail->Username = 'finance@bareshamusic.com';
-    $mail->Password = 'hocrbvnxzoteynup';
+    $mail->Password = 'jxdzshctjuynyuwb';
     $mail->SMTPSecure = 'tls';
     $mail->Port = 587;
     $mail->setFrom('finance@bareshamusic.com', 'Baresha Finance');
