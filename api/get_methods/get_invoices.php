@@ -16,7 +16,7 @@ $columns = array(
     array('db' => 'customer_email', 'dt' => 'customer_email', 'searchable' => true)
 );
 
-$sql = "SELECT i.id, i.invoice_number, i.item, i.customer_id, i.state_of_invoice, i.type, i.subaccount_name,
+$sql = "SELECT i.id, i.invoice_number, i.item, i.customer_id, i.state_of_invoice, i.type,
                 i_agg.total_amount,
                 i_agg.total_amount_after_percentage,
                 i.total_amount_in_eur,
@@ -49,9 +49,7 @@ $sql = "SELECT i.id, i.invoice_number, i.item, i.customer_id, i.state_of_invoice
             GROUP BY invoice_number
         ) AS i_agg ON i.invoice_number = i_agg.invoice_number";
 
-// Adding the condition for `i.type != 'grupor' OR i.type IS NULL`
-$sql .= " WHERE 
-  (i.type != 'grupor' OR i.type IS NULL) AND (
+$sql .= " WHERE (
     (i.total_amount_in_eur_after_percentage IS NOT NULL 
      AND (i.total_amount_in_eur_after_percentage - i.paid_amount) > 1)
     OR 
@@ -74,6 +72,8 @@ if (isset($_GET['amount']) && !empty($_GET['amount'])) {
         OR i.total_amount_in_eur_after_percentage > $enteredAmount
     )";
 }
+
+
 
 // Handle search functionality
 if (!empty($_REQUEST['search']['value'])) {
@@ -106,7 +106,7 @@ $orderColumnIndex = isset($_REQUEST['order'][0]['column']) ? (int)$_REQUEST['ord
 $orderDirection = isset($_REQUEST['order'][0]['dir']) && $_REQUEST['order'][0]['dir'] === 'desc' ? 'DESC' : 'ASC';
 $orderColumn = $columns[$orderColumnIndex]['db'];
 
-$sql .= " ORDER BY id DESC";
+$sql .= " ORDER BY $orderColumn $orderDirection";
 
 // Apply pagination
 $start = isset($_REQUEST['start']) ? (int)$_REQUEST['start'] : 0;

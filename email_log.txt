@@ -1,0 +1,5 @@
+[2024-09-25 14:53:19] Invalid redirect attempt to: investime.php from IP: ::1
+[2024-09-25 14:55:37] Email sent successfully for page: invoice.php from IP: ::1
+[2024-09-25 14:56:40] Invalid redirect attempt to: investime.php from IP: ::1
+[2024-09-25 14:56:46] Invalid redirect attempt to: lista_kopjeve_rezerve.php from IP: ::1
+[2024-09-25 14:56:52] Email sent successfully for page: klient.php from IP: ::1

@@ -1,6 +1,6 @@
 <?php
 // Start the session to access session variables
-session_start();
+// session_start();
 
 // Include database connection
 require_once 'conn-d.php'; // Update the path accordingly

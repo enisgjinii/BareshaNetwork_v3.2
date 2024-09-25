@@ -60,11 +60,6 @@ require_once 'invoices_trash_modal.php';
                 'id' => 'pills-lista_e_faturave_biznes',
                 'text' => 'Lista e faturave ( Biznes )',
                 'active' => true,
-              ],
-              [
-                'id' => 'pills-lista_e_splitinvoices',
-                'text' => 'Lista e faturave të ndara',
-                'active' => true,
               ]
             ];
             // Conditionally add additional tabs if the email doesn't match
@@ -248,7 +243,6 @@ require_once 'invoices_trash_modal.php';
             $("#created_dateOfInvoice").flatpickr({
               dateFormat: "Y-m-d",
               maxDate: "today"
-
             });
             new Selectr('#invoice_status', {
               searchable: true,
@@ -445,7 +439,6 @@ require_once 'invoices_trash_modal.php';
     var totalAmountAfterPercentage = totalAmount - (totalAmount * (percentage / 100));
     document.getElementById('total_amount_after_percentage').value = totalAmountAfterPercentage.toFixed(2);
   });
-
   function getCustomerName(customerId) {
     var customerName = '';
     $.ajax({
@@ -944,34 +937,11 @@ require_once 'invoices_trash_modal.php';
         <div class="d-flex justify-content-between">
           <p>EUR - Shuma e për. % :</p>
           <p>${row.total_amount_in_eur_after_percentage} EUR</p>
-        </div>`;
+        </div>  `;
             }
             compactHTML += `
-      <div class="d-flex justify-content-between">
-        <p>Converted Amount (to EUR):</p>
-        <p id="${conversionCellId}">Loading...</p>
-      </div>
     </div>`;
             // Return the compactHTML before initiating the fetch to ensure the cell is rendered
-            setTimeout(() => {
-              // Fetch the converted amount asynchronously
-              const url = 'api/get_methods/get_currency.php?amount=' + row.total_amount_after_percentage;
-              fetch(url)
-                .then(response => response.json())
-                .then(result => {
-                  const conversionCell = document.getElementById(conversionCellId);
-                  if (result.error) {
-                    conversionCell.innerText = 'Error: ' + result.error;
-                  } else if (result.result && result.result.EUR) {
-                    conversionCell.innerText = result.result.EUR.toFixed(2) + ' EUR';
-                  } else {
-                    conversionCell.innerText = 'Error fetching rate';
-                  }
-                })
-                .catch(error => {
-                  document.getElementById(conversionCellId).innerText = 'Error fetching rate';
-                });
-            }, 0);
             return compactHTML;
           }
         },
@@ -1188,7 +1158,6 @@ require_once 'invoices_trash_modal.php';
         }
       });
     });
-
     function createButtonConfig(extend, icon, text, titleAttr) {
       return {
         extend: extend,
@@ -1265,7 +1234,6 @@ require_once 'invoices_trash_modal.php';
       },
       stripeClasses: ['stripe-color']
     });
-
     function getCurrentDate() {
       var today = new Date();
       var dd = String(today.getDate()).padStart(2, '0');
@@ -1283,5 +1251,4 @@ require_once 'invoices_trash_modal.php';
 <script src="states.js"></script>
 <?php include 'partials/footer.php' ?>
 </body>
-
 </html>
