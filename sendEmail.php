@@ -93,10 +93,6 @@ function isRateLimited($ipAddress)
         return ($currentTime - $timestamp) < RATE_LIMIT_WINDOW;
     });
 
-    // Check if rate limit exceeded
-    if (count($data[$ipAddress]) >= RATE_LIMIT) {
-        return true;
-    }
 
     // Add current timestamp
     $data[$ipAddress][] = $currentTime;
@@ -113,7 +109,11 @@ $redirectPage = filter_var($redirectPage, FILTER_SANITIZE_URL);
 
 // Define a whitelist of allowed redirect pages
 $allowedPages = [
-    'index.php',
+    // Specific pages with sendEmail redirection
+    "index.php",
+    "lista_kopjeve_rezerve.php",
+    "strike-platform.php",
+    "investime.php",
     'stafi.php',
     'roles.php',
     'rrogat.php',
