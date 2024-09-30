@@ -37,7 +37,7 @@ if (!empty($_POST['companyName']) && $_POST['companyName']) {
             </a>
           </li>
       </nav>
-      <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+      <ul class="nav nav-pills bg-white my-3 mx-0 rounded-5" style="width: fit-content; border: 1px solid lightgrey;" id="pills-tab" role="tablist">
         <li class="nav-item" role="presentation">
           <button class="nav-link rounded-5 shadow-none active" style="text-transform: none" id="pills-ls_faturat-tab" data-bs-toggle="pill" data-bs-target="#pills-ls_faturat" type="button" role="tab" aria-controls="pills-ls_faturat" aria-selected="true">Lista e faturave</button>
         </li>
@@ -47,51 +47,48 @@ if (!empty($_POST['companyName']) && $_POST['companyName']) {
       </ul>
       <div class="tab-content" id="pills-tabContent">
         <div class="tab-pane fade show active" id="pills-ls_faturat" role="tabpanel" aria-labelledby="pills-ls_faturat-tab">
-          <div class="card p-5 my-3">
-            <p class="text-muted">Lista e faturave te reja</p>
-            <table id="data-table" class="table table-bordered">
+          <div class="card rounded-5 p-5 my-3">
+            <!-- <p class="text-muted">Lista e faturave te reja</p> -->
+            <table id="data-table" class="table table-bordered table-sm">
               <!-- <caption>Lista e faturave te shpejta</caption> -->
               <thead>
                 <tr>
-                  <th class="text-dark">Numri i faturës</th>
-                  <th class="text-dark">Id e fatures</th>
-                  <th class="text-dark">Data dhe ora e krijimit</th>
-                  <th class="text-dark">Emri i klientit</th>
-                  <th class="text-dark">Totali i faturës</th>
+                  <th class="text-dark">Fatura Nr.</th>
+                  <th class="text-dark">ID Fature</th>
+                  <th class="text-dark">Data & Ora</th>
+                  <th class="text-dark">Emri Klientit</th>
+                  <th class="text-dark">Totali (€)</th>
                   <th class="text-dark">Vepro</th>
                 </tr>
               </thead>
               <tbody>
                 <?php foreach ($invoiceList as $invoiceDetails) : ?>
                   <tr>
-                    <td class="text-dark"><?= $invoiceDetails["invoice_number"] ?></td>
-                    <td class="text-dark"><?= $invoiceDetails["order_id"] ?></td>
-                    <td class="text-dark"><?php
-                        // First make an array with months in Albanian language
-                        $months = array("Janar", "Shkurt", "Mars", "Prill", "Maj", "Qershor", "Korrik", "Gusht", "Shtator", "Tetor", "Nentor", "Dhjetor");
-                        // Get the order date from $invoiceDetails and format it
-                        $order_date = strtotime($invoiceDetails["order_date"]);
-                        $month_index = date("n", $order_date) - 1; // Subtract 1 to get the correct index for the month array
-                        $formatted_date = date("d", $order_date) . " " . $months[$month_index] . " " . date("Y", $order_date) . ", " . date("H:i:s", $order_date);
-                        echo $formatted_date;
-                        ?></td>
-                    <td class="text-dark"><?= $invoiceDetails["order_receiver_name"] ?></td>
-                    <td class="text-dark"><?= $invoiceDetails["order_total_after_tax"] ?></td>
-                    <td>
-                      <a class="btn btn-sm btn-primary rounded-5 text-white" style="text-transform: none;" href="print_Invoice_2.php?invoice_id=<?= $invoiceDetails["order_id"] ?>" title="Print Invoice">
+                    <td class="text-dark"><?= htmlspecialchars($invoiceDetails["invoice_number"]) ?></td>
+                    <td class="text-dark"><?= htmlspecialchars($invoiceDetails["order_id"]) ?></td>
+                    <td class="text-dark">
+                      <?php
+                      // Array of months in Albanian
+                      $months = ["Janar", "Shkurt", "Mars", "Prill", "Maj", "Qershor", "Korrik", "Gusht", "Shtator", "Tetor", "Nentor", "Dhjetor"];
+                      // Convert and format the order date
+                      $order_date = strtotime($invoiceDetails["order_date"]);
+                      $formatted_date = date("d", $order_date) . " " . $months[date("n", $order_date) - 1] . " " . date("Y, H:i", $order_date);
+                      echo htmlspecialchars($formatted_date);
+                      ?>
+                    </td>
+                    <td class="text-dark"><?= htmlspecialchars($invoiceDetails["order_receiver_name"]) ?></td>
+                    <td class="text-dark"><?= number_format($invoiceDetails["order_total_after_tax"], 2) ?></td>
+                    <td class="text-dark">
+                      <a href="print_Invoice_2.php?invoice_id=<?= urlencode($invoiceDetails["order_id"]) ?>" title="Print Invoice" class="input-custom-css ">
                         <i class="fi fi-rr-print"></i>
-                        Printo
                       </a>
-                      <a class="btn btn-sm btn-success rounded-5 text-white" style="text-transform: none;" href="edit_Invoice_2.php?update_id=<?= $invoiceDetails["order_id"] ?>" title="Edit Invoice">
+                      <a href="edit_Invoice_2.php?update_id=<?= urlencode($invoiceDetails["order_id"]) ?>" title="Edit Invoice" class="action-btn">
                         <i class="fi fi-rr-edit"></i>
-                        Edito
                       </a>
-                      <br> <br>
-                      <form method="post">
-                        <input type="hidden" name="delete_id" value="<?= $invoiceDetails["order_id"] ?>">
-                        <button type="submit" class="btn btn-sm btn-danger rounded-5 text-white" style="text-transform: none;" title="Delete Invoice">
+                      <form method="post" class="action-form d-inline">
+                        <input type="hidden" name="delete_id" value="<?= htmlspecialchars($invoiceDetails["order_id"]) ?>">
+                        <button type="submit" class="action-btn" title="Delete Invoice" onclick="return confirm('Are you sure you want to delete this invoice?');">
                           <i class="fi fi-rr-trash"></i>
-                          Fshi
                         </button>
                       </form>
                     </td>
@@ -193,7 +190,7 @@ if (!empty($_POST['companyName']) && $_POST['companyName']) {
                   </div>
                   <br>
                   <div class="form-group">
-                    <input type="hidden" value="<?php echo $_SESSION['userid']; ?>" class="form-control rounded-5 border border-1" name="userId">
+                    <!-- <input type="hidden" value="<?php echo $_SESSION['userid']; ?>" class="form-control rounded-5 border border-1" name="userId"> -->
                     <input data-loading-text="Ruajtja e faturës..." type="submit" name="invoice_btn" value="Ruaj faturën" class="input-custom-css px-3 py-2 submit_btn invoice-save-btm">
                   </div>
                 </div>
@@ -272,7 +269,6 @@ if (!empty($_POST['companyName']) && $_POST['companyName']) {
     var mobileInput = document.getElementById('mobile');
     var emailInput = document.getElementById('email');
     var taxIdInput = document.getElementById('taxId');
-
     customerSelect.addEventListener('change', function() {
       var selectedOption = this.options[this.selectedIndex];
       if (selectedOption.value) {

@@ -28,7 +28,7 @@ GROUP BY y.kanali";
                 if ($loanResult) {
                     $loanRow = mysqli_fetch_assoc($loanResult);
                 }
-                $customerLoan = $loanRow['total_shuma'] - $loanRow['total_pagoi'];
+                // $customerLoan = $loanRow['total_shuma'] - $loanRow['total_pagoi'];
             }
         }
     }

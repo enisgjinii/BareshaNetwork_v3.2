@@ -11,3 +11,21 @@
 [2024-09-25 15:09:00] Rate limit exceeded for IP: ::1
 [2024-09-25 15:09:31] Email sent successfully for page: investime.php from IP: ::1
 [2024-09-25 15:09:35] Email sent successfully for page: strike-platform.php from IP: ::1
+[2024-09-25 16:15:10] Invalid redirect attempt to: invoice_list_2.php from IP: ::1
+[2024-09-25 16:15:27] Email sent successfully for page: invoice_list_2.php from IP: ::1
+[2024-09-25 16:36:29] Email sent successfully for page: invoice.php from IP: ::1
+[2024-09-25 16:44:49] Email sent successfully for page: klient.php from IP: ::1
+[2024-09-25 16:44:58] Email sent successfully for page: invoice.php from IP: ::1
+[2024-09-26 10:42:51] Email sent successfully for page: invoice.php from IP: ::1
+[2024-09-26 10:59:08] Email sent successfully for page: klient.php from IP: ::1
+[2024-09-26 10:59:39] Email sent successfully for page: klient.php from IP: ::1
+[2024-09-26 10:59:43] Email sent successfully for page: invoice.php from IP: ::1
+[2024-09-26 11:02:41] Email sent successfully for page: invoice.php from IP: ::1
+[2024-09-26 11:49:13] Email sent successfully for page: index.php from IP: ::1
+[2024-09-26 11:49:21] Email sent successfully for page: invoice.php from IP: ::1
+[2024-09-26 14:05:13] Email sent successfully for page: shpenzimet_objekt.php from IP: ::1
+[2024-09-26 14:23:57] Email sent successfully for page: invoice.php from IP: ::1
+[2024-09-26 14:29:00] Email sent successfully for page: klient.php from IP: ::1
+[2024-09-27 09:37:07] Email sent successfully for page: claim.php from IP: ::1
+[2024-09-27 09:49:13] Email sent successfully for page: claim.php from IP: ::1
+[2024-09-27 13:11:25] Email sent successfully for page: invoice.php from IP: ::1

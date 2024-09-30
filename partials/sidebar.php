@@ -1,4 +1,4 @@
-<nav class="sidebar sidebar-offcanvas rounded-5">
+<nav class="sidebar sidebar-offcanvas ">
   <ul class="nav">
     <?php
     // Enable error reporting for debugging (disable in production)

@@ -162,6 +162,7 @@ $allowedPages = [
     'pagesatEKryera.php',
     'platform_invoices.php',
     'currency.php',
+    'invoice_list_2.php'
     // Add other allowed pages here
 ];
 
