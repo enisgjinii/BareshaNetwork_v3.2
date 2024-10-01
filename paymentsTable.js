@@ -207,7 +207,7 @@ $(document).ready(function () {
         const $modal = $form.closest('.modal');
 
         $.ajax({
-            url: $form.attr('id').startsWith('fileUploadForm') ? 'upload_invoice_manual.php' : 'remove_file_manual.php',
+            url: $form.attr('id').startsWith('fileUploadForm') ? 'api/post_methods/post_upload_invoice_manual.php' : 'remove_file_manual.php',
             type: 'POST',
             data: formData,
             contentType: false,

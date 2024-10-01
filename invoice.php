@@ -231,7 +231,6 @@ function generateInvoiceNumber()
                   <thead class="table-light">
                     <tr>
                       <th></th>
-                      <th class="text-dark" style="font-size:12px">ID</th>
                       <th class="text-dark" style="font-size:12px">Emri i klientit</th>
                       <th class="text-dark" style="font-size:12px">Pershkrimi</th>
                       <th class="text-dark" style="font-size:12px">Detajet</th>
@@ -336,7 +335,6 @@ function generateInvoiceNumber()
       const rounded = Math.floor(number);
       return `${rounded.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${currencySymbol}`;
     }
-
     function createActionButton(options) {
       const {
         href = '#', iconClass = '', classes = '', dataAttributes = '', disabled = false, tooltip = '', target = '_self'
@@ -363,7 +361,6 @@ function generateInvoiceNumber()
         return 'Unknown Customer';
       }
     }
-
     function initializeDataTable(tableSelector, ajaxConfig) {
       return $(tableSelector).DataTable({
         processing: true,
@@ -442,7 +439,6 @@ function generateInvoiceNumber()
         },
       });
     }
-
     function handleDeleteAction(tableSelector) {
       const tableInstance = $(tableSelector).DataTable();
       const selectedIds = $('.row-checkbox:checked').map(function() {
@@ -491,7 +487,6 @@ function generateInvoiceNumber()
         }
       });
     }
-
     function getColumnsConfiguration(tableSelector) {
       const commonColumns = [{
           data: 'id',
@@ -502,6 +497,7 @@ function generateInvoiceNumber()
         {
           data: 'customer_name',
           render: function(data, type, row) {
+            // Consistent rendering logic for customer name
             const difference = row.customer_loan_amount - row.customer_loan_paid;
             const dotHTML = difference > 0 ? `<div class="custom-tooltip"><div class="custom-dot"></div><span class="custom-tooltiptext">${difference} €</span></div>` : '';
             const subaccountHTML = row.subaccount_name ? `<small class="subaccount-name">(${row.subaccount_name})</small>` : '';
@@ -511,6 +507,7 @@ function generateInvoiceNumber()
         {
           data: 'item',
           render: function(data, type, row) {
+            // Consistent rendering logic for item
             const stateClass = row.state_of_invoice === 'Parregullt' ? 'bg-danger' : row.state_of_invoice === 'Rregullt' ? 'bg-success' : '';
             return `<div class="item-column">${data || ''}</div><br><div class="badge-column">${row.state_of_invoice ? `<span class="badge ${stateClass} mx-1 rounded-5">${row.state_of_invoice}</span>` : ''}${row.type ? `<span class="badge bg-secondary mx-1 rounded-5">${row.type}</span>` : ''}</div>`;
           }
@@ -544,16 +541,14 @@ function generateInvoiceNumber()
         {
           data: 'paid_amount',
           render: function(data, type, row) {
-            const currency = row.paid_amount_currency || '€';
-            return formatRoundedNumber(data, currency);
+            return formatRoundedNumber(data, row.paid_amount_currency || '€');
           }
         },
         {
           data: null,
           render: function(data, type, row) {
             const profit = row.total_amount_in_eur - row.total_amount_in_eur_after_percentage;
-            const currency = '€';
-            return formatRoundedNumber(profit, currency);
+            return formatRoundedNumber(profit, '€');
           }
         },
         {
@@ -575,60 +570,83 @@ function generateInvoiceNumber()
       const actionsColumn = {
         data: 'actions',
         render: function(data, type, row) {
+          // Consistent rendering logic for actions
           const totalAmount = row.total_amount_in_eur_after_percentage ?? row.total_amount_after_percentage;
           const remainingAmount = totalAmount - row.paid_amount;
-          const actionButtons = `<div class="btn-group" role="group" aria-label="Action Buttons">${createActionButton({
-          href: '#',
-          iconClass: 'fi fi-rr-euro',
-          classes: 'open-payment-modal',
-          dataAttributes: `data-id="${row.id}" data-invoice-number="${row.invoice_number}" data-customer-id="${row.customer_id}" data-item="${row.item}" data-total-amount="${totalAmount}" data-paid-amount="${row.paid_amount}" data-remaining-amount="${remainingAmount}"`,
-          tooltip: 'Open Payment Modal',
-        })}${createActionButton({
-          href: `complete_invoice.php?id=${row.id}`,
-          iconClass: 'fi fi-rr-edit',
-          target: '_blank',
-          tooltip: 'Edit Invoice',
-        })}${createActionButton({
-          href: `print_invoice.php?id=${row.invoice_number}`,
-          iconClass: 'fi fi-rr-print',
-          target: '_blank',
-          tooltip: 'Print Invoice',
-        })}${row.customer_email ? createActionButton({
-          href: '#',
-          iconClass: 'fi fi-rr-file-export',
-          classes: 'send-invoice',
-          dataAttributes: `data-id="${row.id}"`,
-          tooltip: 'Send Invoice to Customer',
-        }) : createActionButton({
-          iconClass: 'fi fi-rr-file-export',
-          disabled: true,
-          tooltip: 'Nuk posedon email',
-        })}${row.email_of_contablist ? createActionButton({
-          href: '#',
-          iconClass: 'fi fi-rr-envelope',
-          classes: 'send-invoices',
-          dataAttributes: `data-id="${row.id}" data-invoice-number="${row.invoice_number}" data-email="${row.email_of_contablist}"`,
-          tooltip: 'Send to Contablist',
-        }) : createActionButton({
-          iconClass: 'fi fi-rr-envelope',
-          disabled: true,
-          tooltip: 'Nuk posedon email të kontablistit',
-        })}</div>`;
-          const uploadOrDownloadButton = row.file_path ? `<a class="btn input-custom-css px-2 py-2" style="text-decoration:none;text-transform:none;" href="${row.file_path}" download data-bs-toggle="tooltip" data-bs-placement="top" title="Download File"><i class="fi fi-rr-download"></i></a>` : `<button type="button" class="btn input-custom-css px-2 py-2 upload-button" data-id="${row.id}" data-bs-toggle="modal" data-bs-target="#fileUploadModal-${row.id}" data-bs-toggle="tooltip" data-bs-placement="top" title="Upload File"><i class="fi fi-rr-upload"></i></button>`;
-          const fileUploadModal = `<div class="modal fade" id="fileUploadModal-${row.id}" tabindex="-1" aria-labelledby="fileUploadModalLabel-${row.id}" aria-hidden="true"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="fileUploadModalLabel-${row.id}">Ngarko faturën nga klienti</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div><div class="modal-body"><form id="fileUploadForm-${row.id}" enctype="multipart/form-data" action="upload_invoice.php" method="POST"><input type="hidden" name="invoice_id" value="${row.id}"><div class="mb-3"><label for="fileInput-${row.id}" class="form-label">Zgjidhni skedarin (PDF ose DOC)</label><input type="file" name="file" class="form-control rounded-5 border border-2" id="fileInput-${row.id}" accept=".pdf,.doc,.docx" required></div><button type="submit" class="input-custom-css px-3 py-2">Dërgo</button></form></div></div></div></div>`;
+          const actionButtons = `
+        <div class="btn-group" role="group" aria-label="Action Buttons">
+          ${createActionButton({
+            href: '#',
+            iconClass: 'fi fi-rr-euro',
+            classes: 'open-payment-modal',
+            dataAttributes: `data-id="${row.id}" data-invoice-number="${row.invoice_number}" data-customer-id="${row.customer_id}" data-item="${row.item}" data-total-amount="${totalAmount}" data-paid-amount="${row.paid_amount}" data-remaining-amount="${remainingAmount}"`,
+            tooltip: 'Open Payment Modal',
+          })}
+          ${createActionButton({
+            href: `complete_invoice.php?id=${row.id}`,
+            iconClass: 'fi fi-rr-edit',
+            target: '_blank',
+            tooltip: 'Edit Invoice',
+          })}
+          ${createActionButton({
+            href: `print_invoice.php?id=${row.invoice_number}`,
+            iconClass: 'fi fi-rr-print',
+            target: '_blank',
+            tooltip: 'Print Invoice',
+          })}
+          ${row.customer_email ? createActionButton({
+            href: '#',
+            iconClass: 'fi fi-rr-file-export',
+            classes: 'send-invoice',
+            dataAttributes: `data-id="${row.id}"`,
+            tooltip: 'Send Invoice to Customer',
+          }) : createActionButton({
+            iconClass: 'fi fi-rr-file-export',
+            disabled: true,
+            tooltip: 'Nuk posedon email',
+          })}
+          ${row.email_of_contablist ? createActionButton({
+            href: '#',
+            iconClass: 'fi fi-rr-envelope',
+            classes: 'send-invoices',
+            dataAttributes: `data-id="${row.id}" data-invoice-number="${row.invoice_number}" data-email="${row.email_of_contablist}"`,
+            tooltip: 'Send to Contablist',
+          }) : createActionButton({
+            iconClass: 'fi fi-rr-envelope',
+            disabled: true,
+            tooltip: 'Nuk posedon email të kontablistit',
+          })}
+        </div>`;
+          const uploadOrDownloadButton = row.file_path ?
+            `<a class="btn input-custom-css px-2 py-2" style="text-decoration:none;text-transform:none;" href="${row.file_path}" download data-bs-toggle="tooltip" data-bs-placement="top" title="Download File"><i class="fi fi-rr-download"></i></a>` :
+            `<button type="button" class="btn input-custom-css px-2 py-2 upload-button" data-id="${row.id}" data-bs-toggle="modal" data-bs-target="#fileUploadModal-${row.id}" data-bs-toggle="tooltip" data-bs-placement="top" title="Upload File"><i class="fi fi-rr-upload"></i></button>`;
+          const fileUploadModal = `
+        <div class="modal fade" id="fileUploadModal-${row.id}" tabindex="-1" aria-labelledby="fileUploadModalLabel-${row.id}" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="fileUploadModalLabel-${row.id}">Ngarko faturën nga klienti</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <form id="fileUploadForm-${row.id}" enctype="multipart/form-data" action="api/post_methods/post_upload_invoice.php" method="POST">
+                  <input type="hidden" name="invoice_id" value="${row.id}">
+                  <div class="mb-3">
+                    <label for="fileInput-${row.id}" class="form-label">Zgjidhni skedarin (PDF ose DOC)</label>
+                    <input type="file" name="file" class="form-control rounded-5 border border-2" id="fileInput-${row.id}" accept=".pdf,.doc,.docx" required>
+                  </div>
+                  <button type="submit" class="input-custom-css px-3 py-2">Dërgo</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>`;
           return `${actionButtons}${uploadOrDownloadButton}${fileUploadModal}`;
         }
       };
-      if (tableSelector === '#invoiceList') {
-        return [...commonColumns, actionsColumn];
-      } else if (tableSelector === '#invoiceListBiznes') {
-        return [...commonColumns, {
-          data: 'id'
-        }, actionsColumn];
-      }
-      return [];
+      // Return the same columns for both tables
+      return [...commonColumns, actionsColumn];
     }
-
     function handleCustomerChange() {
       const customerSelect = document.getElementById('customer_id'),
         percentageInput = document.getElementById('percentage'),
@@ -643,7 +661,6 @@ function generateInvoiceNumber()
         totalAfterPercentageInput.value = totalAfterPercentage;
       });
     }
-
     function handleTotalAmountInput() {
       const totalAmountInput = document.getElementById('total_amount'),
         percentageInput = document.getElementById('percentage'),
@@ -655,7 +672,6 @@ function generateInvoiceNumber()
         totalAfterPercentageInput.value = totalAfterPercentage;
       });
     }
-
     function handlePaymentModal() {
       $(document).on('click', '.open-payment-modal', async function(e) {
         e.preventDefault();
@@ -683,7 +699,6 @@ function generateInvoiceNumber()
         $('#paymentModal').modal('show');
       });
     }
-
     function handlePaymentSubmission() {
       $('#submitPayment').on('click', function(e) {
         e.preventDefault();
@@ -759,7 +774,6 @@ function generateInvoiceNumber()
         });
       });
     }
-
     function initializeFilterListeners(tableInstance) {
       $('#monthFilter, #amountFilter').on('change keyup', function() {
         tableInstance.draw();
@@ -782,7 +796,6 @@ function generateInvoiceNumber()
     });
     initializeFilterListeners(table);
     initializeFilterListeners(tableSecond);
-
     function getCurrentDate() {
       const today = new Date(),
         dd = String(today.getDate()).padStart(2, '0'),
@@ -794,11 +807,10 @@ function generateInvoiceNumber()
 </script>
 <script src="pro_invoice.js"></script>
 <script src="percentage_calculations.js"></script>
-<script src="create_manual_invoice.js"></script>
+<!-- <script src="create_manual_invoice.js"></script> -->
 <script src="paymentsTable.js"></script>
 <script src="invoice_trash.js"></script>
 <script src="states.js"></script>
 <?php include 'partials/footer.php' ?>
 </body>
-
 </html>

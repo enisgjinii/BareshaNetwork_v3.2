@@ -126,7 +126,6 @@ $contractStartDate = mysqli_fetch_array($conn->query("SELECT * FROM kontrata_gje
                     <li class="breadcrumb-item active" aria-current="page">
                         <a href="<?php echo __FILE__; ?>" class="text-reset" style="text-decoration: none;">
                             Edito klientit <?php echo $editcl['emri'] ?>
-                            <?php echo $filename ?>
                         </a>
                     </li>
             </nav>

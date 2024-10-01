@@ -133,22 +133,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Handle Company Name
     $companyName = ($_POST['company_name'] === 'new') ? sanitizeInput($_POST['new_company_name'] ?? '') : sanitizeInput($_POST['company_name'] ?? '');
+
     // Handle File Upload
     $documentPath = '';
     if (!empty($_FILES['document']['name'])) {
         $documentPath = handleFileUpload($_FILES['document']);
         if (empty($documentPath)) exit();
     }
-    // Insert Data into Database
-    $stmt = $conn->prepare("INSERT INTO invoices_kont (invoice_creation_date, invoice_date, description, more_details, registrant, category, company_name, invoice_number, document_path, vlera_faktura) VALUES (NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("sssssssss", $invoiceDate, $description, $moreDetails, $registrant, $category, $companyName, $invoiceNumber, $documentPath, $valueOfInvoice);
-    if ($stmt->execute()) {
-        displayMessage('success', $trans['invoice_added']);
-        sendEmailNotification($userEmail, $invoiceNumber);
+
+    // **New Code: Check for Duplicate Invoice Number**
+    $checkStmt = $conn->prepare("SELECT COUNT(*) as count FROM invoices_kont WHERE invoice_number = ?");
+    $checkStmt->bind_param("s", $invoiceNumber);
+    $checkStmt->execute();
+    $result = $checkStmt->get_result();
+    $row = $result->fetch_assoc();
+    if ($row['count'] > 0) {
+        // Duplicate found, display error message
+        displayMessage('error', $trans['duplicate_invoice']);
     } else {
-        displayMessage('error', 'Pati një problem me ruajtjen e faturës.');
+        // No duplicate, proceed with insertion
+        $stmt = $conn->prepare("INSERT INTO invoices_kont (invoice_creation_date, invoice_date, description, more_details, registrant, category, company_name, invoice_number, document_path, vlera_faktura) VALUES (NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt->bind_param("sssssssss", $invoiceDate, $description, $moreDetails, $registrant, $category, $companyName, $invoiceNumber, $documentPath, $valueOfInvoice);
+        if ($stmt->execute()) {
+            displayMessage('success', $trans['invoice_added']);
+            sendEmailNotification($userEmail, $invoiceNumber);
+        } else {
+            displayMessage('error', 'Pati një problem me ruajtjen e faturës.');
+        }
     }
 }
+
 ?>
 <div class="main-panel">
     <div class="content-wrapper">
@@ -298,6 +312,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <!-- OCR Text Preview -->
                                 <div id="ocrTextPreview" class="mt-3">
                                     <h5>Teksti i Nxjerrë:</h5>
+                                    <!-- Add badge like to have kUjdes -->
+                                    <span  
                                     <pre style="white-space: pre-wrap; background-color: #f4f4f4; padding: 10px; border-radius: 5px;"><?php echo htmlspecialchars($extractedText ?? ''); ?></pre>
                                     <button class="input-custom-css px-3 py-2 mt-2" onclick="copyToClipboard('ocrTextPreview')">Kopjo Tekstin</button>
                                 </div>

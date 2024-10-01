@@ -126,7 +126,7 @@ ob_end_clean();
         e.preventDefault();
         var formData = new FormData(this);
         formData.append('id', '<?php echo $id; ?>');
-        fetch('update_contract.php', {
+        fetch('api/edit_methods/edit_contract.php', {
                 method: 'POST',
                 body: formData
             })

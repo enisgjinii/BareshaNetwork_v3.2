@@ -1,5 +1,5 @@
 <?php
-include 'conn-d.php';
+include '../../conn-d.php';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_FILES['file'])) {
     $invoice_id = $_POST['invoice_id'];
@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_FILES['file'])) {
 
         if ($stmt->execute()) {
             echo "File uploaded and database updated successfully.";
-            header("Location: invoice.php");
+            header("Location: ../../invoice.php");
             exit;
         } else {
             echo "Error updating database: " . $stmt->error;

@@ -18,11 +18,9 @@ include_once 'partials/header.php' ?>
         position: relative;
         overflow: hidden;
     }
-
     .btn-facebook:hover .icon {
         transform: translateY(-140%);
     }
-
     .btn-facebook .icon {
         position: absolute;
         top: 100%;
@@ -389,7 +387,7 @@ if (isset($_POST['submit'])) {
                                 <label for="email_facebook" class="form-label">Email-i</label>
                                 <input type="text" name="email_facebook" id="email_facebook" class="form-control shadow-sm rounded-5">
                                 <br>
-                                <button type="submit" class="btn btn-light rounded-5 float-right border" style="text-transform:none;" name="submit">
+                                <button type="submit" class="input-custom-css px-3 py-2 rounded-5" style="text-transform:none;" name="submit">
                                     <i class="fi fi-rr-paper-plane" style="display:inline-block;vertical-align:middle;"></i>
                                     <span style="display:inline-block;vertical-align:middle;">D&euml;rgo</span>
                                 </button>
@@ -559,7 +557,6 @@ if (isset($_POST['submit'])) {
             $('#editModal').modal('show');
         });
     });
-
     function getPerqindja() {
         // Get the selected value from the select element
         var select = document.getElementById("nameSurname");

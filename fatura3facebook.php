@@ -163,44 +163,7 @@ $totalSales = mysqli_fetch_array($totalSalesQuery);
     </div>
 
     <!-- Modal -->
-    <div class="modal fade" id="dergoFaturen" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <div>
-                        <h5 class="modal-title p-0 m-0" id="exampleModalLabel" style="font-size: 16px;">Dërgo faturën <?php echo $_GET['invoice']; ?></h5>
-                        <p class="text-muted p-0 m-0" style="font-size: 12px;">Ju po dërgoni një faturë te klienti - <?php echo $invoiceData['klient_emri']; ?></p>
-                    </div>
-                    <button type="button" class="btn-close" data-mdb-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form action="send_email.php" method="POST" enctype="multipart/form-data">
-                        <div class="form-group">
-                            <label for="to" style="font-size: 14px;">Email i marrësit</label>
-                            <p class="text-muted p-0 m-0" style="font-size: 12px;">Këtu është emaili i marrësit: <span id="recipient-email"></span></p>
-                            <input type="email" class="form-control" name="to_email" id="to" required>
-                        </div>
-                        <div class="form-group my-2">
-                            <label for="subject" style="font-size: 14px;">Subjekt</label>
-                            <input type="text" class="form-control" name="subject" id="subject" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="message" style="font-size: 14px;">Mesazh</label>
-                            <textarea class="form-control" name="message" id="message" rows="5"></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label for="file" style="font-size: 14px;">Bashkangjit faturën PDF:</label>
-                            <input type="file" class="form-control" name="pdf_attachment" id="file" accept=".pdf" required>
-                        </div>
-                        <br>
-                        <div class="form-group">
-                            <button type="submit" class="btn btn-primary" name="send" style="text-transform: none;">Dërgo faturën</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
+   
 
     <script>
         // JavaScript to copy the email into the input field and paragraph

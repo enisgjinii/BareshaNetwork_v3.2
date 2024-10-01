@@ -126,7 +126,6 @@ $csrf_token = generateCsrfToken();
           <li class="breadcrumb-item active" aria-current="page">
             <a href="<?php echo __FILE__; ?>" class="text-reset" style="text-decoration: none;">
               Regjistro një këngë
-              <?php echo $filename ?>
             </a>
           </li>
       </nav>

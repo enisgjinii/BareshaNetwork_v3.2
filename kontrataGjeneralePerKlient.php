@@ -2,27 +2,33 @@
 <html lang="en">
 
 <head>
+    <!-- Existing Meta Tags and Title -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>BareshaNetwork - <?php echo date("Y"); ?></title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet" />
-    <!-- MDB -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.3.0/mdb.min.css" rel="stylesheet" />
-
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat&display=swap" rel="stylesheet">
 
+    <!-- MDB -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.3.0/mdb.min.css" rel="stylesheet" />
+
+    <!-- Toastify CSS -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+
+    <!-- Custom Styles -->
     <style>
         * {
             font-family: 'Montserrat', sans-serif;
-
             font-size: 13px;
         }
 
@@ -47,9 +53,10 @@
         }
     </style>
 
-    <!-- Fav Icon ne formatin .png -->
+    <!-- Fav Icon -->
     <link rel="shortcut icon" href="images/favicon.png" />
 </head>
+
 
 <body>
     <!-- <div class="container my-5 py-3">
@@ -57,7 +64,6 @@
         <div class="float-end">
             <button class="btn btn-light text-capitalize border border-1 shadow-2" data-mdb-ripple-color="dark" id="printBtn" onClick="printData()"><i class="fas fa-print text-primary "></i> Print</button>
         </div>
-
         <script>
             function printData() {
                 var printContent = document.getElementById('contractContent').innerHTML;
@@ -70,24 +76,16 @@
     </div> -->
     <?php
     include 'conn-d.php';
-
-
     $id = $_GET['id'];
-
     $query = "SELECT * FROM kontrata_gjenerale WHERE id = $id";
     $result = mysqli_query($conn, $query);
     if (mysqli_num_rows($result) > 0) {
         $row = mysqli_fetch_assoc($result);
-
     ?>
         <div id="contractContent" class="container my-5">
-
-
-
             <div class="py-5 px-5">
                 <h4 class='fw-bold text-center'>CONTRACT ON COOPERATION</h4>
                 <h4 class='fw-bold text-center'>KONTRATE BASHKPUNIMI</h4>
-
                 <div class="row">
                     <div class="float-start">
                         <p class="fw-bold">No. Nr. : <?php echo $row['id_kontrates'] ?> </p>
@@ -96,9 +94,7 @@
                         <p class="fw-bold">Date – Dat&euml;: <?php echo $row['data_e_krijimit'] ?></p>
                     </div>
                 </div>
-
                 <br>
-
                 <div class="row">
                     <p class="fw-bold">Eng. :</p>
                     <p>This document specifies the terms and conditions of the agreement between <b>Baresha Music SH.P.K</b> , located at Rr. Brigada 123 nr. 23 in Suharek&euml;, represented by <b>AFRIM KOLGECI, CEO-FOUNDER of Baresha Music</b>, and <b>ARTIST: <?php
@@ -128,7 +124,6 @@
                         <li>Amazon Music</li>
                         <li>Etc – Etj</li>
                     </ul>
-
                 </div>
                 <div style="break-after:page"></div>
                 <div class="row">
@@ -184,7 +179,6 @@
                     </ul>
                     <p>If the rules mentioned above are to happen the artist must pay to Baresha Music SH.P.K between 20.000 and 40.000 Euros for the damages caused to Baresha Music.</p>
                     </p>
-
                     <p><b>Shqip. :</b></p>
                     <p><b>3.3.</b> Me n&euml;nshkrimin e k&euml;saj kontrate, Artisti pranon se i ka lexuar dhe kuptuar k&euml;to rregulla dhe pranon p&euml;rgjegj&euml;sin&euml; p&euml;r respektimin e k&euml;tij neni dhe kontrat&euml;s n&euml; t&euml;r&euml;si. Artisti mund t&euml; p&euml;rdor&euml; vet&euml;m instrumente t&euml; blera q&euml; vijn&euml; me licenc&euml;. P&euml;r çdo publikim, Artistit i k&euml;rkohet t&euml; jap&euml; licenc&euml;n n&euml;se beat e ka burimin nga YouTube ose interneti. Artisti mund t&euml; p&euml;rdor&euml; gjithashtu vija melodike, instrumente, video dhe tekste q&euml; jan&euml; autorizuar nga autor&euml;t, producent&euml;t dhe kompozitor&euml;t e tyre p&euml;rkat&euml;s. P&euml;rdorimi i çdo materiali q&euml; nuk &euml;sht&euml; i licencuar ose i autorizuar &euml;sht&euml; rrept&euml;sisht i ndaluar n&euml; kanalin e Artistit:
                     <ul style="margin-left:50px;">
@@ -201,51 +195,39 @@
                         <li>- Vokale q&euml; p&euml;rmbajn&euml; vepra t&euml; tjera t&euml; artistit (Pa aprovim nga pronari original)</li>
                         <li>- Tekste t&euml; paautorizuara q&euml; p&euml;rmbajn&euml; vepra t&euml; tjera artist&euml;sh (Pa miratimin e tyre)</li>
                         <li>- Video q&euml; p&euml;rmbajn&euml; vepra t&euml; tjera t&euml; artist&euml;ve (Pa miratimin e tyre)</li>
-
-
-
                     </ul>
                     <p> N&euml;se ndodh&euml; q&euml; rregullat e m&euml;sip&euml;rme t&euml; thyhen, artisti duhet t'i paguaj&euml; Baresha Music SH.P.K nga 20.000 deri n&euml; 40.000 Euro p&euml;r d&euml;met e shkaktuara n&euml; Baresha Music.</p>
-
                     </p>
-
                     <p><b>Eng. :</b></p>
                     <p><b>3.4.</b> The artist hereby affirms that they have carefully reviewed the fundamental regulations and guidelines presented herein, and by affixing their signature to this agreement, they confirm their acknowledgement and agreement to abide by these terms:</p>
                     <p><b>3.4.1</b> Will not alter or manipulate any aspect related to YouTube, and explicitly declare that I will refrain from modifying, editing or creating content for the "Tags" section, "Metadata," "Description," "Hashtags," "Channel Tags," or "Thumbnail" of any material.
                         The use of names belonging to other artists or trademarks without the written authorization of the respective owner is strictly prohibited. Non-compliance with this rule by the ARTIST may result in legal liability for any potential damages incurred, including financial compensation.
                     </p>
                     <p><b>3.4.2</b> The ARTIST shall refrain from uploading any content to YouTube that includes any material, including but not limited to audio, video, instrumental, melody, text, photo, image, person, logo, or trademark that is not their own and for which they lack written authorization from the respective owner. Failure to comply with this rule may result in legal liability for any potential damages incurred, including financial compensation.</p>
-
                     <p><b>3.4.3</b> The ARTIST is prohibited from removing any Baresha Music representative from their designated role as "Owner," "Manager," or "Editor" without executing a contract. In the event of such an occurrence, the ARTIST must restore the removed individual(s) within 48 hours. Failure to do so will result in a daily penalty of 20 Euros for each day beyond the two-day limit until the roles of "Owner," "Manager," or "Editor" are returned to the Baresha Music representatives.</p>
                     <p><b>Shqip. :</b></p>
                     <p><b>3.4.</b> Artisti me k&euml;t&euml; deklaron se ka shqyrtuar me kujdes rregulloret dhe udh&euml;zimet themelore t&euml; paraqitura n&euml; k&euml;t&euml; marr&euml;veshje, dhe duke vendosur n&euml;nshkrimin e tyre n&euml; k&euml;t&euml; marr&euml;veshje, ata konfirmojn&euml; pranimin dhe pajtimin e tyre p&euml;r t&euml; respektuar kushtet e saj siq jan me posht&euml;.</p>
                     <p><b>3.4.1</b> Nuk do t&euml; ndryshoj ose manipuloj asnj&euml; aspekt t&euml; lidhur me YouTube-n, dhe deklaron me qart&euml;si se do t&euml; ndaloj t&euml; modifikoj, redaktoj ose krijoj p&euml;rmbajtje p&euml;r "Tags", "Metadata", "Description", "Hashtags", "Channel Tags" ose "Thumbnail" t&euml; çdo materiali.
                         P&euml;rdorimi i emrave q&euml; i takojn&euml; artist&euml;ve tjer&euml; ose markave t&euml; regjistruara pa autorizimin me shkrim t&euml; pronarit t&euml; tyre &euml;sht&euml; kategorikisht i ndaluar. Mosrespektimi i k&euml;saj rregulle nga ARTISTI mund t&euml; çoj&euml; n&euml; p&euml;rgjegj&euml;si ligjore p&euml;r çdo d&euml;m potencial q&euml; mund t&euml; shkaktohet, duke p&euml;rfshir&euml; d&euml;mshp&euml;rblim financiar.
-
                     </p>
                     <p><b>3.4.2</b> ARTISTI duhet t&euml; ndaloj&euml; ngarkimin e çdo lloj p&euml;rmbajtjeje n&euml; YouTube q&euml; p&euml;rfshin çdo material, duke p&euml;rfshir&euml; por jo duke u kufizuar me audio, video, instrumentale, melodi, tekst, foto, imazh, person, logo ose mark&euml; tregtare q&euml; nuk i takojn&euml; atij dhe p&euml;r t&euml; cilat ai nuk ka autorizim me shkrim nga pronari i tyre. Mosrespektimi i k&euml;saj rregulle mund t&euml; çoj&euml; n&euml; p&euml;rgjegj&euml;si ligjore p&euml;r çdo d&euml;m potencial q&euml; mund t&euml; shkaktohet, duke p&euml;rfshir&euml; d&euml;mshp&euml;rblim financiar.</p>
-
                     <p><b>3.4.3</b> ARTISTI &euml;sht&euml; i ndaluar t&euml; heq&euml; nga roli i caktuar si "Owner", "Manager" ose "Editor" i caktuar nga Baresha Music pa n&euml;nshkrimin e nj&euml; kontrate. N&euml; rast se ndodh nj&euml; ngjarje e till&euml;, ARTISTI duhet t&euml; rikthej&euml; personat e hequr brenda 48 or&euml;ve. Mosrespektimi i k&euml;saj rregulle do t&euml; rezultoj&euml; n&euml; nj&euml; gjob&euml; ditore prej 20 Euro p&euml;r çdo dit&euml; pas limitit t&euml; dy dit&euml;ve deri n&euml; momentin q&euml; rolet e "Owner", "Manager" ose "Editor" kthehen te p&euml;rfaq&euml;suesit e Baresha Music.</p>
                     <p><b>Eng. :</b></p>
                     <p>
                         <b> 3.4. </b>In the event that the artist fails to comply with these rules, Baresha Music SH.P.K hereby reserves the right to terminate the cooperation agreement, as well as any other agreements in place with the artist, with immediate effect. It is understood that the artist, as the rightful owner of the rights, shall be solely responsible and liable to you for any and all financial and other damages resulting from non-compliance with these rules.
                         In the event of non-compliance with these Rules, the Artist shall be solely responsible for any potential harm, including financial and consequential damages, arising from such non-compliance, as well as any other consequences resulting from the breach of the aforementioned provisions.
                     </p>
-
                     <p><b> Shqip. : </b></p>
                     <p><b>3.4.</b> N&euml; rast se artisti nuk i bindet k&euml;tyre rregullave, Baresha Music SH.P.K rezervon k&euml;tu t&euml; drejt&euml;n p&euml;r t&euml; nd&euml;rprer&euml; marr&euml;veshjen e bashk&euml;punimit, si dhe çdo marr&euml;veshje tjet&euml;r n&euml; vend me artistin, me efekt t&euml; menj&euml;hersh&euml;m. Ësht&euml; kuptuar se artisti, si pronar i t&euml; drejtave t&euml; autorit, do t&euml; jet&euml; i vet&euml;m p&euml;rgjegj&euml;s dhe p&euml;r çdo d&euml;m financiar dhe d&euml;me tjera q&euml; shkaktohen nga mosbindja ndaj k&euml;tyre rregullave.
                         N&euml; rast se nuk respektohen k&euml;to Rregulla, Artisti do t&euml; jet&euml; i vet&euml;m p&euml;rgjegj&euml;s p&euml;r çdo d&euml;m potencial, duke p&euml;rfshir&euml; d&euml;met financiare dhe d&euml;met e tjera, si dhe p&euml;r çdo pasoj&euml; tjet&euml;r q&euml; mund t&euml; rezultoj&euml; nga mosrespektimi i dispozitave t&euml; p&euml;rmendura m&euml; lart dhe m&euml; posht&euml;.
                     </p>
-
                     <p><b>Eng. :</b></p>
                     <p>
                         <b>3.5.</b> Baresha Music SH.P.K further reserves the right to terminate the contract at any time if the ARTIST's actions on their YouTube channel endanger Baresha Music's operations, such as receiving unresolved Copyright Strikes or engaging in any activity that violates YouTube's rules, terms, and conditions. In the event of such termination, Baresha Music SH.P.K is obligated to liquidate any outstanding payments and release all clients' audio-visual materials from the use of Baresha Music SH.P.K within a period of four months.
                     </p>
-
                     <p><b>Shqip. : </p></b>
                     <p><b>3.5.</b> Baresha Music SH.P.K gjithashtu rezervon t&euml; drejt&euml;n p&euml;r t&euml; nd&euml;rprer&euml; kontrat&euml;n n&euml; çdo koh&euml; n&euml;se veprimet e ARTIST n&euml; kanalin e tyre n&euml; YouTube v&euml;shtir&euml;sojn&euml; veprimtarin&euml; e Baresha Music (p&euml;r shembull duke marr&euml; shkelje t&euml; drejtave t&euml; autorit pa u zgjidhur, apo duke b&euml;r&euml; çdo veprim q&euml; shkel rregullat, kushtet dhe kushtetutat e YouTube). N&euml; rast se ky rast ndodh, Baresha Music SH.P.K &euml;sht&euml; i detyruar q&euml; n&euml; nj&euml; periudh&euml; prej kat&euml;r muajsh t&euml; likuidoj&euml; çdo pages&euml; q&euml; nuk &euml;sht&euml; realizuar dhe t&euml; liroj&euml; t&euml; gjith&euml; materialet audiovizive t&euml; klient&euml;ve nga p&euml;rdorimi i Baresha Music SH.P.K.
                     </p>
-
                 </div>
                 <div class="row">
                     <p class="fw-bold">ARTICLE 4 – RIGHTS AND OBLIGATIONS OF THE COPYRIGHT USER – BARESHA MUSIC SH.P.K</p>
@@ -265,7 +247,6 @@
                     <p>
                         <b>4.3.</b> Me q&euml;llim t&euml; promovimit t&euml; materialeve t&euml; artistit, Baresha Music SH.P.K do t&euml; p&euml;rdor&euml; strategjit&euml; e ndryshme si "Cross-Promotion", "Tag Promotion", "Thumbnail Optimization" dhe çdo form&euml; tjet&euml;r n&euml; dispozicion t&euml; kompanis&euml; Baresha Music SH.P.K. p&euml;r t&euml; arritur k&euml;t&euml; q&euml;llim.
                     </p>
-
                     <p><b>Eng. : </b></p>
                     <p><b>4.4.</b> Baresha Music SH.P.K will provide a maximum of one (1) video per "Instagram Story" and one (1) video for the "Instagram Feed" for each artist or performer featured in a song. These provisions are subject to the regulations outlined in Article 3.3.</p>
                     <p><b>Shqip. :</b></p>
@@ -287,11 +268,9 @@
                     <p class="fw-bold">Shqip. :</p>
                     <p><b>4.5.4.</b> Baresha Music SH.P.K &euml;sht&euml; e vendosur q&euml; t&euml; mbroj&euml; reputacionin e artist&euml;ve t&euml; saj. Me k&euml;t&euml; q&euml;llim, kompania do t&euml; heq&euml; çdo lloj linku nga rezultatet e k&euml;rkimit n&euml; Google q&euml; ridrejtojn&euml; vizitor&euml;t n&euml; faqe t&euml; internetit q&euml; p&euml;rmbajn&euml; informacione t&euml; rreme ose q&euml; mund t&euml; d&euml;mtojn&euml; imazhin e artistit n&euml; fjal&euml;.</p>
                     <p class="fw-bold">Eng. : </p>
-
                     <p><b>4.5.5.</b> Baresha Music SH.P.K is committed to maintaining the integrity of its artists' image and reputation. To this end, the company will remove any illegal materials published in connection with the artist on YouTube and other "User Generated Content" platforms such as SoundCloud, DailyMotion, etc.</p>
                     <p class="fw-bold">Shqip. :</p>
                     <p><b>4.5.5.</b> Baresha Music SH.P.K &euml;sht&euml; e vendosur t&euml; mbaj&euml; integritetin e imazhit dhe reputacionit t&euml; artist&euml;ve t&euml; saj. Me k&euml;t&euml; q&euml;llim, kompania do t&euml; heq&euml; çdo material t&euml; paligjsh&euml;m q&euml; publikohet n&euml; lidhje me artistin n&euml; YouTube dhe platforma t&euml; tjera t&euml; "P&euml;rmbajtjes s&euml; Krijuar nga P&euml;rdoruesit" si SoundCloud, DailyMotion etj.</p>
-
                     <p class="fw-bold">Eng. : </p>
                     <p><b>4.6.</b> Baresha Music SH.P.K is hereby granted authorization by the Artist, who is the Copyright Owner, to exclusively exercise the right to profit from the following:</p>
                     <p class="fw-bold">Shqip. :</p>
@@ -323,7 +302,6 @@
                     <p><b>4.10.</b> N&euml; rast se artisti nuk publikon asnj&euml; lloj p&euml;rmbajtjeje t&euml; re brenda nj&euml; viti, Baresha Music SH.P.K rezervon t&euml; drejt&euml;n p&euml;r t&euml; shfuqizuar k&euml;t&euml; kontrat&euml; dhe çdo kontrat&euml; tjet&euml;r me artistin. N&euml; k&euml;t&euml; rast, kanali do t&euml; humbas&euml; monetizimin.
                     </p>
                 </div>
-
                 <div class="row">
                     <p class="fw-bold">ARTICLE 5 – TË DREJTAT DHE OBLIGIMET E ARTISTIT</p>
                     <p class="fw-bold"> NENI 5 – RIGHTS AND OBLIGATIONS OF THE ARTIST </p>
@@ -372,7 +350,6 @@
                     <p><b>5.8.</b> Artisti &euml;sht&euml; i detyruar t&euml; kontrolloj&euml; n&euml;se kanali i tij p&euml;rmban materiale q&euml; nuk jan&euml; t&euml; tij dhe t'i largoj&euml; ato nga kanali n&euml; m&euml;nyr&euml; q&euml; t&euml; p&euml;rputhen me rregullat e YouTube p&euml;r "Reused Content".
                     </p>
                 </div>
-
                 <div class="row">
                     <p class="fw-bold">ARTICLE 6 – EARNINGS, EXPENDITURES, AND COMISSIONS</p>
                     <p class="fw-bold">NENI 6 – TË HYRAT SHPENZIMET DHE PROVIZIONET</p>
@@ -406,10 +383,7 @@
                     <p><b>6.2.2.</b> The artist shall bear the responsibility of covering the banking commissions associated with the transfer of funds.</p>
                     <p class="fw-bold">Shqip. :</p>
                     <p><b>6.2.2.</b> Komisionet bankare p&euml;r transferimin e fondeve do t&euml; paguhen nga artisti.</p>
-
-
                 </div>
-
                 <div class="row">
                     <p class="fw-bold">ARTICLE 7 – PARTIES’ COVENANTS AND OWNERSHIP</p>
                     <p class="fw-bold">NENI 7 – GARANICTË E PALËVE DHE PRONËSIA</p>
@@ -419,7 +393,6 @@
                     <p class="fw-bold">Shqip. :</p>
                     <p><b>7.1.</b> Secila pal&euml; kontraktuese &euml;sht&euml; p&euml;rgjegj&euml;se dhe e detyruar t&euml; paguaj&euml; detyrimet tatimore q&euml; dalin nga t&euml; ardhurat q&euml; fitohen n&euml;n k&euml;t&euml; kontrat&euml;. Bazuar n&euml; Ligjin nr. 06/L-105 p&euml;r Tatimin mbi t&euml; Ardhurat, n&euml; p&euml;rputhje me Nenin 31.2 "Tatimpaguesit, q&euml; paguajn t&euml; drejta pun&euml;sore (Royalties) p&euml;r personat rezident&euml; ose jo-rezident&euml;, duhet t&euml; mbaj&euml; nj&euml; taks&euml; prej dhjet&euml; p&euml;r qind (10%) n&euml; koh&euml;n e pages&euml;s ose kreditit".</p>
                 </div>
-
                 <div class="row">
                     <p class="fw-bold">ARTICLE 8 – PARTIES’ COVENANTS AND OWNERSHIP</p>
                     <p class="fw-bold">NENI 8 – GARANICTË E PALËVE DHE PRONËSIA</p>
@@ -451,7 +424,6 @@
                         <b>8.2.3.</b> Gjat&euml; afatit t&euml; k&euml;saj kontrate, Artisti &euml;sht&euml; i ndaluar t&euml; hyj&euml; n&euml; marr&euml;veshje t&euml; tjera me kompani t&euml; tjera distributive ose botuese p&euml;r publikimin e materialeve audio dhe / ose video n&euml; kanalin e tyre n&euml; YouTube dhe dyqanet e tyre digjitale.
                     </p>
                 </div>
-
                 <div class="row">
                     <p class="fw-bold">ARTICLE 9 – DURATION OF THE CONTRACT</p>
                     <p class="fw-bold">NENI 9 – KOHËZGJATJA E KONTRATËS</p>
@@ -459,16 +431,13 @@
                     <p><b>9.1.</b> The Cooperation Agreement shall be valid for a period of <?php echo $row['kohezgjatja']; ?> months from the day the contract is signed and shall be automatically renewed for subsequent <?php echo $row['kohezgjatja']; ?>-month periods unless otherwise terminated. Either the Artist (Copyright Owner) or Baresha Music SH.P.K (Copyright User) may terminate this Cooperation Agreement by providing written notice of termination at least 90 days prior to the end of each term. In the event of termination, the Agreement shall be deemed to have ended on the date on which it would have naturally expired. This Agreement may not be terminated prior to the end of any term, except in cases where the Artist provides written notice of termination with a valid reason via email, at least 3 months in advance.</p>
                     <p class="fw-bold">Shqip. :</p>
                     <p><b>9.1.</b> Marr&euml;veshja p&euml;r bashk&euml;punim do t&euml; jet&euml; e vlefshme p&euml;r nj&euml; periudh&euml; prej <?php echo $row['kohezgjatja']; ?> muajsh nga data e n&euml;nshkrimit dhe do t&euml; rinovohet automatikisht p&euml;r periudha t&euml; m&euml;tejshme prej <?php echo $row['kohezgjatja']; ?> muajsh, p&euml;rveç rasteve t&euml; nd&euml;rprerjes. As artisti (pronari i t&euml; drejtave t&euml; kopjimit) dhe as Baresha Music SH.P.K (p&euml;rdoruesi i t&euml; drejtave t&euml; kopjimit) mund t&euml; nd&euml;rprejn&euml; k&euml;t&euml; marr&euml;veshje p&euml;r bashk&euml;punim duke siguruar njoftim me shkrim t&euml; nd&euml;rprerjes s&euml; saj t&euml; pakt&euml;n 90 dit&euml; para p&euml;rfundimit t&euml; secil&euml;s periudh&euml;. N&euml; rast t&euml; nd&euml;rprerjes, marr&euml;veshja do t&euml; konsiderohet se ka p&euml;rfunduar n&euml; dat&euml;n n&euml; t&euml; cil&euml;n ajo do t&euml; kishte p&euml;rfunduar natyrsh&euml;m. Kjo marr&euml;veshje nuk mund t&euml; nd&euml;rpritet p&euml;rpara p&euml;rfundimit t&euml; çdo periudhe, p&euml;rveç rasteve kur artisti jep njoftim me shkrim t&euml; nd&euml;rprerjes s&euml; saj me arsyetim t&euml; vlefsh&euml;m n&euml;p&euml;rmjet email-it, t&euml; pakt&euml;n 3 muaj p&euml;rpara p&euml;rfundimit t&euml; marr&euml;veshjes.</p>
-
                     <p class="fw-bold">Eng. :</p>
                     <p>The undersigned parties hereby declare that they are entering into this contract voluntarily, without any form of coercion, misrepresentation or deceit. By affixing their signatures to this document, the parties affirm that they have thoroughly read and understood the contents of this contract, and have no objections to the terms and conditions stated herein.</p>
                     <p class="fw-bold">Shqip. :</p>
                     <p>Pal&euml;t n&euml;nshkruese d&euml;shmojn&euml; se po n&euml;nshkruajn&euml; k&euml;t&euml; kontrat&euml; me vullnet t&euml; lir&euml;, pa ndonj&euml; form&euml; prekjeje, mashtrimi ose g&euml;njeshtr&euml;. Duke n&euml;nshkruar k&euml;t&euml; kontrat&euml;, pal&euml;t d&euml;shmojn&euml; se kan&euml; lexuar me kujdes kontrat&euml;n dhe nuk kan&euml; asnj&euml; objeksion n&euml;n kushtet dhe parimet e n&euml; t&euml; shkruar.</p>
                     <p class="fw-bold">Eng. :</p>
                     <p class="fw-bold">Shqip. :</p>
-
                     <p>This Contract is Signed on – Kjo kontrat&euml; n&euml;shkruhet m&euml; - : <?php echo date('m/d/Y'); ?></p>
-
                     <p> Baresha Music SH.P.K – P&euml;r Baresha Music SH.PK Artist - Artisti </p>
                     <div class="row">
                         <div class="col">
@@ -480,27 +449,19 @@
                             echo '<img src="' . $file_path . '" style="width: 150px; height: auto;">'; ?>
                         </div>
                     </div>
-
-
                     <div class="row mt-5">
                         <div class="col-6">
                             <div class="row">
                                 <?php
                                 include 'conn-d.php';
-
                                 if (isset($_GET['id'])) {
                                     $id = $_GET['id'];
-
                                     $query = "SELECT * FROM kontrata_gjenerale WHERE id = $id";
                                     $result = mysqli_query($conn, $query);
-
                                     if (mysqli_num_rows($result) > 0) {
                                         $row = mysqli_fetch_assoc($result);
-
                                         // Display the data in HTML
                                 ?>
-
-
                                         <form method="POST" enctype="multipart/form-data">
                                             <label for="signature">Nenshkrimi:</label>
                                             <br>
@@ -516,7 +477,6 @@
                                                 <span style="display:inline-block;vertical-align:middle;">Fshij</span>
                                             </button>
                                         </form>
-
                                         <script src="https://cdnjs.cloudflare.com/ajax/libs/signature_pad/1.5.3/signature_pad.min.js"></script>
                                         <script>
                                             var canvas = document.getElementById('signature');
@@ -537,16 +497,12 @@
                                 } else {
                                     echo "ID nuk &euml;sht&euml; caktuar!";
                                 }
-
                                 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     $signatureData = $_POST['signatureData'];
-
                                     if (isset($_GET['id'])) {
                                         $id = $_GET['id'];
-
                                         $query = "UPDATE kontrata_gjenerale SET nenshkrimi = '$signatureData' WHERE id = $id";
                                         $result = mysqli_query($conn, $query);
-
                                         if ($result) {
                                             echo "<script>alert('Nenshkrimi u azhurnua me sukses!')</script>";
                                         } else {
@@ -557,7 +513,6 @@
                                     }
                                 }
                                 ?>
-
                             </div>
                         </div>
                         <!-- <div class="col-6 float-end text-end">
@@ -565,34 +520,24 @@
                         <div class="border-bottom w-25 float-end text-end">
                             <?php
                             echo $row['data'];
-
                             ?>
                         </div>
                     </div> -->
-
                         <?php
                         if (!empty($row['shenim'])) {
                         ?>
-
                             <div class="my-5 border rounded-5 py-3">
                                 <h6>Shenime</h6>
                                 <?php echo $row['shenim']; ?>
                             </div>
-
                         <?php
                         }
                         ?>
-
                     </div>
                 </div>
-
-
-
             </div>
         </div>
-
         </div>
-
     <?php } ?>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script><!-- MDB -->
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.3.0/mdb.min.js"></script>

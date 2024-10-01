@@ -20,7 +20,6 @@
             </h6>
           </nav>
         </div>
-
         <div class="card shadow-sm rounded-5 my-2 py-5 px-3 mb-4">
           <form method="GET" action="" class="form-inline">
             <div class="form-group row">
@@ -42,10 +41,6 @@
             </div>
           </form>
         </div>
-
-
-
-
         <?php
         if (isset($_GET['kerko'])) {
           $d1 = $_GET['d1'];
@@ -59,7 +54,6 @@
                 <div class="col-12">
                   <br>
                   <div class="table-responsive">
-
                     <table id="example1" class="table w-100 table-bordered">
                       <thead class="bg-light">
                         <tr>
@@ -119,7 +113,6 @@
           </div>
         <?php } ?>
         <br>
-
         <div class="card shadow-sm rounded-5">
           <div class="card-body">
             <h4 class="card-title">Tabela me te gjitha te dhenat rreth perfundimit te pagesave</h4>
@@ -143,17 +136,14 @@
                     <tbody>
                       <?php
                       $payments = $conn->query("SELECT * FROM pagesat ORDER BY data DESC");
-
                       while ($payment = mysqli_fetch_array($payments)) {
                         $invoice_number = $payment['fatura'];
                         $invoice_info = $conn->query("SELECT * FROM fatura WHERE fatura='$invoice_number'");
                         $invoice_data = mysqli_fetch_array($invoice_info);
-
                         if (!empty($invoice_data)) {
                           $client_id = $invoice_data['emri'];
                           $client_info = $conn->query("SELECT * FROM klientet WHERE id='$client_id'");
                           $client_data = mysqli_fetch_array($client_info);
-
                       ?>
                           <tr>
                             <td><input type="checkbox" name="selected_payments[]" value="<?= $payment['id'] ?>"></td>
@@ -180,11 +170,6 @@
                               }
                               ?>
                             </td>
-
-
-
-
-
                             <td>
                               <a class="btn btn-light shadow-2 border border-1" target="_blank" href="fatura.php?invoice=<?= $payment['fatura']; ?>">
                                 <i class="fi fi-rr-print"></i>
@@ -195,7 +180,6 @@
                         }
                       }
                       ?>
-
                     </tbody>
                     <tfoot class="bg-light">
                       <tr>
@@ -211,45 +195,24 @@
                       </tr>
                     </tfoot>
                   </table>
-
                 </div>
               </div>
             </div>
           </div>
         </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
       </div>
     </div>
   </div>
 </div>
 </div>
-
 <?php include 'partials/footer.php'; ?>
-
 <script>
   $(document).ready(function() {
-
     var dataTables = $('#example1').DataTable({
       responsive: false,
       search: {
         return: true,
       },
-
       lengthMenu: [
         [10, 25, 50, -1],
         [10, 25, 50, "Te gjitha"]
@@ -299,19 +262,16 @@
         titleAttr: 'Printo tabel&euml;n',
         className: 'btn btn-light border shadow-2 me-2'
       }, ],
-
       fixedHeader: true,
       language: {
         url: "https://cdn.datatables.net/plug-ins/1.13.1/i18n/sq.json",
       },
       stripeClasses: ['stripe-color'],
-
     });
   });
 </script>
 <script>
   var datatables;
-
   $(document).ready(function() {
     var dataTables = $('#example2').DataTable({
       responsive: false,
@@ -339,10 +299,8 @@
           'border': '1px solid #ced4da',
           'border-radius': '0.25rem',
         });
-
         // Add checkbox column header
         var th = $('<th><input type="checkbox" id="check-all"/></th>').prependTo('#example2 th tr');
-
         // Handle checkbox events
         $('#check-all').on('change', function() {
           $('input[type="checkbox"]').prop('checked', $(this).prop('checked'));
@@ -394,7 +352,6 @@
         {
           text: '<i class="fi fi-rr-filter fa-lg"></i>&nbsp;&nbsp; Shfaq kategorine Personal',
           titleAttr: 'Filtro bazuar n&euml; kategorin&euml; e biznesit',
-
           className: 'btn btn-light border shadow-2 me-2',
           action: function(e, dt, node, config) {
             var value = 'Personal';
@@ -404,7 +361,6 @@
         {
           text: '<i class="fi fi-rr-filter fa-lg"></i>&nbsp;&nbsp; Shfaq kategorine Personal',
           titleAttr: 'Filtro bazuar n&euml; kategorin&euml; e biznesit',
-
           className: 'btn btn-light border shadow-2 me-2',
           action: function(e, dt, node, config) {
             var value = 'Ska';
@@ -426,10 +382,8 @@
       },
       stripeClasses: ['stripe-color'],
     });
-
     // Initialize Bootstrap tooltips
     $('[data-bs-toggle="tooltip"]').tooltip();
-
     // Prevent row selection on click (only allow checkbox selection)
     $('#example2 tbody').on('click', 'tr td:not(:first-child)', function(e) {
       e.stopPropagation();

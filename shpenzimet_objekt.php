@@ -1,19 +1,6 @@
 <?php
 include 'partials/header.php';
 include 'conn-d.php';
-// Fetch data for expenses chart (if needed)
-$sql = "SELECT DATE(created_at) AS date, SUM(shuma) AS total_shuma FROM expenses GROUP BY DATE(created_at)";
-$stmt = $conn->prepare($sql);
-$stmt->execute();
-$result = $stmt->get_result();
-$expenses = [];
-$total = 0;
-if ($result->num_rows > 0) {
-    while ($row = $result->fetch_assoc()) {
-        $expenses[] = $row;
-        $total += $row['total_shuma'];
-    }
-}
 ?>
 <div class="main-panel">
     <div class="content-wrapper">
@@ -163,7 +150,6 @@ if ($result->num_rows > 0) {
                                     ?>
                                 </select>
                             </div>
-
                         </div>
                         <div class="row my-2">
                             <div class="col-md-2 d-flex">
@@ -337,7 +323,6 @@ if ($result->num_rows > 0) {
     // Ensure that this script is placed after the modals and includes
     // Global variable to store DataTables instances
     var dataTables = {};
-
     function confirmDelete(id) {
         Swal.fire({
             title: 'A jeni i sigurt?',
@@ -387,7 +372,6 @@ if ($result->num_rows > 0) {
             }
         });
     }
-
     function refreshTable() {
         var activeTab = $('ul.nav-pills .active').attr('id');
         var tableId = 'table-' + activeTab.replace('pills-', '').replace('-tab', '');
@@ -1134,16 +1118,13 @@ if ($result->num_rows > 0) {
         max-height: 80vh;
         object-fit: contain;
     }
-
     #documentMessage {
         text-align: center;
     }
-
     /* Custom styles for DataTables */
     .table-responsive {
         overflow-x: auto;
     }
-
     /* Optional: Adjust badge positioning */
     .badge {
         font-size: 0.75rem;

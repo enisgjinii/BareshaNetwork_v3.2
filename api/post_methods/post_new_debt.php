@@ -1,5 +1,5 @@
 <?php
-include 'conn-d.php';
+include '../../conn-d.php';
 
 if (isset($_POST['ruaj'])) {
   // Validate and sanitize inputs
@@ -37,7 +37,7 @@ if (isset($_POST['ruaj'])) {
 
     // Execute the statement
     if ($stmt->execute()) {
-      header("Location: yinc.php");
+      header("Location: ../../yinc.php");
     } else {
       // Log the error
       error_log("Error executing SQL statement: " . $stmt->error);

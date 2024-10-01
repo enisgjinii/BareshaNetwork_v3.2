@@ -1,14 +1,11 @@
 <?php include 'partials/header.php';
-
 if (isset($_POST['ruaj'])) {
   $shuma = mysqli_real_escape_string($conn, $_POST['shuma']);
   $data = mysqli_real_escape_string($conn, $_POST['data']);
   $pagesa = mysqli_real_escape_string($conn, $_POST['forma']);
   $pershkrimi = mysqli_real_escape_string($conn, $_POST['pershkrimi']);
-
   // Attempt to insert data into the database
   $query = "INSERT INTO shpenzimep (shuma, pershkrimi, data, pagesa) VALUES ('$shuma', '$pershkrimi','$data', '$pagesa')";
-
   if ($conn->query($query)) {
     // Data insertion was successful
     echo '<script>
@@ -33,8 +30,6 @@ if (isset($_POST['ruaj'])) {
       </script>';
   }
 }
-
-
 /**
  * Formatizon madhësinë e një dosjeje.
  *
@@ -43,7 +38,6 @@ if (isset($_POST['ruaj'])) {
  * @return string Madhësia e formatizuar e dosjes.
  */
 const UNITS = array('B', 'KB', 'MB', 'GB', 'TB');
-
 function formatFileSize($filename)
 {
   if (!file_exists($filename)) {
@@ -51,7 +45,6 @@ function formatFileSize($filename)
   } else {
     $size = filesize($filename);
   }
-
   $formattedSize = $size;
   $i = 0;
   while ($size >= 1024 && $i < count(UNITS) - 1) {
@@ -59,14 +52,11 @@ function formatFileSize($filename)
     $formattedSize = round($size, 2);
     $i++;
   }
-
   if ($size === false) {
     return 'E panjohur';
   }
-
   return sprintf('%.2f %s', $formattedSize, UNITS[$i]);
 }
-
 $filename = __FILE__;
 $fileSize = formatFileSize($filename);
 $text = 'Madhësia e dosjes: ' . $fileSize;
@@ -80,12 +70,10 @@ $text = 'Madhësia e dosjes: ' . $fileSize;
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-
           <div class="mb-3">
             <label for="shuma" class="form-label">Shuma</label>
             <input type="text" name="shuma" class="form-control rounded-5 border border-2" id="shuma" value="0.00">
           </div>
-
           <div class="mb-3">
             <label for="data" class="form-label">Data e pagesës</label>
             <input type="text" name="data" class="form-control rounded-5 border border-2" id="data" value="<?php echo date("Y-m-d"); ?>">
@@ -100,7 +88,6 @@ $text = 'Madhësia e dosjes: ' . $fileSize;
               })
             </script>
           </div>
-
           <div class="mb-3">
             <label for="forma" class="form-label">Forma e pagesës</label>
             <select name="forma" class="form-select" id="forma">
@@ -113,7 +100,6 @@ $text = 'Madhësia e dosjes: ' . $fileSize;
               });
             </script>
           </div>
-
           <div class="mb-3">
             <label for="pershkrimi" class="form-label">Përshkrimi</label>
             <textarea name="pershkrimi" class="form-control rounded-5 border border-2" id="pershkrimi"></textarea>
@@ -122,7 +108,6 @@ $text = 'Madhësia e dosjes: ' . $fileSize;
         <div class="modal-footer">
           <button type="button" class="input-custom-css px-3 py-2" data-bs-dismiss="modal">Mbylle</button>
           <input type="submit" class="input-custom-css px-3 py-2" name="ruaj" value="Ruaj">
-
         </div>
       </div>
     </div>
@@ -132,7 +117,7 @@ $text = 'Madhësia e dosjes: ' . $fileSize;
   <div class="content-wrapper">
     <div class="container-fluid">
       <div class="container">
-        <nav class="bg-white px-2 rounded-5" style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='currentColor'/%3E%3C/svg%3E&#34;);width:fit-content;border-style:1px solid black;" aria-label="breadcrumb">
+        <nav class="bg-white px-2 rounded-5" style="width:fit-content;border-style:1px solid black;" aria-label="breadcrumb">
           <ol class="breadcrumb">
             <li class="breadcrumb-item "><a class="text-reset" style="text-decoration: none;">Financat</a>
             </li>
@@ -142,7 +127,6 @@ $text = 'Madhësia e dosjes: ' . $fileSize;
               </a>
             </li>
         </nav>
-
         <div class="row mb-2">
           <div>
             <!-- Button trigger modal -->
@@ -154,14 +138,11 @@ $text = 'Madhësia e dosjes: ' . $fileSize;
             </button>
           </div>
         </div>
-
-
         <div class="card shadow-sm rounded-5">
           <div class="card-body">
             <div class="row">
               <div class="col-12">
                 <div class="text-end mt-3">
-
                 </div>
                 <div class="table-responsive">
                   <table id="example" class="table w-100 table-bordered">
@@ -182,7 +163,6 @@ $text = 'Madhësia e dosjes: ' . $fileSize;
             </div>
           </div>
         </div>
-
       </div>
     </div>
   </div>
@@ -208,7 +188,6 @@ $text = 'Madhësia e dosjes: ' . $fileSize;
             return '<input type="checkbox" class="deleteCheckbox">';
           }
         },
-
         {
           data: 'id',
         },
@@ -228,8 +207,6 @@ $text = 'Madhësia e dosjes: ' . $fileSize;
           data: 'pagesa',
           title: 'Forma e pagesës'
         }
-
-
       ],
       columnDefs: [{
         "targets": [0, 1, 2, 3], // Indexes of the columns you want to apply the style to
@@ -299,17 +276,13 @@ $text = 'Madhësia e dosjes: ' . $fileSize;
         }
       }],
     })
-
-
     $('#deleteRowsBtn').on('click', function() {
       // Get all checked checkboxes
       var checkboxes = $('.deleteCheckbox:checked');
-
       // Get the IDs of the selected rows
       var ids = checkboxes.map(function() {
         return dataTable.row($(this).closest('tr')).data().id;
       }).get();
-
       // Show a confirmation dialog with SweetAlert2
       Swal.fire({
         title: 'A jeni të sigurt që dëshironi të fshini këto rreshta?',
@@ -335,7 +308,6 @@ $text = 'Madhësia e dosjes: ' . $fileSize;
               if (response.success) {
                 // Update DataTable
                 dataTable.ajax.reload();
-
                 // Show success message with SweetAlert2
                 Swal.fire({
                   icon: 'success',

@@ -70,20 +70,7 @@ if (isset($_POST['ruaj'])) {
     $check_email->bind_param("s", $email);
     $check_email->execute();
     $check_email->store_result();
-    // Get user info
-    $cname = $_SESSION['username'];
-    $f_name = $_COOKIE['user_first_name'];
-    $l_name = $_COOKIE['user_last_name'];
-    $user_info = $f_name . ' ' . $l_name;
-    if (empty($user_info)) {
-      $user_info = $_SESSION['user_info'];
-    }
-    // Log the action
-    $cnd = $user_info . " ka shtuar klientin " . $data['emri'];
-    $query = "INSERT INTO logs (stafi, ndryshimi, koha) VALUES ('$cname', '$cnd', '$cdata')";
-    if (!$conn->query($query)) {
-      echo '<script>alert("' . $conn->error . '")</script>';
-    }
+    
     // Add the Sweet Alert with a button to go to the newly added client page
     echo '<script>
         Swal.fire({
