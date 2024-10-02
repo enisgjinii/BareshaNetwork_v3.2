@@ -79,15 +79,15 @@ if (!empty($_POST['companyName']) && $_POST['companyName']) {
                     <td class="text-dark"><?= htmlspecialchars($invoiceDetails["order_receiver_name"]) ?></td>
                     <td class="text-dark"><?= number_format($invoiceDetails["order_total_after_tax"], 2) ?></td>
                     <td class="text-dark">
-                      <a href="print_Invoice_2.php?invoice_id=<?= urlencode($invoiceDetails["order_id"]) ?>" title="Print Invoice" class="input-custom-css ">
+                      <a  href="print_Invoice_2.php?invoice_id=<?= urlencode($invoiceDetails["order_id"]) ?>" title="Print Invoice" class="input-custom-css px-3 py-2">
                         <i class="fi fi-rr-print"></i>
                       </a>
-                      <a href="edit_Invoice_2.php?update_id=<?= urlencode($invoiceDetails["order_id"]) ?>" title="Edit Invoice" class="action-btn">
+                      <a href="edit_Invoice_2.php?update_id=<?= urlencode($invoiceDetails["order_id"]) ?>" title="Edit Invoice" class="action-btn input-custom-css px-3 py-2">
                         <i class="fi fi-rr-edit"></i>
                       </a>
                       <form method="post" class="action-form d-inline">
                         <input type="hidden" name="delete_id" value="<?= htmlspecialchars($invoiceDetails["order_id"]) ?>">
-                        <button type="submit" class="action-btn" title="Delete Invoice" onclick="return confirm('Are you sure you want to delete this invoice?');">
+                        <button type="submit" class="action-btn input-custom-css px-3 py-2" title="Delete Invoice" onclick="return confirm('Are you sure you want to delete this invoice?');">
                           <i class="fi fi-rr-trash"></i>
                         </button>
                       </form>

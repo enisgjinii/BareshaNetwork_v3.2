@@ -105,7 +105,25 @@ if (isset($_POST['ndrysho'])) {
 // Retrieve the data for editing
 $editcl = mysqli_fetch_array($conn->query("SELECT * FROM klientet WHERE id='$editid'"));
 // Retrieve the contract start date
-$contractStartDate = mysqli_fetch_array($conn->query("SELECT * FROM kontrata_gjenerale WHERE youtube_id='$editcl[youtube]'"));
+// Retrieve the contract start date
+$contractStartDateResult = $conn->query("SELECT * FROM kontrata_gjenerale WHERE youtube_id='{$editcl['youtube']}'");
+if ($contractStartDateResult && $contractStartDateResult->num_rows > 0) {
+    $contractStartDate = mysqli_fetch_array($contractStartDateResult);
+    // Now proceed with calculations
+    if (!empty($contractStartDate['data_e_krijimit'])) {
+        $startDate = new DateTime($contractStartDate['data_e_krijimit']);
+        $durationMonths = $contractStartDate['kohezgjatja'];
+        $expirationDate = clone $startDate;
+        $expirationDate->modify("+ $durationMonths months");
+        $expirationDateFormatted = $expirationDate->format('Y-m-d');
+    } else {
+        // Handle case where 'data_e_krijimit' is empty
+        $expirationDateFormatted = '';
+    }
+} else {
+    // No contract found; handle accordingly
+    $expirationDateFormatted = '';
+}
 ?>
 <div class="main-panel">
     <div class="content-wrapper">
@@ -358,10 +376,8 @@ $contractStartDate = mysqli_fetch_array($conn->query("SELECT * FROM kontrata_gje
                                             $expirationDate = clone $startDate;
                                             $expirationDate->modify("+ $durationMonths months");
                                             ?>
-                                            <input type="date" name="dks" id="dks"
-                                                class="form-control rounded-5 border border-2"
-                                                placeholder="Shkruaj Daten e skaditimit"
-                                                value="<?php echo $expirationDate->format('Y-m-d'); ?>">
+                                            <input type="date" name="dks" id="dks" class="form-control rounded-5 border border-2" placeholder="Shkruaj Daten e skaditimit" value="<?php echo $expirationDateFormatted; ?>">
+
                                         </div>
                                         <br>
                                         <?php
