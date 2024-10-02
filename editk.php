@@ -104,18 +104,24 @@ if (isset($_POST['ndrysho'])) {
 }
 // Retrieve the data for editing
 $editcl = mysqli_fetch_array($conn->query("SELECT * FROM klientet WHERE id='$editid'"));
-// Retrieve the contract start date
+// Initialize $contractStartDate as an empty array
+$contractStartDate = array();
 // Retrieve the contract start date
 $contractStartDateResult = $conn->query("SELECT * FROM kontrata_gjenerale WHERE youtube_id='{$editcl['youtube']}'");
 if ($contractStartDateResult && $contractStartDateResult->num_rows > 0) {
     $contractStartDate = mysqli_fetch_array($contractStartDateResult);
     // Now proceed with calculations
-    if (!empty($contractStartDate['data_e_krijimit'])) {
+    if (isset($contractStartDate['data_e_krijimit']) && !empty($contractStartDate['data_e_krijimit'])) {
         $startDate = new DateTime($contractStartDate['data_e_krijimit']);
-        $durationMonths = $contractStartDate['kohezgjatja'];
-        $expirationDate = clone $startDate;
-        $expirationDate->modify("+ $durationMonths months");
-        $expirationDateFormatted = $expirationDate->format('Y-m-d');
+        $durationMonths = isset($contractStartDate['kohezgjatja']) ? $contractStartDate['kohezgjatja'] : 0;
+        if (!empty($durationMonths)) {
+            $expirationDate = clone $startDate;
+            $expirationDate->modify("+ $durationMonths months");
+            $expirationDateFormatted = $expirationDate->format('Y-m-d');
+        } else {
+            // Handle case where 'kohezgjatja' is empty
+            $expirationDateFormatted = '';
+        }
     } else {
         // Handle case where 'data_e_krijimit' is empty
         $expirationDateFormatted = '';
@@ -360,24 +366,43 @@ if ($contractStartDateResult && $contractStartDateResult->num_rows > 0) {
                                         <br>
                                         <div class="col">
                                             <label class="form-label" for="dk">Data e fillimit të kontratës</label>
+                                            <?php
+                                            // Check if 'data_e_krijimit' exists and is not empty
+                                            $data_e_krijimit = '';
+                                            if (isset($contractStartDate['data_e_krijimit']) && !empty($contractStartDate['data_e_krijimit'])) {
+                                                $data_e_krijimit = $contractStartDate['data_e_krijimit'];
+                                            }
+                                            ?>
                                             <input type="date" name="dk" id="dk"
                                                 class="form-control rounded-5 border border-2"
                                                 placeholder="Shkruaj Daten e kontrates"
-                                                value="<?php
-                                                        echo $contractStartDate['data_e_krijimit']; ?>">
+                                                value="<?php echo $data_e_krijimit; ?>">
                                         </div>
                                         <br>
                                         <div class="col">
                                             <label class="form-label" for="dks">Data e skadimit të kontratës</label>
                                             <?php
                                             // Perform calculations for expiration date
-                                            $startDate = new DateTime($contractStartDate['data_e_krijimit']);
-                                            $durationMonths = $contractStartDate['kohezgjatja'];
-                                            $expirationDate = clone $startDate;
-                                            $expirationDate->modify("+ $durationMonths months");
+                                            if (
+                                                isset($contractStartDate['data_e_krijimit'], $contractStartDate['kohezgjatja']) &&
+                                                !empty($contractStartDate['data_e_krijimit']) && !empty($contractStartDate['kohezgjatja'])
+                                            ) {
+                                                try {
+                                                    $startDate = new DateTime($contractStartDate['data_e_krijimit']);
+                                                    $durationMonths = $contractStartDate['kohezgjatja'];
+                                                    $expirationDate = clone $startDate;
+                                                    $expirationDate->modify("+$durationMonths months");
+                                                    $expirationDateFormatted = $expirationDate->format('Y-m-d');
+                                                } catch (Exception $e) {
+                                                    // Handle exception if date is invalid
+                                                    $expirationDateFormatted = '';
+                                                }
+                                            } else {
+                                                // Handle case where data is missing
+                                                $expirationDateFormatted = '';
+                                            }
                                             ?>
                                             <input type="date" name="dks" id="dks" class="form-control rounded-5 border border-2" placeholder="Shkruaj Daten e skaditimit" value="<?php echo $expirationDateFormatted; ?>">
-
                                         </div>
                                         <br>
                                         <?php
@@ -445,7 +470,6 @@ if ($contractStartDateResult && $contractStartDateResult->num_rows > 0) {
                                                 });
                                             </script>
                                         </div>
-
                                         <br>
                                         <div class="col">
                                             <label class="form-label" for="tel">Monetizuar ? </label><br>

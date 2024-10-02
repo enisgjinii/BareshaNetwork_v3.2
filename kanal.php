@@ -339,13 +339,13 @@ if (isset($_POST['shto'])) {
                               <br><a href='https://www.google.com/maps/place/" . $ads['shteti'] . "' target='_blank' class='btn btn-light shadow-sm border btn-sm'><img src='https://img.icons8.com/emoji/36/null/" . strtolower($ads['shteti']) . "-emoji.png'/></a>";
                                                           ?> </td>
                 </tr>
-                <?php if ($_SESSION['acc'] == 1) { ?>
+               
                   <tr>
                     <th>Perqindja</th>
                     <td><?php echo $guse2['perqindja']; ?>%</td>
                   </tr>
-                <?php } ?>
-                <?php if ($_SESSION['acc'] == 1) {
+               
+                <?php
                   $totali = 0.00;
                   $totaliMbetur = 0.00;
                   $totaliYoutube = 0.00;
@@ -418,7 +418,6 @@ if (isset($_POST['shto'])) {
                     <th>Fitimi total nga klienti</th>
                     <td><?php echo $totaliMbetur; ?>&euro;</td>
                   </tr>
-                <?php } ?>
                 <tr>
                   <th>Data e kontratës</th>
                   <td><?php echo $guse2['dk']; ?></td>
@@ -460,7 +459,7 @@ if (isset($_POST['shto'])) {
                   <td>
                     <form id="updateForm" method="POST" action="">
                       <input type="hidden" name="idup" value="<?php echo htmlspecialchars($guse2['id']); ?>">
-                      <textarea id="editor" name="infoprw" placeholder="Info Shtesë"><?php echo htmlspecialchars($guse2['infoprw']); ?></textarea>
+                      <textarea id="editor" name="infoprw" placeholder="Info Shtesë"><?php echo htmlspecialchars($guse2['infoprw'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
                       <button type="submit" class="input-custom-css px-3 py-2 my-2">Përditso të dhënat personale</button>
                     </form>
                   </td>

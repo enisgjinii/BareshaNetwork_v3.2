@@ -3,67 +3,24 @@ session_start();
 include 'partials/header.php';
 include 'conn-d.php';
 require 'vendor/autoload.php'; // PHPMailer
+
 // Configuration Constants
 define('UPLOAD_DIR', 'uploads/');
 define('ALLOWED_FILE_TYPES', ['pdf', 'png', 'jpg', 'jpeg']);
 define('MAX_FILE_SIZE', 5 * 1024 * 1024); // 5MB
-// Language Support
-$available_languages = ['en', 'sq'];
-$language = in_array($_GET['lang'] ?? '', $available_languages) ? $_GET['lang'] : 'sq';
-$translations = [
-    'en' => [
-        'error' => 'Error',
-        'success' => 'Success',
-        'invoice_added' => 'Invoice added successfully!',
-        'duplicate_invoice' => 'An invoice with this number already exists.',
-        'upload_error' => 'There was an error uploading the file:',
-        'choose_existing_company' => 'Choose an existing company',
-        'add_new_company' => 'Add a new company',
-        'save_data' => 'Save Data',
-        'invoice_details' => 'Invoice Details',
-        'submit_invoice' => 'Submit Invoice',
-        'ocr_processing' => 'Processing OCR...',
-        'ocr_wait' => 'Please wait while we extract text from your document.',
-        'ocr_error' => 'There was an error processing the document.',
-        'pdf_error' => 'There was an error reading the PDF file.',
-        'invalid_file' => 'Only image and PDF files are supported for OCR.',
-        'copy_success' => 'Data copied successfully!',
-        'email_subject' => 'Invoice Submission Confirmation',
-        'email_body' => 'Dear User,<br><br>Your invoice with number <strong>%s</strong> has been successfully submitted.<br><br>Thank you!',
-    ],
-    'sq' => [
-        'error' => 'Gabim',
-        'success' => 'Sukses',
-        'invoice_added' => 'Fatura u shtua me sukses!',
-        'duplicate_invoice' => 'Një faturë me këtë numër ekziston tashmë.',
-        'upload_error' => 'Ka pasur një gabim gjatë ngarkimit të skedarit:',
-        'choose_existing_company' => 'Zgjidh një kompani ekzistuese',
-        'add_new_company' => 'Shto një kompani të re',
-        'save_data' => 'Ruaj të Dhënat',
-        'invoice_details' => 'Detajet e Faturës',
-        'submit_invoice' => 'Dërgo Faturën',
-        'ocr_processing' => 'Duke përpunuar OCR...',
-        'ocr_wait' => 'Ju lutem prisni ndërsa nxjerrim tekstin nga dokumenti juaj.',
-        'ocr_error' => 'Ka pasur një gabim gjatë përpunimit të dokumentit.',
-        'pdf_error' => 'Ka pasur një gabim gjatë leximit të skedarit PDF.',
-        'invalid_file' => 'Vetëm skedarët e imazheve dhe PDF janë të mbështetur për OCR.',
-        'copy_success' => 'Të dhënat u kopjuan me sukses!',
-        'email_subject' => 'Konfirmim i Dorëzimit të Faturës',
-        'email_body' => 'I dashur Përdorues,<br><br>Fatura juaj me numër <strong>%s</strong> u dorëzua me sukses.<br><br>Faleminderit!',
-    ]
-];
-$trans = $translations[$language];
+
 // Helper Functions
 function displayMessage($type, $message)
 {
     echo "<script>
         Swal.fire({
             icon: '$type',
-            title: '" . ($type === 'error' ? $GLOBALS['trans']['error'] : $GLOBALS['trans']['success']) . "',
+            title: '" . ($type === 'error' ? 'Gabim' : 'Sukses') . "',
             text: '$message'
         });
     </script>";
 }
+
 function sanitizeInput($input)
 {
     return htmlspecialchars(trim($input), ENT_QUOTES, 'UTF-8');
@@ -71,14 +28,13 @@ function sanitizeInput($input)
 
 function handleFileUpload($file)
 {
-    global $trans;
     if ($file['error'] !== UPLOAD_ERR_OK) {
-        displayMessage('error', $trans['upload_error'] . ' ' . $file['name']);
+        displayMessage('error', 'Ka pasur një gabim gjatë ngarkimit të skedarit: ' . $file['name']);
         return '';
     }
     $fileType = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
     if (!in_array($fileType, ALLOWED_FILE_TYPES)) {
-        displayMessage('error', $trans['invalid_file']);
+        displayMessage('error', 'Vetëm skedarët e imazheve dhe PDF janë të mbështetur.');
         return '';
     }
     if ($file['size'] > MAX_FILE_SIZE) {
@@ -90,13 +46,13 @@ function handleFileUpload($file)
     if (move_uploaded_file($file['tmp_name'], $targetFile)) {
         return $targetFile;
     } else {
-        displayMessage('error', $trans['upload_error'] . ' ' . $file['name']);
+        displayMessage('error', 'Ka pasur një gabim gjatë ngarkimit të skedarit: ' . $file['name']);
         return '';
     }
 }
+
 function sendEmailNotification($to, $invoiceNumber)
 {
-    global $trans;
     $mail = new PHPMailer\PHPMailer\PHPMailer();
     try {
         // Server Settings
@@ -112,13 +68,14 @@ function sendEmailNotification($to, $invoiceNumber)
         $mail->addAddress($to);
         // Content
         $mail->isHTML(true);
-        $mail->Subject = $trans['email_subject'];
-        $mail->Body    = sprintf($trans['email_body'], $invoiceNumber);
+        $mail->Subject = 'Konfirmim i Dorëzimit të Faturës';
+        $mail->Body    = "I dashur Përdorues,<br><br>Fatura juaj me numër <strong>$invoiceNumber</strong> u dorëzua me sukses.<br><br>Faleminderit!";
         $mail->send();
     } catch (Exception $e) {
         // Optionally log the error
     }
 }
+
 // Handle Form Submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Sanitize Inputs
@@ -141,28 +98,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (empty($documentPath)) exit();
     }
 
-    // **New Code: Check for Duplicate Invoice Number**
-    $checkStmt = $conn->prepare("SELECT COUNT(*) as count FROM invoices_kont WHERE invoice_number = ?");
-    $checkStmt->bind_param("s", $invoiceNumber);
-    $checkStmt->execute();
-    $result = $checkStmt->get_result();
-    $row = $result->fetch_assoc();
-    if ($row['count'] > 0) {
-        // Duplicate found, display error message
-        displayMessage('error', $trans['duplicate_invoice']);
+    // Proceed with Insertion without Duplicate Check
+    $stmt = $conn->prepare("INSERT INTO invoices_kont (invoice_creation_date, invoice_date, description, more_details, registrant, category, company_name, invoice_number, document_path, vlera_faktura) VALUES (NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("sssssssss", $invoiceDate, $description, $moreDetails, $registrant, $category, $companyName, $invoiceNumber, $documentPath, $valueOfInvoice);
+    if ($stmt->execute()) {
+        displayMessage('success', 'Fatura u shtua me sukses!');
+        sendEmailNotification($userEmail, $invoiceNumber);
     } else {
-        // No duplicate, proceed with insertion
-        $stmt = $conn->prepare("INSERT INTO invoices_kont (invoice_creation_date, invoice_date, description, more_details, registrant, category, company_name, invoice_number, document_path, vlera_faktura) VALUES (NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmt->bind_param("sssssssss", $invoiceDate, $description, $moreDetails, $registrant, $category, $companyName, $invoiceNumber, $documentPath, $valueOfInvoice);
-        if ($stmt->execute()) {
-            displayMessage('success', $trans['invoice_added']);
-            sendEmailNotification($userEmail, $invoiceNumber);
-        } else {
-            displayMessage('error', 'Pati një problem me ruajtjen e faturës.');
-        }
+        displayMessage('error', 'Pati një problem me ruajtjen e faturës.');
     }
 }
-
 ?>
 <div class="main-panel">
     <div class="content-wrapper">
@@ -170,15 +115,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <a class="input-custom-css px-3 py-2 back-button" href="shpenzimet_objekt.php" style="text-decoration: none">
                 <i class="fi fi-rr-angle-small-left"></i> Kthehu Mbrapa
             </a>
-            <br>
-            <br>
+            <br><br>
             <div class="row">
                 <!-- Data Entry Form -->
                 <div class="col-md-4">
-                    <div class="card rounded shadow">
+                    <div class="card rounded-5">
                         <div class="card-body">
-                            <span class='badge bg-warning text-dark rounded mb-3'>VERSION BETA</span>
-                            <h4 class="card-title">Shto Faturë të Re</h4>
                             <form method="POST" enctype="multipart/form-data" id="invoiceForm">
                                 <?php
                                 $fields = [
@@ -207,7 +149,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                         'label' => 'Kategoria',
                                         'name' => 'category',
                                         'type' => 'select',
-                                        'options' => ['Shpenzimet', 'Investimet', 'Obligime', 'Tjetër'],
+                                        'options' => ['Shpenzimet', 'Investimet', 'Obligime', 'Pagesa AL', 'Pagesa KS', 'Tjetër'],
                                         'required' => true,
                                         'help' => 'Zgjidhni kategorinë e faturës.'
                                     ],
@@ -216,9 +158,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                         'name' => 'company_name',
                                         'type' => 'select',
                                         'options' => array_merge(
-                                            ['' => $trans['choose_existing_company']],
+                                            ['' => 'Zgjidh një kompani ekzistuese'],
                                             array_column($conn->query("SELECT DISTINCT company_name FROM invoices_kont")->fetch_all(MYSQLI_ASSOC), 'company_name'),
-                                            ['new' => $trans['add_new_company']]
+                                            ['new' => 'Shto një kompani të re']
                                         ),
                                         'required' => true,
                                         'help' => 'Zgjidhni një kompani ekzistuese ose shtoni një të re.'
@@ -248,8 +190,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 ];
                                 foreach ($fields as $field) {
                                     echo '<div class="form-group">';
-                                    // Add tooltip using the title attribute on the label
-                                    echo "<label for='{$field['name']}' title='{$field['help']}'>{$field['label']} " . ($field['required'] ? '<span class="text-danger">*</span>' : '') . "</label>";
+                                    echo "<label for='{$field['name']}'>{$field['label']} " . ($field['required'] ? '<span class="text-danger">*</span>' : '') . "</label>";
                                     switch ($field['type']) {
                                         case 'textarea':
                                             echo "<textarea class='form-control rounded-5 border border-2' name='{$field['name']}' id='{$field['name']}' rows='3' " . ($field['required'] ? 'required' : '') . "></textarea>";
@@ -274,10 +215,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                         default:
                                             echo "<input type='{$field['type']}' class='form-control rounded-5 border border-2' name='{$field['name']}' id='{$field['name']}' " . ($field['required'] ? 'required' : '') . " " . ($field['attributes'] ?? '') . ">";
                                     }
-                                    // Remove the small help text
-                                    /*
-                                    echo "<small class='form-text text-muted'>{$field['help']}</small>";
-                                    */
                                     if ($field['name'] === 'company_name') {
                                         echo "<input type='text' class='form-control rounded-5 border border-2 mt-2' name='new_company_name' id='new_company_name' placeholder='Shkruaj një kompani të re' style='display:none;'>";
                                     }
@@ -293,8 +230,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="col-md-8">
                     <div id="invoicePreview" class="card">
                         <div class="card-body">
-                            <span class='badge bg-info text-dark rounded mb-3'>VERSION BETA</span>
-                            <h4 class="card-title">Parapamja e Faturës</h4>
                             <div class="invoice-preview" id="invoiceContent">
                                 <!-- Document Preview -->
                                 <div id="fileContentPreview">
@@ -309,36 +244,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     }
                                     ?>
                                 </div>
-                                <!-- OCR Text Preview -->
-                                <div id="ocrTextPreview" class="mt-3">
-                                    <h5>Teksti i Nxjerrë:</h5>
-                                    <!-- Add badge like to have kUjdes -->
-                                    <span  
-                                    <pre style="white-space: pre-wrap; background-color: #f4f4f4; padding: 10px; border-radius: 5px;"><?php echo htmlspecialchars($extractedText ?? ''); ?></pre>
-                                    <button class="input-custom-css px-3 py-2 mt-2" onclick="copyToClipboard('ocrTextPreview')">Kopjo Tekstin</button>
-                                </div>
                                 <!-- Invoice Details -->
                                 <div class="invoice-details mt-3">
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <strong>Nga:</strong>
-                                            <p>Baresha Network</p>
-                                        </div>
-                                        <div class="col-md-6 text-right">
-                                            <strong>Për:</strong>
-                                            <p id="preview_company_name">[Emri i Firmës]</p>
-                                        </div>
-                                    </div>
-                                    <div class="row mt-2">
-                                        <div class="col-md-6">
-                                            <strong>Data e Faturës:</strong>
-                                            <p id="preview_invoice_date">[Data e Faturës]</p>
-                                        </div>
-                                        <div class="col-md-6 text-right">
-                                            <strong>Vlera e Faturës:</strong>
-                                            <p id="preview_valueOfInvoice">[Vlera e Faturës]</p>
-                                        </div>
-                                    </div>
+                                    <p><strong>Nga:</strong> Baresha Network</p>
+                                    <p><strong>Për:</strong> <span id="preview_company_name">[Emri i Firmës]</span></p>
+                                    <p><strong>Data e Faturës:</strong> <span id="preview_invoice_date">[Data e Faturës]</span></p>
+                                    <p><strong>Vlera e Faturës:</strong> <span id="preview_valueOfInvoice">[Vlera e Faturës]</span></p>
+                                    <p><strong>Numri i Faturës:</strong> <span id="preview_invoice_number">[Numri i Faturës]</span></p>
                                 </div>
                                 <!-- Invoice Body -->
                                 <div class="invoice-body mt-3">
@@ -368,19 +280,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
             </div>
         </div>
-        <!-- Removed Language Switcher -->
-        <!--
-        <div class="language-switcher">
-            <a href="?lang=sv">Shqip</a> | <a href="?lang=en">English</a>
-        </div>
-        -->
     </div>
 </div>
+
 <!-- Include Libraries -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/selectr/1.3.0/selectr.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.5/dist/tesseract.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
+<!-- Removed Tesseract and PDF.js Libraries -->
+
 <!-- Custom Scripts -->
 <script>
     document.addEventListener('DOMContentLoaded', () => {
@@ -389,8 +296,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         initializeDragAndDrop();
         bindFormEvents();
         bindPreviewEvents();
-        initializeTooltips(); // Initialize tooltips
     });
+
     function toggleNewCompanyInput() {
         const companySelect = document.getElementById('company_name');
         const newCompanyInput = document.getElementById('new_company_name');
@@ -398,6 +305,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             newCompanyInput.style.display = companySelect.value === 'new' ? 'block' : 'none';
         });
     }
+
     function initializeSelectr() {
         new Selectr('#category', {
             searchable: true
@@ -406,6 +314,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             searchable: true
         });
     }
+
     function initializeDragAndDrop() {
         const dropZone = document.getElementById('dropZone');
         const fileInput = document.getElementById('document');
@@ -424,248 +333,83 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (fileInput.files.length) handleFile(fileInput.files[0]);
         });
     }
+
     function preventDefaults(e) {
         e.preventDefault();
         e.stopPropagation();
     }
+
     function handleFile(file) {
         previewFile(file);
-        performOCR(file);
     }
+
     function previewFile(file) {
         const preview = document.getElementById('fileContentPreview');
         const reader = new FileReader();
         reader.onload = (e) => {
             const fileType = file.type.split('/')[0];
-            preview.innerHTML = fileType === 'image' ? `<img src="${e.target.result}" style="max-width:100%; border-radius: 5px;">` :
-                file.type === 'application/pdf' ? `<embed src="${e.target.result}" type="application/pdf" width="100%" height="600px">` : '';
+            if (fileType === 'image') {
+                preview.innerHTML = `<img src="${e.target.result}" style="max-width:100%; border-radius: 5px;">`;
+            } else if (fileType === 'application' && file.type === 'application/pdf') {
+                preview.innerHTML = `<embed src="${e.target.result}" type="application/pdf" width="100%" height="600px">`;
+            } else {
+                preview.innerHTML = '';
+            }
         };
         reader.readAsDataURL(file);
     }
-    function performOCR(file) {
-        const trans = {
-            processing: '<?php echo $trans['ocr_processing']; ?>',
-            wait: '<?php echo $trans['ocr_wait']; ?>',
-            error: '<?php echo $trans['ocr_error']; ?>',
-            pdfError: '<?php echo $trans['pdf_error']; ?>',
-            invalidFile: '<?php echo $trans['invalid_file']; ?>',
-            copySuccess: '<?php echo $trans['copy_success']; ?>'
-        };
-        Swal.fire({
-            title: trans.processing,
-            text: trans.wait,
-            allowOutsideClick: false,
-            didOpen: () => Swal.showLoading()
+
+    function bindFormEvents() {
+        const form = document.getElementById('invoiceForm');
+        form.addEventListener('submit', (e) => {
+            // No additional client-side handling required
+            // Form submission is handled by PHP
         });
-        const fileType = file.type;
-        if (fileType.startsWith('image/')) {
-            const img = new Image();
-            img.src = URL.createObjectURL(file);
-            img.onload = () => {
-                Tesseract.recognize(img, 'eng+sq')
-                    .then(({
-                        data: {
-                            text
-                        }
-                    }) => {
-                        Swal.close();
-                        displayOCRText(text);
-                        populateFormFields(text);
-                    })
-                    .catch(() => {
-                        Swal.fire({
-                            icon: 'error',
-                            title: trans.error,
-                            text: trans.error
-                        });
-                    });
+    }
+
+    function bindPreviewEvents() {
+        const fields = ['invoice_date', 'description', 'more_details', 'category', 'invoice_number', 'valueOfInvoice', 'company_name', 'new_company_name'];
+        fields.forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.addEventListener('input', updatePreview);
+                element.addEventListener('change', updatePreview);
             }
-        } else if (fileType === 'application/pdf') {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const typedarray = new Uint8Array(e.target.result);
-                pdfjsLib.getDocument(typedarray).promise.then(pdf => {
-                    let extractedText = '';
-                    let processedPages = 0;
-                    const totalPages = pdf.numPages;
-                    for (let i = 1; i <= totalPages; i++) {
-                        pdf.getPage(i).then(page => {
-                            const viewport = page.getViewport({
-                                scale: 1.5
-                            });
-                            const canvas = document.createElement('canvas');
-                            const context = canvas.getContext('2d');
-                            canvas.height = viewport.height;
-                            canvas.width = viewport.width;
-                            page.render({
-                                canvasContext: context,
-                                viewport
-                            }).promise.then(() => {
-                                Tesseract.recognize(canvas, 'eng+sq')
-                                    .then(({
-                                        data: {
-                                            text
-                                        }
-                                    }) => {
-                                        extractedText += text + '\n';
-                                        processedPages++;
-                                        if (processedPages === totalPages) {
-                                            Swal.close();
-                                            displayOCRText(extractedText);
-                                            populateFormFields(extractedText);
-                                        }
-                                    })
-                                    .catch(() => {
-                                        Swal.fire({
-                                            icon: 'error',
-                                            title: trans.error,
-                                            text: trans.error
-                                        });
-                                    });
-                            });
-                        });
-                    }
-                }).catch(() => {
-                    Swal.fire({
-                        icon: 'error',
-                        title: trans.error,
-                        text: trans.pdfError
-                    });
-                });
-            };
-            reader.readAsArrayBuffer(file);
-        } else {
-            Swal.fire({
-                icon: 'error',
-                title: trans.error,
-                text: trans.invalidFile
-            });
-        }
-        function displayOCRText(text) {
-            const ocrPreview = document.getElementById('ocrTextPreview');
-            ocrPreview.innerHTML = `
-            <h5>Teksti i Nxjerrë:</h5>
-            <pre style="white-space: pre-wrap; background-color: #f4f4f4; padding: 10px; border-radius: 5px;">${text}</pre>
-            <button class="input-custom-css px-3 py-2 mt-2" onclick="copyToClipboard('ocrTextPreview')">Kopjo Tekstin</button>
-        `;
-        }
-        function populateFormFields(text) {
-            // Example parsing logic; adjust regex as per your invoice format
-            const patterns = {
-                invoiceDate: /(\d{4}-\d{2}-\d{2})|(\d{2}\/\d{2}\/\d{4})/,
-                invoiceNumber: /(Invoice Number|Nr\. Faturë)\s*[:\-]\s*(\w+)/i,
-                invoiceValue: /(Total|Vlera)\s*[:\-]\s*([€$]?\s*\d{1,3}(?:,\d{3})*(?:\.\d{2})?)/i,
-                description: /(Description|Përshkrimi)\s*[:\-]\s*(.+)/i
-            };
-            // Invoice Date
-            const dateMatch = text.match(patterns.invoiceDate);
-            if (dateMatch) {
-                let date = dateMatch[0].replace(/\//g, '-');
-                const parts = date.split('-');
-                date = parts[0].length === 4 ? date : `${parts[2]}-${parts[1]}-${parts[0]}`;
-                document.getElementById('invoice_date').value = date;
-                document.getElementById('preview_invoice_date').innerText = date;
-            }
-            // Invoice Number
-            const numberMatch = text.match(patterns.invoiceNumber);
-            if (numberMatch) {
-                const number = numberMatch[2];
-                document.getElementById('invoice_number').value = number;
-                document.getElementById('preview_invoice_number').innerText = number;
-            }
-            // Invoice Value
-            const valueMatch = text.match(patterns.invoiceValue);
-            if (valueMatch) {
-                let value = valueMatch[2].replace(/[€$]/g, '').trim().replace(/,/g, '');
-                document.getElementById('valueOfInvoice').value = value;
-                document.getElementById('preview_valueOfInvoice').innerText = value;
-            }
-            // Description
-            const descMatch = text.match(patterns.description);
-            if (descMatch) {
-                const desc = descMatch[2].trim();
-                document.getElementById('description').value = desc;
-                document.getElementById('preview_description').innerText = desc;
-            }
-        }
-        function bindFormEvents() {
-            const form = document.getElementById('invoiceForm');
-            form.addEventListener('submit', (e) => {
-                const fileInput = document.getElementById('document');
-                if (fileInput.files.length) {
-                    e.preventDefault();
-                    performOCR(fileInput.files[0]);
-                }
-            });
-        }
-        function bindPreviewEvents() {
-            const fields = ['invoice_date', 'description', 'more_details', 'category', 'invoice_number', 'valueOfInvoice', 'company_name', 'new_company_name'];
-            fields.forEach(id => {
-                const element = document.getElementById(id);
-                if (element) {
-                    element.addEventListener('input', updatePreview);
-                    element.addEventListener('change', updatePreview);
-                }
-            });
-        }
-        function updatePreview() {
-            document.getElementById('preview_invoice_date').innerText = document.getElementById('invoice_date').value || '[Data e Faturës]';
-            document.getElementById('preview_description').innerText = document.getElementById('description').value || '[Përshkrimi]';
-            document.getElementById('preview_more_details').innerText = document.getElementById('more_details').value || '[Detaje Shtesë]';
-            document.getElementById('preview_category').innerText = document.getElementById('category').value || '[Kategoria]';
-            document.getElementById('preview_invoice_number').innerText = document.getElementById('invoice_number').value || '[Numri i Faturës]';
-            document.getElementById('preview_valueOfInvoice').innerText = document.getElementById('valueOfInvoice').value || '[Vlera e Faturës]';
-            const companySelect = document.getElementById('company_name').value;
-            const newCompany = document.getElementById('new_company_name').value;
-            document.getElementById('preview_company_name').innerText = companySelect === 'new' ? newCompany || '[Emri i Firmës]' : companySelect || '[Emri i Firmës]';
-        }
-        function copyToClipboard(elementId) {
-            const text = document.getElementById(elementId).innerText;
-            navigator.clipboard.writeText(text).then(() => {
-                Swal.fire({
-                    icon: 'success',
-                    title: '<?php echo $trans['success']; ?>',
-                    text: '<?php echo $trans['copy_success']; ?>'
-                });
-            }).catch(() => {
-                Swal.fire({
-                    icon: 'error',
-                    title: '<?php echo $trans['error']; ?>',
-                    text: 'Kopjimi nuk u mund!',
-                });
-            });
-        }
-        // Initialize Tooltips
-        function initializeTooltips() {
-            const labels = document.querySelectorAll('label[title]');
-            labels.forEach(label => {
-                const tooltipSpan = document.createElement('span');
-                tooltipSpan.className = 'tooltip-text';
-                tooltipSpan.innerText = label.getAttribute('title');
-                label.appendChild(tooltipSpan);
-                label.classList.add('tooltip');
-            });
-        }
+        });
+    }
+
+    function updatePreview() {
+        document.getElementById('preview_invoice_date').innerText = document.getElementById('invoice_date').value || '[Data e Faturës]';
+        document.getElementById('preview_description').innerText = document.getElementById('description').value || '[Përshkrimi]';
+        document.getElementById('preview_more_details').innerText = document.getElementById('more_details').value || '[Detaje Shtesë]';
+        document.getElementById('preview_category').innerText = document.getElementById('category').value || '[Kategoria]';
+        document.getElementById('preview_invoice_number').innerText = document.getElementById('invoice_number').value || '[Numri i Faturës]';
+        document.getElementById('preview_valueOfInvoice').innerText = document.getElementById('valueOfInvoice').value || '[Vlera e Faturës]';
+        const companySelect = document.getElementById('company_name').value;
+        const newCompany = document.getElementById('new_company_name').value;
+        document.getElementById('preview_company_name').innerText = companySelect === 'new' ? newCompany || '[Emri i Firmës]' : companySelect || '[Emri i Firmës]';
     }
 </script>
+
 <style>
     .card {
         border-radius: 15px;
         overflow: hidden;
     }
+
     .form-group {
         margin-bottom: 1.5rem;
-        /* Increased spacing between form groups */
     }
+
     .form-control,
     .btn,
     .input-custom-css,
     .submit-button {
         border-radius: 10px;
         padding: 0.75rem 1rem;
-        /* Increased padding for clarity */
         font-size: 1rem;
     }
+
     #fileContentPreview img,
     #fileContentPreview embed {
         margin: 5px;
@@ -674,6 +418,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         border-radius: 5px;
         background-color: #f9f9f9;
     }
+
     .invoice-preview {
         background-color: #fff;
         border: 1px solid #ddd;
@@ -681,11 +426,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         border-radius: 15px;
         box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
     }
+
     .invoice-details,
     .invoice-body,
     .invoice-footer {
         margin-top: 15px;
     }
+
     .drop-zone {
         position: relative;
         display: flex;
@@ -697,54 +444,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         cursor: pointer;
         transition: background-color 0.3s;
         margin-bottom: 1rem;
-        /* Added margin for spacing */
     }
+
     .drop-zone--over {
         background-color: #e9e9e9;
     }
+
     .drop-zone__prompt {
         font-size: 14px;
         color: #666;
     }
+
     @media (max-width: 768px) {
+
         .col-md-4,
         .col-md-8 {
             flex: 0 0 100%;
             max-width: 100%;
         }
     }
+
     .back-button {
         display: inline-block;
         margin-bottom: 1rem;
-        /* Added margin for spacing */
     }
-    /* Tooltip Styles */
-    .tooltip {
-        position: relative;
-        cursor: pointer;
-    }
-    .tooltip .tooltip-text {
-        visibility: hidden;
-        width: 200px;
-        background-color: #333;
-        color: #fff;
-        text-align: left;
-        border-radius: 6px;
-        padding: 8px;
-        position: absolute;
-        z-index: 1;
-        bottom: 125%;
-        /* Position above the label */
-        left: 50%;
-        margin-left: -100px;
-        opacity: 0;
-        transition: opacity 0.3s;
-        font-size: 0.875rem;
-    }
-    .tooltip:hover .tooltip-text {
-        visibility: visible;
-        opacity: 1;
-    }
+
     /* Enhanced Button Styles */
     .submit-button {
         background-color: #007bff;
@@ -752,9 +476,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         border: none;
         transition: background-color 0.3s;
     }
+
     .submit-button:hover {
         background-color: #0056b3;
     }
+
     /* Adjusted Input Margins */
     .form-control {
         margin-top: 0.5rem;
