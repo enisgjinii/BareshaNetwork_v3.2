@@ -406,29 +406,25 @@ if ($contractStartDateResult && $contractStartDateResult->num_rows > 0) {
                                         </div>
                                         <br>
                                         <?php
-                                        // Fetch the youtube_id from kontrata_gjenerale where it matches the youtube from klientet
                                         $sql = "SELECT kg.youtube_id FROM kontrata_gjenerale kg 
-            JOIN klientet k ON kg.youtube_id = k.youtube 
-            WHERE k.youtube = '$editcl[youtube]'";
+                                        JOIN klientet k ON kg.youtube_id = k.youtube 
+                                        WHERE k.youtube = '$editcl[youtube]'";
                                         $result = $conn->query($sql);
-                                        if ($result->num_rows == 0) {
-                                            // <label class="form-label" for="dks">Statusi i kontrates</label>
+                                        if (!$result) {
+                                            echo "Query failed: " . $conn->error;
+                                        } else if ($result->num_rows == 0) {
+                                            // Handle no results found, display dropdown
                                             echo '<div class="col"><label class="form-label" for="statusi_i_kontrates">Statusi i kontrates</label>';
-                                            // If no match is found, display the select dropdown
                                             echo '<select class="form-select border border-2 rounded-5 w-100" name="statusi_i_kontrates" id="statusi_i_kontrates">';
                                             echo '<option value="Kontratë fizike">Kontratë fizike</option>';
                                             echo '<option value="S\'ka kontratë">S\'ka kontratë</option>';
-                                            echo '</select> </div> <br>';
+                                            echo '</select></div><br>';
+                                            // JS for initializing Selectr
+                                            echo "<script>
+                                            new Selectr('#statusi_i_kontrates', { searchable: true });
+                                          </script>";
                                         }
                                         ?>
-                                        <script>
-                                            // Initialize the Selectr plugin if the select element exists
-                                            <?php if ($result->num_rows == 0) : ?>
-                                                new Selectr('#statusi_i_kontrates', {
-                                                    searchable: true,
-                                                });
-                                            <?php endif; ?>
-                                        </script>
                                         <?php
                                         $id = isset($_GET['id']) ? intval($_GET['id']) : 0;
                                         $userCategory = '';
