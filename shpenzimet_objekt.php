@@ -220,7 +220,7 @@ include 'conn-d.php';
                         </div>
                         <!-- Charts Section -->
                         <div class="row g-3">
-                            <div class="col-md-6 mb-4">
+                            <div class="col-md-12 mb-4">
                                 <div class="card rounded-5 h-100">
                                     <div class="card-header">
                                         <h5 class="mb-0">Profit mbi Kohë</h5>
@@ -230,7 +230,7 @@ include 'conn-d.php';
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-6 mb-4">
+                            <div class="col-md-12 mb-4">
                                 <div class="card rounded-5 h-100">
                                     <div class="card-header">
                                         <h5 class="mb-0">Profit sipas Kategorisë</h5>
@@ -240,7 +240,7 @@ include 'conn-d.php';
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-6 mb-4">
+                            <div class="col-md-12 mb-4">
                                 <div class="card rounded-5 h-100">
                                     <div class="card-header">
                                         <h5 class="mb-0">Profit Mujor</h5>
@@ -250,7 +250,7 @@ include 'conn-d.php';
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-6 mb-4">
+                            <div class="col-md-12 mb-4">
                                 <div class="card rounded-5 h-100">
                                     <div class="card-header">
                                         <h5 class="mb-0">Profit sipas Kompanisë</h5>
@@ -715,41 +715,138 @@ include 'conn-d.php';
                 type: 'line',
                 height: 350,
                 toolbar: {
-                    show: true
+                    show: true,
+                    tools: {
+                        download: true,
+                        selection: true,
+                        zoom: true,
+                        zoomin: true,
+                        zoomout: true,
+                        pan: true,
+                        reset: true
+                    },
+                    autoSelected: 'zoom' // Automatically activate zoom for better interactivity
+                },
+                zoom: {
+                    enabled: true,
+                    type: 'x', // Zoom only along the x-axis for better control
+                    autoScaleYaxis: true
+                },
+                animations: {
+                    enabled: true,
+                    easing: 'easeinout',
+                    speed: 800
                 }
             },
             series: [{
                 name: 'Profit',
-                data: []
+                data: [] // Populate with your data
             }],
             xaxis: {
-                categories: []
+                categories: [], // Populate with your categories (e.g., dates or time series)
+                labels: {
+                    rotate: -45, // Rotate labels to save space
+                    style: {
+                        fontSize: '12px'
+                    }
+                },
+                title: {
+                    text: 'Time',
+                    style: {
+                        fontSize: '14px',
+                        fontWeight: 'bold'
+                    }
+                },
+                tickPlacement: 'on'
             },
             title: {
                 text: 'Profit over Time',
-                align: 'left'
+                align: 'center',
+                style: {
+                    fontSize: '16px',
+                    fontWeight: 'bold'
+                }
             },
             tooltip: {
+                shared: true,
+                intersect: false,
                 x: {
-                    format: 'dd MMM yyyy'
+                    format: 'dd MMM yyyy' // Customize date format for better readability
                 },
                 y: {
                     formatter: function(val) {
-                        return "$" + val.toFixed(2);
+                        return "€" + val.toFixed(2);
                     }
                 }
             },
             markers: {
-                size: 5
+                size: 4, // Compact marker size
+                colors: ['#FF4560'],
+                strokeColors: '#fff',
+                strokeWidth: 2,
+                hover: {
+                    size: 7
+                }
             },
             stroke: {
-                curve: 'smooth'
+                curve: 'smooth',
+                width: 2
             },
             annotations: {
-                points: []
+                points: [{
+                    x: 'SomeDate', // Add relevant annotations to highlight important points
+                    y: 2000,
+                    marker: {
+                        size: 6,
+                        fillColor: '#fff',
+                        strokeColor: '#FF4560',
+                        radius: 2
+                    },
+                    label: {
+                        borderColor: '#FF4560',
+                        text: 'High Profit Day',
+                        style: {
+                            fontSize: '12px',
+                            fontWeight: 'bold',
+                            background: '#FF4560',
+                            color: '#fff'
+                        }
+                    }
+                }]
             },
             legend: {
-                position: 'top'
+                position: 'top',
+                horizontalAlign: 'right',
+                fontSize: '12px',
+                markers: {
+                    width: 12,
+                    height: 12,
+                    radius: 12 // Circular legend markers
+                }
+            },
+            grid: {
+                borderColor: '#f1f1f1',
+                strokeDashArray: 5, // Dashed grid lines to reduce clutter
+                padding: {
+                    top: 10,
+                    right: 20,
+                    bottom: 10,
+                    left: 20
+                }
+            },
+            yaxis: {
+                labels: {
+                    formatter: function(val) {
+                        return "€" + val.toFixed(0);
+                    }
+                },
+                title: {
+                    text: 'Profit (€)',
+                    style: {
+                        fontSize: '14px',
+                        fontWeight: 'bold'
+                    }
+                }
             }
         };
         var profitLineChart = new ApexCharts(document.querySelector("#profitLineChart"), profitLineChartOptions);
@@ -799,7 +896,7 @@ include 'conn-d.php';
                 },
                 y: {
                     formatter: function(val) {
-                        return "$" + val.toFixed(2);
+                        return "€" + val.toFixed(2);
                     }
                 }
             },
@@ -822,37 +919,98 @@ include 'conn-d.php';
         // Initialize ApexCharts for Company Chart
         var profitCompanyChartOptions = {
             chart: {
-                type: 'bar',
-                height: 350,
+                type: 'line', // Changed to 'line' for better data visualization
+                height: 400,
                 toolbar: {
-                    show: true
+                    show: true,
+                    tools: {
+                        download: true,
+                        selection: true,
+                        zoom: true,
+                        zoomin: true,
+                        zoomout: true,
+                        pan: true,
+                        reset: true,
+                    }
                 }
             },
             series: [{
                 name: 'Profit',
-                data: []
+                data: [] // Populate this with your data
             }],
             xaxis: {
-                categories: []
+                categories: [], // Populate this with your categories
+                labels: {
+                    style: {
+                        fontSize: '12px',
+                        colors: '#333'
+                    },
+                    rotate: -45, // Rotate labels if you have many categories
+                },
+                title: {
+                    text: 'Companies',
+                    style: {
+                        fontSize: '14px',
+                        fontWeight: 'bold'
+                    }
+                }
             },
             title: {
                 text: 'Profit by Company',
-                align: 'left'
+                align: 'center',
+                style: {
+                    fontSize: '16px',
+                    fontWeight: 'bold'
+                }
             },
             tooltip: {
                 y: {
                     formatter: function(val) {
-                        return "$" + val.toFixed(2);
+                        return "€" + val.toFixed(2);
                     }
                 }
             },
             plotOptions: {
-                bar: {
-                    horizontal: true,
+                line: {
+                    curve: 'smooth', // Smooth the lines for better readability
                 }
             },
+            dataLabels: {
+                enabled: false // Disable data labels to avoid clutter
+            },
             legend: {
-                position: 'top'
+                position: 'top',
+                horizontalAlign: 'right',
+                fontSize: '12px'
+            },
+            grid: {
+                show: true,
+                borderColor: '#e7e7e7',
+                strokeDashArray: 4,
+                padding: {
+                    top: 20,
+                    right: 20,
+                    bottom: 20,
+                    left: 20
+                }
+            },
+            yaxis: {
+                labels: {
+                    formatter: function(val) {
+                        return "€" + val.toFixed(0);
+                    },
+                    style: {
+                        fontSize: '12px',
+                        colors: ['#333']
+                    }
+                },
+                title: {
+                    text: 'Profit',
+                    style: {
+                        fontSize: '14px',
+                        fontWeight: 'bold'
+                    }
+                }
             }
         };
         var profitCompanyChart = new ApexCharts(document.querySelector("#profitCompanyChart"), profitCompanyChartOptions);
@@ -1016,7 +1174,7 @@ include 'conn-d.php';
                 tooltip: {
                     y: {
                         formatter: function(val) {
-                            return "$" + val.toFixed(2);
+                            return "€" + val.toFixed(2);
                         }
                     }
                 }
@@ -1035,7 +1193,7 @@ include 'conn-d.php';
                 tooltip: {
                     y: {
                         formatter: function(val) {
-                            return "$" + val.toFixed(2);
+                            return "€" + val.toFixed(2);
                         }
                     }
                 }
@@ -1063,16 +1221,16 @@ include 'conn-d.php';
                 totalByRegistrant[key] = profitByRegistrant[key].toFixed(2);
             }
             // Display the totals in designated HTML elements
-            $('#totalProfit').text(`Total Profit: $${totalProfit}`);
+            $('#totalProfit').text(`Total Profit: €${totalProfit}`);
             // Calculate overall totals by category
             var sumByCategory = Object.values(totalByCategory).reduce((a, b) => parseFloat(a) + parseFloat(b), 0).toFixed(2);
-            $('#totalByCategory').text(`Total by Category: $${sumByCategory}`);
+            $('#totalByCategory').text(`Total by Category: €${sumByCategory}`);
             // Calculate overall totals by company
             var sumByCompany = Object.values(totalByCompany).reduce((a, b) => parseFloat(a) + parseFloat(b), 0).toFixed(2);
-            $('#totalByCompany').text(`Total by Company: $${sumByCompany}`);
+            $('#totalByCompany').text(`Total by Company: €${sumByCompany}`);
             // Calculate overall totals by registrant
             var sumByRegistrant = Object.values(totalByRegistrant).reduce((a, b) => parseFloat(a) + parseFloat(b), 0).toFixed(2);
-            $('#totalByRegistrant').text(`Total by Registrant: $${sumByRegistrant}`);
+            $('#totalByRegistrant').text(`Total by Registrant: €${sumByRegistrant}`);
             // Display detailed totals by category
             var detailedCategoryHTML = '';
             for (var key in profitByCategory) {
@@ -1087,7 +1245,7 @@ include 'conn-d.php';
             for (var key in profitByCompany) {
                 detailedCompanyHTML += `<tr>
                     <td>${capitalizeFirstLetter(key)}</td>
-                    <td>$${profitByCompany[key].toFixed(2)}</td>
+                    <td>€${profitByCompany[key].toFixed(2)}</td>
                 </tr>`;
             }
             $('#detailedTotalByCompany').html(detailedCompanyHTML);

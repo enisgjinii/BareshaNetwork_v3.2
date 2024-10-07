@@ -809,7 +809,6 @@ function generateInvoiceNumber()
 <script src="percentage_calculations.js"></script>
 <!-- <script src="create_manual_invoice.js"></script> -->
 <script src="paymentsTable.js"></script>
-<script src="invoice_trash.js"></script>
 <script src="states.js"></script>
 <?php include 'partials/footer.php' ?>
 </body>
