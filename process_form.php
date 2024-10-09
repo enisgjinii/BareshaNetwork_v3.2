@@ -11,6 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $periudha = mysqli_real_escape_string($conn, $_POST['periudha']);
     $vlera = floatval($_POST['vlera']);
     $forma_pageses = mysqli_real_escape_string($conn, $_POST['forma_pageses']);
+    $invoice_id = mysqli_real_escape_string($conn, $_POST['invoice_id']);
 
     // Handle file upload
     if (isset($_FILES['dokument']) && $_FILES['dokument']['error'] == 0) {
@@ -30,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $destination = $upload_dir . $new_filename;
                 if (move_uploaded_file($file_tmp, $destination)) {
                     // Insert into database
-                    $query = "INSERT INTO tatimi (kategoria, data_pageses, pershkrimi, periudha, vlera, forma_pageses, dokument) VALUES ('$kategoria', '$data_pageses', '$pershkrimi', '$periudha', '$vlera', '$forma_pageses', '$destination')";
+                    $query = "INSERT INTO tatimi (kategoria, data_pageses, pershkrimi, periudha, vlera, forma_pageses, dokument, invoice_id) VALUES ('$kategoria', '$data_pageses', '$pershkrimi', '$periudha', '$vlera', '$forma_pageses', '$destination', '$invoice_id')";
                     if (mysqli_query($conn, $query)) {
                         $response['status'] = 'success';
                         $response['message'] = 'Transaksioni u shtua me sukses!';

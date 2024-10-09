@@ -114,7 +114,9 @@ $cssFiles = [
     'https://unpkg.com/mobius1-selectr@latest/dist/selectr.min.css',
     'https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.5.0/css/flag-icon.min.css',
     'https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css',
-    'https://fonts.googleapis.com/css2?family=Inter&display=swap'
+    'https://fonts.googleapis.com/css2?family=Inter&display=swap',
+    'https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/plugins/monthSelect/style.min.css',
+    'https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/style.css',
 ];
 $jsFiles = [
     'https://cdn.jsdelivr.net/npm/pdfmake@0.1.36/build/pdfmake.min.js',
@@ -147,7 +149,8 @@ $jsFiles = [
     'https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js',
     'https://cdn.jsdelivr.net/npm/sweetalert2@11',
     'https://cdn.datatables.net/buttons/1.7.1/js/buttons.colVis.min.js',
-    'https://cdn.jsdelivr.net/npm/apexcharts'
+    'https://cdn.jsdelivr.net/npm/apexcharts',
+    'https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/index.js'
 ];
 ?>
 <!DOCTYPE html>

@@ -14,12 +14,18 @@ include 'conn-d.php';
                 </ol>
             </nav>
             <!-- Nav Pills for Table and Form -->
-            <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+            <ul class="nav nav-pills bg-white my-2 mx-0 rounded-5" id="pills-tab" role="tablist" style="width: fit-content; border: 1px solid lightgrey;">
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link active rounded-5 text-uppercase" id="pills-TabelaTatimi-tab" data-bs-toggle="pill" data-bs-target="#pills-TabelaTatimi" type="button" role="tab" aria-controls="pills-TabelaTatimi" aria-selected="true">Tabela Tatimi</button>
+                    <button style="text-transform: none" class="nav-link active rounded-5" id="pills-TabelaTatimi-tab" data-bs-toggle="pill" data-bs-target="#pills-TabelaTatimi" type="button" role="tab" aria-controls="pills-TabelaTatimi" aria-selected="true">Tabela Tatimi</button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link rounded-5 text-uppercase" id="pills-TatimiFormulari-tab" data-bs-toggle="pill" data-bs-target="#pills-TatimiFormulari" type="button" role="tab" aria-controls="pills-TatimiFormulari" aria-selected="false">Tatimi Formulari</button>
+                    <button style="text-transform: none" class="nav-link rounded-5" id="pills-TatimiFormulari-tab" data-bs-toggle="pill" data-bs-target="#pills-TatimiFormulari" type="button" role="tab" aria-controls="pills-TatimiFormulari" aria-selected="false">Tatimi Formulari</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button style="text-transform: none" class="nav-link rounded-5" id="pills-Guida-tab" data-bs-toggle="pill" data-bs-target="#pills-Guida" type="button" role="tab" aria-controls="pills-Guida" aria-selected="false">Guida vizuale</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button style="text-transform: none" class="nav-link rounded-5" id="pills-GuidaVideo-tab" data-bs-toggle="pill" data-bs-target="#pills-GuidaVideo" type="button" role="tab" aria-controls="pills-GuidaVideo" aria-selected="false">Guida Video</button>
                 </li>
             </ul>
             <!-- Tab Content -->
@@ -48,16 +54,39 @@ include 'conn-d.php';
                                         <option value="Tatim">Tatim</option>
                                     </select>
                                 </div>
-                                <!-- Periudha Filter -->
-                                <div class="col-md-3">
-                                    <label for="filterPeriudha" class="form-label">Periudha</label>
-                                    <select id="filterPeriudha" class="form-select">
-                                        <option value="">Të gjitha</option>
-                                        <option value="TM1">TM1</option>
-                                        <option value="TM2">TM2</option>
-                                        <option value="TM3">TM3</option>
-                                        <option value="TM4">TM4</option>
-                                    </select>
+                                <!-- Periudha Filter Section -->
+                                <div class="col-md-3 periudha-container">
+                                    <!-- Periudha Select for TVSH -->
+                                    <div id="filterPeriudhaSelectContainer">
+                                        <label for="filterPeriudhaSelect" class="form-label">Periudha</label>
+                                        <select id="filterPeriudhaSelect" class="form-select">
+                                            <option value="">Të gjitha</option>
+                                            <option value="TM1">TM1</option>
+                                            <option value="TM2">TM2</option>
+                                            <option value="TM3">TM3</option>
+                                            <option value="TM4">TM4</option>
+                                        </select>
+                                    </div>
+                                    <!-- Periudha Date Picker for Kontribute and Tatim -->
+                                    <div id="filterPeriudhaDateContainer" style="display: none;">
+                                        <label for="filterPeriudhaDate" class="form-label">Periudha</label>
+                                        <input type="text" id="filterPeriudhaDate" class="form-control" placeholder="Select Month and Year">
+                                    </div>
+                                    <script>
+                                        // Initialize Flatpickr with Month Select Plugin for month/year selection (no range)
+                                        flatpickr("#filterPeriudhaDate", {
+                                            plugins: [
+                                                new monthSelectPlugin({
+                                                    shorthand: true, // Short month names like Jan, Feb
+                                                    dateFormat: "m-Y", // Output format for the selected date
+                                                    altFormat: "F Y", // Alternative display format (e.g., April 2024)
+                                                    theme: "light" // Choose the theme; 'light' or 'dark'
+                                                })
+                                            ],
+                                            locale: "sq",
+                                            minDate: "2022-01", // Earliest selectable month
+                                        });
+                                    </script>
                                 </div>
                                 <!-- Forma e Pagesës Filter -->
                                 <div class="col-md-3">
@@ -88,6 +117,7 @@ include 'conn-d.php';
                                     <thead class="table-light">
                                         <tr>
                                             <th>#</th>
+                                            <th>ID</th>
                                             <th>Kategoria</th>
                                             <th>Data e Pagesës</th>
                                             <th>Përshkrimi</th>
@@ -124,14 +154,14 @@ include 'conn-d.php';
                                         <label for="zgjedhKategorine" class="form-label">
                                             Zgjedh Kategorinë
                                             <span data-bs-toggle="tooltip" data-bs-placement="top" title="Zgjidhni kategorinë që i përket transaksionit tuaj.">
-                                                <i class="bi bi-info-circle-fill text-primary"></i>
+                                                <i class="fi fi-rr-info text-primary"></i>
                                             </span>
                                         </label>
                                         <select class="form-select" id="zgjedhKategorine" name="kategoria" required>
                                             <option value="" selected disabled>-- Zgjidhni një kategori --</option>
-                                            <option value="Kontribute">Kontribute</option>
-                                            <option value="TVSH">TVSH</option>
-                                            <option value="Tatim">Tatim</option>
+                                            <option value="Kontribute">Kontribute (CM)</option>
+                                            <option value="TVSH">TVSH (QL)</option>
+                                            <option value="Tatim">Tatim (WM)</option>
                                         </select>
                                     </div>
                                     <!-- Data e Pagesës -->
@@ -139,43 +169,71 @@ include 'conn-d.php';
                                         <label for="dataPageses" class="form-label">
                                             Data e Pagesës
                                             <span data-bs-toggle="tooltip" data-bs-placement="top" title="Zgjidhni datën kur është kryer pagesa.">
-                                                <i class="bi bi-info-circle-fill text-primary"></i>
+                                                <i class="fi fi-rr-info text-primary"></i>
                                             </span>
                                         </label>
                                         <input type="date" class="form-control" id="dataPageses" name="data_pageses" required>
                                     </div>
                                     <!-- Përshkrimi -->
-                                    <div class="col-12">
+                                    <div class="col-md-6">
                                         <label for="pershkrimi" class="form-label">
                                             Përshkrimi
                                             <span data-bs-toggle="tooltip" data-bs-placement="top" title="Shkruani një përshkrim të shkurtër të transaksionit tuaj.">
-                                                <i class="bi bi-info-circle-fill text-primary"></i>
+                                                <i class="fi fi-rr-info text-primary"></i>
                                             </span>
                                         </label>
                                         <textarea class="form-control" id="pershkrimi" name="pershkrimi" rows="2" placeholder="Përshkruani transaksionin..." required></textarea>
                                     </div>
-                                    <!-- Zgjedh Periodën -->
+                                    <!-- I need a input for invoice id but can be text and number -->
                                     <div class="col-md-6">
-                                        <label for="zgjedhPerioden" class="form-label">
-                                            Zgjedh Periodën
-                                            <span data-bs-toggle="tooltip" data-bs-placement="top" title="Zgjidhni periudhën për të cilën aplikohet tatimi.">
-                                                <i class="bi bi-info-circle-fill text-primary"></i>
+                                        <label for="invoice_id" class="form-label">
+                                            ID e Faturës
+                                            <span data-bs-toggle="tooltip" data-bs-placement="top" title="Zgjidhni ID e faturës që i kryer pagesa.">
+                                                <i class="fi fi-rr-info text-primary"></i>
                                             </span>
                                         </label>
-                                        <select class="form-select" id="zgjedhPerioden" name="periudha" required>
-                                            <option value="" selected disabled>-- Zgjidhni një periudhë --</option>
-                                            <option value="TM1">TM1</option>
-                                            <option value="TM2">TM2</option>
-                                            <option value="TM3">TM3</option>
-                                            <option value="TM4">TM4</option>
-                                        </select>
+                                        <input type="text" class="form-control" id="invoice_id" name="invoice_id" required>
+                                    </div>
+                                    <!-- Periudha Select for TVSH -->
+                                    <div class="col-md-6 periudha-container">
+                                        <!-- Periudha Select for TVSH -->
+                                        <div id="zgjedhPeriodenSelectContainer">
+                                            <label for="zgjedhPeriodenSelect" class="form-label">Zgjedh Periodën</label>
+                                            <select class="form-select" id="zgjedhPeriodenSelect" name="periudha" required>
+                                                <option value="" selected disabled>-- Zgjidhni një periudhë --</option>
+                                                <option value="TM1">TM1</option>
+                                                <option value="TM2">TM2</option>
+                                                <option value="TM3">TM3</option>
+                                                <option value="TM4">TM4</option>
+                                            </select>
+                                        </div>
+                                        <!-- Periudha Date Picker for Kontribute and Tatim -->
+                                        <div id="zgjedhPeriodenDateContainer" style="display: none;">
+                                            <label for="zgjedhPeriodenDate" class="form-label">Zgjedh Periodën</label>
+                                            <input type="month" class="form-control" id="zgjedhPeriodenDate" name="periudha" required disabled>
+                                        </div>
+                                        <script>
+                                            // Initialize Flatpickr with Month Select Plugin for month/year selection (no range)
+                                            flatpickr("#zgjedhPeriodenDate", {
+                                                plugins: [
+                                                    new monthSelectPlugin({
+                                                        shorthand: true, // Short month names like Jan, Feb
+                                                        dateFormat: "m-Y", // Output format for the selected date
+                                                        altFormat: "F Y", // Alternative display format (e.g., April 2024)
+                                                        theme: "light" // Choose the theme; 'light' or 'dark'
+                                                    })
+                                                ],
+                                                locale: "sq",
+                                                minDate: "2022-01", // Earliest selectable month
+                                            });
+                                        </script>
                                     </div>
                                     <!-- Shëno Vlerën -->
                                     <div class="col-md-6">
                                         <label for="shenoVleren" class="form-label">
                                             Shëno Vlerën
                                             <span data-bs-toggle="tooltip" data-bs-placement="top" title="Vendosni vlerën e transaksionit në €.">
-                                                <i class="bi bi-info-circle-fill text-primary"></i>
+                                                <i class="fi fi-rr-info text-primary"></i>
                                             </span>
                                         </label>
                                         <input type="text" class="form-control" id="shenoVleren" name="vlera" required>
@@ -185,7 +243,7 @@ include 'conn-d.php';
                                         <label for="formaPageses" class="form-label">
                                             Forma e Pagesës
                                             <span data-bs-toggle="tooltip" data-bs-placement="top" title="Zgjidhni mënyrën se si është kryer pagesa.">
-                                                <i class="bi bi-info-circle-fill text-primary"></i>
+                                                <i class="fi fi-rr-info text-primary"></i>
                                             </span>
                                         </label>
                                         <select class="form-select" id="formaPageses" name="forma_pageses" required>
@@ -199,7 +257,7 @@ include 'conn-d.php';
                                         <label for="ngarkoDokumentin" class="form-label">
                                             Ngarko Dokumentin
                                             <span data-bs-toggle="tooltip" data-bs-placement="top" title="Ngarkoni një dokument që mbështet transaksionin (max: 5MB).">
-                                                <i class="bi bi-info-circle-fill text-primary"></i>
+                                                <i class="fi fi-rr-info text-primary"></i>
                                             </span>
                                         </label>
                                         <input type="file" class="form-control" id="ngarkoDokumentin" name="dokument" accept=".pdf,.doc,.docx,.jpg,.png" required>
@@ -212,6 +270,22 @@ include 'conn-d.php';
                                 </div>
                             </form>
                         </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="pills-Guida" role="tabpanel" aria-labelledby="pills-Guida-tab" tabindex="0">
+                    <div class="mb-3 rounded-5 bordered bg-white">
+                        <img src="guidaPerTatime.png" class="img-fluid" alt="">
+                    </div>
+                </div>
+                <!-- Plyr CSS -->
+                <link rel="stylesheet" href="https://cdn.plyr.io/3.7.2/plyr.css" />
+                <!-- Plyr JS -->
+                <script src="https://cdn.plyr.io/3.7.2/plyr.js"></script>
+                <div class="tab-pane fade" id="pills-GuidaVideo" role="tabpanel" aria-labelledby="pills-GuidaVideo-tab" tabindex="0">
+                    <div class="mb-3 rounded-5 bordered bg-white">
+                        <video id="player" class="img-fluid" playsinline controls>
+                            <source src="assets/guidaPerTatime.mp4" type="video/mp4" />
+                        </video>
                     </div>
                 </div>
             </div>
@@ -232,7 +306,7 @@ include 'conn-d.php';
                                     <label for="edit_kategoria" class="form-label">
                                         Zgjedh Kategorinë
                                         <span data-bs-toggle="tooltip" data-bs-placement="top" title="Zgjidhni kategorinë që i përket transaksionit tuaj.">
-                                            <i class="bi bi-info-circle-fill text-primary"></i>
+                                            <i class="fi fi-rr-info text-primary"></i>
                                         </span>
                                     </label>
                                     <select class="form-select" id="edit_kategoria" name="kategoria" required>
@@ -247,7 +321,7 @@ include 'conn-d.php';
                                     <label for="edit_data_pageses" class="form-label">
                                         Data e Pagesës
                                         <span data-bs-toggle="tooltip" data-bs-placement="top" title="Zgjidhni datën kur është kryer pagesa.">
-                                            <i class="bi bi-info-circle-fill text-primary"></i>
+                                            <i class="fi fi-rr-info text-primary"></i>
                                         </span>
                                     </label>
                                     <input type="date" class="form-control" id="edit_data_pageses" name="data_pageses" required>
@@ -257,20 +331,25 @@ include 'conn-d.php';
                                     <label for="edit_pershkrimi" class="form-label">
                                         Përshkrimi
                                         <span data-bs-toggle="tooltip" data-bs-placement="top" title="Shkruani një përshkrim të shkurtër të transaksionit tuaj.">
-                                            <i class="bi bi-info-circle-fill text-primary"></i>
+                                            <i class="fi fi-rr-info text-primary"></i>
                                         </span>
                                     </label>
                                     <textarea class="form-control" id="edit_pershkrimi" name="pershkrimi" rows="2" placeholder="Përshkruani transaksionin..." required></textarea>
                                 </div>
-                                <!-- Zgjedh Periodën -->
                                 <div class="mb-3">
-                                    <label for="edit_periudha" class="form-label">
-                                        Zgjedh Periodën
-                                        <span data-bs-toggle="tooltip" data-bs-placement="top" title="Zgjidhni periudhën për të cilën aplikohet tatimi.">
-                                            <i class="bi bi-info-circle-fill text-primary"></i>
+                                    <!-- ID e Faturës -->
+                                    <label for="edit_invoice_id" class="form-label">
+                                        ID e Faturës
+                                        <span data-bs-toggle="tooltip" data-bs-placement="top" title="Zgjidhni ID e faturës që mbështet transaksionin.">
+                                            <i class="fi fi-rr-info text-primary"></i>
                                         </span>
                                     </label>
-                                    <select class="form-select" id="edit_periudha" name="periudha" required>
+                                    <input type="text" class="form-control" id="edit_invoice_id" name="edit_invoice_id">
+                                </div>
+                                <!-- Periudha Select for TVSH -->
+                                <div id="editPeriudhaSelectContainer" class="mb-3">
+                                    <label for="edit_periudhaSelect" class="form-label">Zgjedh Periodën</label>
+                                    <select class="form-select" id="edit_periudhaSelect" name="periudha" required>
                                         <option value="" selected disabled>-- Zgjidhni një periudhë --</option>
                                         <option value="TM1">TM1</option>
                                         <option value="TM2">TM2</option>
@@ -278,12 +357,31 @@ include 'conn-d.php';
                                         <option value="TM4">TM4</option>
                                     </select>
                                 </div>
+                                <!-- Periudha Date Picker for Kontribute and Tatim -->
+                                <div id="editPeriudhaDateContainer" class="mb-3" style="display: none;">
+                                    <label for="edit_periudhaDate" class="form-label">Zgjedh Periodën</label>
+                                    <input type="month" class="form-control" id="edit_periudhaDate" name="periudha" required disabled>
+                                </div>
+                                <script>
+                                    flatpickr("#edit_periudhaDate", {
+                                        plugins: [
+                                            new monthSelectPlugin({
+                                                shorthand: true, // Short month names like Jan, Feb
+                                                dateFormat: "m-Y", // Output format for the selected date
+                                                altFormat: "F Y", // Alternative display format (e.g., April 2024)
+                                                theme: "light" // Choose the theme; 'light' or 'dark'
+                                            })
+                                        ],
+                                        locale: "sq",
+                                        minDate: "2022-01", // Earliest selectable month
+                                    });
+                                </script>
                                 <!-- Shëno Vlerën -->
                                 <div class="mb-3">
                                     <label for="edit_vlera" class="form-label">
                                         Shëno Vlerën
                                         <span data-bs-toggle="tooltip" data-bs-placement="top" title="Vendosni vlerën e transaksionit në €.">
-                                            <i class="bi bi-info-circle-fill text-primary"></i>
+                                            <i class="fi fi-rr-info text-primary"></i>
                                         </span>
                                     </label>
                                     <input type="number" class="form-control" id="edit_vlera" name="vlera" placeholder="0.00" min="0" step="0.01" required>
@@ -293,7 +391,7 @@ include 'conn-d.php';
                                     <label for="edit_forma_pageses" class="form-label">
                                         Forma e Pagesës
                                         <span data-bs-toggle="tooltip" data-bs-placement="top" title="Zgjidhni mënyrën se si është kryer pagesa.">
-                                            <i class="bi bi-info-circle-fill text-primary"></i>
+                                            <i class="fi fi-rr-info text-primary"></i>
                                         </span>
                                     </label>
                                     <select class="form-select" id="edit_forma_pageses" name="forma_pageses" required>
@@ -307,7 +405,7 @@ include 'conn-d.php';
                                     <label for="edit_dokument" class="form-label">
                                         Ngarko Dokumentin
                                         <span data-bs-toggle="tooltip" data-bs-placement="top" title="Ngarkoni një dokument që mbështet transaksionin (max: 5MB).">
-                                            <i class="bi bi-info-circle-fill text-primary"></i>
+                                            <i class="fi fi-rr-info text-primary"></i>
                                         </span>
                                     </label>
                                     <input type="file" class="form-control" id="edit_dokument" name="dokument" accept=".pdf,.doc,.docx,.jpg,.png">
@@ -322,419 +420,411 @@ include 'conn-d.php';
                     </div>
                 </div>
             </div>
-        </div>
-        <!-- View Document Modal -->
-        <div class="modal fade" id="viewDocumentModal" tabindex="-1" aria-labelledby="viewDocumentModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-xl modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="viewDocumentModalLabel">Shiko Dokumentin</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <!-- Document Display Area -->
-                        <div id="documentContent" class="text-center">
-                            <!-- Content will be injected via JavaScript -->
-                            <p>Ngarko dokumentin...</p>
+            <!-- View Document Modal -->
+            <div class="modal fade" id="viewDocumentModal" tabindex="-1" aria-labelledby="viewDocumentModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-xl modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="viewDocumentModalLabel">Shiko Dokumentin</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <!-- Document Display Area -->
+                            <div id="documentContent" class="text-center">
+                                <p>Ngarko dokumentin...</p>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-    <!-- Initialize Bootstrap Tooltips and DataTable -->
-    <script>
-        $(document).ready(function() {
-            // Initialize tooltips
-            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-            var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
-                return new bootstrap.Tooltip(tooltipTriggerEl)
-            })
-            // Initialize DataTable
-            var table = $('#tatimiTable').DataTable({
-                ajax: {
-                    url: 'get_tatimi.php',
-                    dataSrc: ''
-                },
-                columns: [{
-                        data: 'id'
-                    },
-                    {
-                        data: 'kategoria'
-                    },
-                    {
-                        data: 'data_pageses'
-                    },
-                    {
-                        data: 'pershkrimi'
-                    },
-                    {
-                        data: 'periudha'
-                    },
-                    {
-                        data: 'vlera',
-                        render: function(data, type, row) {
-                            return parseFloat(data).toFixed(2);
-                        }
-                    },
-                    {
-                        data: 'forma_pageses'
-                    },
-                    {
-                        data: 'dokument',
-                        render: function(data, type, row) {
-                            return '<button class="input-custom-css px-3 py-2 viewDocBtn" data-url="' + data + '"><i class="bi bi-file-earmark-text"></i> Shiko</button>';
-                        },
-                        orderable: false
-                    },
-                    {
-                        data: null,
-                        render: function(data, type, row) {
-                            return '<button class="input-custom-css px-3 py-2 editBtn me-2" data-id="' + row.id + '"><i class="bi bi-pencil-square"></i> Edito</button>' +
-                                '<button class="input-custom-css px-3 py-2 deleteBtn" data-id="' + row.id + '"><i class="bi bi-trash"></i> Fshij</button>';
-                        },
-                        orderable: false
-                    }
-                ],
-                dom: "<'row'<'col-md-3'l><'col-md-6'B><'col-md-3'f>>" +
-                    "<'row'<'col-md-12'tr>>" +
-                    "<'row'<'col-md-6'i><'col-md-6'p>>",
-                buttons: [{
-                        extend: "pdfHtml5",
-                        text: '<i class="bi bi-file-earmark-pdf-fill"></i> PDF',
-                        titleAttr: "Eksporto tabelën në formatin PDF",
-                        className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
-                    },
-                    {
-                        extend: "copyHtml5",
-                        text: '<i class="bi bi-clipboard-fill"></i> Kopjo',
-                        titleAttr: "Kopjo tabelën në Clipboard",
-                        className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
-                    },
-                    {
-                        extend: "excelHtml5",
-                        text: '<i class="bi bi-file-earmark-excel-fill"></i> Excel',
-                        titleAttr: "Eksporto tabelën në formatin Excel",
-                        className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
-                        exportOptions: {
-                            modifier: {
-                                search: "applied",
-                                order: "applied",
-                                page: "all",
-                            },
-                        },
-                    },
-                    {
-                        extend: "print",
-                        text: '<i class="bi bi-printer-fill"></i> Printo',
-                        titleAttr: "Printo tabelën",
-                        className: "btn btn-light btn-sm bg-light border me-2 rounded-5",
-                    },
-                ],
-                initComplete: function() {
-                    $(".dt-buttons").removeClass("dt-buttons btn-group");
-                    $("div.dataTables_length select").addClass("form-select").css({
-                        width: 'auto',
-                        margin: '0 8px',
-                        padding: '0.375rem 1.75rem 0.375rem 0.75rem',
-                        lineHeight: '1.5',
-                        border: '1px solid #ced4da',
-                        borderRadius: '0.25rem',
-                    });
-                },
-                language: {
-                    url: "https://cdn.datatables.net/plug-ins/1.13.4/i18n/sq.json",
-                },
-                stripeClasses: ['stripe-color'],
-                paging: true,
-                lengthChange: true,
-                lengthMenu: [
-                    [5, 14, 25, 50, -1],
-                    [5, 14, 25, 50, "Të gjitha"]
-                ],
-                order: [
-                    [0, "desc"]
-                ],
-                // Initialize the sum badge on table draw
-                drawCallback: function(settings) {
-                    updateTotalVlera();
-                }
-            });
-            // Function to update the total Vlera badge
-            function updateTotalVlera() {
-                var total = 0;
-                // Iterate over the visible rows and sum the Vlera column (index 5)
-                table.rows({
-                    filter: 'applied'
-                }).every(function(rowIdx, tableLoop, rowLoop) {
-                    var data = this.data();
-                    var vlera = parseFloat(data.vlera);
-                    if (!isNaN(vlera)) {
-                        total += vlera;
-                    }
+        <script>
+            $(document).ready(() => {
+                // Function to update the total Vlera badge
+                const updateTotalVlera = () => {
+                    const total = table.column(6, {
+                        filter: 'applied'
+                    }).data().reduce((a, b) => parseFloat(a) + parseFloat(b), 0);
+                    $('#totalVleraBadge').text(`Total Vlera: ${total.toFixed(2)} €`);
+                };
+                // Initialize Bootstrap tooltips
+                $('[data-bs-toggle="tooltip"]').tooltip();
+                // Initialize Flatpickr for filterPeriudhaDate
+                flatpickr("#filterPeriudhaDate", {
+                    plugins: [
+                        new monthSelectPlugin({
+                            shorthand: true,
+                            dateFormat: "m-Y",
+                            altFormat: "F Y",
+                            theme: "light"
+                        })
+                    ],
+                    locale: "sq",
+                    minDate: "2022-01",
                 });
-                // Update the badge with the formatted total
-                $('#totalVleraBadge').text('Total Vlera: ' + total.toFixed(2) + ' €');
-            }
-            // Refresh DataTable on successful form submission
-            function refreshTable() {
-                table.ajax.reload(null, false);
-            }
-            // Handle Form Submission via AJAX
-            $('#tatimiForm').on('submit', function(e) {
-                e.preventDefault();
-                var formData = new FormData(this);
-                $.ajax({
-                    url: 'process_form.php',
-                    type: 'POST',
-                    data: formData,
-                    contentType: false,
-                    processData: false,
-                    dataType: 'json',
-                    beforeSend: function() {
-                        $('#tatimiForm button[type="submit"]').prop('disabled', true).text('Dërgo...');
+                // Initialize DataTable
+                const table = $('#tatimiTable').DataTable({
+                    ajax: {
+                        url: 'get_tatimi.php',
+                        dataSrc: ''
                     },
-                    success: function(response) {
-                        $('#tatimiForm button[type="submit"]').prop('disabled', false).text('Dërgo');
-                        if (response.status === 'success') {
-                            $('#formAlert').html('<div class="alert alert-success alert-dismissible fade show" role="alert">' + response.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
-                            $('#tatimiForm')[0].reset();
-                            refreshTable();
-                        } else {
-                            $('#formAlert').html('<div class="alert alert-danger alert-dismissible fade show" role="alert">' + response.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
-                        }
-                    },
-                    error: function() {
-                        $('#tatimiForm button[type="submit"]').prop('disabled', false).text('Dërgo');
-                        $('#formAlert').html('<div class="alert alert-danger alert-dismissible fade show" role="alert">Dështoi dërgimi i formularit. Ju lutem provoni përsëri.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
-                    }
-                });
-            });
-            // Handle Delete Button Click
-            $('#tatimiTable tbody').on('click', '.deleteBtn', function() {
-                var id = $(this).data('id');
-                Swal.fire({
-                    title: 'Jeni të sigurt?',
-                    text: "Ky veprim nuk mund të kthehet!",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#6c757d',
-                    confirmButtonText: 'Po, fshij!'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        $.ajax({
-                            url: 'delete_tatimi.php',
-                            type: 'POST',
-                            data: {
-                                id: id
-                            },
-                            dataType: 'json',
-                            success: function(response) {
-                                if (response.status === 'success') {
-                                    Swal.fire(
-                                        'U Fshi!',
-                                        response.message,
-                                        'success'
-                                    );
-                                    refreshTable();
-                                } else {
-                                    Swal.fire(
-                                        'Gabim!',
-                                        response.message,
-                                        'error'
-                                    );
-                                }
-                            },
-                            error: function() {
-                                Swal.fire(
-                                    'Gabim!',
-                                    'Dështoi fshirja e rekordit.',
-                                    'error'
-                                );
+                    columns: [{
+                            data: 'id'
+                        },
+                        {
+                            data: 'invoice_id'
+                        },
+                        {
+                            data: 'kategoria'
+                        },
+                        {
+                            data: 'data_pageses',
+                            render: data => {
+                                const date = new Date(data);
+                                return new Intl.DateTimeFormat('sq', {
+                                    year: 'numeric',
+                                    month: 'long',
+                                    day: 'numeric'
+                                }).format(date);
                             }
+                        },
+                        {
+                            data: 'pershkrimi'
+                        },
+                        {
+                            data: 'periudha'
+                        },
+                        {
+                            data: 'vlera',
+                            render: $.fn.dataTable.render.number(',', '.', 2, '')
+                        },
+                        {
+                            data: 'forma_pageses'
+                        },
+                        {
+                            data: 'dokument',
+                            render: data => `
+                    <button class="input-custom-css px-3 py-2 viewDocBtn" data-url="${data}">
+                        <i class="fi fi-rr-file"></i>
+                    </button>
+                `,
+                            orderable: false
+                        },
+                        {
+                            data: null,
+                            render: data => `
+                    <button class="input-custom-css px-3 py-2 editBtn me-2" data-id="${data.id}">
+                        <i class="fi fi-rr-pencil"></i>
+                    </button>
+                    <button class="input-custom-css px-3 py-2 deleteBtn" data-id="${data.id}">
+                        <i class="fi fi-rr-trash"></i>
+                    </button>
+                `,
+                            orderable: false
+                        }
+                    ],
+                    dom: `
+            <'row'<'col-md-3'l><'col-md-6'B><'col-md-3'f>>
+            <'row'<'col-md-12'tr>>
+            <'row'<'col-md-6'i><'col-md-6'p>>
+        `,
+                    buttons: [{
+                            extend: "pdfHtml5",
+                            text: '<i class="bi bi-file-earmark-pdf-fill"></i> PDF',
+                            titleAttr: "Eksporto tabelën në formatin PDF",
+                            className: "btn btn-light btn-sm me-2 rounded-5"
+                        },
+                        {
+                            extend: "copyHtml5",
+                            text: '<i class="bi bi-clipboard-fill"></i> Kopjo',
+                            titleAttr: "Kopjo tabelën në Clipboard",
+                            className: "btn btn-light btn-sm me-2 rounded-5"
+                        },
+                        {
+                            extend: "excelHtml5",
+                            text: '<i class="bi bi-file-earmark-excel-fill"></i> Excel',
+                            titleAttr: "Eksporto tabelën në formatin Excel",
+                            className: "btn btn-light btn-sm me-2 rounded-5",
+                            exportOptions: {
+                                modifier: {
+                                    search: "applied",
+                                    order: "applied",
+                                    page: "all"
+                                }
+                            }
+                        },
+                        {
+                            extend: "print",
+                            text: '<i class="bi bi-printer-fill"></i> Printo',
+                            titleAttr: "Printo tabelën",
+                            className: "btn btn-light btn-sm me-2 rounded-5"
+                        }
+                    ],
+                    initComplete: () => {
+                        $(".dt-buttons").removeClass("dt-buttons btn-group");
+                        $("div.dataTables_length select").addClass("form-select").css({
+                            width: 'auto',
+                            margin: '0 8px',
+                            padding: '0.375rem 1.75rem 0.375rem 0.75rem',
+                            lineHeight: '1.5',
+                            border: '1px solid #ced4da',
+                            borderRadius: '0.25rem',
                         });
-                    }
+                    },
+                    language: {
+                        url: "https://cdn.datatables.net/plug-ins/1.13.4/i18n/sq.json"
+                    },
+                    stripeClasses: ['stripe-color'],
+                    paging: true,
+                    lengthChange: true,
+                    lengthMenu: [5, 14, 25, 50, -1],
+                    pageLength: 5,
+                    order: [
+                        [0, "desc"]
+                    ],
+                    drawCallback: updateTotalVlera
                 });
-            });
-            // Handle Edit Button Click
-            $('#tatimiTable tbody').on('click', '.editBtn', function() {
-                var id = $(this).data('id');
-                // Fetch the record data via AJAX
-                $.ajax({
-                    url: 'get_tatimi.php',
-                    type: 'GET',
-                    data: {
-                        id: id
-                    },
-                    dataType: 'json',
-                    success: function(response) {
-                        if (response.status === 'success') {
-                            var data = response.data;
-                            // Populate the modal fields
-                            $('#edit_id').val(data.id);
-                            $('#edit_kategoria').val(data.kategoria);
-                            $('#edit_data_pageses').val(data.data_pageses);
-                            $('#edit_pershkrimi').val(data.pershkrimi);
-                            $('#edit_periudha').val(data.periudha);
-                            $('#edit_vlera').val(data.vlera);
-                            $('#edit_forma_pageses').val(data.forma_pageses);
-                            // Show the modal
-                            var editModal = new bootstrap.Modal(document.getElementById('editModal'));
-                            editModal.show();
-                        } else {
-                            Swal.fire(
-                                'Gabim!',
-                                response.message,
-                                'error'
-                            );
-                        }
-                    },
-                    error: function() {
-                        Swal.fire(
-                            'Gabim!',
-                            'Dështoi marrja e të dhënave.',
-                            'error'
-                        );
-                    }
+                // Function to toggle Periudha fields based on Kategoria
+                const togglePeriudhaFields = ($kategoriaSelect, $periudhaSelectContainer, $periudhaDateContainer) => {
+                    const selectedKategoria = $kategoriaSelect.val();
+                    selectedKategoria === 'TVSH' ?
+                        ($periudhaSelectContainer.show().find('select').attr('required', true).prop('disabled', false),
+                            $periudhaDateContainer.hide().find('input').removeAttr('required').prop('disabled', true)) :
+                        (['Kontribute', 'Tatim'].includes(selectedKategoria) ?
+                            ($periudhaSelectContainer.hide().find('select').removeAttr('required').prop('disabled', true),
+                                $periudhaDateContainer.show().find('input').attr('required', true).prop('disabled', false)) :
+                            ($periudhaSelectContainer.hide().find('select').removeAttr('required').prop('disabled', true),
+                                $periudhaDateContainer.hide().find('input').removeAttr('required').prop('disabled', true)));
+                };
+                // Initialize Periudha fields on page load
+                const initializePeriudhaFields = () => {
+                    // Filter Section
+                    togglePeriudhaFields(
+                        $('#filterKategoria'),
+                        $('#filterPeriudhaSelectContainer'),
+                        $('#filterPeriudhaDateContainer')
+                    );
+                    // Add Form
+                    togglePeriudhaFields(
+                        $('#zgjedhKategorine'),
+                        $('#zgjedhPeriodenSelectContainer'),
+                        $('#zgjedhPeriodenDateContainer')
+                    );
+                    // Edit Modal
+                    togglePeriudhaFields(
+                        $('#edit_kategoria'),
+                        $('#editPeriudhaSelectContainer'),
+                        $('#editPeriudhaDateContainer')
+                    );
+                };
+                initializePeriudhaFields();
+                // Event listeners for Kategoria selects
+                $('#filterKategoria, #zgjedhKategorine, #edit_kategoria').on('change', function() {
+                    const isFilter = $(this).attr('id') === 'filterKategoria';
+                    togglePeriudhaFields(
+                        $(this),
+                        isFilter ? $('#filterPeriudhaSelectContainer') : isFilter === false && $(this).attr('id') === 'zgjedhKategorine' ? $('#zgjedhPeriodenSelectContainer') : $('#editPeriudhaSelectContainer'),
+                        isFilter ? $('#filterPeriudhaDateContainer') : isFilter === false && $(this).attr('id') === 'zgjedhKategorine' ? $('#zgjedhPeriodenDateContainer') : $('#editPeriudhaDateContainer')
+                    );
+                    if (isFilter) table.draw();
                 });
-            });
-            // Handle Edit Form Submission via AJAX
-            $('#editTatimiForm').on('submit', function(e) {
-                e.preventDefault();
-                var formData = new FormData(this);
-                $.ajax({
-                    url: 'update_tatimi.php',
-                    type: 'POST',
-                    data: formData,
-                    contentType: false,
-                    processData: false,
-                    dataType: 'json',
-                    beforeSend: function() {
-                        $('#editTatimiForm button[type="submit"]').prop('disabled', true).text('Ruaj...');
-                    },
-                    success: function(response) {
-                        $('#editTatimiForm button[type="submit"]').prop('disabled', false).text('Ruaj Ndryshimet');
-                        if (response.status === 'success') {
-                            Swal.fire(
-                                'Sukses!',
-                                response.message,
-                                'success'
-                            );
-                            var editModal = bootstrap.Modal.getInstance(document.getElementById('editModal'));
-                            editModal.hide();
-                            refreshTable();
-                        } else {
-                            Swal.fire(
-                                'Gabim!',
-                                response.message,
-                                'error'
-                            );
-                        }
-                    },
-                    error: function() {
-                        $('#editTatimiForm button[type="submit"]').prop('disabled', false).text('Ruaj Ndryshimet');
-                        Swal.fire(
-                            'Gabim!',
-                            'Dështoi përditësimi i të dhënave.',
-                            'error'
-                        );
-                    }
-                });
-            });
-            // Filter Functionality
-            $('#filterKategoria, #filterPeriudha, #filterFormaPageses, #filterDataPageses').on('change keyup', function() {
-                table.draw();
-            });
-            // Handle Reset Filters
-            $('#resetFilters').on('click', function() {
-                $('#filterKategoria, #filterPeriudha, #filterFormaPageses, #filterDataPageses').val('');
-                table.draw();
-            });
-            // Custom Filtering Logic
-            $.fn.dataTable.ext.search.push(
-                function(settings, data, dataIndex) {
-                    var kategoria = $('#filterKategoria').val().toLowerCase();
-                    var periudha = $('#filterPeriudha').val().toLowerCase();
-                    var formaPageses = $('#filterFormaPageses').val().toLowerCase();
-                    var dataPageses = $('#filterDataPageses').val();
-                    var rowKategoria = data[1].toLowerCase(); // Kategoria column
-                    var rowPeriudha = data[4].toLowerCase(); // Periudha column
-                    var rowFormaPageses = data[6].toLowerCase(); // Forma e Pagesës column
-                    var rowDataPageses = data[2]; // Data e Pagesës column
+                // Event listeners for all filter inputs
+                $('#filterPeriudhaSelect, #filterPeriudhaDate, #filterFormaPageses, #filterDataPageses').on('change', () => table.draw());
+                // ** Updated Custom Filtering Logic **
+                $.fn.dataTable.ext.search.push((settings, data, dataIndex) => {
+                    const table = $('#tatimiTable').DataTable();
+                    const rowData = table.row(dataIndex).data();
+                    const kategoria = $('#filterKategoria').val().toLowerCase();
+                    const periudhaSelect = $('#filterPeriudhaSelect').val().toLowerCase();
+                    const periudhaDate = $('#filterPeriudhaDate').val();
+                    const formaPageses = $('#filterFormaPageses').val().toLowerCase();
+                    const dataPageses = $('#filterDataPageses').val();
+                    const rowKategoria = rowData.kategoria.toLowerCase();
+                    const rowPeriudha = rowData.periudha.toLowerCase();
+                    const rowFormaPageses = rowData.forma_pageses.toLowerCase();
+                    const rowDataPageses = rowData.data_pageses;
                     // Kategoria Filter
-                    if (kategoria && rowKategoria !== kategoria) {
-                        return false;
-                    }
+                    if (kategoria && rowKategoria !== kategoria) return false;
                     // Periudha Filter
-                    if (periudha && rowPeriudha !== periudha) {
-                        return false;
+                    if (kategoria === 'tvsh') {
+                        if (periudhaSelect && rowPeriudha !== periudhaSelect) return false;
+                    } else if (['kontribute', 'tatim'].includes(kategoria)) {
+                        if (periudhaDate && rowPeriudha !== periudhaDate) return false;
                     }
                     // Forma e Pagesës Filter
-                    if (formaPageses && rowFormaPageses !== formaPageses) {
-                        return false;
-                    }
+                    if (formaPageses && rowFormaPageses !== formaPageses) return false;
                     // Data e Pagesës Filter
-                    if (dataPageses) {
-                        // Check if the row's date matches the filter date
-                        if (rowDataPageses !== dataPageses) {
-                            return false;
-                        }
-                    }
+                    if (dataPageses && rowDataPageses !== dataPageses) return false;
                     return true;
-                }
-            );
-            // Handle View Document Button Click
-            $('#tatimiTable tbody').on('click', '.viewDocBtn', function() {
-                var docUrl = $(this).data('url');
-                if (docUrl) {
-                    var fileExt = docUrl.split('.').pop().toLowerCase();
-                    var embedHtml = '';
-                    if (['jpg', 'jpeg', 'png', 'gif'].includes(fileExt)) {
-                        // Display image
-                        embedHtml = '<img src="' + docUrl + '" alt="Dokumenti" class="img-fluid">';
-                    } else if (['pdf'].includes(fileExt)) {
-                        // Display PDF in iframe
-                        embedHtml = '<iframe src="' + docUrl + '" width="100%" height="600px" style="border: none;"></iframe>';
-                    } else if (['doc', 'docx'].includes(fileExt)) {
-                        // Use Google Docs Viewer for Word documents
-                        embedHtml = '<iframe src="https://docs.google.com/gview?url=' + encodeURIComponent(docUrl) + '&embedded=true" width="100%" height="600px" style="border: none;"></iframe>';
-                    } else {
-                        // Fallback for unsupported formats
-                        embedHtml = '<p>Nuk është mbështetur për shikim në modal.</p>';
-                    }
-                    $('#documentContent').html(embedHtml);
-                    var viewDocModal = new bootstrap.Modal(document.getElementById('viewDocumentModal'));
-                    viewDocModal.show();
-                } else {
-                    Swal.fire(
-                        'Gabim!',
-                        'Dokumenti nuk u gjet.',
-                        'error'
+                });
+                // Handle Reset Filters
+                $('#resetFilters').on('click', e => {
+                    e.preventDefault();
+                    $('#filterKategoria, #filterPeriudhaSelect, #filterPeriudhaDate, #filterFormaPageses, #filterDataPageses').val('');
+                    togglePeriudhaFields(
+                        $('#filterKategoria'),
+                        $('#filterPeriudhaSelectContainer'),
+                        $('#filterPeriudhaDateContainer')
                     );
-                }
+                    table.draw();
+                });
+                // Handle Form Submission via AJAX (Add Form)
+                $('#tatimiForm').on('submit', function(e) {
+                    e.preventDefault();
+                    const formData = new FormData(this);
+                    $.ajax({
+                        url: 'process_form.php',
+                        type: 'POST',
+                        data: formData,
+                        contentType: false,
+                        processData: false,
+                        dataType: 'json',
+                        beforeSend: () => $('#tatimiForm button[type="submit"]').prop('disabled', true).text('Dërgo...'),
+                        success: response => {
+                            $('#tatimiForm button[type="submit"]').prop('disabled', false).text('Dërgo');
+                            const alertType = response.status === 'success' ? 'success' : 'danger';
+                            const alertMessage = response.message;
+                            $('#formAlert').html(`
+                    <div class="alert alert-${alertType} alert-dismissible fade show" role="alert">
+                        ${alertMessage}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                `);
+                            if (response.status === 'success') {
+                                $('#tatimiForm')[0].reset();
+                                togglePeriudhaFields(
+                                    $('#zgjedhKategorine'),
+                                    $('#zgjedhPeriodenSelectContainer'),
+                                    $('#zgjedhPeriodenDateContainer')
+                                );
+                                table.ajax.reload(null, false);
+                            }
+                        },
+                        error: () => {
+                            $('#tatimiForm button[type="submit"]').prop('disabled', false).text('Dërgo');
+                            $('#formAlert').html(`
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        Dështoi dërgimi i formularit. Ju lutem provoni përsëri.
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                `);
+                        }
+                    });
+                });
+                // Handle Delete Button Click
+                $('#tatimiTable tbody').on('click', '.deleteBtn', function() {
+                    const id = $(this).data('id');
+                    Swal.fire({
+                        title: 'Jeni të sigurt?',
+                        text: "Ky veprim nuk mund të kthehet!",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#6c757d',
+                        confirmButtonText: 'Po, fshij!'
+                    }).then(result => {
+                        if (result.isConfirmed) {
+                            $.ajax({
+                                url: 'delete_tatimi.php',
+                                type: 'POST',
+                                data: {
+                                    id
+                                },
+                                dataType: 'json',
+                                success: response => {
+                                    const icon = response.status === 'success' ? 'success' : 'error';
+                                    Swal.fire(response.status === 'success' ? 'U Fshi!' : 'Gabim!', response.message, icon);
+                                    if (response.status === 'success') table.ajax.reload(null, false);
+                                },
+                                error: () => Swal.fire('Gabim!', 'Dështoi fshirja e rekordit.', 'error')
+                            });
+                        }
+                    });
+                });
+                // Handle Edit Button Click
+                $('#tatimiTable tbody').on('click', '.editBtn', function() {
+                    const id = $(this).data('id');
+                    $.ajax({
+                        url: 'get_tatimi.php',
+                        type: 'GET',
+                        data: {
+                            id
+                        },
+                        dataType: 'json',
+                        success: response => {
+                            if (response.status === 'success') {
+                                const data = response.data;
+                                // Populate Edit Modal Fields
+                                const editForm = $('#editTatimiForm');
+                                editForm.find('#edit_id').val(data.id);
+                                editForm.find('#edit_kategoria').val(data.kategoria);
+                                editForm.find('#edit_data_pageses').val(data.data_pageses);
+                                editForm.find('#edit_pershkrimi').val(data.pershkrimi);
+                                editForm.find('#edit_vlera').val(data.vlera);
+                                editForm.find('#edit_forma_pageses').val(data.forma_pageses);
+                                editForm.find('#edit_invoice_id').val(data.invoice_id);
+                                // Toggle Periudha Fields
+                                togglePeriudhaFields(
+                                    editForm.find('#edit_kategoria'),
+                                    $('#editPeriudhaSelectContainer'),
+                                    $('#editPeriudhaDateContainer')
+                                );
+                                // Set Periudha Value
+                                data.kategoria === 'TVSH' ?
+                                    editForm.find('#edit_periudhaSelect').val(data.periudha) :
+                                    editForm.find('#edit_periudhaDate').val(data.periudha);
+                                // Show Edit Modal
+                                $('#editModal').modal('show');
+                            } else {
+                                Swal.fire('Gabim!', response.message, 'error');
+                            }
+                        },
+                        error: () => Swal.fire('Gabim!', 'Dështoi marrja e të dhënave.', 'error')
+                    });
+                });
+                // Handle Edit Form Submission via AJAX
+                $('#editTatimiForm').on('submit', function(e) {
+                    e.preventDefault();
+                    const formData = new FormData(this);
+                    $.ajax({
+                        url: 'update_tatimi.php',
+                        type: 'POST',
+                        data: formData,
+                        contentType: false,
+                        processData: false,
+                        dataType: 'json',
+                        beforeSend: () => $('#editTatimiForm button[type="submit"]').prop('disabled', true).text('Ruaj...'),
+                        success: response => {
+                            $('#editTatimiForm button[type="submit"]').prop('disabled', false).text('Ruaj Ndryshimet');
+                            const icon = response.status === 'success' ? 'success' : 'error';
+                            Swal.fire(response.status === 'success' ? 'Sukses!' : 'Gabim!', response.message, icon);
+                            if (response.status === 'success') {
+                                $('#editModal').modal('hide');
+                                table.ajax.reload(null, false);
+                            }
+                        },
+                        error: () => {
+                            $('#editTatimiForm button[type="submit"]').prop('disabled', false).text('Ruaj Ndryshimet');
+                            Swal.fire('Gabim!', 'Dështoi përditësimi i të dhënave.', 'error');
+                        }
+                    });
+                });
+                // Handle View Document Button Click
+                $('#tatimiTable tbody').on('click', '.viewDocBtn', function() {
+                    const docUrl = $(this).data('url');
+                    if (docUrl) {
+                        const fileExt = docUrl.split('.').pop().toLowerCase();
+                        const embedHtml = ['jpg', 'jpeg', 'png', 'gif'].includes(fileExt) ? `<img src="${docUrl}" alt="Dokumenti" class="img-fluid">` :
+                            fileExt === 'pdf' ? `<iframe src="${docUrl}" width="100%" height="600px" style="border: none;"></iframe>` : ['doc', 'docx'].includes(fileExt) ? `<iframe src="https://docs.google.com/gview?url=${encodeURIComponent(docUrl)}&embedded=true" width="100%" height="600px" style="border: none;"></iframe>` :
+                            `<p>Nuk është mbështetur për shikim në modal.</p>`;
+                        $('#documentContent').html(embedHtml);
+                        $('#viewDocumentModal').modal('show');
+                    } else {
+                        Swal.fire('Gabim!', 'Dokumenti nuk u gjet.', 'error');
+                    }
+                });
             });
-            // Initial sum calculation after data is loaded
-            table.on('init.dt', function() {
-                updateTotalVlera();
-            });
-        });
-    </script>
-</div>
-<!-- View Document Modal -->
-<div class="modal fade" id="viewDocumentModal" tabindex="-1" aria-labelledby="viewDocumentModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Shiko Dokumentin</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div id="documentContent" class="text-center">
-                    <p>Ngarko dokumentin...</p>
-                </div>
-            </div>
-        </div>
+        </script>
     </div>
 </div>
 <?php include 'partials/footer.php'; ?>

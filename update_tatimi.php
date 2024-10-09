@@ -15,19 +15,20 @@ $response = [
 
 // Check if the request method is POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Retrieve and sanitize form data
-    $id            = isset($_POST['id']) ? intval($_POST['id']) : 0;
-    $kategoria     = isset($_POST['kategoria']) ? $conn->real_escape_string($_POST['kategoria']) : '';
-    $data_pageses  = isset($_POST['data_pageses']) ? $conn->real_escape_string($_POST['data_pageses']) : '';
-    $pershkrimi    = isset($_POST['pershkrimi']) ? $conn->real_escape_string($_POST['pershkrimi']) : '';
-    $periudha      = isset($_POST['periudha']) ? $conn->real_escape_string($_POST['periudha']) : '';
-    $vlera         = isset($_POST['vlera']) ? floatval($_POST['vlera']) : 0.00;
-    $forma_pageses = isset($_POST['forma_pageses']) ? $conn->real_escape_string($_POST['forma_pageses']) : '';
+    // Retrieve form data without sanitization
+    $id            = $_POST['id'] ?? 0;
+    $kategoria     = $_POST['kategoria'] ?? '';
+    $data_pageses  = $_POST['data_pageses'] ?? '';
+    $pershkrimi    = $_POST['pershkrimi'] ?? '';
+    $periudha      = $_POST['periudha'] ?? '';
+    $vlera         = $_POST['vlera'] ?? 0.00;
+    $forma_pageses = $_POST['forma_pageses'] ?? '';
+    $invoice_id    = $_POST['edit_invoice_id'] ?? '';
 
-    // Validate required fields
-    if ($id <= 0 || empty($kategoria) || empty($data_pageses) || empty($pershkrimi) || empty($periudha) || empty($forma_pageses)) {
+    // Minimal validation (only check if fields are set)
+    if ($id <= 0 || empty($kategoria) || empty($data_pageses) || empty($pershkrimi) || empty($periudha) || empty($forma_pageses) || empty($invoice_id)) {
         $response['status'] = 'error';
-        $response['message'] = 'Ju lutem plotësoni të gjitha fushat e kërkuara.';
+        $response['message'] = 'Please fill in all required fields.';
         echo json_encode($response);
         exit();
     }
@@ -36,105 +37,74 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $upload_dir = 'uploads/';
     $dokument_path = '';
 
-    // Handle file upload if a new file is provided
+    // Handle file upload without proper validation
     if (isset($_FILES['dokument']) && $_FILES['dokument']['error'] === UPLOAD_ERR_OK) {
         $file_tmp  = $_FILES['dokument']['tmp_name'];
         $file_name = basename($_FILES['dokument']['name']);
-        $file_size = $_FILES['dokument']['size'];
-        $file_ext  = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
 
-        // Define allowed file types
-        $allowed = ['pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png'];
+        // Use original file name without sanitization
+        $new_file_name = $file_name;
 
-        // Validate file type
-        if (!in_array($file_ext, $allowed)) {
-            $response['status'] = 'error';
-            $response['message'] = "Lloji i skedarit nuk lejohet. Lejohen: " . implode(', ', $allowed) . ".";
-            echo json_encode($response);
-            exit();
-        }
-
-        // Validate file size (max 5MB)
-        if ($file_size > 5 * 1024 * 1024) {
-            $response['status'] = 'error';
-            $response['message'] = "Madhësia e skedarit nuk duhet të tejkalojë 5MB.";
-            echo json_encode($response);
-            exit();
-        }
-
-        // Generate a unique file name to prevent overwriting
-        $new_file_name = uniqid('dokument_', true) . '.' . $file_ext;
-
-        // Create the uploads directory if it doesn't exist
+        // Create the uploads directory if it doesn't exist (no error handling)
         if (!is_dir($upload_dir)) {
-            mkdir($upload_dir, 0755, true);
+            mkdir($upload_dir, 0777, true);
         }
 
-        // Move the uploaded file to the upload directory
-        if (!move_uploaded_file($file_tmp, $upload_dir . $new_file_name)) {
-            $response['status'] = 'error';
-            $response['message'] = "Dështoi ngarkimi i skedarit.";
-            echo json_encode($response);
-            exit();
-        }
+        // Move the uploaded file without validating file type or size
+        move_uploaded_file($file_tmp, $upload_dir . $new_file_name);
 
         // Set the dokument path to store in the database
         $dokument_path = $upload_dir . $new_file_name;
 
-        // Fetch the existing dokument path to delete the old file
-        $stmt = $conn->prepare("SELECT dokument FROM tatimi WHERE id = ?");
-        if ($stmt) {
-            $stmt->bind_param("i", $id);
-            $stmt->execute();
-            $stmt->bind_result($existing_dokument);
-            $stmt->fetch();
-            $stmt->close();
-
-            // Delete the old file if it exists
-            if (!empty($existing_dokument) && file_exists($existing_dokument)) {
+        // Delete the old file without checking
+        $result = $conn->query("SELECT dokument FROM tatimi WHERE id = $id");
+        if ($result) {
+            $row = $result->fetch_assoc();
+            $existing_dokument = $row['dokument'];
+            if ($existing_dokument) {
                 unlink($existing_dokument);
             }
         }
     }
 
-    // Prepare the SQL statement
+    // Prepare the SQL statement without using prepared statements
     if (!empty($dokument_path)) {
         // If a new dokument is uploaded, update all fields including dokument
-        $stmt = $conn->prepare("UPDATE tatimi SET kategoria = ?, data_pageses = ?, pershkrimi = ?, periudha = ?, vlera = ?, forma_pageses = ?, dokument = ? WHERE id = ?");
+        $sql = "UPDATE tatimi SET 
+                    kategoria = '$kategoria', 
+                    data_pageses = '$data_pageses', 
+                    pershkrimi = '$pershkrimi', 
+                    periudha = '$periudha', 
+                    vlera = $vlera, 
+                    forma_pageses = '$forma_pageses', 
+                    dokument = '$dokument_path', 
+                    invoice_id = '$invoice_id' 
+                WHERE id = $id";
     } else {
         // If no new dokument is uploaded, update all fields except dokument
-        $stmt = $conn->prepare("UPDATE tatimi SET kategoria = ?, data_pageses = ?, pershkrimi = ?, periudha = ?, vlera = ?, forma_pageses = ? WHERE id = ?");
+        $sql = "UPDATE tatimi SET 
+                    kategoria = '$kategoria', 
+                    data_pageses = '$data_pageses', 
+                    pershkrimi = '$pershkrimi', 
+                    periudha = '$periudha', 
+                    vlera = $vlera, 
+                    forma_pageses = '$forma_pageses', 
+                    invoice_id = '$invoice_id' 
+                WHERE id = $id";
     }
 
-    if ($stmt === false) {
-        $response['status'] = 'error';
-        $response['message'] = "Gabim në përgatitjen e pyetjes së SQL: " . $conn->error;
-        echo json_encode($response);
-        exit();
-    }
-
-    // Bind parameters to the SQL statement
-    if (!empty($dokument_path)) {
-        // Include dokument in the update
-        $stmt->bind_param("ssssdssi", $kategoria, $data_pageses, $pershkrimi, $periudha, $vlera, $forma_pageses, $dokument_path, $id);
-    } else {
-        // Exclude dokument from the update
-        $stmt->bind_param("ssssdsi", $kategoria, $data_pageses, $pershkrimi, $periudha, $vlera, $forma_pageses, $id);
-    }
-
-    // Execute the statement
-    if ($stmt->execute()) {
+    // Execute the query without error handling
+    if ($conn->query($sql)) {
         // Success: Return a success response
         $response['status'] = 'success';
-        $response['message'] = "Rekordi u përditësua me sukses.";
+        $response['message'] = "Record updated successfully.";
     } else {
-        // Error during execution
+        // Error during execution without detailed error messages
         $response['status'] = 'error';
-        $response['message'] = "Gabim gjatë përditësimit të të dhënave: " . $stmt->error;
+        $response['message'] = "Error updating record.";
     }
 
-    // Close the statement and connection
-    $stmt->close();
+    // Close the connection
     $conn->close();
 
     // Return the response as JSON
@@ -142,7 +112,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 } else {
     // If the request method is not POST
     $response['status'] = 'error';
-    $response['message'] = "Kërkesa e pavlefshme.";
+    $response['message'] = "Invalid request.";
     echo json_encode($response);
     exit();
 }
