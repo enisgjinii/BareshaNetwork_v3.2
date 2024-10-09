@@ -107,7 +107,7 @@ $query = 'SELECT
             category, 
             company_name,
             registrant,
-            ROUND(SUM(CAST(vlera_faktura AS DECIMAL(10,2))), 2) AS total_shuma 
+            ROUND(SUM(CAST(REPLACE(vlera_faktura, ",", "") AS DECIMAL(10,2))), 2) AS total_shuma 
           FROM invoices_kont';
 
 // Append filters to the query

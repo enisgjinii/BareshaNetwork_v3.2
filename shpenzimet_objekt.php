@@ -709,6 +709,20 @@ include 'conn-d.php';
 </script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Helper function to parse numbers by removing commas
+        function parseNumber(str) {
+            if (typeof str !== 'string') return 0;
+            return parseFloat(str.replace(/,/g, '')) || 0;
+        }
+        // Helper function to format numbers with commas without rounding
+        function formatNumber(num) {
+            return new Intl.NumberFormat('en-US').format(num);
+        }
+        // Helper function to capitalize first letter
+        function capitalizeFirstLetter(string) {
+            if (typeof string !== 'string' || string.length === 0) return string;
+            return string.charAt(0).toUpperCase() + string.slice(1);
+        }
         // Initialize ApexCharts for Line Chart
         var profitLineChartOptions = {
             chart: {
@@ -740,10 +754,10 @@ include 'conn-d.php';
             },
             series: [{
                 name: 'Profit',
-                data: [] // Populate with your data
+                data: [] // Data will be populated dynamically
             }],
             xaxis: {
-                categories: [], // Populate with your categories (e.g., dates or time series)
+                categories: [], // Dates or time series will be populated dynamically
                 labels: {
                     rotate: -45, // Rotate labels to save space
                     style: {
@@ -775,7 +789,7 @@ include 'conn-d.php';
                 },
                 y: {
                     formatter: function(val) {
-                        return "€" + val.toFixed(2);
+                        return "€" + formatNumber(val);
                     }
                 }
             },
@@ -793,26 +807,7 @@ include 'conn-d.php';
                 width: 2
             },
             annotations: {
-                points: [{
-                    x: 'SomeDate', // Add relevant annotations to highlight important points
-                    y: 2000,
-                    marker: {
-                        size: 6,
-                        fillColor: '#fff',
-                        strokeColor: '#FF4560',
-                        radius: 2
-                    },
-                    label: {
-                        borderColor: '#FF4560',
-                        text: 'High Profit Day',
-                        style: {
-                            fontSize: '12px',
-                            fontWeight: 'bold',
-                            background: '#FF4560',
-                            color: '#fff'
-                        }
-                    }
-                }]
+                points: [] // Annotations will be added dynamically
             },
             legend: {
                 position: 'top',
@@ -837,7 +832,7 @@ include 'conn-d.php';
             yaxis: {
                 labels: {
                     formatter: function(val) {
-                        return "€" + val.toFixed(0);
+                        return "€" + formatNumber(val);
                     }
                 },
                 title: {
@@ -896,7 +891,7 @@ include 'conn-d.php';
                 },
                 y: {
                     formatter: function(val) {
-                        return "€" + val.toFixed(2);
+                        return "€" + formatNumber(val);
                     }
                 }
             },
@@ -936,10 +931,10 @@ include 'conn-d.php';
             },
             series: [{
                 name: 'Profit',
-                data: [] // Populate this with your data
+                data: [] // Data will be populated dynamically
             }],
             xaxis: {
-                categories: [], // Populate this with your categories
+                categories: [], // Companies will be populated dynamically
                 labels: {
                     style: {
                         fontSize: '12px',
@@ -966,7 +961,7 @@ include 'conn-d.php';
             tooltip: {
                 y: {
                     formatter: function(val) {
-                        return "€" + val.toFixed(2);
+                        return "€" + formatNumber(val);
                     }
                 }
             },
@@ -997,7 +992,7 @@ include 'conn-d.php';
             yaxis: {
                 labels: {
                     formatter: function(val) {
-                        return "€" + val.toFixed(0);
+                        return "€" + formatNumber(val);
                     },
                     style: {
                         fontSize: '12px',
@@ -1005,7 +1000,7 @@ include 'conn-d.php';
                     }
                 },
                 title: {
-                    text: 'Profit',
+                    text: 'Profit (€)',
                     style: {
                         fontSize: '14px',
                         fontWeight: 'bold'
@@ -1044,6 +1039,8 @@ include 'conn-d.php';
                 success: function(response) {
                     if (response.success) {
                         processChartData(response.data);
+                        renderTable(response.data); // Assuming you have a function to render the table
+                        calculateTotals(response.data); // Assuming you have a function to calculate totals
                         Swal.close(); // Close the loading spinner
                     } else {
                         Swal.fire({
@@ -1076,39 +1073,43 @@ include 'conn-d.php';
                 var category = record.category;
                 var company = record.company_name;
                 var registrant = record.registrant;
-                var amount = parseFloat(record.total_shuma);
+                var amount = parseNumber(record.total_shuma); // Use the helper function
                 // Sum profit by date
-                if (!profitByDate[date]) {
+                if (!profitByDate.hasOwnProperty(date)) {
                     profitByDate[date] = 0;
                 }
                 profitByDate[date] += amount;
                 // Sum profit by category
-                if (!profitByCategory[category]) {
+                if (!profitByCategory.hasOwnProperty(category)) {
                     profitByCategory[category] = 0;
                 }
                 profitByCategory[category] += amount;
                 // Sum profit by company
-                if (!profitByCompany[company]) {
+                if (!profitByCompany.hasOwnProperty(company)) {
                     profitByCompany[company] = 0;
                 }
                 profitByCompany[company] += amount;
                 // Sum profit by registrant
-                if (!profitByRegistrant[registrant]) {
+                if (!profitByRegistrant.hasOwnProperty(registrant)) {
                     profitByRegistrant[registrant] = 0;
                 }
                 profitByRegistrant[registrant] += amount;
             });
-            // Prepare data for Line Chart
+            // Prepare data for Line Chart (Profit over Time)
             var dates = Object.keys(profitByDate).sort();
             var profitValues = dates.map(date => profitByDate[date]);
-            // Calculate trends
+            // Calculate trends (percentage change)
             var trends = [];
             for (var i = 0; i < profitValues.length; i++) {
                 if (i === 0) {
                     trends.push(null); // No trend for the first data point
                 } else {
-                    var change = ((profitValues[i] - profitValues[i - 1]) / profitValues[i - 1]) * 100;
-                    trends.push(change.toFixed(2)); // Percentage change rounded to 2 decimals
+                    if (profitValues[i - 1] === 0) {
+                        trends.push(null); // Avoid division by zero
+                    } else {
+                        var change = ((profitValues[i] - profitValues[i - 1]) / Math.abs(profitValues[i - 1])) * 100;
+                        trends.push(change); // Percentage change without rounding
+                    }
                 }
             }
             // Update Line Chart
@@ -1145,8 +1146,8 @@ include 'conn-d.php';
                     }).filter(point => point !== null)
                 }
             });
-            // Prepare data for Pie Chart (by Category)
-            var categories = Object.keys(profitByCategory);
+            // Prepare data for Pie Chart (Profit by Category)
+            var categories = Object.keys(profitByCategory).sort();
             var categoryValues = categories.map(cat => profitByCategory[cat]);
             profitPieChart.updateOptions({
                 labels: categories.map(cat => capitalizeFirstLetter(cat)),
@@ -1155,8 +1156,8 @@ include 'conn-d.php';
             // Prepare data for Bar Chart (Monthly Profit)
             var monthlyProfit = {};
             dates.forEach(function(date) {
-                var month = date.substring(0, 7); // 'YYYY-MM'
-                if (!monthlyProfit[month]) {
+                var month = date.substring(0, 7); // Extract 'YYYY-MM'
+                if (!monthlyProfit.hasOwnProperty(month)) {
                     monthlyProfit[month] = 0;
                 }
                 monthlyProfit[month] += profitByDate[date];
@@ -1174,12 +1175,12 @@ include 'conn-d.php';
                 tooltip: {
                     y: {
                         formatter: function(val) {
-                            return "€" + val.toFixed(2);
+                            return "€" + formatNumber(val);
                         }
                     }
                 }
             });
-            // Prepare data for Company Chart
+            // Prepare data for Company Chart (Profit by Company)
             var companies = Object.keys(profitByCompany).sort();
             var companyValues = companies.map(company => profitByCompany[company]);
             profitCompanyChart.updateOptions({
@@ -1193,7 +1194,7 @@ include 'conn-d.php';
                 tooltip: {
                     y: {
                         formatter: function(val) {
-                            return "€" + val.toFixed(2);
+                            return "€" + formatNumber(val);
                         }
                     }
                 }
@@ -1201,58 +1202,128 @@ include 'conn-d.php';
             // Display Totals
             displayTotals(profitByDate, profitByCategory, profitByCompany, profitByRegistrant);
         }
+        // Function to render the table (Assuming you have a table to display individual records)
+        function renderTable(data) {
+            var tableBody = $('#yourTableBody'); // Replace with your actual table body selector
+            tableBody.empty(); // Clear existing data
+            data.forEach(function(record) {
+                var formattedAmount = formatNumber(record.total_shuma); // Format for display
+                var row = `
+                    <tr>
+                        <td>${record.date}</td>
+                        <td>${capitalizeFirstLetter(record.category)}</td>
+                        <td>${record.company_name}</td>
+                        <td>${record.registrant}</td>
+                        <td>€${formattedAmount}</td>
+                    </tr>
+                `;
+                tableBody.append(row);
+            });
+        }
+        // Function to calculate and display totals
+        function calculateTotals(data) {
+            var totalByDate = {};
+            var totalByCategory = {};
+            var totalByCompany = {};
+            var totalByRegistrant = {};
+            data.forEach(function(record) {
+                var date = record.date;
+                var category = record.category;
+                var company = record.company_name;
+                var registrant = record.registrant;
+                var amount = parseNumber(record.total_shuma);
+                // Sum profit by date
+                if (!totalByDate.hasOwnProperty(date)) {
+                    totalByDate[date] = 0;
+                }
+                totalByDate[date] += amount;
+                // Sum profit by category
+                if (!totalByCategory.hasOwnProperty(category)) {
+                    totalByCategory[category] = 0;
+                }
+                totalByCategory[category] += amount;
+                // Sum profit by company
+                if (!totalByCompany.hasOwnProperty(company)) {
+                    totalByCompany[company] = 0;
+                }
+                totalByCompany[company] += amount;
+                // Sum profit by registrant
+                if (!totalByRegistrant.hasOwnProperty(registrant)) {
+                    totalByRegistrant[registrant] = 0;
+                }
+                totalByRegistrant[registrant] += amount;
+            });
+            // Calculate total profit
+            var totalProfit = Object.values(totalByDate).reduce((a, b) => a + b, 0);
+            $('#totalProfit').text(`Total Profit: €${formatNumber(totalProfit)}`);
+            // Calculate overall totals by category
+            var sumByCategory = Object.values(totalByCategory).reduce((a, b) => a + b, 0);
+            $('#totalByCategory').text(`Total by Category: €${formatNumber(sumByCategory)}`);
+            // Calculate overall totals by company
+            var sumByCompany = Object.values(totalByCompany).reduce((a, b) => a + b, 0);
+            $('#totalByCompany').text(`Total by Company: €${formatNumber(sumByCompany)}`);
+            // Calculate overall totals by registrant
+            var sumByRegistrant = Object.values(totalByRegistrant).reduce((a, b) => a + b, 0);
+            $('#totalByRegistrant').text(`Total by Registrant: €${formatNumber(sumByRegistrant)}`);
+            // Display detailed totals by category
+            var detailedCategoryHTML = '';
+            for (var key in totalByCategory) {
+                if (totalByCategory.hasOwnProperty(key)) {
+                    detailedCategoryHTML += `<tr>
+                        <td>${capitalizeFirstLetter(key)}</td>
+                        <td>€${formatNumber(totalByCategory[key])}</td>
+                    </tr>`;
+                }
+            }
+            $('#detailedTotalByCategory').html(detailedCategoryHTML);
+            // Display detailed totals by company
+            var detailedCompanyHTML = '';
+            for (var key in totalByCompany) {
+                if (totalByCompany.hasOwnProperty(key)) {
+                    detailedCompanyHTML += `<tr>
+                        <td>${capitalizeFirstLetter(key)}</td>
+                        <td>€${formatNumber(totalByCompany[key])}</td>
+                    </tr>`;
+                }
+            }
+            $('#detailedTotalByCompany').html(detailedCompanyHTML);
+        }
         // Function to display totals
         function displayTotals(profitByDate, profitByCategory, profitByCompany, profitByRegistrant) {
             // Calculate total profit
-            var totalProfit = Object.values(profitByDate).reduce((a, b) => a + b, 0).toFixed(2);
-            // Calculate total by category
-            var totalByCategory = {};
-            for (var key in profitByCategory) {
-                totalByCategory[key] = profitByCategory[key].toFixed(2);
-            }
-            // Calculate total by company
-            var totalByCompany = {};
-            for (var key in profitByCompany) {
-                totalByCompany[key] = profitByCompany[key].toFixed(2);
-            }
-            // Calculate total by registrant
-            var totalByRegistrant = {};
-            for (var key in profitByRegistrant) {
-                totalByRegistrant[key] = profitByRegistrant[key].toFixed(2);
-            }
-            // Display the totals in designated HTML elements
-            $('#totalProfit').text(`Total Profit: €${totalProfit}`);
+            var totalProfit = Object.values(profitByDate).reduce((a, b) => a + b, 0);
+            $('#totalProfit').text(`Total Profit: €${formatNumber(totalProfit)}`);
             // Calculate overall totals by category
-            var sumByCategory = Object.values(totalByCategory).reduce((a, b) => parseFloat(a) + parseFloat(b), 0).toFixed(2);
-            $('#totalByCategory').text(`Total by Category: €${sumByCategory}`);
+            var sumByCategory = Object.values(profitByCategory).reduce((a, b) => a + b, 0);
+            $('#totalByCategory').text(`Total by Category: €${formatNumber(sumByCategory)}`);
             // Calculate overall totals by company
-            var sumByCompany = Object.values(totalByCompany).reduce((a, b) => parseFloat(a) + parseFloat(b), 0).toFixed(2);
-            $('#totalByCompany').text(`Total by Company: €${sumByCompany}`);
+            var sumByCompany = Object.values(profitByCompany).reduce((a, b) => a + b, 0);
+            $('#totalByCompany').text(`Total by Company: €${formatNumber(sumByCompany)}`);
             // Calculate overall totals by registrant
-            var sumByRegistrant = Object.values(totalByRegistrant).reduce((a, b) => parseFloat(a) + parseFloat(b), 0).toFixed(2);
-            $('#totalByRegistrant').text(`Total by Registrant: €${sumByRegistrant}`);
+            var sumByRegistrant = Object.values(profitByRegistrant).reduce((a, b) => a + b, 0);
+            $('#totalByRegistrant').text(`Total by Registrant: €${formatNumber(sumByRegistrant)}`);
             // Display detailed totals by category
             var detailedCategoryHTML = '';
             for (var key in profitByCategory) {
-                detailedCategoryHTML += `<tr>
-                    <td>${capitalizeFirstLetter(key)}</td>
-                    <td>$${profitByCategory[key].toFixed(2)}</td>
-                </tr>`;
+                if (profitByCategory.hasOwnProperty(key)) {
+                    detailedCategoryHTML += `<tr>
+                        <td>${capitalizeFirstLetter(key)}</td>
+                        <td>€${formatNumber(profitByCategory[key])}</td>
+                    </tr>`;
+                }
             }
             $('#detailedTotalByCategory').html(detailedCategoryHTML);
             // Display detailed totals by company
             var detailedCompanyHTML = '';
             for (var key in profitByCompany) {
-                detailedCompanyHTML += `<tr>
-                    <td>${capitalizeFirstLetter(key)}</td>
-                    <td>€${profitByCompany[key].toFixed(2)}</td>
-                </tr>`;
+                if (profitByCompany.hasOwnProperty(key)) {
+                    detailedCompanyHTML += `<tr>
+                        <td>${capitalizeFirstLetter(key)}</td>
+                        <td>€${formatNumber(profitByCompany[key])}</td>
+                    </tr>`;
+                }
             }
             $('#detailedTotalByCompany').html(detailedCompanyHTML);
-        }
-        // Helper function to capitalize first letter
-        function capitalizeFirstLetter(string) {
-            return string.charAt(0).toUpperCase() + string.slice(1);
         }
         // Event listeners for filter buttons
         $('#applyFilters').on('click', function() {
