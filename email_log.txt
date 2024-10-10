@@ -139,3 +139,7 @@
 [2024-10-07 11:48:07] Email sent successfully for page: ttatimi.php from IP: ::1
 [2024-10-07 14:10:12] Email sent successfully for page: ttatimi.php from IP: ::1
 [2024-10-09 11:33:43] Email sent successfully for page: ttatimi.php from IP: 127.0.0.1
+[2024-10-09 16:55:35] Email sent successfully for page: shpenzimet_objekt.php from IP: 127.0.0.1
+[2024-10-10 12:06:23] Email sent successfully for page: tatimi.php from IP: 127.0.0.1
+[2024-10-10 12:06:31] Email sent successfully for page: tatimi.php from IP: 127.0.0.1
+[2024-10-10 14:57:51] Email sent successfully for page: index.php from IP: 127.0.0.1

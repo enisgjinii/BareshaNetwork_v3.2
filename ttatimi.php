@@ -84,7 +84,7 @@ include 'conn-d.php';
                                                 })
                                             ],
                                             locale: "sq",
-                                            minDate: "2022-01", // Earliest selectable month
+                                            minDate: "2015-01", // Earliest selectable month
                                         });
                                     </script>
                                 </div>
@@ -160,7 +160,7 @@ include 'conn-d.php';
                                         <select class="form-select" id="zgjedhKategorine" name="kategoria" required>
                                             <option value="" selected disabled>-- Zgjidhni një kategori --</option>
                                             <option value="Kontribute">Kontribute (CM)</option>
-                                            <option value="TVSH">TVSH (QL)</option>
+                                            <option value="TVSH">TVSH (QL , QS)</option>
                                             <option value="Tatim">Tatim (WM)</option>
                                         </select>
                                     </div>
@@ -224,7 +224,7 @@ include 'conn-d.php';
                                                     })
                                                 ],
                                                 locale: "sq",
-                                                minDate: "2022-01", // Earliest selectable month
+                                                minDate: "2015-01", // Earliest selectable month
                                             });
                                         </script>
                                     </div>
@@ -373,7 +373,7 @@ include 'conn-d.php';
                                             })
                                         ],
                                         locale: "sq",
-                                        minDate: "2022-01", // Earliest selectable month
+                                        minDate: "2015-01", // Earliest selectable month
                                     });
                                 </script>
                                 <!-- Shëno Vlerën -->
@@ -460,7 +460,7 @@ include 'conn-d.php';
                         })
                     ],
                     locale: "sq",
-                    minDate: "2022-01",
+                    minDate: "2015-01",
                 });
                 // Initialize DataTable
                 const table = $('#tatimiTable').DataTable({
