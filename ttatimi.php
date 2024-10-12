@@ -384,7 +384,7 @@ include 'conn-d.php';
                                             <i class="fi fi-rr-info text-primary"></i>
                                         </span>
                                     </label>
-                                    <input type="number" class="form-control" id="edit_vlera" name="vlera" placeholder="0.00" min="0" step="0.01" required>
+                                    <input type="text" class="form-control" id="edit_vlera" name="vlera" required>
                                 </div>
                                 <!-- Forma e Pagesës -->
                                 <div class="mb-3">
