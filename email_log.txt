@@ -144,3 +144,11 @@
 [2024-10-10 12:06:31] Email sent successfully for page: tatimi.php from IP: 127.0.0.1
 [2024-10-10 14:57:51] Email sent successfully for page: index.php from IP: 127.0.0.1
 [2024-10-12 09:29:43] Email sent successfully for page: ttatimi.php from IP: 127.0.0.1
+[2024-10-12 11:23:11] Email sent successfully for page: klient.php from IP: 127.0.0.1
+[2024-10-12 13:33:41] Email sent successfully for page: invoice.php from IP: 127.0.0.1
+[2024-10-12 13:34:17] Email sent successfully for page: invoice.php from IP: 127.0.0.1
+[2024-10-12 13:47:44] Email sent successfully for page: klient.php from IP: 127.0.0.1
+[2024-10-12 13:58:35] Email sent successfully for page: invoice.php from IP: 127.0.0.1
+[2024-10-12 15:56:22] Email sent successfully for page: ttatimi.php from IP: 127.0.0.1
+[2024-10-12 16:24:19] Email sent successfully for page: shpenzimet_objekt.php from IP: 127.0.0.1
+[2024-10-12 16:24:46] Email sent successfully for page: ttatimi.php from IP: 127.0.0.1

@@ -494,7 +494,6 @@
         // Send the request with the employee ID and salary
         xhr.send('id=' + employeeId + '&salary=' + newSalary);
     }
-
     function editEmployee(employeeId, currentSalary) {
         // Set the dynamic ID for the offcanvas and form
         const offcanvasId = `offcanvasRightEdit_${employeeId}`;

@@ -51,6 +51,7 @@ include 'conn-d.php';
                                         <option value="">Të gjitha</option>
                                         <option value="Kontribute">Kontribute</option>
                                         <option value="TVSH">TVSH</option>
+                                        <option value="TV">Tatimi i vlerës së shtuar</option>
                                         <option value="Tatim">Tatim</option>
                                     </select>
                                 </div>
@@ -161,6 +162,7 @@ include 'conn-d.php';
                                             <option value="" selected disabled>-- Zgjidhni një kategori --</option>
                                             <option value="Kontribute">Kontribute (CM)</option>
                                             <option value="TVSH">TVSH (QL , QS)</option>
+                                            <option value="TV">Tatimi i vlerës së shtuar (TV)</option>
                                             <option value="Tatim">Tatim (WM)</option>
                                         </select>
                                     </div>
@@ -590,7 +592,7 @@ include 'conn-d.php';
                     selectedKategoria === 'TVSH' ?
                         ($periudhaSelectContainer.show().find('select').attr('required', true).prop('disabled', false),
                             $periudhaDateContainer.hide().find('input').removeAttr('required').prop('disabled', true)) :
-                        (['Kontribute', 'Tatim'].includes(selectedKategoria) ?
+                        (['Kontribute', 'Tatim','TV'].includes(selectedKategoria) ?
                             ($periudhaSelectContainer.hide().find('select').removeAttr('required').prop('disabled', true),
                                 $periudhaDateContainer.show().find('input').attr('required', true).prop('disabled', false)) :
                             ($periudhaSelectContainer.hide().find('select').removeAttr('required').prop('disabled', true),
@@ -648,7 +650,7 @@ include 'conn-d.php';
                     // Periudha Filter
                     if (kategoria === 'tvsh') {
                         if (periudhaSelect && rowPeriudha !== periudhaSelect) return false;
-                    } else if (['kontribute', 'tatim'].includes(kategoria)) {
+                    } else if (['kontribute', 'tatim','tv'].includes(kategoria)) {
                         if (periudhaDate && rowPeriudha !== periudhaDate) return false;
                     }
                     // Forma e Pagesës Filter
