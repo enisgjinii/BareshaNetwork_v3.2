@@ -122,6 +122,7 @@ include 'conn-d.php';
                                             <th>Kategoria</th>
                                             <th>Data e Pagesës</th>
                                             <th>Përshkrimi</th>
+                                            <th>Shtetsia</th>
                                             <th>Periudha</th>
                                             <th>Vlera (€)</th>
                                             <th>Forma e Pagesës</th>
@@ -239,6 +240,20 @@ include 'conn-d.php';
                                             </span>
                                         </label>
                                         <input type="text" class="form-control" id="shenoVleren" name="vlera" required>
+                                    </div>
+                                    <!-- Shtetsia -->
+                                    <div class="col-md-6">
+                                        <label for="shenoVleren" class="form-label">
+                                            Shteti
+                                            <span data-bs-toggle="tooltip" data-bs-placement="top" title="Zgjidhni shtetin ku eshte bere tatimi">
+                                                <i class="fi fi-rr-info text-primary"></i>
+                                            </span>
+                                        </label>
+                                        <select class="form-select" id="shteti" name="shteti" required>
+                                            <option value="" selected disabled>-- Zgjidhni një shtet --</option>
+                                            <option value="Kosovë">Kosovë</option>
+                                            <option value="Shqipëri">Shqipëri</option>
+                                        </select>
                                     </div>
                                     <!-- Forma e Pagesës -->
                                     <div class="col-md-6">
@@ -388,6 +403,20 @@ include 'conn-d.php';
                                     </label>
                                     <input type="text" class="form-control" id="edit_vlera" name="vlera" required>
                                 </div>
+                                <!-- Shtetsia -->
+                                <div class="mb-3">
+                                    <label for="edit_shteti" class="form-label">
+                                        Shteti
+                                        <span data-bs-toggle="tooltip" data-bs-placement="top" title="Zgjidhni shtetin që kryer pagesa.">
+                                            <i class="fi fi-rr-info text-primary"></i>
+                                        </span>
+                                    </label>
+                                    <select class="form-select" id="edit_shteti" name="edit_shteti" required>
+                                        <option value="" selected disabled>-- Zgjidhni një shtet --</option>
+                                        <option value="Kosovë">Kosovë</option>
+                                        <option value="Shqipëri">Shqipëri</option>
+                                    </select>
+                                </div>
                                 <!-- Forma e Pagesës -->
                                 <div class="mb-3">
                                     <label for="edit_forma_pageses" class="form-label">
@@ -494,6 +523,9 @@ include 'conn-d.php';
                             data: 'pershkrimi'
                         },
                         {
+                            data : 'shteti'
+                        },
+                        {
                             data: 'periudha'
                         },
                         {
@@ -592,7 +624,7 @@ include 'conn-d.php';
                     selectedKategoria === 'TVSH' ?
                         ($periudhaSelectContainer.show().find('select').attr('required', true).prop('disabled', false),
                             $periudhaDateContainer.hide().find('input').removeAttr('required').prop('disabled', true)) :
-                        (['Kontribute', 'Tatim','TV'].includes(selectedKategoria) ?
+                        (['Kontribute', 'Tatim', 'TV'].includes(selectedKategoria) ?
                             ($periudhaSelectContainer.hide().find('select').removeAttr('required').prop('disabled', true),
                                 $periudhaDateContainer.show().find('input').attr('required', true).prop('disabled', false)) :
                             ($periudhaSelectContainer.hide().find('select').removeAttr('required').prop('disabled', true),
@@ -650,7 +682,7 @@ include 'conn-d.php';
                     // Periudha Filter
                     if (kategoria === 'tvsh') {
                         if (periudhaSelect && rowPeriudha !== periudhaSelect) return false;
-                    } else if (['kontribute', 'tatim','tv'].includes(kategoria)) {
+                    } else if (['kontribute', 'tatim', 'tv'].includes(kategoria)) {
                         if (periudhaDate && rowPeriudha !== periudhaDate) return false;
                     }
                     // Forma e Pagesës Filter
@@ -763,6 +795,8 @@ include 'conn-d.php';
                                 editForm.find('#edit_data_pageses').val(data.data_pageses);
                                 editForm.find('#edit_pershkrimi').val(data.pershkrimi);
                                 editForm.find('#edit_vlera').val(data.vlera);
+                                // edit_shteti
+                                editForm.find('#edit_shteti').val(data.shteti);
                                 editForm.find('#edit_forma_pageses').val(data.forma_pageses);
                                 editForm.find('#edit_invoice_id').val(data.invoice_id);
                                 // Toggle Periudha Fields

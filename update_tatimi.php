@@ -24,6 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $vlera         = $_POST['vlera'] ?? 0.00;
     $forma_pageses = $_POST['forma_pageses'] ?? '';
     $invoice_id    = $_POST['edit_invoice_id'] ?? '';
+    $shtetsia      = $_POST['edit_shteti'] ?? '';
 
     // Minimal validation (only check if fields are set)
     if ($id <= 0 || empty($kategoria) || empty($data_pageses) || empty($pershkrimi) || empty($periudha) || empty($forma_pageses) || empty($invoice_id)) {
@@ -78,7 +79,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     vlera = $vlera, 
                     forma_pageses = '$forma_pageses', 
                     dokument = '$dokument_path', 
-                    invoice_id = '$invoice_id' 
+                    invoice_id = '$invoice_id',
+                    shteti = '$shtetsia'
                 WHERE id = $id";
     } else {
         // If no new dokument is uploaded, update all fields except dokument
@@ -89,7 +91,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     periudha = '$periudha', 
                     vlera = $vlera, 
                     forma_pageses = '$forma_pageses', 
-                    invoice_id = '$invoice_id' 
+                    invoice_id = '$invoice_id',
+                    shteti = '$shtetsia'
                 WHERE id = $id";
     }
 

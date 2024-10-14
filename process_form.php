@@ -1,8 +1,6 @@
 <?php
 include 'conn-d.php';
-
 $response = ['status' => 'error', 'message' => ''];
-
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Sanitize and validate inputs
     $kategoria = mysqli_real_escape_string($conn, $_POST['kategoria']);
@@ -12,7 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $vlera = floatval($_POST['vlera']);
     $forma_pageses = mysqli_real_escape_string($conn, $_POST['forma_pageses']);
     $invoice_id = mysqli_real_escape_string($conn, $_POST['invoice_id']);
-
+    $shtetsia  = mysqli_real_escape_string($conn, $_POST['shteti']);
     // Handle file upload
     if (isset($_FILES['dokument']) && $_FILES['dokument']['error'] == 0) {
         $allowed = ['pdf', 'doc', 'docx', 'jpg', 'png'];
@@ -20,7 +18,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $file_tmp = $_FILES['dokument']['tmp_name'];
         $file_size = $_FILES['dokument']['size'];
         $file_ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
-
         if (in_array($file_ext, $allowed)) {
             if ($file_size <= 5242880) { // 5MB
                 $new_filename = uniqid() . '.' . $file_ext;
@@ -31,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $destination = $upload_dir . $new_filename;
                 if (move_uploaded_file($file_tmp, $destination)) {
                     // Insert into database
-                    $query = "INSERT INTO tatimi (kategoria, data_pageses, pershkrimi, periudha, vlera, forma_pageses, dokument, invoice_id) VALUES ('$kategoria', '$data_pageses', '$pershkrimi', '$periudha', '$vlera', '$forma_pageses', '$destination', '$invoice_id')";
+                    $query = "INSERT INTO tatimi (kategoria, data_pageses, pershkrimi, periudha, vlera, forma_pageses, dokument, invoice_id, shteti) VALUES ('$kategoria', '$data_pageses', '$pershkrimi', '$periudha', '$vlera', '$forma_pageses', '$destination', '$invoice_id', '$shtetsia')";
                     if (mysqli_query($conn, $query)) {
                         $response['status'] = 'success';
                         $response['message'] = 'Transaksioni u shtua me sukses!';
@@ -55,5 +52,4 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 } else {
     $response['message'] = 'Metoda e kërkesës nuk është e lejuar.';
 }
-
 echo json_encode($response);
