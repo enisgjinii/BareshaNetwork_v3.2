@@ -43,11 +43,11 @@ include 'conn-d.php';
                             <!-- Alert for Actions -->
                             <div id="tableAlert"></div>
                             <!-- Filter Inputs -->
-                            <div class="row mb-3">
+                            <div class="row mb-2 g-2 align-items-end">
                                 <!-- Kategoria Filter -->
                                 <div class="col-md-3">
                                     <label for="filterKategoria" class="form-label">Kategoria</label>
-                                    <select id="filterKategoria" class="form-select">
+                                    <select id="filterKategoria" class="form-select rounded-5">
                                         <option value="">Të gjitha</option>
                                         <option value="Kontribute">Kontribute</option>
                                         <option value="TVSH">TVSH</option>
@@ -60,7 +60,7 @@ include 'conn-d.php';
                                     <!-- Periudha Select for TVSH -->
                                     <div id="filterPeriudhaSelectContainer">
                                         <label for="filterPeriudhaSelect" class="form-label">Periudha</label>
-                                        <select id="filterPeriudhaSelect" class="form-select">
+                                        <select id="filterPeriudhaSelect" class="form-select rounded-5">
                                             <option value="">Të gjitha</option>
                                             <option value="TM1">TM1</option>
                                             <option value="TM2">TM2</option>
@@ -71,7 +71,7 @@ include 'conn-d.php';
                                     <!-- Periudha Date Picker for Kontribute and Tatim -->
                                     <div id="filterPeriudhaDateContainer" style="display: none;">
                                         <label for="filterPeriudhaDate" class="form-label">Periudha</label>
-                                        <input type="text" id="filterPeriudhaDate" class="form-control" placeholder="Select Month and Year">
+                                        <input type="text" id="filterPeriudhaDate" class="form-control rounded-5" placeholder="Select Month and Year">
                                     </div>
                                     <script>
                                         // Initialize Flatpickr with Month Select Plugin for month/year selection (no range)
@@ -92,29 +92,34 @@ include 'conn-d.php';
                                 <!-- Forma e Pagesës Filter -->
                                 <div class="col-md-3">
                                     <label for="filterFormaPageses" class="form-label">Forma e Pagesës</label>
-                                    <select id="filterFormaPageses" class="form-select">
+                                    <select id="filterFormaPageses" class="form-select rounded-5">
                                         <option value="">Të gjitha</option>
                                         <option value="Bank">Bank</option>
                                         <option value="Cash">Cash</option>
                                     </select>
                                 </div>
-                                <!-- Data e Pagesës Filter -->
-                                <div class="col-md-3">
-                                    <label for="filterDataPageses" class="form-label">Data e Pagesës</label>
-                                    <input type="date" id="filterDataPageses" class="form-control" placeholder="Data">
+                                
+                                <!-- Shtetsia Filter -->
+                                <div class="col-md-2">
+                                    <label for="filterShteti" class="form-label">Shteti</label>
+                                    <select id="filterShteti" name="filterShteti" class="form-select rounded-5">
+                                        <option value="">Të gjitha</option>
+                                        <option value="Kosovë">Kosovë</option>
+                                        <option value="Shqipëri">Shqipëri</option>
+                                    </select>
                                 </div>
-                            </div>
-                            <!-- Reset Filters Button -->
-                            <div class="row mb-3">
-                                <div class="col-md-1 d-flex align-items-end">
-                                    <button id="resetFilters" class="input-custom-css px-3 py-2 w-100" title="Rivendos Filterat">
+                                <!-- Reset Filters Button -->
+                                <div class="col-md-1 d-flex align-items-center">
+                                    <button id="resetFilters" class="input-custom-css px-3 py-2 w-100 rounded-5" title="Rivendos Filterat">
                                         <i class="fi fi-rr-rotate-right"></i>
                                     </button>
                                 </div>
                             </div>
+                            <!-- dottet separator -->
+                            <hr style="height: 3px;">
                             <!-- Data Table -->
                             <div class="table-responsive">
-                                <table class="table table-bordered table-hover" id="tatimiTable">
+                                <table class="table table-bordered table-hover rounded-5" id="tatimiTable">
                                     <thead class="table-light">
                                         <tr>
                                             <th>#</th>
@@ -136,6 +141,7 @@ include 'conn-d.php';
                                 </table>
                             </div>
                         </div>
+
                     </div>
                 </div>
                 <!-- Tatimi Formulari Tab -->
@@ -523,7 +529,7 @@ include 'conn-d.php';
                             data: 'pershkrimi'
                         },
                         {
-                            data : 'shteti'
+                            data: 'shteti'
                         },
                         {
                             data: 'periudha'
@@ -538,30 +544,30 @@ include 'conn-d.php';
                         {
                             data: 'dokument',
                             render: data => `
-                    <button class="input-custom-css px-3 py-2 viewDocBtn" data-url="${data}">
-                        <i class="fi fi-rr-file"></i>
-                    </button>
-                `,
+                        <button class="input-custom-css px-3 py-2 viewDocBtn" data-url="${data}">
+                            <i class="fi fi-rr-file"></i>
+                        </button>
+                    `,
                             orderable: false
                         },
                         {
                             data: null,
                             render: data => `
-                    <button class="input-custom-css px-3 py-2 editBtn me-2" data-id="${data.id}">
-                        <i class="fi fi-rr-pencil"></i>
-                    </button>
-                    <button class="input-custom-css px-3 py-2 deleteBtn" data-id="${data.id}">
-                        <i class="fi fi-rr-trash"></i>
-                    </button>
-                `,
+                        <button class="input-custom-css px-3 py-2 editBtn me-2" data-id="${data.id}">
+                            <i class="fi fi-rr-pencil"></i>
+                        </button>
+                        <button class="input-custom-css px-3 py-2 deleteBtn" data-id="${data.id}">
+                            <i class="fi fi-rr-trash"></i>
+                        </button>
+                    `,
                             orderable: false
                         }
                     ],
                     dom: `
-            <'row'<'col-md-3'l><'col-md-6'B><'col-md-3'f>>
-            <'row'<'col-md-12'tr>>
-            <'row'<'col-md-6'i><'col-md-6'p>>
-        `,
+                <'row'<'col-md-3'l><'col-md-6'B><'col-md-3'f>>
+                <'row'<'col-md-12'tr>>
+                <'row'<'col-md-6'i><'col-md-6'p>>
+            `,
                     buttons: [{
                             extend: "pdfHtml5",
                             text: '<i class="bi bi-file-earmark-pdf-fill"></i> PDF',
@@ -621,14 +627,16 @@ include 'conn-d.php';
                 // Function to toggle Periudha fields based on Kategoria
                 const togglePeriudhaFields = ($kategoriaSelect, $periudhaSelectContainer, $periudhaDateContainer) => {
                     const selectedKategoria = $kategoriaSelect.val();
-                    selectedKategoria === 'TVSH' ?
-                        ($periudhaSelectContainer.show().find('select').attr('required', true).prop('disabled', false),
-                            $periudhaDateContainer.hide().find('input').removeAttr('required').prop('disabled', true)) :
-                        (['Kontribute', 'Tatim', 'TV'].includes(selectedKategoria) ?
-                            ($periudhaSelectContainer.hide().find('select').removeAttr('required').prop('disabled', true),
-                                $periudhaDateContainer.show().find('input').attr('required', true).prop('disabled', false)) :
-                            ($periudhaSelectContainer.hide().find('select').removeAttr('required').prop('disabled', true),
-                                $periudhaDateContainer.hide().find('input').removeAttr('required').prop('disabled', true)));
+                    if (selectedKategoria === 'TVSH') {
+                        $periudhaSelectContainer.show().find('select').attr('required', true).prop('disabled', false);
+                        $periudhaDateContainer.hide().find('input').removeAttr('required').prop('disabled', true);
+                    } else if (['Kontribute', 'Tatim', 'TV'].includes(selectedKategoria)) {
+                        $periudhaSelectContainer.hide().find('select').removeAttr('required').prop('disabled', true);
+                        $periudhaDateContainer.show().find('input').attr('required', true).prop('disabled', false);
+                    } else {
+                        $periudhaSelectContainer.hide().find('select').removeAttr('required').prop('disabled', true);
+                        $periudhaDateContainer.hide().find('input').removeAttr('required').prop('disabled', true);
+                    }
                 };
                 // Initialize Periudha fields on page load
                 const initializePeriudhaFields = () => {
@@ -657,26 +665,28 @@ include 'conn-d.php';
                     const isFilter = $(this).attr('id') === 'filterKategoria';
                     togglePeriudhaFields(
                         $(this),
-                        isFilter ? $('#filterPeriudhaSelectContainer') : isFilter === false && $(this).attr('id') === 'zgjedhKategorine' ? $('#zgjedhPeriodenSelectContainer') : $('#editPeriudhaSelectContainer'),
-                        isFilter ? $('#filterPeriudhaDateContainer') : isFilter === false && $(this).attr('id') === 'zgjedhKategorine' ? $('#zgjedhPeriodenDateContainer') : $('#editPeriudhaDateContainer')
+                        isFilter ? $('#filterPeriudhaSelectContainer') : ($(this).attr('id') === 'zgjedhKategorine' ? $('#zgjedhPeriodenSelectContainer') : $('#editPeriudhaSelectContainer')),
+                        isFilter ? $('#filterPeriudhaDateContainer') : ($(this).attr('id') === 'zgjedhKategorine' ? $('#zgjedhPeriodenDateContainer') : $('#editPeriudhaDateContainer'))
                     );
                     if (isFilter) table.draw();
                 });
-                // Event listeners for all filter inputs
-                $('#filterPeriudhaSelect, #filterPeriudhaDate, #filterFormaPageses, #filterDataPageses').on('change', () => table.draw());
+                // Event listeners for all filter inputs, including #filterShteti
+                $('#filterPeriudhaSelect, #filterPeriudhaDate, #filterFormaPageses, #filterDataPageses, #filterShteti').on('change', () => table.draw());
                 // ** Updated Custom Filtering Logic **
                 $.fn.dataTable.ext.search.push((settings, data, dataIndex) => {
                     const table = $('#tatimiTable').DataTable();
                     const rowData = table.row(dataIndex).data();
-                    const kategoria = $('#filterKategoria').val().toLowerCase();
-                    const periudhaSelect = $('#filterPeriudhaSelect').val().toLowerCase();
-                    const periudhaDate = $('#filterPeriudhaDate').val();
-                    const formaPageses = $('#filterFormaPageses').val().toLowerCase();
-                    const dataPageses = $('#filterDataPageses').val();
+                    const kategoria = $('#filterKategoria').val() ? $('#filterKategoria').val().toLowerCase() : '';
+                    const periudhaSelect = $('#filterPeriudhaSelect').val() ? $('#filterPeriudhaSelect').val().toLowerCase() : '';
+                    const periudhaDate = $('#filterPeriudhaDate').val() ? $('#filterPeriudhaDate').val() : '';
+                    const formaPageses = $('#filterFormaPageses').val() ? $('#filterFormaPageses').val().toLowerCase() : '';
+                    const dataPageses = $('#filterDataPageses').val() ? $('#filterDataPageses').val() : '';
+                    const shtetsia = $('#filterShteti').val() ? $('#filterShteti').val().toLowerCase() : '';
                     const rowKategoria = rowData.kategoria.toLowerCase();
                     const rowPeriudha = rowData.periudha.toLowerCase();
                     const rowFormaPageses = rowData.forma_pageses.toLowerCase();
                     const rowDataPageses = rowData.data_pageses;
+                    const rowShteti = rowData.shteti.toLowerCase();
                     // Kategoria Filter
                     if (kategoria && rowKategoria !== kategoria) return false;
                     // Periudha Filter
@@ -689,12 +699,14 @@ include 'conn-d.php';
                     if (formaPageses && rowFormaPageses !== formaPageses) return false;
                     // Data e Pagesës Filter
                     if (dataPageses && rowDataPageses !== dataPageses) return false;
+                    // Shtetsia Filter
+                    if (shtetsia && rowShteti !== shtetsia) return false;
                     return true;
                 });
                 // Handle Reset Filters
                 $('#resetFilters').on('click', e => {
                     e.preventDefault();
-                    $('#filterKategoria, #filterPeriudhaSelect, #filterPeriudhaDate, #filterFormaPageses, #filterDataPageses').val('');
+                    $('#filterKategoria, #filterPeriudhaSelect, #filterPeriudhaDate, #filterFormaPageses, #filterDataPageses, #filterShteti').val('');
                     togglePeriudhaFields(
                         $('#filterKategoria'),
                         $('#filterPeriudhaSelectContainer'),
@@ -719,11 +731,11 @@ include 'conn-d.php';
                             const alertType = response.status === 'success' ? 'success' : 'danger';
                             const alertMessage = response.message;
                             $('#formAlert').html(`
-                    <div class="alert alert-${alertType} alert-dismissible fade show" role="alert">
-                        ${alertMessage}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                `);
+                        <div class="alert alert-${alertType} alert-dismissible fade show" role="alert">
+                            ${alertMessage}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    `);
                             if (response.status === 'success') {
                                 $('#tatimiForm')[0].reset();
                                 togglePeriudhaFields(
@@ -737,11 +749,11 @@ include 'conn-d.php';
                         error: () => {
                             $('#tatimiForm button[type="submit"]').prop('disabled', false).text('Dërgo');
                             $('#formAlert').html(`
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                        Dështoi dërgimi i formularit. Ju lutem provoni përsëri.
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                `);
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            Dështoi dërgimi i formularit. Ju lutem provoni përsëri.
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    `);
                         }
                     });
                 });
@@ -795,7 +807,6 @@ include 'conn-d.php';
                                 editForm.find('#edit_data_pageses').val(data.data_pageses);
                                 editForm.find('#edit_pershkrimi').val(data.pershkrimi);
                                 editForm.find('#edit_vlera').val(data.vlera);
-                                // edit_shteti
                                 editForm.find('#edit_shteti').val(data.shteti);
                                 editForm.find('#edit_forma_pageses').val(data.forma_pageses);
                                 editForm.find('#edit_invoice_id').val(data.invoice_id);
@@ -806,9 +817,11 @@ include 'conn-d.php';
                                     $('#editPeriudhaDateContainer')
                                 );
                                 // Set Periudha Value
-                                data.kategoria === 'TVSH' ?
-                                    editForm.find('#edit_periudhaSelect').val(data.periudha) :
+                                if (data.kategoria === 'TVSH') {
+                                    editForm.find('#edit_periudhaSelect').val(data.periudha);
+                                } else {
                                     editForm.find('#edit_periudhaDate').val(data.periudha);
+                                }
                                 // Show Edit Modal
                                 $('#editModal').modal('show');
                             } else {
@@ -850,9 +863,16 @@ include 'conn-d.php';
                     const docUrl = $(this).data('url');
                     if (docUrl) {
                         const fileExt = docUrl.split('.').pop().toLowerCase();
-                        const embedHtml = ['jpg', 'jpeg', 'png', 'gif'].includes(fileExt) ? `<img src="${docUrl}" alt="Dokumenti" class="img-fluid">` :
-                            fileExt === 'pdf' ? `<iframe src="${docUrl}" width="100%" height="600px" style="border: none;"></iframe>` : ['doc', 'docx'].includes(fileExt) ? `<iframe src="https://docs.google.com/gview?url=${encodeURIComponent(docUrl)}&embedded=true" width="100%" height="600px" style="border: none;"></iframe>` :
-                            `<p>Nuk është mbështetur për shikim në modal.</p>`;
+                        let embedHtml = '';
+                        if (['jpg', 'jpeg', 'png', 'gif'].includes(fileExt)) {
+                            embedHtml = `<img src="${docUrl}" alt="Dokumenti" class="img-fluid">`;
+                        } else if (fileExt === 'pdf') {
+                            embedHtml = `<iframe src="${docUrl}" width="100%" height="600px" style="border: none;"></iframe>`;
+                        } else if (['doc', 'docx'].includes(fileExt)) {
+                            embedHtml = `<iframe src="https://docs.google.com/gview?url=${encodeURIComponent(docUrl)}&embedded=true" width="100%" height="600px" style="border: none;"></iframe>`;
+                        } else {
+                            embedHtml = `<p>Nuk është mbështetur për shikim në modal.</p>`;
+                        }
                         $('#documentContent').html(embedHtml);
                         $('#viewDocumentModal').modal('show');
                     } else {

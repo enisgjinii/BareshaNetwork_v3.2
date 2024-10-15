@@ -125,7 +125,6 @@ ob_end_flush();
 ?>
 <!DOCTYPE html>
 <html lang="sq">
-
 <head>
     <meta charset="UTF-8">
     <title>Shpërndarja e Përqindjeve</title>
@@ -134,7 +133,6 @@ ob_end_flush();
     <!-- Optional CSS for icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 </head>
-
 <body>
     <div class="main-panel">
         <div class="content-wrapper">
@@ -221,7 +219,6 @@ ob_end_flush();
                                     <div class="form-text text-danger" id="total-error"></div>
                                     <div class="form-text">Përqindja totale e bashkëpunëtorëve nuk duhet të kalojë <?= htmlspecialchars($max_sub_percentage) ?>%.</div>
                                 </div>
-
                                 <!-- Display Messages -->
                                 <?php if ($messages['error'] || $messages['success']): ?>
                                     <div class="mb-4">
@@ -233,7 +230,6 @@ ob_end_flush();
                                         <?php endif; ?>
                                     </div>
                                 <?php endif; ?>
-
                             </form>
                             <!-- End of Form -->
                         </div>
@@ -454,6 +450,5 @@ ob_end_flush();
         });
     </script>
 </body>
-
 </html>
 <?php include 'partials/footer.php'; ?>
