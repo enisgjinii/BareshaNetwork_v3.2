@@ -1,18 +1,10 @@
-<nav class="sidebar sidebar-offcanvas ">
+<nav class="sidebar sidebar-offcanvas border border-2 rounded-5" style="margin-top:30px;margin-left:8px;height: min-content;">
   <ul class="nav">
     <?php
-    // Enable error reporting for debugging (disable in production)
-    error_reporting(E_ALL);
-    ini_set('display_errors', 1);
-
-    // Start the session if not already started
-    if (session_status() === PHP_SESSION_NONE) {
-      session_start();
-    }
-
-    // Include the database connection file
+    // Disable error reporting in production
+    error_reporting(0);
+    session_start();
     require_once 'conn-d.php';
-
     // Fetch the count from parapagimtable where EShikuar = 'No'
     $count = 0;
     $stmt = $conn->prepare("SELECT COUNT(*) as count FROM parapagimtable WHERE EShikuar = ?");
@@ -25,77 +17,9 @@
       $count = $row['count'] ?? 0;
       $stmt->close();
     } else {
-      // Handle statement preparation error
       echo "<li class='nav-item'><span class='text-danger'>Database query failed.</span></li>";
     }
-
-    /**
-     * Function to generate a single menu item routed through sendEmail.php.
-     *
-     * @param string $page        The actual page the menu item links to.
-     * @param string $icon        The icon classes for the menu item.
-     * @param string $title       The display title of the menu item.
-     * @param string $badgeHtml   Optional HTML for badges.
-     * @param bool   $includeIcon Whether to include the icon.
-     */
-    function generateMenuItem($page, $icon, $title, $badgeHtml = '', $includeIcon = true)
-    {
-      // If icons are not to be included, set icon HTML to empty
-      $iconHtml = $includeIcon ? "<i class='{$icon} menu-icon pe-3'></i>" : "";
-
-      // Construct the href to route through sendEmail.php
-      $href = "./sendEmail.php?redirect=" . urlencode($page);
-
-      echo <<<HTML
-        <li class="nav-item">
-            <a class="nav-link" href="{$href}">
-                {$iconHtml}
-                <span class="menu-title">{$title}</span>
-                {$badgeHtml}
-            </a>
-        </li>
-        HTML;
-    }
-
-    /**
-     * Function to generate a collapsible menu section routed through sendEmail.php.
-     *
-     * @param array  $section    The section configuration.
-     * @param array  $userPages  The pages accessible to the user.
-     */
-    function generateMenuSection($section, $userPages)
-    {
-      // Filter menu items based on user permissions
-      $filteredItems = array_intersect_key($section['menuItems'], array_flip($userPages));
-
-      // If no accessible items, skip rendering this section
-      if (empty($filteredItems)) {
-        return;
-      }
-
-      echo <<<HTML
-        <li class="nav-item">
-            <a class="nav-link" data-bs-toggle="collapse" href="#{$section['collapseId']}" aria-expanded="false" aria-controls="{$section['collapseId']}">
-                <i class="{$section['icon']}"></i>
-                <span class="menu-title">{$section['title']}</span>
-                <i class="menu-arrow pe-3"></i>
-            </a>
-            <div class="collapse" id="{$section['collapseId']}">
-                <ul class="nav flex-column sub-menu">
-        HTML;
-
-      foreach ($filteredItems as $page => $item) {
-        // Sub-menu items do not include icons
-        generateMenuItem($page, '', $item['title'], $item['badge'] ?? '', false);
-      }
-
-      echo <<<HTML
-                </ul>
-            </div>
-        </li>
-        HTML;
-    }
-
+    // 
     // Define all possible menu sections and items
     $menuSections = [
       [
@@ -130,7 +54,7 @@
           "emails.php" => ["title" => "Lista e email-ave"],
           "klient-avanc.php" => [
             "title" => "Lista e avanceve",
-            "badge" => $count > 0 ? "<span class='badge bg-success rounded ms-2'><i class='fi fi-rr-eye me-2'></i>{$count}</span>" : ""
+            "badge" => $count > 0 ? "<span class='badge bg-success rounded-pill ms-2'><i class='fi fi-rr-eye me-2'></i>{$count}</span>" : ""
           ],
           "rating_list.php" => ["title" => "Lista e vlersimeve"],
         ],
@@ -160,7 +84,7 @@
         "menuItems" => [
           "invoice.php" => [
             "title" => "Pagesat YouTube",
-            "badge" => "<span class='badge bg-success rounded ms-2'>New</span>"
+            "badge" => "<span class='badge bg-success rounded-pill ms-2'>New</span>"
           ],
           "faturat.php" => ["title" => "Pagesat YouTube"],
           "pagesat.php" => ["title" => "Pagesat e kryera"],
@@ -230,8 +154,6 @@
         ],
       ],
     ];
-
-    // Define additional standalone menu items
     $standaloneMenuItems = [
       "autor.php" => [
         "icon" => "fi fi-rr-copyright",
@@ -246,18 +168,14 @@
         "title" => "Faturë e shpejtë"
       ],
     ];
-
-    // Define specific pages with sendEmail redirection
     $specificPages = [
       "index.php" => ["icon" => "fi fi-rr-home", "title" => "Shtëpia"],
       "lista_kopjeve_rezerve.php" => ["icon" => "fi fi-rr-database", "title" => "Lista e kopjeve rezerve"],
       "strike-platform.php" => ["icon" => "fi fi-rr-megaphone", "title" => "Strikes"],
       "investime.php" => ["icon" => "fi fi-rr-money-check-edit", "title" => "Investime"],
-      // Add more specific pages as needed...
     ];
-
     /**
-     * Function to fetch user-accessible pages
+     * Fetch user-accessible pages and cache them in the session
      *
      * @param mysqli $conn   The database connection.
      * @param string $userId The ID of the user.
@@ -265,33 +183,86 @@
      */
     function getUserPages($conn, $userId)
     {
+      if (isset($_SESSION['user_pages'])) {
+        return $_SESSION['user_pages'];
+      }
       $userPages = [];
       $stmt = $conn->prepare("
-            SELECT GROUP_CONCAT(DISTINCT role_pages.page) AS pages
+            SELECT DISTINCT role_pages.page
             FROM roles
             INNER JOIN user_roles ON roles.id = user_roles.role_id
             INNER JOIN role_pages ON roles.id = role_pages.role_id
             WHERE user_roles.user_id = ?
-            GROUP BY roles.id
         ");
       if ($stmt) {
         $stmt->bind_param("s", $userId);
         $stmt->execute();
         $result = $stmt->get_result();
         while ($row = $result->fetch_assoc()) {
-          $pages = explode(',', $row['pages']);
-          $userPages = array_merge($userPages, $pages);
+          $userPages[] = $row['page'];
         }
         $stmt->close();
       }
-      return array_unique($userPages);
+      $_SESSION['user_pages'] = array_unique($userPages);
+      return $_SESSION['user_pages'];
     }
-
-    // Check if the user is logged in
+    /**
+     * Generate a single menu item.
+     *
+     * @param string $page        The target page.
+     * @param string $icon        The icon classes.
+     * @param string $title       The display title.
+     * @param string $badgeHtml   Optional badge HTML.
+     * @param bool   $includeIcon Whether to include the icon.
+     */
+    function generateMenuItem($page, $icon, $title, $badgeHtml = '', $includeIcon = true)
+    {
+      $iconHtml = $includeIcon ? "<i class='{$icon} menu-icon pe-3'></i>" : "";
+      $href = "./{$page}";
+      echo <<<HTML
+        <li class="nav-item">
+            <a class="nav-link rounded d-flex align-items-center" href="{$href}">
+                {$iconHtml}
+                <span class="menu-title flex-grow-1">{$title}</span>
+                {$badgeHtml}
+            </a>
+        </li>
+        HTML;
+    }
+    /**
+     * Generate a collapsible menu section.
+     *
+     * @param array  $section    The section configuration.
+     * @param array  $userPages  The pages accessible to the user.
+     */
+    function generateMenuSection($section, $userPages)
+    {
+      $filteredItems = array_intersect_key($section['menuItems'], array_flip($userPages));
+      if (empty($filteredItems)) {
+        return;
+      }
+      echo <<<HTML
+        <li class="nav-item">
+            <a class="nav-link rounded d-flex align-items-center" data-bs-toggle="collapse" href="#{$section['collapseId']}" aria-expanded="false" aria-controls="{$section['collapseId']}">
+                <i class="{$section['icon']}"></i>
+                <span class="menu-title flex-grow-1">{$section['title']}</span>
+                <i class="menu-arrow pe-3"></i>
+            </a>
+            <div class="collapse" id="{$section['collapseId']}">
+                <ul class="nav flex-column sub-menu">
+      HTML;
+      foreach ($filteredItems as $page => $item) {
+        generateMenuItem($page, '', $item['title'], $item['badge'] ?? '', false);
+      }
+      echo <<<HTML
+                </ul>
+            </div>
+        </li>
+        HTML;
+    }
     if (isset($_SESSION['id'])) {
       $userId = $_SESSION['id'];
       $userPages = getUserPages($conn, $userId);
-
       // Always include the home menu item
       if (isset($specificPages['index.php'])) {
         generateMenuItem(
@@ -300,7 +271,6 @@
           $specificPages['index.php']['title']
         );
       }
-
       // Generate specific menu items based on user pages
       foreach ($specificPages as $page => $data) {
         if (in_array($page, $userPages)) {
@@ -311,12 +281,10 @@
           );
         }
       }
-
       // Generate collapsible menu sections
       foreach ($menuSections as $section) {
         generateMenuSection($section, $userPages);
       }
-
       // Generate additional standalone menu items
       foreach ($standaloneMenuItems as $page => $item) {
         if (in_array(basename($page), $userPages)) {
@@ -328,9 +296,21 @@
         }
       }
     } else {
-      // The 'id' session variable is not set, handle accordingly
       echo "<li class='nav-item'><span class='text-danger'>User ID is not set in the session.</span></li>";
     }
     ?>
+    <hr class="mx-auto" style="width: 80%;display: block;color:white">
+    <div class="text-center">
+      <a class="input-custom-css-disabled px-3 py-2 m-2" style="text-transform: none;text-decoration: none;width: fit-content" href="account.php">
+        <i class="fi fi-rr-user"></i>
+      </a>
+      <a class="input-custom-css-disabled px-3 py-2 m-2" style="text-transform: none;text-decoration: none;width: fit-content" href="link2.php">
+        <i class="fi fi-rr-settings"></i>
+      </a>
+      <a class="input-custom-css px-3 py-2 m-2" style="text-transform: none;text-decoration: none;width: fit-content" href="logout.php">
+        <i class="fi fi-rr-exit"></i>
+      </a>
+    </div>
+    <br>
   </ul>
 </nav>

@@ -98,7 +98,7 @@ include 'conn-d.php';
                                         <option value="Cash">Cash</option>
                                     </select>
                                 </div>
-                                
+
                                 <!-- Shtetsia Filter -->
                                 <div class="col-md-2">
                                     <label for="filterShteti" class="form-label">Shteti</label>
@@ -307,7 +307,7 @@ include 'conn-d.php';
                 <div class="tab-pane fade" id="pills-GuidaVideo" role="tabpanel" aria-labelledby="pills-GuidaVideo-tab" tabindex="0">
                     <div class="mb-3 rounded-5 bordered bg-white">
                         <video id="player" class="img-fluid" playsinline controls>
-                            <source src="assets/guidaPerTatime.mp4" type="video/mp4" />
+                            <!-- <source src="assets/guidaPerTatime.mp4" type="video/mp4" /> -->
                         </video>
                     </div>
                 </div>
@@ -790,47 +790,64 @@ include 'conn-d.php';
                 // Handle Edit Button Click
                 $('#tatimiTable tbody').on('click', '.editBtn', function() {
                     const id = $(this).data('id');
+
+                    if (!id) {
+                        Swal.fire('Gabim!', 'ID e pavlefshme për redaktim.', 'error');
+                        return;
+                    }
+
                     $.ajax({
                         url: 'get_tatimi.php',
                         type: 'GET',
                         data: {
-                            id
+                            id: id
                         },
                         dataType: 'json',
-                        success: response => {
+                        success: function(response) {
                             if (response.status === 'success') {
                                 const data = response.data;
-                                // Populate Edit Modal Fields
                                 const editForm = $('#editTatimiForm');
+
+                                // Populate form fields
                                 editForm.find('#edit_id').val(data.id);
                                 editForm.find('#edit_kategoria').val(data.kategoria);
                                 editForm.find('#edit_data_pageses').val(data.data_pageses);
                                 editForm.find('#edit_pershkrimi').val(data.pershkrimi);
                                 editForm.find('#edit_vlera').val(data.vlera);
-                                editForm.find('#edit_shteti').val(data.shteti);
+                                editForm.find('#edit_shteti').val(data.shteti || '');
                                 editForm.find('#edit_forma_pageses').val(data.forma_pageses);
                                 editForm.find('#edit_invoice_id').val(data.invoice_id);
-                                // Toggle Periudha Fields
+
+                                // Toggle Periudha Fields based on 'kategoria'
                                 togglePeriudhaFields(
                                     editForm.find('#edit_kategoria'),
                                     $('#editPeriudhaSelectContainer'),
                                     $('#editPeriudhaDateContainer')
                                 );
-                                // Set Periudha Value
+
+                                // Set Periudha Value based on 'kategoria'
                                 if (data.kategoria === 'TVSH') {
                                     editForm.find('#edit_periudhaSelect').val(data.periudha);
                                 } else {
-                                    editForm.find('#edit_periudhaDate').val(data.periudha);
+                                    // Assuming 'periudha' is in 'MM-YYYY' format for other categories
+                                    const [month, year] = data.periudha.split('-');
+                                    editForm.find('#edit_periudhaDate').val(`${year}-${month}`);
                                 }
+
                                 // Show Edit Modal
                                 $('#editModal').modal('show');
                             } else {
                                 Swal.fire('Gabim!', response.message, 'error');
                             }
                         },
-                        error: () => Swal.fire('Gabim!', 'Dështoi marrja e të dhënave.', 'error')
+                        error: function(jqXHR, textStatus, errorThrown) {
+                            console.error('AJAX Error:', textStatus, errorThrown);
+                            Swal.fire('Gabim!', 'Dështoi marrja e të dhënave.', 'error');
+                        }
                     });
                 });
+
+
                 // Handle Edit Form Submission via AJAX
                 $('#editTatimiForm').on('submit', function(e) {
                     e.preventDefault();

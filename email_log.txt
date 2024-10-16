@@ -152,3 +152,12 @@
 [2024-10-12 15:56:22] Email sent successfully for page: ttatimi.php from IP: 127.0.0.1
 [2024-10-12 16:24:19] Email sent successfully for page: shpenzimet_objekt.php from IP: 127.0.0.1
 [2024-10-12 16:24:46] Email sent successfully for page: ttatimi.php from IP: 127.0.0.1
+[2024-10-15 09:46:57] Email sent successfully for page: faturaFacebook.php from IP: 127.0.0.1
+[2024-10-15 11:34:02] Email sent successfully for page: ttatimi.php from IP: 127.0.0.1
+[2024-10-15 14:09:52] Email sent successfully for page: klient.php from IP: 127.0.0.1
+[2024-10-16 10:10:04] Email sent successfully for page: invoice.php from IP: 127.0.0.1
+[2024-10-16 10:33:18] Email sent successfully for page: klient.php from IP: 127.0.0.1
+[2024-10-16 11:29:14] Email sent successfully for page: stafi.php from IP: 127.0.0.1
+[2024-10-16 11:29:25] Email sent successfully for page: stafi.php from IP: 127.0.0.1
+[2024-10-16 14:40:57] Email sent successfully for page: lista_kopjeve_rezerve.php from IP: ::1
+[2024-10-16 15:00:48] Email sent successfully for page: claim.php from IP: ::1

@@ -1,4 +1,4 @@
-<?php include 'shtesStaf.php'; ?>
+<?php include 'partials/header.php'; ?>
 <div class="main-panel">
     <div class="content-wrapper">
         <div class="container-fluid">

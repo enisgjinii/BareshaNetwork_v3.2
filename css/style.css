@@ -24697,12 +24697,19 @@ dl li {
 }
 
 .content-wrapper {
-  background: #f3f3f3;
+  /* background:
+    radial-gradient(circle at 50% 50%, rgba(255, 0, 4, 1), rgba(0, 0, 0, 0)); */
+  /* filter: contrast(170%); */
+  /* brightness(1000%); */
+  background-repeat: no-repeat;
+  background-size: cover;
+  /* Existing styles */
   padding: 2.1rem 1.04rem;
+  /* border-radius: 250px; */
   width: 100%;
-  -webkit-flex-grow: 1;
   flex-grow: 1;
 }
+
 
 @media (max-width: 767px) {
   .content-wrapper {
@@ -24877,7 +24884,7 @@ dl li {
 
 .sidebar .nav.sub-menu .nav-item {
   padding: 0;
-  
+
 }
 
 .sidebar .nav.sub-menu .nav-item::before {
@@ -25544,5 +25551,3 @@ input.dt-button {
   color: white;
   background-color: blue;
 }
-
-
