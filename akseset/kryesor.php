@@ -1,23 +1,28 @@
 <?php
 require_once 'conn-d.php';
 $authorized_email = 'info@bareshamusic.com';
+
 if (!isset($user_info)) {
   die('User information not available.');
 }
+
 // Sanitize the user's email to prevent SQL injection
 $email = $conn->real_escape_string($user_info['email']);
+
 // Initialize a flag to determine if the user is authorized
 $is_authorized = ($user_info['email'] ?? '') === $authorized_email;
+
 // Function to format page names
 function format_page_name($page)
 {
   return ucwords(str_replace('_', ' ', $page));
 }
+
 // Function to render summary cards
 function render_summary_cards($cards)
 {
   foreach ($cards as $card) {
-    echo '<div class="col-6">';
+    echo '<div class="col-12 col-md-6 col-lg-3">';
     echo '  <div class="card rounded-5 text-white ' . htmlspecialchars($card['bg']) . ' h-100">';
     echo '      <div class="card-body d-flex justify-content-between align-items-center">';
     echo '          <div>';
@@ -30,6 +35,7 @@ function render_summary_cards($cards)
     echo '</div>';
   }
 }
+
 // Function to fetch accessible pages
 function fetch_accessible_pages($conn, $email)
 {
@@ -58,11 +64,12 @@ function fetch_accessible_pages($conn, $email)
   }
   return array_unique($accessiblePages);
 }
+
 // Function to render accessible pages in Grid view
 function render_accessible_pages_grid($pages)
 {
   foreach ($pages as $page) {
-    echo '<div class="col-sm-6 col-lg-3">';
+    echo '<div class="col-12 col-sm-6 col-md-4 col-lg-3">';
     echo '  <div class="card h-100">';
     echo '      <div class="card-body d-flex flex-column justify-content-between">';
     echo '          <h5 class="card-title">' . htmlspecialchars(format_page_name(trim($page))) . '</h5>';
@@ -74,7 +81,7 @@ function render_accessible_pages_grid($pages)
     echo '</div>';
   }
 }
-// Function to render accessible pages in List view
+
 function render_accessible_pages_list($pages)
 {
   echo '<ul class="list-group">';
@@ -91,23 +98,22 @@ function render_accessible_pages_list($pages)
 ?>
 <!DOCTYPE html>
 <html lang="sq">
+
 <head>
   <!-- Include necessary meta tags and CSS files -->
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard</title>
-  <!-- Include Bootstrap CSS -->
-  <link rel="stylesheet" href="path/to/bootstrap.min.css">
-  <!-- Include any other CSS files -->
-  <link rel="stylesheet" href="path/to/your/custom.css">
-  <!-- Include Bootstrap Icons -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
   <style>
     /* Optional: Add custom styles for view toggle buttons */
     .view-toggle .btn {
       margin-right: 5px;
     }
+
+    /* Additional custom styles can go here */
   </style>
 </head>
+
 <body>
   <div class="main-panel">
     <div class="content-wrapper">
@@ -194,8 +200,8 @@ function render_accessible_pages_list($pages)
           <?php if (!empty($accessiblePages)): ?>
             <!-- View Toggle Buttons -->
             <div class="mb-3 view-toggle">
-              <button class="btn btn-outline-secondary btn-sm active" data-view="grid">Grid</button>
-              <button class="btn btn-outline-secondary btn-sm" data-view="list">List</button>
+              <button class="btn btn-outline-secondary btn-sm active" data-view="grid">Galeri</button>
+              <button class="btn btn-outline-secondary btn-sm" data-view="list">Listë</button>
               <!-- Add more view buttons if needed -->
             </div>
             <!-- Accessible Pages Container -->
@@ -216,18 +222,16 @@ function render_accessible_pages_list($pages)
                     const view = this.getAttribute('data-view');
                     // Fetch accessible pages via PHP and render accordingly
                     // For simplicity, we'll use PHP to generate both views and toggle visibility via JS
-                    <?php
-                    // Generate both Grid and List views hidden initially
-                    // Alternatively, use AJAX to fetch and render views dynamically
-                    ?>
                     if (view === 'grid') {
                       accessiblePagesContainer.innerHTML = `<?php ob_start();
                                                             render_accessible_pages_grid($accessiblePages);
                                                             echo addslashes(ob_get_clean()); ?>`;
+                      accessiblePagesContainer.classList.add('row', 'g-4');
                     } else if (view === 'list') {
                       accessiblePagesContainer.innerHTML = `<?php ob_start();
                                                             render_accessible_pages_list($accessiblePages);
                                                             echo addslashes(ob_get_clean()); ?>`;
+                      accessiblePagesContainer.classList.remove('row', 'g-4');
                     }
                   });
                 });
@@ -243,9 +247,9 @@ function render_accessible_pages_list($pages)
   <?php if ($is_authorized): ?>
     <!-- Include necessary JavaScript files -->
     <!-- Include jQuery -->
-    <script src="path/to/jquery.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <!-- Include Bootstrap JS -->
-    <script src="path/to/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Include ApexCharts JS -->
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <!-- JavaScript Section -->
@@ -368,6 +372,7 @@ function render_accessible_pages_list($pages)
         };
         const chart = new ApexCharts(document.querySelector("#revenueChart"), options);
         chart.render();
+
         // Function to convert USD to EUR using an external API
         async function convertToEUR(usdAmount) {
           try {
@@ -380,6 +385,7 @@ function render_accessible_pages_list($pages)
             throw error;
           }
         }
+
         // Function to update the chart and summary cards with new data
         async function updateChartAndSummary(data) {
           const currency = data.year >= 2023 ? 'EUR' : 'USD';
@@ -388,6 +394,7 @@ function render_accessible_pages_list($pages)
           let profitValues = data.profitUSD;
           let yearTotal = data.yearTotalUSD;
           let yearProfit = data.yearProfitUsd;
+
           if (currency === 'EUR') {
             try {
               totalValues = await Promise.all(data.totalUSD.map(val => val !== null ? convertToEUR(val) : null));
@@ -398,6 +405,7 @@ function render_accessible_pages_list($pages)
               // Fallback to USD if conversion fails
             }
           }
+
           chart.updateSeries([{
               name: `Të ardhurat totale (${currency})`,
               data: totalValues
@@ -407,8 +415,10 @@ function render_accessible_pages_list($pages)
               data: profitValues
             }
           ]);
+
           $('#totalRevenue').text(`${currencySymbol}${yearTotal.toFixed(2)}`);
           $('#totalProfit').text(`${currencySymbol}${yearProfit.toFixed(2)}`);
+
           chart.updateOptions({
             xaxis: {
               categories: data.categories, // Update categories based on the selected month
@@ -427,6 +437,7 @@ function render_accessible_pages_list($pages)
             }]
           });
         }
+
         // Function to fetch and update dashboard data
         function updateDashboard() {
           const year = $('#yearFilter').val();
@@ -452,6 +463,7 @@ function render_accessible_pages_list($pages)
             }
           });
         }
+
         // Event listener for filter button
         $('#filterButton').on('click', updateDashboard);
         // Initial dashboard update
@@ -460,4 +472,5 @@ function render_accessible_pages_list($pages)
     </script>
   <?php endif; ?>
 </body>
+
 </html>

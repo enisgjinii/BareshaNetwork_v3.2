@@ -119,3 +119,34 @@ foreach ($scripts as $key => $value) {
   // Toggle dark mode on button click
   document.getElementById('darkModeButton').addEventListener('click', toggleDarkMode);
 </script>
+<script>
+  function confirmLogout(event) {
+    event.preventDefault(); // Prevent the default action
+    Swal.fire({
+      title: 'Jeni të sigurt që doni të dilni?',
+      text: 'Ju do të dilni nga llogaria juaj pas 10 sekondash.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Po, dilni',
+      cancelButtonText: 'Anulo',
+      reverseButtons: true,
+      timer: 10000,
+      timerProgressBar: true,
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // User confirmed logout
+        window.location.href = 'logout.php';
+      } else if (result.dismiss === Swal.DismissReason.timer) {
+        // Timer ran out
+        window.location.href = 'logout.php';
+      } else {
+        // User canceled logout
+        // Do nothing
+      }
+    });
+  }
+</script>
