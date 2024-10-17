@@ -105,7 +105,6 @@ foreach ($scripts as $key => $value) {
       disableDarkMode();
     }
   }
-  // Check local storage for dark mode preference
   function checkDarkModePreference() {
     const userPreference = localStorage.getItem('darkMode');
     if (userPreference === 'dark') {

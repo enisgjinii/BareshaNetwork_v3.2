@@ -1,4 +1,4 @@
-<nav class="sidebar sidebar-offcanvas border border-2 rounded-5" style="margin-top:30px;margin-left:8px;height:min-content;">
+<nav class="sidebar sidebar-offcanvas border border-2 rounded-5" style="margin-top:30px;margin-left:8px;height:min-content - 50px;">
   <ul class="nav">
     <?php
     error_reporting(0);
@@ -273,6 +273,9 @@
       <!-- <a class="input-custom-css-disabled px-3 py-2 m-2" style="text-transform:none;text-decoration:none;width:fit-content" href="link2.php">
         <i class="fi fi-rr-settings"></i>
       </a> -->
+      <button id="darkModeButton" class="input-custom-css px-3 py-2" style="border-radius: 6px;">
+        <i id="modeIcon" class="fi fi-rr-brightness"></i>
+      </button>
       <a class="input-custom-css px-3 py-2 m-2" style="text-transform:none;text-decoration:none;width:fit-content" href="#" onclick="confirmLogout(event)">
         <i class="fi fi-rr-exit"></i>
       </a>
