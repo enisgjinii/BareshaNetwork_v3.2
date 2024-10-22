@@ -7,7 +7,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['delete_id']) && !empty
   $deleteId = $_POST['delete_id'];
   $deleteResult = $invoice->deleteInvoice($deleteId);
   if ($deleteResult) {
-    header("Location: your_page.php");
+    header("Location: invoice_list_2.php");
   } else {
     echo "Failed to delete invoice.";
   }
@@ -149,6 +149,7 @@ if (!empty($_POST['companyName']) && $_POST['companyName']) {
               <div class="row">
                 <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
                   <table class="table table-bordered table-hover" id="invoiceItem">
+                    <thead></thead>
                     <tr>
                       <th width="2%"><input id="checkAll" class="formcontrol" type="checkbox"></th>
                       <th width="15%">Artikulli Nr</th>
@@ -254,6 +255,38 @@ if (!empty($_POST['companyName']) && $_POST['companyName']) {
   </div>
 </div>
 <script>
+  // Add datatable
+  $(document).ready(function() {
+    $('#data-table').DataTable({
+      ordering: false,
+      fixedHeader: true,
+      language: {
+        url: "https://cdn.datatables.net/plug-ins/1.13.1/i18n/sq.json"
+      },
+      lengthMenu: [
+        [10, 25, 50, 100, -1],
+        [10, 25, 50, 100, "Te gjitha"]
+      ],
+      stripeClasses: ['stripe-color'],
+      dom: "<'row'<'col-md-3'l><'col-md-6'B><'col-md-3'f>><'row'<'col-md-12'tr>><'row'<'col-md-6'i><'col-md-6'p>>",
+      buttons: ['pdfHtml5', 'excelHtml5', 'copyHtml5', 'print'].map(type => ({
+        extend: type,
+        text: `<i class="fi fi-rr-file-${type.split('Html5')[0]} fa-lg"></i> ${type.split('Html5')[0].toUpperCase()}`,
+        className: 'btn btn-light btn-sm bg-light border me-2 rounded-5'
+      })),
+      initComplete: () => {
+        $(".dt-buttons").removeClass("dt-buttons btn-group");
+        $("div.dataTables_length select").addClass("form-select").css({
+          width: "auto",
+          margin: "0 8px",
+          padding: "0.375rem 1.75rem 0.375rem 0.75rem",
+          lineHeight: "1.5",
+          border: "1px solid #ced4da",
+          borderRadius: "0.25rem"
+        });
+      }
+    });
+  })
   document.addEventListener('DOMContentLoaded', function() {
     var customerSelect = document.getElementById('customer');
     var companyNameInput = document.getElementById('companyName');

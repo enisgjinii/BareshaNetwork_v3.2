@@ -1,41 +1,45 @@
 <?php
 include '../../conn-d.php';
 
-// Sanitize and validate input
-$id = intval($_POST['id']); // Make sure id is an integer
-$emri = htmlspecialchars(trim($_POST['emri']), ENT_QUOTES, 'UTF-8');
-$mbiemri = htmlspecialchars(trim($_POST['mbiemri']), ENT_QUOTES, 'UTF-8');
-$tvsh = htmlspecialchars(trim($_POST['tvsh']), ENT_QUOTES, 'UTF-8');
-$numri_personal = htmlspecialchars(trim($_POST['numri_personal']), ENT_QUOTES, 'UTF-8');
-$pronari_xhirollogarise = htmlspecialchars(trim($_POST['pronari_xhirollogarise']), ENT_QUOTES, 'UTF-8');
-$numri_xhirollogarise = htmlspecialchars(trim($_POST['numri_xhirollogarise']), ENT_QUOTES, 'UTF-8');
-$kodi_swift = htmlspecialchars(trim($_POST['kodi_swift']), ENT_QUOTES, 'UTF-8');
-$iban = htmlspecialchars(trim($_POST['iban']), ENT_QUOTES, 'UTF-8');
-$emri_bankes = htmlspecialchars(trim($_POST['emri_bankes']), ENT_QUOTES, 'UTF-8');
-$adresa_bankes = htmlspecialchars(trim($_POST['adresa_bankes']), ENT_QUOTES, 'UTF-8');
-$kohezgjatja = htmlspecialchars(trim($_POST['kohezgjatja']), ENT_QUOTES, 'UTF-8');
+// Retrieve POST data directly without sanitization
+$id = $_POST['id'];
+$emri = $_POST['emri'];
+$mbiemri = $_POST['mbiemri'];
+$tvsh = $_POST['tvsh'];
+$numri_personal = $_POST['numri_personal'];
+$pronari_xhirollogarise = $_POST['pronari_xhirollogarise'];
+$numri_xhirollogarise = $_POST['numri_xhirollogarise'];
+$kodi_swift = $_POST['kodi_swift'];
+$iban = $_POST['iban'];
+$emri_bankes = $_POST['emri_bankes'];
+$adresa_bankes = $_POST['adresa_bankes'];
+$kohezgjatja = $_POST['kohezgjatja'];
+$shenim = $_POST['shenim'];
+$data_e_krijimit = $_POST['data_e_krijimit'];
 
-// Prepare the SQL query using prepared statements
+// Prepare the SQL query without prepared statements
 $query = "UPDATE kontrata_gjenerale 
-          SET emri = ?, mbiemri = ?, tvsh = ?, numri_personal = ?, pronari_xhirollogarise = ?, 
-              numri_xhirollogarise = ?, kodi_swift = ?, iban = ?, emri_bankes = ?, adresa_bankes = ?, 
-              kohezgjatja = ?
-          WHERE id = ?";
+          SET emri = '$emri', 
+              mbiemri = '$mbiemri', 
+              tvsh = '$tvsh', 
+              numri_personal = '$numri_personal', 
+              pronari_xhirollogarise = '$pronari_xhirollogarise', 
+              numri_xhirollogarise = '$numri_xhirollogarise', 
+              kodi_swift = '$kodi_swift', 
+              iban = '$iban', 
+              emri_bankes = '$emri_bankes', 
+              adresa_bankes = '$adresa_bankes', 
+              kohezgjatja = '$kohezgjatja', 
+              shenim = '$shenim', 
+              data_e_krijimit = '$data_e_krijimit' 
+          WHERE id = '$id'";
 
-// Initialize the prepared statement
-if ($stmt = mysqli_prepare($conn, $query)) {
-    // Bind the parameters to the prepared statement
-    mysqli_stmt_bind_param($stmt, "sssssssssssi", $emri, $mbiemri, $tvsh, $numri_personal, $pronari_xhirollogarise, $numri_xhirollogarise, $kodi_swift, $iban, $emri_bankes, $adresa_bankes, $kohezgjatja, $id);
-
-    // Execute the prepared statement
-    if (mysqli_stmt_execute($stmt)) {
-        echo json_encode(['status' => 'success']);
-    } else {
-        echo json_encode(['status' => 'error']);
-    }
-
-    // Close the statement
-    mysqli_stmt_close($stmt);
+// Execute the query
+if (mysqli_query($conn, $query)) {
+    echo json_encode(['status' => 'success']);
 } else {
-    echo json_encode(['status' => 'error']);
+    echo json_encode(['status' => 'error', 'message' => mysqli_error($conn)]);
 }
+
+// Close the connection
+mysqli_close($conn);

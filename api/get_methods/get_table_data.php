@@ -4,9 +4,9 @@ include '../../conn-d.php'; // Adjust the path as needed
 $category = isset($_GET['category']) ? $_GET['category'] : 'all';
 
 if ($category === 'all') {
-    $sql = "SELECT * FROM invoices_kont";
+    $sql = "SELECT * FROM invoices_kont ORDER BY id DESC";
 } else {
-    $sql = "SELECT * FROM invoices_kont WHERE category = ?";
+    $sql = "SELECT * FROM invoices_kont WHERE category = ? ORDER BY id DESC";
 }
 
 $stmt = $conn->prepare($sql);

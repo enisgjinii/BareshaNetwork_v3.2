@@ -1,13 +1,13 @@
 <?php
 session_start();
-
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
-
 require 'vendor/autoload.php';
 include 'partials/header.php';
+
 // Initialize messages
 $mesazhi_sukses = $mesazhi_error = "";
+
 // SMTP Configuration Constants
 define('SMTP_HOST', 'smtp.gmail.com');
 define('SMTP_USERNAME', 'egjini@bareshamusic.com'); // Replace with your actual email
@@ -16,6 +16,7 @@ define('SMTP_SECURE', 'tls');
 define('SMTP_PORT', 587);
 define('SMTP_FROM_EMAIL', 'egjini@bareshamusic.com'); // Replace with your actual email
 define('SMTP_FROM_NAME', 'Departamenti HR');
+
 /**
  * Helper function to configure and return a PHPMailer instance
  */
@@ -39,6 +40,14 @@ function getMailer()
         return false;
     }
 }
+
+/**
+ * Function to sanitize user input
+ */
+function sanitizeInput($data) {
+    return htmlspecialchars(trim($data));
+}
+
 // Check if user is authenticated via email cookie
 if (isset($_COOKIE['email'])) {
     // Retrieve email from cookie
@@ -48,11 +57,16 @@ if (isset($_COOKIE['email'])) {
     header("Location: login.php");
     exit();
 }
+
 // Validate email
 if (empty($user_email)) {
     header("Location: login.php");
     exit();
 }
+
+// Database connection (Assuming you have a connection script)
+include 'partials/db_connection.php';
+
 // Retrieve user details
 $stmt = $conn->prepare("SELECT id, firstName, last_name FROM googleauth WHERE email = ?");
 $stmt->bind_param("s", $user_email);
@@ -67,6 +81,7 @@ if ($result->num_rows !== 1) {
 $user = $result->fetch_assoc();
 $user_employee_id = $user['id'];
 $is_admin = ($user_email === 'egjini17@gmail.com') ? true : false;
+
 // Handle POST Requests
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Assign Activity
@@ -78,17 +93,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         } else {
             $employee_id = $user_employee_id;
         }
-        $status = $_POST['status'];
-        $reason = trim($_POST['reason']);
+        $status = sanitizeInput($_POST['status']);
+        $reason = sanitizeInput($_POST['reason']);
         $start_date = $_POST['start_date'];
         $end_date = $_POST['end_date'];
-        $allowed_statuses = ['leave', 'rest', 'sick_leave', 'vacation', 'personal_leave'];
+        
         // Validate inputs
         if (empty($status) || empty($start_date) || empty($end_date)) {
             $mesazhi_error = "Të gjitha fushat përveç arsyeve janë të nevojshme.";
-        } elseif (!in_array($status, $allowed_statuses)) {
-            $mesazhi_error = "Statusi i zgjedhur është i pavlefshëm.";
-        } elseif ($start_date > $end_date) {
+        }
+        // Optional: Implement flexible validation for 'status'
+        elseif (!preg_match('/^[A-Za-z_ ]+$/', $status)) {
+            $mesazhi_error = "Statusi duhet të përmbajë vetëm shkronja, hapesira dhe nënvizime.";
+        }
+        elseif ($start_date > $end_date) {
             $mesazhi_error = "Data e fillimit nuk mund të jetë pas datës së mbarimit.";
         } else {
             // Check for overlapping activities
@@ -141,17 +159,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         } else {
             $employee_id = $user_employee_id;
         }
-        $status = $_POST['status'];
-        $reason = trim($_POST['reason']);
+        $status = sanitizeInput($_POST['status']);
+        $reason = sanitizeInput($_POST['reason']);
         $start_date = $_POST['start_date'];
         $end_date = $_POST['end_date'];
-        $allowed_statuses = ['leave', 'rest', 'sick_leave', 'vacation', 'personal_leave'];
+        
         // Validate inputs
         if (empty($status) || empty($start_date) || empty($end_date)) {
             $mesazhi_error = "Të gjitha fushat përveç arsyeve janë të nevojshme.";
-        } elseif (!in_array($status, $allowed_statuses)) {
-            $mesazhi_error = "Statusi i zgjedhur është i pavlefshëm.";
-        } elseif ($start_date > $end_date) {
+        }
+        // Optional: Implement flexible validation for 'status'
+        elseif (!preg_match('/^[A-Za-z_ ]+$/', $status)) {
+            $mesazhi_error = "Statusi duhet të përmbajë vetëm shkronja, hapesira dhe nënvizime.";
+        }
+        elseif ($start_date > $end_date) {
             $mesazhi_error = "Data e fillimit nuk mund të jetë pas datës së mbarimit.";
         } else {
             // Check for overlapping activities excluding the current one
@@ -195,6 +216,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     }
 }
+
 // Handle GET Requests for Approval, Rejection, and Deletion
 if ($_SERVER["REQUEST_METHOD"] == "GET") {
     // Only admins can approve, reject, or delete
@@ -303,9 +325,11 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
         }
     }
 }
+
 /**
  * Email Sending Functions Using the Helper Function
  */
+
 /**
  * Sends notification emails for assigning and updating activities
  */
@@ -357,13 +381,13 @@ function sendEmailNotification($to_email, $firstName, $lastName, $status, $start
         $mail->Body = $body;
         $mail->CharSet = 'UTF-8';
         $mail->send();
-
         return true;
     } catch (Exception $e) {
         // Log error if needed
         return false;
     }
 }
+
 /**
  * Sends approval notification emails
  */
@@ -396,6 +420,7 @@ function sendApprovalNotification($to_email, $firstName, $lastName, $status, $st
         return false;
     }
 }
+
 /**
  * Sends rejection notification emails
  */
@@ -429,6 +454,7 @@ function sendRejectionNotification($to_email, $firstName, $lastName, $status, $s
         return false;
     }
 }
+
 /**
  * Sends deletion notification emails
  */
@@ -462,6 +488,7 @@ function sendDeletionNotification($to_email, $firstName, $lastName, $status, $st
         return false;
     }
 }
+
 // Retrieve Employees
 $employees = [];
 if ($is_admin) {
@@ -501,6 +528,7 @@ if ($is_admin) {
         $mesazhi_error = "Dështoi përgatitja e pyetjes për punonjësin.";
     }
 }
+
 // Retrieve Activities
 $activities = [];
 if ($is_admin) {
@@ -526,6 +554,7 @@ if ($is_admin) {
         $mesazhi_error = "Dështoi përgatitja e pyetjes për aktivitetet.";
     }
 }
+
 if ($act_result && $act_result->num_rows > 0) {
     while ($row = $act_result->fetch_assoc()) {
         $activities[] = $row;
@@ -537,6 +566,7 @@ if ($act_result && $act_result->num_rows > 0) {
         $mesazhi_error = "Ju nuk keni aktivitete të regjistruara.";
     }
 }
+
 $conn->close();
 ?>
 <div class="main-panel">
@@ -596,15 +626,8 @@ $conn->close();
                             <?php endif; ?>
                             <div class="col-md-6">
                                 <label for="status" class="form-label">Zgjidh Llojin e Aktivitetit<span class="text-danger">*</span></label>
-                                <select name="status" id="status" class="form-select input-custom-css px-3 py-2" required>
-                                    <option value="">-- Zgjidh Llojin e Aktivitetit --</option>
-                                    <option value="leave">Pushim</option>
-                                    <option value="rest">Pushim</option>
-                                    <option value="sick_leave">Pushim Sëmundjeje</option>
-                                    <option value="vacation">Pushim Veror</option>
-                                    <option value="personal_leave">Pushim Personal</option>
-                                    <!-- Add more options if needed -->
-                                </select>
+                                <!-- Changed from <select> to <input type="text"> -->
+                                <input type="text" name="status" id="status" class="form-control input-custom-css px-3 py-2" placeholder="Shkruaj llojin e aktivitetit" required>
                             </div>
                         </div>
                         <div class="mb-3">
@@ -751,15 +774,8 @@ $conn->close();
                                 </div>
                                 <div class="mb-3">
                                     <label for="modal_status" class="form-label">Zgjidh Llojin e Aktivitetit<span class="text-danger">*</span></label>
-                                    <select name="status" id="modal_status" class="form-select input-custom-css px-3 py-2" required>
-                                        <option value="">-- Zgjidh Llojin e Aktivitetit --</option>
-                                        <option value="leave">Pushim</option>
-                                        <option value="rest">Pushim</option>
-                                        <option value="sick_leave">Pushim Sëmundjeje</option>
-                                        <option value="vacation">Pushim Veror</option>
-                                        <option value="personal_leave">Pushim Personal</option>
-                                        <!-- Add more options if needed -->
-                                    </select>
+                                    <!-- Changed from <select> to <input type="text"> -->
+                                    <input type="text" name="status" id="modal_status" class="form-control input-custom-css px-3 py-2" placeholder="Shkruaj llojin e aktivitetit" required>
                                 </div>
                                 <div class="mb-3">
                                     <label for="modal_reason" class="form-label">Arsyeja (Opsionale)</label>
@@ -811,6 +827,7 @@ $conn->close();
                     dateFormat: "Y-m-d",
                     locale: "sq", // Set language to Albanian
                 });
+
                 // Initialize FullCalendar
                 var calendarEl = document.getElementById('calendar');
                 var calendar = new FullCalendar.Calendar(calendarEl, {
@@ -842,6 +859,7 @@ $conn->close();
                                     $event_color = '#6c757d'; // Gray for no status
                                     break;
                             }
+                            // Prepare title and description
                             $title = addslashes(htmlspecialchars($activity['firstName'] . ' ' . $activity['last_name'] . ' - ' . $activity['email'] . ' - ' . ucwords(str_replace('_', ' ', $activity['status']))));
                             $reason = addslashes(htmlspecialchars($activity['reason']));
                             echo "{title:'{$title}',start:'{$activity['start_date']}',end:'" . date('Y-m-d', strtotime($activity['end_date'] . ' +1 day')) . "',color:'{$event_color}',description:'{$reason}'},";
@@ -867,11 +885,13 @@ $conn->close();
                     }
                 });
                 calendar.render();
+
                 <?php if ($is_admin): ?>
                     // Initialize Edit Modal
                     var editModal = new bootstrap.Modal(document.getElementById('editModal'), {
                         keyboard: false
                     });
+
                     // Populate and Show Edit Modal on Edit Button Click
                     document.querySelectorAll('.edit-btn').forEach(function(button) {
                         button.addEventListener('click', function() {
@@ -890,6 +910,7 @@ $conn->close();
                             editModal.show();
                         });
                     });
+
                     // Handle Approve Button Click
                     document.querySelectorAll('.approve-btn').forEach(function(button) {
                         button.addEventListener('click', function() {
@@ -909,6 +930,7 @@ $conn->close();
                             });
                         });
                     });
+
                     // Handle Reject Button Click
                     document.querySelectorAll('.reject-btn').forEach(function(button) {
                         button.addEventListener('click', function() {
@@ -928,6 +950,7 @@ $conn->close();
                             });
                         });
                     });
+
                     // Handle Delete Button Click
                     document.querySelectorAll('.delete-btn').forEach(function(button) {
                         button.addEventListener('click', function() {

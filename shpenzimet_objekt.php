@@ -493,9 +493,6 @@ include 'conn-d.php';
                         }
                     }
                 ],
-                order: [
-                    [0, 'desc']
-                ], // Default ordering by ID descending
                 initComplete: function() {
                     var lengthSelect = $("div.dataTables_length select");
                     lengthSelect.addClass("form-select").css({
@@ -601,7 +598,9 @@ include 'conn-d.php';
                 dataTables['table-' + targetTable].ajax.reload(null, false);
             }
         });
-    });function updateValue(id, column, value, $element, resolve) {
+    });
+
+    function updateValue(id, column, value, $element, resolve) {
         $.ajax({
             url: 'api/edit_methods/update_newKont.php',
             method: 'POST',

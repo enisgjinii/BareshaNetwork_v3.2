@@ -21,6 +21,7 @@ $adresa_bankes = isset($_POST['adresa_bankes']) ? $_POST['adresa_bankes'] : '';
 $email = isset($_POST['email']) ? $_POST['email'] : '';
 $selectedCountry = isset($_POST['shteti']) ? $_POST['shteti'] : '';
 $kohezgjatja = isset($_POST['kohezgjatja']) ? $_POST['kohezgjatja'] : '';
+$shenim = isset($_POST['shenim']) ? $_POST['shenim'] : '';
 
 // Get the current year
 $currentYear = date('Y');
@@ -89,8 +90,9 @@ $sql = "INSERT INTO kontrata_gjenerale (
     numri_personal,
     email,
     shteti,
-    kohezgjatja
-    ) VALUES ('$emri', '$mbiemri', '$invoiceNumber', '$currentDateFormatted','$youtube_id', '$artisti', '$tvsh','$pronari_xhiroBanka','$numri_xhiroBanka','$kodi_swift','$iban','$emri_bankes','$adresa_bankes','$numri_tel','$numri_personal','$email','$selectedCountry','$kohezgjatja')";
+    kohezgjatja,
+    shenim
+    ) VALUES ('$emri', '$mbiemri', '$invoiceNumber', '$currentDateFormatted','$youtube_id', '$artisti', '$tvsh','$pronari_xhiroBanka','$numri_xhiroBanka','$kodi_swift','$iban','$emri_bankes','$adresa_bankes','$numri_tel','$numri_personal','$email','$selectedCountry','$kohezgjatja','$shenim')";
 
 $result = mysqli_query($conn, $sql);
 if ($result) {

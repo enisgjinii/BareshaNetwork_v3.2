@@ -91,6 +91,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Handle Company Name
     $companyName = ($_POST['company_name'] === 'new') ? sanitizeInput($_POST['new_company_name'] ?? '') : sanitizeInput($_POST['company_name'] ?? '');
 
+    // Backend Validation for valueOfInvoice
+    if (!preg_match('/^\d+(\.\d{2})?$/', $valueOfInvoice)) {
+        displayMessage('error', 'Vlera e faturës duhet të jetë një numër i vlefshëm me dy decimal (p.sh., 200.00).');
+        exit();
+    }
+
+    // Optional: Format the value to ensure two decimal places
+    $valueOfInvoice = number_format((float)$valueOfInvoice, 2, '.', '');
+
     // Handle File Upload
     $documentPath = '';
     if (!empty($_FILES['document']['name'])) {
@@ -175,9 +184,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     [
                                         'label' => 'Vlera e Faturës',
                                         'name' => 'valueOfInvoice',
-                                        'type' => 'text',
+                                        'type' => 'number',
                                         'required' => true,
-                                        'help' => 'Shkruani vlerën totale të faturës.'
+                                        'attributes' => 'step="0.01" min="0" pattern="^\d+(\.\d{2})?$"',
+                                        'help' => 'Shkruani vlerën totale të faturës (p.sh., 200.00).'
                                     ],
                                     [
                                         'label' => 'Ngarko Dokument',
@@ -211,6 +221,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                 <span class='drop-zone__prompt'>Tërhiq skedarin këtu ose klikoni për ta ngarkuar</span>
                                                 <input type='file' class='form-control rounded-5 border border-2' name='{$field['name']}' id='{$field['name']}' accept='{$field['accept']}' style='display:none;'>
                                               </div>";
+                                            break;
+                                        case 'number':
+                                            echo "<input type='{$field['type']}' class='form-control rounded-5 border border-2' name='{$field['name']}' id='{$field['name']}' " . ($field['required'] ? 'required' : '') . " " . ($field['attributes'] ?? '') . ">";
                                             break;
                                         default:
                                             echo "<input type='{$field['type']}' class='form-control rounded-5 border border-2' name='{$field['name']}' id='{$field['name']}' " . ($field['required'] ? 'required' : '') . " " . ($field['attributes'] ?? '') . ">";
@@ -282,7 +295,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div>
 </div>
-
 <!-- Include Libraries -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/selectr/1.3.0/selectr.min.js"></script>
