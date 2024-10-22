@@ -5,12 +5,14 @@ include 'conn-d.php';
 <div class="main-panel">
     <div class="content-wrapper">
         <div class="container-fluid">
+            <!-- Breadcrumb Navigation -->
             <nav class="bg-white px-2 rounded-5" style="width:fit-content;" aria-label="breadcrumb">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a class="text-reset" style="text-decoration: none;">Kontabiliteti</a></li>
                     <li class="breadcrumb-item active" aria-current="page"><a href="<?php echo __FILE__; ?>" class="text-reset" style="text-decoration: none;">Shpenzimet e objektit</a></li>
                 </ol>
             </nav>
+            <!-- Add Expense Button -->
             <div class="row mb-2">
                 <div>
                     <a type="button" style="text-decoration: none" class="input-custom-css px-3 py-2 position-relative" href="post_newKont.php">
@@ -22,6 +24,7 @@ include 'conn-d.php';
                     </a>
                 </div>
             </div>
+            <!-- Main Tabs -->
             <ul class="nav nav-pills" id="myTab" role="tablist">
                 <li class="nav-item" role="presentation">
                     <button class="nav-link active" id="tabelat-tab" data-bs-toggle="tab" data-bs-target="#tabelat-tab-pane" type="button" role="tab" aria-controls="tabelat-tab-pane" aria-selected="true">Tabelat</button>
@@ -31,8 +34,10 @@ include 'conn-d.php';
                 </li>
             </ul>
             <div class="tab-content" id="myTabContent">
+                <!-- Tabelat Tab Pane -->
                 <div class="tab-pane fade show active" id="tabelat-tab-pane" role="tabpanel" aria-labelledby="tabelat-tab" tabindex="0">
                     <div class="p-3 shadow-sm mb-4 card">
+                        <!-- Sub Tabs for Tables -->
                         <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
                             <?php
                             $tabs = [
@@ -45,21 +50,22 @@ include 'conn-d.php';
                             foreach ($tabs as $key => $label) {
                                 $active = ($key === 'all') ? 'active' : '';
                                 echo "
-                            <li class='nav-item' role='presentation'>
-                                <button class='nav-link rounded-5 {$active}' 
-                                        id='pills-{$key}-tab' 
-                                        data-bs-toggle='pill' 
-                                        data-bs-target='#pills-{$key}' 
-                                        type='button' role='tab' 
-                                        aria-controls='pills-{$key}' 
-                                        aria-selected='" . ($key === 'all' ? 'true' : 'false') . "'>
-                                    {$label}
-                                </button>
-                            </li>
-                        ";
+                                <li class='nav-item' role='presentation'>
+                                    <button class='nav-link rounded-5 {$active}' 
+                                            id='pills-{$key}-tab' 
+                                            data-bs-toggle='pill' 
+                                            data-bs-target='#pills-{$key}' 
+                                            type='button' role='tab' 
+                                            aria-controls='pills-{$key}' 
+                                            aria-selected='" . ($key === 'all' ? 'true' : 'false') . "'>
+                                        {$label}
+                                    </button>
+                                </li>
+                            ";
                             }
                             ?>
                         </ul>
+                        <!-- Sub Tab Content -->
                         <div class="tab-content" id="pills-tabContent">
                             <?php
                             // Define column labels
@@ -89,6 +95,7 @@ include 'conn-d.php';
                         </div>
                     </div>
                 </div>
+                <!-- Raportet Tab Pane -->
                 <div class="tab-pane fade" id="raportet-tab-pane" role="tabpanel" aria-labelledby="raportet-tab" tabindex="0">
                     <div class="p-3 shadow-sm mb-4 card">
                         <h3 class="mb-4">Raportet Financiare</h3>
@@ -151,6 +158,7 @@ include 'conn-d.php';
                                 </select>
                             </div>
                         </div>
+                        <!-- Filter Buttons -->
                         <div class="row my-2">
                             <div class="col-md-2 d-flex">
                                 <button id="applyFilters" class="input-custom-css px-3 py-2 me-2 d-flex align-items-center">
@@ -161,22 +169,24 @@ include 'conn-d.php';
                                 </button>
                             </div>
                         </div>
+                        <!-- Initialize Selectr for Select Elements -->
                         <script>
                             new Selectr('#filterCategory', {
                                 searchable: true,
                                 width: 300
-                            })
+                            });
                             new Selectr('#filterCompany', {
                                 searchable: true,
                                 width: 300
-                            })
+                            });
                             new Selectr('#filterRegistrant', {
                                 searchable: true,
                                 width: 300
-                            })
+                            });
                         </script>
                         <!-- Detailed Totals Section -->
                         <div class="row mb-4 g-3">
+                            <!-- Total by Category -->
                             <div class="col-md-6">
                                 <div class="card rounded-5">
                                     <div class="card-header">
@@ -197,6 +207,7 @@ include 'conn-d.php';
                                     </div>
                                 </div>
                             </div>
+                            <!-- Total by Company -->
                             <div class="col-md-6">
                                 <div class="card rounded-5">
                                     <div class="card-header">
@@ -218,50 +229,7 @@ include 'conn-d.php';
                                 </div>
                             </div>
                         </div>
-                        <!-- Charts Section -->
-                        <div class="row g-3">
-                            <div class="col-md-12 mb-4">
-                                <div class="card rounded-5 h-100">
-                                    <div class="card-header">
-                                        <h5 class="mb-0">Profit mbi Kohë</h5>
-                                    </div>
-                                    <div class="card-body">
-                                        <div id="profitLineChart"></div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-12 mb-4">
-                                <div class="card rounded-5 h-100">
-                                    <div class="card-header">
-                                        <h5 class="mb-0">Profit sipas Kategorisë</h5>
-                                    </div>
-                                    <div class="card-body">
-                                        <div id="profitPieChart"></div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-12 mb-4">
-                                <div class="card rounded-5 h-100">
-                                    <div class="card-header">
-                                        <h5 class="mb-0">Profit Mujor</h5>
-                                    </div>
-                                    <div class="card-body">
-                                        <div id="profitBarChart"></div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-12 mb-4">
-                                <div class="card rounded-5 h-100">
-                                    <div class="card-header">
-                                        <h5 class="mb-0">Profit sipas Kompanisë</h5>
-                                    </div>
-                                    <div class="card-body">
-                                        <div id="profitCompanyChart"></div>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- Add more chart containers as needed -->
-                        </div>
+                        <!-- Charts Section Removed -->
                     </div>
                 </div>
             </div>
@@ -318,11 +286,12 @@ include 'conn-d.php';
         </div>
     </div>
 </div>
+<!-- Scripts -->
 <script>
-    // JavaScript code as provided in the earlier sections
-    // Ensure that this script is placed after the modals and includes
+    // JavaScript code for handling tables and modals
     // Global variable to store DataTables instances
     var dataTables = {};
+
     function confirmDelete(id) {
         Swal.fire({
             title: 'A jeni i sigurt?',
@@ -372,6 +341,7 @@ include 'conn-d.php';
             }
         });
     }
+
     function refreshTable() {
         var activeTab = $('ul.nav-pills .active').attr('id');
         var tableId = 'table-' + activeTab.replace('pills-', '').replace('-tab', '');
@@ -631,9 +601,7 @@ include 'conn-d.php';
                 dataTables['table-' + targetTable].ajax.reload(null, false);
             }
         });
-    });
-    // Function to update editable fields via AJAX
-    function updateValue(id, column, value, $element, resolve) {
+    });function updateValue(id, column, value, $element, resolve) {
         $.ajax({
             url: 'api/edit_methods/update_newKont.php',
             method: 'POST',
@@ -668,7 +636,6 @@ include 'conn-d.php';
             }
         });
     }
-    // JavaScript for handling the document preview modal
     document.addEventListener('DOMContentLoaded', function() {
         const documentModal = document.getElementById('documentModal');
         const documentName = document.getElementById('documentName');
@@ -709,307 +676,6 @@ include 'conn-d.php';
 </script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Helper function to parse numbers by removing commas
-        function parseNumber(str) {
-            if (typeof str !== 'string') return 0;
-            return parseFloat(str.replace(/,/g, '')) || 0;
-        }
-        // Helper function to format numbers with commas without rounding
-        function formatNumber(num) {
-            return new Intl.NumberFormat('en-US').format(num);
-        }
-        // Helper function to capitalize first letter
-        function capitalizeFirstLetter(string) {
-            if (typeof string !== 'string' || string.length === 0) return string;
-            return string.charAt(0).toUpperCase() + string.slice(1);
-        }
-        // Initialize ApexCharts for Line Chart
-        var profitLineChartOptions = {
-            chart: {
-                type: 'line',
-                height: 350,
-                toolbar: {
-                    show: true,
-                    tools: {
-                        download: true,
-                        selection: true,
-                        zoom: true,
-                        zoomin: true,
-                        zoomout: true,
-                        pan: true,
-                        reset: true
-                    },
-                    autoSelected: 'zoom' // Automatically activate zoom for better interactivity
-                },
-                zoom: {
-                    enabled: true,
-                    type: 'x', // Zoom only along the x-axis for better control
-                    autoScaleYaxis: true
-                },
-                animations: {
-                    enabled: true,
-                    easing: 'easeinout',
-                    speed: 800
-                }
-            },
-            series: [{
-                name: 'Profit',
-                data: [] // Data will be populated dynamically
-            }],
-            xaxis: {
-                categories: [], // Dates or time series will be populated dynamically
-                labels: {
-                    rotate: -45, // Rotate labels to save space
-                    style: {
-                        fontSize: '12px'
-                    }
-                },
-                title: {
-                    text: 'Time',
-                    style: {
-                        fontSize: '14px',
-                        fontWeight: 'bold'
-                    }
-                },
-                tickPlacement: 'on'
-            },
-            title: {
-                text: 'Profit over Time',
-                align: 'center',
-                style: {
-                    fontSize: '16px',
-                    fontWeight: 'bold'
-                }
-            },
-            tooltip: {
-                shared: true,
-                intersect: false,
-                x: {
-                    format: 'dd MMM yyyy' // Customize date format for better readability
-                },
-                y: {
-                    formatter: function(val) {
-                        return "€" + formatNumber(val);
-                    }
-                }
-            },
-            markers: {
-                size: 4, // Compact marker size
-                colors: ['#FF4560'],
-                strokeColors: '#fff',
-                strokeWidth: 2,
-                hover: {
-                    size: 7
-                }
-            },
-            stroke: {
-                curve: 'smooth',
-                width: 2
-            },
-            annotations: {
-                points: [] // Annotations will be added dynamically
-            },
-            legend: {
-                position: 'top',
-                horizontalAlign: 'right',
-                fontSize: '12px',
-                markers: {
-                    width: 12,
-                    height: 12,
-                    radius: 12 // Circular legend markers
-                }
-            },
-            grid: {
-                borderColor: '#f1f1f1',
-                strokeDashArray: 5, // Dashed grid lines to reduce clutter
-                padding: {
-                    top: 10,
-                    right: 20,
-                    bottom: 10,
-                    left: 20
-                }
-            },
-            yaxis: {
-                labels: {
-                    formatter: function(val) {
-                        return "€" + formatNumber(val);
-                    }
-                },
-                title: {
-                    text: 'Profit (€)',
-                    style: {
-                        fontSize: '14px',
-                        fontWeight: 'bold'
-                    }
-                }
-            }
-        };
-        var profitLineChart = new ApexCharts(document.querySelector("#profitLineChart"), profitLineChartOptions);
-        profitLineChart.render();
-        // Initialize ApexCharts for Pie Chart
-        var profitPieChartOptions = {
-            chart: {
-                type: 'pie',
-                height: 350
-            },
-            series: [],
-            labels: [],
-            title: {
-                text: 'Profit by Category',
-                align: 'left'
-            },
-            colors: ['#FF4560', '#00E396', '#008FFB', '#FEB019'], // Customize as needed
-            legend: {
-                position: 'bottom'
-            }
-        };
-        var profitPieChart = new ApexCharts(document.querySelector("#profitPieChart"), profitPieChartOptions);
-        profitPieChart.render();
-        // Initialize ApexCharts for Bar Chart
-        var profitBarChartOptions = {
-            chart: {
-                type: 'bar',
-                height: 350,
-                toolbar: {
-                    show: true
-                }
-            },
-            series: [{
-                name: 'Monthly Profit',
-                data: []
-            }],
-            xaxis: {
-                categories: []
-            },
-            title: {
-                text: 'Monthly Profit',
-                align: 'left'
-            },
-            tooltip: {
-                x: {
-                    format: 'MMM yyyy'
-                },
-                y: {
-                    formatter: function(val) {
-                        return "€" + formatNumber(val);
-                    }
-                }
-            },
-            plotOptions: {
-                bar: {
-                    horizontal: false,
-                }
-            },
-            stroke: {
-                show: true,
-                width: 2,
-                colors: ['transparent']
-            },
-            legend: {
-                position: 'top'
-            }
-        };
-        var profitBarChart = new ApexCharts(document.querySelector("#profitBarChart"), profitBarChartOptions);
-        profitBarChart.render();
-        // Initialize ApexCharts for Company Chart
-        var profitCompanyChartOptions = {
-            chart: {
-                type: 'line', // Changed to 'line' for better data visualization
-                height: 400,
-                toolbar: {
-                    show: true,
-                    tools: {
-                        download: true,
-                        selection: true,
-                        zoom: true,
-                        zoomin: true,
-                        zoomout: true,
-                        pan: true,
-                        reset: true,
-                    }
-                }
-            },
-            series: [{
-                name: 'Profit',
-                data: [] // Data will be populated dynamically
-            }],
-            xaxis: {
-                categories: [], // Companies will be populated dynamically
-                labels: {
-                    style: {
-                        fontSize: '12px',
-                        colors: '#333'
-                    },
-                    rotate: -45, // Rotate labels if you have many categories
-                },
-                title: {
-                    text: 'Companies',
-                    style: {
-                        fontSize: '14px',
-                        fontWeight: 'bold'
-                    }
-                }
-            },
-            title: {
-                text: 'Profit by Company',
-                align: 'center',
-                style: {
-                    fontSize: '16px',
-                    fontWeight: 'bold'
-                }
-            },
-            tooltip: {
-                y: {
-                    formatter: function(val) {
-                        return "€" + formatNumber(val);
-                    }
-                }
-            },
-            plotOptions: {
-                line: {
-                    curve: 'smooth', // Smooth the lines for better readability
-                }
-            },
-            dataLabels: {
-                enabled: false // Disable data labels to avoid clutter
-            },
-            legend: {
-                position: 'top',
-                horizontalAlign: 'right',
-                fontSize: '12px'
-            },
-            grid: {
-                show: true,
-                borderColor: '#e7e7e7',
-                strokeDashArray: 4,
-                padding: {
-                    top: 20,
-                    right: 20,
-                    bottom: 20,
-                    left: 20
-                }
-            },
-            yaxis: {
-                labels: {
-                    formatter: function(val) {
-                        return "€" + formatNumber(val);
-                    },
-                    style: {
-                        fontSize: '12px',
-                        colors: ['#333']
-                    }
-                },
-                title: {
-                    text: 'Profit (€)',
-                    style: {
-                        fontSize: '14px',
-                        fontWeight: 'bold'
-                    }
-                }
-            }
-        };
-        var profitCompanyChart = new ApexCharts(document.querySelector("#profitCompanyChart"), profitCompanyChartOptions);
-        profitCompanyChart.render();
         // Function to fetch and render data based on filters
         function fetchAndRenderData() {
             var startDate = $('#filterStartDate').val();
@@ -1017,6 +683,7 @@ include 'conn-d.php';
             var category = $('#filterCategory').val();
             var company = $('#filterCompany').val();
             var registrant = $('#filterRegistrant').val();
+
             // Show loading spinner
             Swal.fire({
                 title: 'Po ngarkohet...',
@@ -1025,6 +692,7 @@ include 'conn-d.php';
                     Swal.showLoading();
                 }
             });
+
             $.ajax({
                 url: 'api/get_methods/get_profit_data.php',
                 type: 'POST',
@@ -1038,9 +706,8 @@ include 'conn-d.php';
                 dataType: 'json',
                 success: function(response) {
                     if (response.success) {
-                        processChartData(response.data);
-                        renderTable(response.data); // Assuming you have a function to render the table
-                        calculateTotals(response.data); // Assuming you have a function to calculate totals
+                        // Process and display totals
+                        displayTotals(response.data);
                         Swal.close(); // Close the loading spinner
                     } else {
                         Swal.fire({
@@ -1062,269 +729,43 @@ include 'conn-d.php';
                 }
             });
         }
-        // Function to process and render chart data
-        function processChartData(data) {
-            var profitByDate = {};
-            var profitByCategory = {};
-            var profitByCompany = {};
-            var profitByRegistrant = {};
-            data.forEach(function(record) {
-                var date = record.date;
-                var category = record.category;
-                var company = record.company_name;
-                var registrant = record.registrant;
-                var amount = parseNumber(record.total_shuma); // Use the helper function
-                // Sum profit by date
-                if (!profitByDate.hasOwnProperty(date)) {
-                    profitByDate[date] = 0;
-                }
-                profitByDate[date] += amount;
-                // Sum profit by category
-                if (!profitByCategory.hasOwnProperty(category)) {
-                    profitByCategory[category] = 0;
-                }
-                profitByCategory[category] += amount;
-                // Sum profit by company
-                if (!profitByCompany.hasOwnProperty(company)) {
-                    profitByCompany[company] = 0;
-                }
-                profitByCompany[company] += amount;
-                // Sum profit by registrant
-                if (!profitByRegistrant.hasOwnProperty(registrant)) {
-                    profitByRegistrant[registrant] = 0;
-                }
-                profitByRegistrant[registrant] += amount;
-            });
-            // Prepare data for Line Chart (Profit over Time)
-            var dates = Object.keys(profitByDate).sort();
-            var profitValues = dates.map(date => profitByDate[date]);
-            // Calculate trends (percentage change)
-            var trends = [];
-            for (var i = 0; i < profitValues.length; i++) {
-                if (i === 0) {
-                    trends.push(null); // No trend for the first data point
-                } else {
-                    if (profitValues[i - 1] === 0) {
-                        trends.push(null); // Avoid division by zero
-                    } else {
-                        var change = ((profitValues[i] - profitValues[i - 1]) / Math.abs(profitValues[i - 1])) * 100;
-                        trends.push(change); // Percentage change without rounding
-                    }
-                }
-            }
-            // Update Line Chart
-            profitLineChart.updateOptions({
-                xaxis: {
-                    categories: dates
-                },
-                series: [{
-                    name: 'Profit',
-                    data: profitValues
-                }],
-                annotations: {
-                    points: dates.map((date, index) => {
-                        if (trends[index] === null) return null;
-                        return {
-                            x: date,
-                            y: profitValues[index],
-                            marker: {
-                                size: 6,
-                                fillColor: trends[index] >= 0 ? '#00E396' : '#FF4560',
-                                strokeColor: '#fff',
-                                radius: 2,
-                            },
-                            label: {
-                                borderColor: trends[index] >= 0 ? '#00E396' : '#FF4560',
-                                offsetY: 0,
-                                style: {
-                                    color: '#fff',
-                                    background: trends[index] >= 0 ? '#00E396' : '#FF4560',
-                                },
-                                text: trends[index] >= 0 ? `+${trends[index]}%` : `${trends[index]}%`,
-                            }
-                        };
-                    }).filter(point => point !== null)
-                }
-            });
-            // Prepare data for Pie Chart (Profit by Category)
-            var categories = Object.keys(profitByCategory).sort();
-            var categoryValues = categories.map(cat => profitByCategory[cat]);
-            profitPieChart.updateOptions({
-                labels: categories.map(cat => capitalizeFirstLetter(cat)),
-                series: categoryValues
-            });
-            // Prepare data for Bar Chart (Monthly Profit)
-            var monthlyProfit = {};
-            dates.forEach(function(date) {
-                var month = date.substring(0, 7); // Extract 'YYYY-MM'
-                if (!monthlyProfit.hasOwnProperty(month)) {
-                    monthlyProfit[month] = 0;
-                }
-                monthlyProfit[month] += profitByDate[date];
-            });
-            var months = Object.keys(monthlyProfit).sort();
-            var monthlyValues = months.map(month => monthlyProfit[month]);
-            profitBarChart.updateOptions({
-                xaxis: {
-                    categories: months
-                },
-                series: [{
-                    name: 'Monthly Profit',
-                    data: monthlyValues
-                }],
-                tooltip: {
-                    y: {
-                        formatter: function(val) {
-                            return "€" + formatNumber(val);
-                        }
-                    }
-                }
-            });
-            // Prepare data for Company Chart (Profit by Company)
-            var companies = Object.keys(profitByCompany).sort();
-            var companyValues = companies.map(company => profitByCompany[company]);
-            profitCompanyChart.updateOptions({
-                xaxis: {
-                    categories: companies
-                },
-                series: [{
-                    name: 'Profit',
-                    data: companyValues
-                }],
-                tooltip: {
-                    y: {
-                        formatter: function(val) {
-                            return "€" + formatNumber(val);
-                        }
-                    }
-                }
-            });
-            // Display Totals
-            displayTotals(profitByDate, profitByCategory, profitByCompany, profitByRegistrant);
-        }
-        // Function to render the table (Assuming you have a table to display individual records)
-        function renderTable(data) {
-            var tableBody = $('#yourTableBody'); // Replace with your actual table body selector
-            tableBody.empty(); // Clear existing data
-            data.forEach(function(record) {
-                var formattedAmount = formatNumber(record.total_shuma); // Format for display
-                var row = `
-                    <tr>
-                        <td>${record.date}</td>
-                        <td>${capitalizeFirstLetter(record.category)}</td>
-                        <td>${record.company_name}</td>
-                        <td>${record.registrant}</td>
-                        <td>€${formattedAmount}</td>
-                    </tr>
-                `;
-                tableBody.append(row);
-            });
-        }
-        // Function to calculate and display totals
-        function calculateTotals(data) {
-            var totalByDate = {};
-            var totalByCategory = {};
-            var totalByCompany = {};
-            var totalByRegistrant = {};
-            data.forEach(function(record) {
-                var date = record.date;
-                var category = record.category;
-                var company = record.company_name;
-                var registrant = record.registrant;
-                var amount = parseNumber(record.total_shuma);
-                // Sum profit by date
-                if (!totalByDate.hasOwnProperty(date)) {
-                    totalByDate[date] = 0;
-                }
-                totalByDate[date] += amount;
-                // Sum profit by category
-                if (!totalByCategory.hasOwnProperty(category)) {
-                    totalByCategory[category] = 0;
-                }
-                totalByCategory[category] += amount;
-                // Sum profit by company
-                if (!totalByCompany.hasOwnProperty(company)) {
-                    totalByCompany[company] = 0;
-                }
-                totalByCompany[company] += amount;
-                // Sum profit by registrant
-                if (!totalByRegistrant.hasOwnProperty(registrant)) {
-                    totalByRegistrant[registrant] = 0;
-                }
-                totalByRegistrant[registrant] += amount;
-            });
-            // Calculate total profit
-            var totalProfit = Object.values(totalByDate).reduce((a, b) => a + b, 0);
-            $('#totalProfit').text(`Total Profit: €${formatNumber(totalProfit)}`);
-            // Calculate overall totals by category
-            var sumByCategory = Object.values(totalByCategory).reduce((a, b) => a + b, 0);
-            $('#totalByCategory').text(`Total by Category: €${formatNumber(sumByCategory)}`);
-            // Calculate overall totals by company
-            var sumByCompany = Object.values(totalByCompany).reduce((a, b) => a + b, 0);
-            $('#totalByCompany').text(`Total by Company: €${formatNumber(sumByCompany)}`);
-            // Calculate overall totals by registrant
-            var sumByRegistrant = Object.values(totalByRegistrant).reduce((a, b) => a + b, 0);
-            $('#totalByRegistrant').text(`Total by Registrant: €${formatNumber(sumByRegistrant)}`);
-            // Display detailed totals by category
-            var detailedCategoryHTML = '';
-            for (var key in totalByCategory) {
-                if (totalByCategory.hasOwnProperty(key)) {
-                    detailedCategoryHTML += `<tr>
-                        <td>${capitalizeFirstLetter(key)}</td>
-                        <td>€${formatNumber(totalByCategory[key])}</td>
-                    </tr>`;
-                }
-            }
-            $('#detailedTotalByCategory').html(detailedCategoryHTML);
-            // Display detailed totals by company
-            var detailedCompanyHTML = '';
-            for (var key in totalByCompany) {
-                if (totalByCompany.hasOwnProperty(key)) {
-                    detailedCompanyHTML += `<tr>
-                        <td>${capitalizeFirstLetter(key)}</td>
-                        <td>€${formatNumber(totalByCompany[key])}</td>
-                    </tr>`;
-                }
-            }
-            $('#detailedTotalByCompany').html(detailedCompanyHTML);
-        }
+
         // Function to display totals
-        function displayTotals(profitByDate, profitByCategory, profitByCompany, profitByRegistrant) {
-            // Calculate total profit
-            var totalProfit = Object.values(profitByDate).reduce((a, b) => a + b, 0);
-            $('#totalProfit').text(`Total Profit: €${formatNumber(totalProfit)}`);
-            // Calculate overall totals by category
-            var sumByCategory = Object.values(profitByCategory).reduce((a, b) => a + b, 0);
-            $('#totalByCategory').text(`Total by Category: €${formatNumber(sumByCategory)}`);
-            // Calculate overall totals by company
-            var sumByCompany = Object.values(profitByCompany).reduce((a, b) => a + b, 0);
-            $('#totalByCompany').text(`Total by Company: €${formatNumber(sumByCompany)}`);
-            // Calculate overall totals by registrant
-            var sumByRegistrant = Object.values(profitByRegistrant).reduce((a, b) => a + b, 0);
-            $('#totalByRegistrant').text(`Total by Registrant: €${formatNumber(sumByRegistrant)}`);
+        function displayTotals(data) {
+            var categoryTotals = data.category_totals;
+            var companyTotals = data.company_totals;
+
             // Display detailed totals by category
             var detailedCategoryHTML = '';
-            for (var key in profitByCategory) {
-                if (profitByCategory.hasOwnProperty(key)) {
-                    detailedCategoryHTML += `<tr>
-                        <td>${capitalizeFirstLetter(key)}</td>
-                        <td>€${formatNumber(profitByCategory[key])}</td>
-                    </tr>`;
-                }
-            }
+            categoryTotals.forEach(function(record) {
+                var category = record.category;
+                var total = record.total_shuma;
+                detailedCategoryHTML += `<tr>
+                    <td>${capitalizeFirstLetter(category)}</td>
+                    <td>€${total}</td>
+                </tr>`;
+            });
             $('#detailedTotalByCategory').html(detailedCategoryHTML);
+
             // Display detailed totals by company
             var detailedCompanyHTML = '';
-            for (var key in profitByCompany) {
-                if (profitByCompany.hasOwnProperty(key)) {
-                    detailedCompanyHTML += `<tr>
-                        <td>${capitalizeFirstLetter(key)}</td>
-                        <td>€${formatNumber(profitByCompany[key])}</td>
-                    </tr>`;
-                }
-            }
+            companyTotals.forEach(function(record) {
+                var company = record.company_name;
+                var total = record.total_shuma;
+                detailedCompanyHTML += `<tr>
+                    <td>${capitalizeFirstLetter(company)}</td>
+                    <td>€${total}</td>
+                </tr>`;
+            });
             $('#detailedTotalByCompany').html(detailedCompanyHTML);
         }
+
+        // Helper function to capitalize first letter
+        function capitalizeFirstLetter(string) {
+            if (typeof string !== 'string' || string.length === 0) return string;
+            return string.charAt(0).toUpperCase() + string.slice(1);
+        }
+
         // Event listeners for filter buttons
         $('#applyFilters').on('click', function() {
             fetchAndRenderData();
@@ -1337,23 +778,29 @@ include 'conn-d.php';
             $('#filterRegistrant').val('');
             fetchAndRenderData();
         });
+
         // Initial data load
         fetchAndRenderData();
     });
 </script>
+
+
 <style>
     /* Optional: Custom styles for the modal */
     #documentImage {
         max-height: 80vh;
         object-fit: contain;
     }
+
     #documentMessage {
         text-align: center;
     }
+
     /* Custom styles for DataTables */
     .table-responsive {
         overflow-x: auto;
     }
+
     /* Optional: Adjust badge positioning */
     .badge {
         font-size: 0.75rem;

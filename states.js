@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       console.error("Asnjë përmbajtje tabu nuk u gjet me selektorin '.tab-pane'.");
     }
 
-    const activeTab = localStorage.getItem("activeTab");
+    const activeTab = localStorage.getItem("activeTab") || "pills-lista_e_faturave-tab";
     if (activeTab && typeof activeTab !== 'string') {
       console.error("Vlera e 'activeTab' nga localStorage nuk është një string.");
     }

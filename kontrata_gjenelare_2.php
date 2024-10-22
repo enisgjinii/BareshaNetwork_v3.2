@@ -1,11 +1,9 @@
 <?php
 include 'partials/header.php';
 include 'page_access_controller.php';
-
 // Fetch clients using a prepared statement
 $clients = $conn->query("SELECT emri, emailadd, emriart, youtube, nrllog, (100 - perqindja) AS perqindja, np, nrtel FROM klientet ORDER BY emri ASC")
     ?->fetch_all(MYSQLI_ASSOC) ?? [];
-
 // Close the database connection
 $conn->close();
 ?>
@@ -58,7 +56,6 @@ $conn->close();
                                 'emri_bankes' => 'Emri i bankës',
                                 'adresa_bankes' => 'Adresa e bankës'
                             ];
-
                             foreach ($fields as $name => $label): ?>
                                 <div class="col-md-6">
                                     <label for="<?= $name ?>" class="form-label"><?= $label ?></label>
@@ -66,7 +63,6 @@ $conn->close();
                                         placeholder="Shëno <?= $label ?>" <?= in_array($name, ['emri', 'numri_tel', 'numri_personal', 'email', 'youtube_id', 'pronari_xhiroBanka', 'numri_xhiroBanka', 'tvsh', 'emriartistik']) ? 'readonly' : '' ?>>
                                 </div>
                             <?php endforeach; ?>
-
                             <!-- Duration of the Contract -->
                             <div class="col-md-6">
                                 <label for="kohezgjatja" class="form-label">Kohëzgjatja në muaj</label>
@@ -85,16 +81,13 @@ $conn->close();
                         function updatePerqindja() {
                             const perqindjaInput = document.getElementById('tvsh');
                             const perqindjaValue = parseFloat(perqindjaInput.value);
-
                             if (perqindjaInput) {
                                 perqindjaInput.value = isNaN(perqindjaValue) || perqindjaValue < 0 || perqindjaValue >= 100 ? '' : (100 - perqindjaValue).toFixed(2);
                             }
                         }
-
                         function showEmail(select) {
                             const values = select.value.split("|");
                             const fields = ['emri', 'email', 'emriartistik', 'youtube_id', 'numri_xhiroBanka', 'tvsh', 'numri_personal', 'numri_tel'];
-
                             fields.forEach((field, index) => {
                                 const inputElement = document.getElementById(field);
                                 if (inputElement) {
@@ -107,7 +100,6 @@ $conn->close();
                                     }
                                 }
                             });
-
                             // Handle pronari_xhiroBanka field
                             const pronariXhiroBankaField = document.getElementById('pronari_xhiroBanka');
                             const pronariValue = sanitize(values[2] || '');
@@ -117,7 +109,6 @@ $conn->close();
                             } else {
                                 pronariXhiroBankaField.setAttribute('readonly', 'readonly');
                             }
-
                             // Handle tvsh field
                             const perqindja = parseFloat(values[5]);
                             const tvshField = document.getElementById('tvsh');
@@ -128,7 +119,6 @@ $conn->close();
                             } else {
                                 tvshField.setAttribute('readonly', 'readonly');
                             }
-
                             // Enable SWIFT, IBAN, Bank Name, and Bank Address fields if they are empty
                             ['kodi_swift', 'iban', 'emri_bankes', 'adresa_bankes'].forEach((field) => {
                                 const fieldElement = document.getElementById(field);
@@ -139,16 +129,13 @@ $conn->close();
                                 }
                             });
                         }
-
                         function sanitize(value) {
                             return value.replace(/</g, '&lt;').replace(/>/g, '&gt;');
                         }
-
                         function validateForm() {
                             const fields = ['emri', 'numri_tel', 'numri_personal', 'email', 'youtube_id', 'emriartistik', 'numri_xhiroBanka', 'tvsh', 'pronari_xhiroBanka', 'kodi_swift', 'iban', 'emri_bankes', 'adresa_bankes', 'kohezgjatja'];
                             return fields.every(field => document.getElementById(field).value.trim() !== '' || !document.getElementById(field).hasAttribute('required')) || (alert('Ju lutem plotësoni të gjitha fushat e kërkuara.'), false);
                         }
-
                         document.addEventListener('DOMContentLoaded', () => new Selectr('#artisti', {
                             searchable: true,
                             width: 300

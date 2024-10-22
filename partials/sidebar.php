@@ -1,4 +1,4 @@
-<nav class="sidebar sidebar-offcanvas border border-2 rounded-5" style="margin-top:30px;margin-left:8px;height:min-content - 50px;">
+<nav class="sidebar sidebar-offcanvas border border-2 rounded-5" style="margin-top:30px;margin-left:8px;height:fit-content;">
   <ul class="nav">
     <?php
     error_reporting(0);
@@ -86,7 +86,6 @@
           ],
           "faturat.php" => ["title" => "Pagesat YouTube"],
           "pagesat.php" => ["title" => "Pagesat e kryera"],
-          "tatimi.php" => ["title" => "Tatimi"],
           "yinc.php" => ["title" => "Borxhi"],
           "shpenzimep.php" => ["title" => "Borxhet personale"],
         ],
@@ -156,10 +155,6 @@
       "autor.php" => [
         "icon" => "fi fi-rr-copyright",
         "title" => "Autor",
-      ],
-      "ascap.php" => [
-        "icon" => "fi fi-rr-copyright",
-        "title" => "ASCAP",
       ],
       "invoice_list_2.php" => [
         "icon" => "fi fi-rr-document",

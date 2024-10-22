@@ -1,16 +1,5 @@
 <?php
-// Include the header partial
 include 'partials/header.php';
-
-// Determine if the current page is 'pagesat.php'
-$is_pagesat_page = basename($_SERVER['PHP_SELF']) === 'pagesat.php';
-
-/**
- * Fetch payment data from the database.
- *
- * @param mysqli $conn The database connection.
- * @return array An array of payment records.
- */
 function fetchPaymentData($conn)
 {
     $query = "
@@ -28,126 +17,59 @@ function fetchPaymentData($conn)
         GROUP BY p.fatura, p.kategoria 
         ORDER BY p.id DESC
     ";
-
     $payments = [];
-
     if ($stmt = $conn->prepare($query)) {
         $stmt->execute();
         $result = $stmt->get_result();
-
         while ($row = $result->fetch_assoc()) {
-            // Handle category serialization
             $kategoria = !empty($row['kategoria']) ? unserialize($row['kategoria']) : [];
             $kategoria_str = is_array($kategoria)
                 ? implode(", ", array_map(fn($v) => $v === 'null' ? 'Ska' : htmlspecialchars($v), $kategoria))
                 : str_replace('null', 'Ska', htmlspecialchars($row['kategoria']));
-
-            // Format the date
             $formatted_date = date("d-m-Y", strtotime($row['data']));
-
-            // Append the processed row to payments array
             $payments[] = [
-                'client_name'   => htmlspecialchars($row['client_name']),
-                'fatura'        => htmlspecialchars($row['fatura']),
-                'pershkrimi'    => htmlspecialchars($row['pershkrimi']),
-                'total_shuma'   => htmlspecialchars($row['total_shuma']),
-                'menyra'        => htmlspecialchars($row['menyra']),
-                'data'          => $formatted_date,
-                'kategoria'     => $kategoria_str,
-                'fatura_pdf'    => htmlspecialchars($row['fatura'])
+                'client_name' => htmlspecialchars($row['client_name']),
+                'fatura'      => htmlspecialchars($row['fatura']),
+                'pershkrimi'  => htmlspecialchars($row['pershkrimi']),
+                'total_shuma' => htmlspecialchars($row['total_shuma']),
+                'menyra'      => htmlspecialchars($row['menyra']),
+                'data'        => $formatted_date,
+                'kategoria'   => $kategoria_str,
+                'fatura_pdf'  => htmlspecialchars($row['fatura'])
             ];
         }
-
         $stmt->close();
     } else {
-        // Log the error for debugging
         error_log("Database Query Failed: " . $conn->error);
-        // Optionally, handle the error gracefully in the UI
     }
-
     return $payments;
 }
-
-// Fetch the payment data
 $payments = fetchPaymentData($conn);
 ?>
-
-<!-- Your HTML code here -->
-
-<?php if ($is_pagesat_page): ?>
-    <!-- Bootstrap Modal -->
-    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Zgjedh versionin e faqes</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p>Pagesat janë krijuar në dy versione. Ju lutem zgjidhni njërin prej tyre.</p>
-                    <button class="input-custom-css px-3 py-2 text-decoration-none" data-bs-dismiss="modal">
-                        Pagesa ( Versioni vjetër )
-                    </button>
-                    <a href="invoice.php" class="input-custom-css px-3 py-2 text-decoration-none">
-                        Pagesa ( Versioni i ri )
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- End Bootstrap Modal -->
-
-    <!-- JavaScript to Trigger the Modal -->
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const modalElement = document.getElementById('exampleModal');
-            if (modalElement) {
-                const myModal = new bootstrap.Modal(modalElement);
-                myModal.show();
-            }
-        });
-    </script>
-<?php endif; ?>
-
 <div class="main-panel">
     <div class="content-wrapper">
-        <div class="container">
-            <!-- Breadcrumb Navigation -->
-            <nav class="bg-white px-2 rounded-5" aria-label="breadcrumb">
+        <div class="container-fluid">
+            <nav class="bg-white px-2 rounded-5" style="width:fit-content;" aria-label="breadcrumb">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><span class="text-reset">Financat</span></li>
-                    <li class="breadcrumb-item active">
-                        <a href="pagesat.php" class="text-reset text-decoration-none">Pagesat e kryera</a>
-                    </li>
+                    <li class="breadcrumb-item active" aria-current="page"><span class="text-reset">Pagesat Youtube</span></li>
                 </ol>
             </nav>
-
-            <!-- Card Container -->
-            <div class="card shadow-sm rounded-5">
-                <div class="container table-responsive p-3">
-                    <!-- Date Range Filters -->
+            <div class="card shadow-none border  rounded-5">
+                <div class="table-responsive p-3">
                     <div class="row mb-4">
-                        <?php
-                        $labels = ['min' => 'Prej', 'max' => 'Deri'];
-                        foreach ($labels as $id => $label):
-                        ?>
+                        <?php foreach (['min' => 'Prej', 'max' => 'Deri'] as $id => $label): ?>
                             <div class="col-md-6 mb-3">
                                 <label for="<?= $id ?>" class="form-label"><?= $label ?>:</label>
-                                <p class="text-muted small">
-                                    Zgjidhni një diapazon <?= $id === 'min' ? 'fillues' : 'mbarues' ?> të datës për të filtruar rezultatet.
-                                </p>
+                                <p class="text-muted small">Zgjidhni një diapazon <?= $id === 'min' ? 'fillues' : 'mbarues' ?> të datës për të filtruar rezultatet.</p>
                                 <div class="input-group rounded-5">
-                                    <span class="input-group-text border-0 bg-white">
-                                        <i class="fi fi-rr-calendar"></i>
-                                    </span>
+                                    <span class="input-group-text border-0 bg-white"><i class="fi fi-rr-calendar"></i></span>
                                     <input type="text" id="<?= $id ?>" name="<?= $id ?>" class="form-control rounded-5 flatpickr" placeholder="Zgjidhni datën">
                                 </div>
                             </div>
                         <?php endforeach; ?>
                     </div>
-
-                    <!-- Payments Table -->
-                    <table id="paymentTable" class="table table-bordered w-100 text-dark">
+                    <table id="paymentTable" class="table w-100 text-dark compact-table">
                         <thead class="bg-light">
                             <tr>
                                 <th>Klienti</th>
@@ -161,7 +83,7 @@ $payments = fetchPaymentData($conn);
                             </tr>
                         </thead>
                         <tbody>
-                            <?php if (!empty($payments)): ?>
+                            <?php if ($payments): ?>
                                 <?php foreach ($payments as $payment): ?>
                                     <tr>
                                         <td><?= $payment['client_name'] ?></td>
@@ -172,7 +94,7 @@ $payments = fetchPaymentData($conn);
                                         <td><?= $payment['data'] ?></td>
                                         <td><?= $payment['kategoria'] ?></td>
                                         <td>
-                                            <a href="fatura.php?invoice=<?= $payment['fatura_pdf'] ?>" target="_blank" class="btn btn-light py-1 px-2 border border-1">
+                                            <a href="fatura.php?invoice=<?= $payment['fatura_pdf'] ?>" target="_blank" class="btn btn-light py-1 px-2 border">
                                                 <i class="fi fi-rr-print"></i>
                                             </a>
                                         </td>
@@ -190,36 +112,15 @@ $payments = fetchPaymentData($conn);
         </div>
     </div>
 </div>
-
-<?php
-// Include the footer partial
-include 'partials/footer.php';
-?>
-
-<!-- External Scripts -->
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<script src="https://npmcdn.com/flatpickr/dist/l10n/sq.js"></script>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/buttons/2.3.2/js/dataTables.buttons.min.js"></script>
-<script src="https://cdn.datatables.net/buttons/2.3.2/js/buttons.html5.min.js"></script>
-<script src="https://cdn.datatables.net/buttons/2.3.2/js/buttons.print.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
-<script src="https://momentjs.com/downloads/moment.min.js"></script>
-
+<?php include 'partials/footer.php'; ?>
 <!-- Initialize Scripts -->
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        // Initialize Flatpickr
+    $(document).ready(() => {
         flatpickr(".flatpickr", {
             locale: "sq",
             dateFormat: "d-m-Y",
             allowInput: true
         });
-
-        // Initialize DataTable
         const table = $('#paymentTable').DataTable({
             dom: `
                 <'row'<'col-md-3'l><'col-md-6'B><'col-md-3'f>>
@@ -260,8 +161,8 @@ include 'partials/footer.php';
             ],
             order: [],
             columnDefs: [{
-                    width: '10%',
-                    targets: '_all'
+                    width: '12%',
+                    targets: [0, 1, 2, 3, 4, 5, 6, 7]
                 },
                 {
                     targets: 5,
@@ -272,43 +173,62 @@ include 'partials/footer.php';
             language: {
                 url: "https://cdn.datatables.net/plug-ins/1.13.1/i18n/sq.json"
             },
+            stripeClasses: ['stripe-color'],
             initComplete: function() {
-                // Customize DataTable components after initialization
                 $('.dt-buttons').removeClass('dt-buttons btn-group');
                 $('div.dataTables_length select').addClass('form-select').css({
-                    'width': 'auto',
-                    'margin': '0 8px',
-                    'padding': '0.375rem 1.75rem 0.375rem 0.75rem',
-                    'line-height': '1.5',
-                    'border': '1px solid #ced4da',
-                    'border-radius': '0.25rem'
+                    width: 'auto',
+                    margin: '0 8px',
+                    padding: '0.375rem 1.75rem 0.375rem 0.75rem',
+                    lineHeight: '1.5',
+                    border: '1px solid #ced4da',
+                    borderRadius: '0.25rem'
                 });
             }
         });
-
-        // Custom Date Range Filtering
         $.fn.dataTable.ext.search.push((settings, data) => {
             const min = $('#min').val();
             const max = $('#max').val();
             const date = moment(data[5], "DD-MM-YYYY");
-
-            if ((!min && !max) ||
+            if (
+                (!min && !max) ||
                 (!min && date.isSameOrBefore(moment(max, "DD-MM-YYYY"))) ||
                 (moment(min, "DD-MM-YYYY").isSameOrBefore(date) && !max) ||
-                (moment(min, "DD-MM-YYYY").isSameOrBefore(date) && date.isSameOrBefore(moment(max, "DD-MM-YYYY")))) {
+                (moment(min, "DD-MM-YYYY").isSameOrBefore(date) && date.isSameOrBefore(moment(max, "DD-MM-YYYY")))
+            ) {
                 return true;
             }
             return false;
         });
-
-        // Redraw table on date change
         $('.flatpickr').on('change', () => table.draw());
     });
 </script>
-
 <!-- Custom Styles -->
 <style>
-    .wrap-text {
-        white-space: normal !important;
+    .compact-table th,
+    .compact-table td {
+        padding: 0.3rem;
+        font-size: 0.9rem;
+    }
+    .compact-table th {
+        white-space: nowrap;
+    }
+    .compact-table td {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .compact-table a.btn {
+        padding: 0.2rem 0.4rem;
+        font-size: 0.8rem;
+    }
+    /* Remove horizontal scroll */
+    .table-responsive {
+        overflow-x: hidden;
+    }
+    /* Adjust table layout */
+    .compact-table {
+        table-layout: fixed;
+        width: 100%;
     }
 </style>

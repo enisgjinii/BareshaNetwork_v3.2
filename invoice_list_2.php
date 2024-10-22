@@ -1,26 +1,18 @@
 <?php
 session_start();
-// Include necessary files
 include('partials/header.php');
 include('Invoice_2.php');
-// Instantiate Invoice object
 $invoice = new Invoice();
-// Handle delete invoice request
-// Handle delete invoice request
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['delete_id']) && !empty($_POST['delete_id'])) {
   $deleteId = $_POST['delete_id'];
-  // Call deleteInvoice method
   $deleteResult = $invoice->deleteInvoice($deleteId);
   if ($deleteResult) {
-    // Redirect to the same page after deletion
     header("Location: your_page.php");
   } else {
     echo "Failed to delete invoice.";
   }
 }
-// Get invoice list
 $invoiceList = $invoice->getInvoiceList();
-// $invoice->checkLoggedIn();
 if (!empty($_POST['companyName']) && $_POST['companyName']) {
   $invoice->saveInvoice($_POST);
 }
@@ -79,7 +71,7 @@ if (!empty($_POST['companyName']) && $_POST['companyName']) {
                     <td class="text-dark"><?= htmlspecialchars($invoiceDetails["order_receiver_name"]) ?></td>
                     <td class="text-dark"><?= number_format($invoiceDetails["order_total_after_tax"], 2) ?></td>
                     <td class="text-dark">
-                      <a  href="print_Invoice_2.php?invoice_id=<?= urlencode($invoiceDetails["order_id"]) ?>" title="Print Invoice" class="input-custom-css px-3 py-2">
+                      <a href="print_Invoice_2.php?invoice_id=<?= urlencode($invoiceDetails["order_id"]) ?>" title="Print Invoice" class="input-custom-css px-3 py-2">
                         <i class="fi fi-rr-print"></i>
                       </a>
                       <a href="edit_Invoice_2.php?update_id=<?= urlencode($invoiceDetails["order_id"]) ?>" title="Edit Invoice" class="action-btn input-custom-css px-3 py-2">

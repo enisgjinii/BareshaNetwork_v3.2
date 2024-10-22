@@ -6,14 +6,6 @@ include '../../conn-d.php';
 // Set the response header to JSON
 header('Content-Type: application/json');
 
-// Implement authentication (if required)
-// Example: Check if the user is authenticated
-// session_start();
-// if (!isset($_SESSION['user_id'])) {
-//     echo json_encode(['success' => false, 'message' => 'Unauthorized access.']);
-//     exit;
-// }
-
 // Retrieve filter parameters
 $startDate = isset($_POST['startDate']) ? $_POST['startDate'] : null;
 $endDate = isset($_POST['endDate']) ? $_POST['endDate'] : null;
@@ -30,6 +22,15 @@ $params = [];
 function log_error($message)
 {
     error_log($message);
+}
+
+// Function to build WHERE clause
+function build_where_clause($filters)
+{
+    if (empty($filters)) {
+        return '';
+    }
+    return ' WHERE ' . implode(' AND ', $filters);
 }
 
 if ($startDate) {
@@ -101,52 +102,73 @@ if ($registrant && strtolower($registrant) !== 'all') {
     }
 }
 
-// Build the SQL query based on filters
-$query = 'SELECT 
-            DATE(invoice_date) AS date, 
-            category, 
-            company_name,
-            registrant,
-            ROUND(SUM(CAST(REPLACE(vlera_faktura, ",", "") AS DECIMAL(10,2))), 2) AS total_shuma 
-          FROM invoices_kont';
+// Queries for totals by category and company
 
-// Append filters to the query
-if (!empty($filters)) {
-    $query .= ' WHERE ' . implode(' AND ', $filters);
+// Query for category totals
+$queryCategory = 'SELECT 
+                    category, 
+                    vlera_faktura AS total_shuma 
+                  FROM invoices_kont' . build_where_clause($filters) .
+    ' GROUP BY category ORDER BY category ASC';
+
+// Query for company totals
+$queryCompany = 'SELECT 
+                    company_name, 
+                    vlera_faktura AS total_shuma 
+                  FROM invoices_kont' . build_where_clause($filters) .
+    ' GROUP BY company_name ORDER BY company_name ASC';
+
+// Function to execute query and fetch results
+function execute_query($conn, $query, $types, $params)
+{
+    $stmt = $conn->prepare($query);
+    if ($stmt === false) {
+        log_error('SQL prepare failed: ' . $conn->error);
+        return false;
+    }
+
+    if (!empty($params)) {
+        $stmt->bind_param($types, ...$params);
+    }
+
+    if (!$stmt->execute()) {
+        log_error('SQL execute failed: ' . $stmt->error);
+        return false;
+    }
+
+    $result = $stmt->get_result();
+    $data = [];
+    while ($row = $result->fetch_assoc()) {
+        $data[] = $row;
+    }
+
+    $stmt->close();
+    return $data;
 }
 
-$query .= ' GROUP BY DATE(invoice_date), category, company_name, registrant ORDER BY DATE(invoice_date) ASC';
-
-// Prepare and execute the statement
-$stmt = $conn->prepare($query);
-
-if ($stmt === false) {
-    log_error('SQL prepare failed: ' . $conn->error);
-    echo json_encode(['success' => false, 'message' => 'Ndodhi një gabim i brendshëm.']);
+// Execute the queries
+$categoryTotals = execute_query($conn, $queryCategory, $types, $params);
+if ($categoryTotals === false) {
+    echo json_encode(['success' => false, 'message' => 'Ndodhi një gabim i brendshëm gjatë marrjes së të dhënave sipas Kategorisë.']);
     exit;
 }
 
-if (!empty($params)) {
-    $stmt->bind_param($types, ...$params);
-}
-
-if (!$stmt->execute()) {
-    log_error('SQL execute failed: ' . $stmt->error);
-    echo json_encode(['success' => false, 'message' => 'Ndodhi një gabim i brendshëm.']);
+$companyTotals = execute_query($conn, $queryCompany, $types, $params);
+if ($companyTotals === false) {
+    echo json_encode(['success' => false, 'message' => 'Ndodhi një gabim i brendshëm gjatë marrjes së të dhënave sipas Kompanisë.']);
     exit;
 }
 
-$result = $stmt->get_result();
+// Prepare the response
+$response = [
+    'success' => true,
+    'data' => [
+        'category_totals' => $categoryTotals,
+        'company_totals' => $companyTotals
+    ]
+];
 
-$data = [];
-
-while ($row = $result->fetch_assoc()) {
-    $data[] = $row;
-}
-
-// Output the data with JSON_UNESCAPED_UNICODE to preserve special characters
-echo json_encode(['success' => true, 'data' => $data], JSON_UNESCAPED_UNICODE);
+echo json_encode($response, JSON_UNESCAPED_UNICODE);
 
 // Close connections
-$stmt->close();
 $conn->close();

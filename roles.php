@@ -14,7 +14,7 @@ include 'partials/header.php'; ?>
 <div class="main-panel">
     <div class="content-wrapper">
         <div class="container-fluid">
-            <nav class="bg-white px-2 rounded-5" class="bg-white px-2 rounded-5" style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='currentColor'/%3E%3C/svg%3E&#34;);width:fit-content;border-style:1px solid black;" aria-label="breadcrumb">
+            <nav class="bg-white px-2 rounded-5" class="bg-white px-2 rounded-5" style="width:fit-content;border-style:1px solid black;" aria-label="breadcrumb">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item "><a class="text-reset" style="text-decoration: none;">Menaxhimi</a>
                     </li>
@@ -23,6 +23,7 @@ include 'partials/header.php'; ?>
                             Rolet
                         </a>
                     </li>
+                </ol>
             </nav>
             <ul class="nav nav-pills mb-3 bg-white rounded-5 mx-1" id="pills-tab" role="tablist">
                 <li class="nav-item" role="presentation">
@@ -231,7 +232,6 @@ include 'partials/header.php'; ?>
                                     if ($page == 'invoice_list_2.php') {
                                         return 'Faturë e shpejtë <br><br>'  . $button_html;
                                     }
-                                  
                                     if ($page == 'pagesat_punetor.php') {
                                         return 'Pagesat e punetorit <br><br>' . $button_html;
                                     }
@@ -244,7 +244,6 @@ include 'partials/header.php'; ?>
                                     if ($page == 'pasqyrat.php') {
                                         return 'Pasqyrat <br><br>' . $button_html;
                                     }
-                                    
                                 }
                                 $pages = array(
                                     'stafi.php',
@@ -325,7 +324,6 @@ include 'partials/header.php'; ?>
                             </script>
                             <script>
                                 var lastClickedCheckbox = null;
-
                                 function toggleCheckbox(event, checkbox) {
                                     // Check if Shift key is pressed
                                     if (event.shiftKey && lastClickedCheckbox !== null) {
@@ -495,7 +493,7 @@ include 'partials/header.php'; ?>
                                     <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8'); ?>">
                                     <!-- Rest of the form -->
                                     <div class="form-group text-dark">
-                                        <label  for="user_id">Zgjidhni përdoruesin:</label>
+                                        <label for="user_id">Zgjidhni përdoruesin:</label>
                                         <select class="form-select rounded-5" id="user_id" name="user_id" required>
                                             <?php
                                             // Query to select all users

@@ -31,7 +31,6 @@ function format_page_name($page)
         'pagesat.php' => 'Pagesat e kryera',
         'rrogat.php' => 'Pagat',
         'shpenzimep.php' => 'Shpenzimet personale',
-        'tatimi.php' => 'Tatimi',
         'yinc.php' => 'Shpenzimet',
         'filet.php' => 'Dokumente tjera',
         'github_logs.php' => 'Aktiviteti ne Github',
@@ -96,7 +95,6 @@ $pages = [
     ],
     'Finance' => [
         'rrogat.php' => format_page_name('rrogat.php'),
-        'tatimi.php' => format_page_name('tatimi.php'),
         'shpenzimep.php' => format_page_name('shpenzimep.php'),
         'faturat.php' => format_page_name('faturat.php'),
         'invoice.php' => format_page_name('invoice.php'),

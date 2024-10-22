@@ -9,7 +9,7 @@ border: 1px solid rgba(255, 255, 255, 0.3);">
     <a class="navbar-brand" href="index.php">
       <img src="images/brand-icon.png" width="35" alt="logo" style="object-fit: contain; border-radius: 10px;" />
     </a>
-    <h3 class="mt-2">Baresha Administrative Panel</h3>
+    <h3 class="mt-2">BARESHA</h3>
     <button class="navbar-toggler navbar-toggler-right d-lg-none align-self-center" type="button" data-mdb-toggle="offcanvas">
       <span class="mdi mdi-menu"></span>
     </button>
