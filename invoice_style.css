@@ -1,9 +1,11 @@
+/* Existing Tooltip Styles */
 .custom-tooltip {
     position: relative;
     display: inline-block;
     white-space: normal;
     cursor: pointer;
 }
+
 .custom-dot {
     width: 10px;
     height: 10px;
@@ -14,35 +16,45 @@
     white-space: normal;
     cursor: pointer;
 }
+
 .custom-tooltiptext {
     visibility: hidden;
-    width: 80px;
+    width: 200px;
+    /* Increased width for better visibility */
     background-color: #333;
     color: #fff;
     text-align: center;
     border-radius: 6px;
-    padding: 5px;
+    padding: 10px;
+    /* Increased padding for better readability */
     position: absolute;
     z-index: 1;
-    bottom: 100%;
+    bottom: 125%;
+    /* Position above the tooltip */
     left: 50%;
     transform: translateX(-50%);
-    opacity: 0.9;
+    opacity: 0;
     transition: opacity 0.3s;
     white-space: normal;
     cursor: pointer;
 }
+
 .custom-tooltip:hover .custom-tooltiptext {
     cursor: pointer;
     visibility: visible;
-    white-space: normal;
-    opacity: 0.9;
+    opacity: 1;
 }
+
+/* Responsive Adjustments for Mobile Devices */
 @media (max-width: 767px) {
+
+    /* Breadcrumb Adjustments */
     .breadcrumb-item a {
         font-size: 14px;
         /* Adjust the font size as needed */
     }
+
+    /* Button Adjustments */
     .input-custom-css {
         font-size: 12px;
         /* Adjust the font size as needed */
@@ -55,25 +67,448 @@
         text-align: center;
         /* Center text within buttons */
     }
+
     .input-custom-css i {
         display: none;
         /* Hide icons on mobile */
     }
+
+    /* Navigation Pills Adjustments */
     .nav-pills {
         display: flex;
         justify-content: center;
         flex-wrap: wrap;
     }
+
     .nav-item {
         text-align: center;
-        margin: 0 5px;
-        /* Adjust margin as needed */
+        margin: 5px;
+        /* Adjust margin for better spacing */
     }
+
+    /* Table Adjustments */
+    .table-responsive {
+        overflow-x: auto;
+        /* Enable horizontal scrolling */
+        max-height: 60vh;
+        /* Set maximum height to 60% of viewport height */
+    }
+
+    .table {
+        width: 100%;
+        /* Ensure table takes full width */
+        min-width: 600px;
+        /* Minimum width to prevent excessive shrinking */
+        table-layout: fixed;
+        /* Fix table layout for consistency */
+    }
+
     .table-sm th,
     .table-sm td {
         padding: 0.25rem;
+        /* Reduce padding for smaller screens */
+        font-size: 12px;
+        /* Reduce font size for better fit */
+        white-space: nowrap;
+        /* Prevent text from wrapping */
     }
+
     .text-sm {
         font-size: 12px;
+    }
+
+    /* DataTables Pagination and Controls */
+    .dataTables_wrapper .dataTables_length,
+    .dataTables_wrapper .dataTables_filter,
+    .dataTables_wrapper .dataTables_info,
+    .dataTables_wrapper .dataTables_paginate {
+        font-size: 12px;
+        /* Adjust font size */
+    }
+
+    .dt-buttons .btn {
+        padding: 5px 10px;
+        /* Reduce button padding */
+        font-size: 12px;
+        /* Reduce button font size */
+        margin: 2px;
+        /* Adjust button margin */
+    }
+
+    /* Modal Adjustments */
+    .modal-dialog {
+        max-width: 90%;
+        /* Reduce modal width on small screens */
+    }
+
+    .modal-content {
+        padding: 10px;
+        /* Adjust modal padding */
+    }
+
+    /* Select Elements */
+    select.form-control,
+    select.form-select {
+        font-size: 12px;
+        /* Reduce font size */
+    }
+
+    /* Input Elements */
+    input.form-control,
+    textarea.form-control {
+        font-size: 12px;
+        /* Reduce font size */
+        padding: 5px;
+        /* Reduce padding */
+    }
+
+    /* Tooltip Adjustments */
+    .custom-tooltiptext {
+        width: 150px;
+        /* Adjust tooltip width for smaller screens */
+        padding: 8px;
+        /* Adjust tooltip padding */
+    }
+
+    /* Fixed Header for Tables on Mobile */
+    .table-responsive .table thead th {
+        position: sticky;
+        top: 0;
+        background-color: #f8f9fa;
+        /* Ensure header has a background */
+        z-index: 3;
+        /* Higher z-index to stay above table body */
+    }
+
+    /* Improved Scrollbar Styling for Tables */
+    .table-responsive::-webkit-scrollbar {
+        height: 8px;
+    }
+
+    .table-responsive::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 4px;
+    }
+
+    .table-responsive::-webkit-scrollbar-thumb {
+        background: #c1c1c1;
+        border-radius: 4px;
+    }
+
+    .table-responsive::-webkit-scrollbar-thumb:hover {
+        background: #a8a8a8;
+    }
+
+    /* Ensuring Tables Don't Exceed Viewport Height */
+    .table-responsive {
+        max-height: 60vh;
+        /* Set maximum height to 60% of viewport height */
+    }
+
+    /* Enhancing Table Row Hover Effect */
+    .table-hover tbody tr:hover {
+        background-color: #e9ecef;
+        /* Light gray background on hover */
+    }
+
+    /* Responsive Badge Styling */
+    .badge {
+        font-size: 10px;
+        /* Reduce badge font size on mobile */
+        padding: 5px 8px;
+        /* Adjust badge padding */
+    }
+
+    /* Narrow First Column for Checkboxes */
+    .table-responsive .table th:first-child,
+    .table-responsive .table td:first-child {
+        width: 40px;
+        /* Adjust as needed */
+        min-width: 30px;
+        /* Further reduce if necessary */
+        text-align: center;
+        /* Center the checkbox */
+        white-space: nowrap;
+        /* Prevent text wrapping */
+        padding: 5px;
+        /* Reduce padding for a narrower column */
+        vertical-align: middle;
+        /* Center vertically */
+    }
+
+    /* Adjust Checkbox Size for Better Fit */
+    .table-responsive .table th:first-child input[type="checkbox"],
+    .table-responsive .table td:first-child input[type="checkbox"] {
+        width: 16px;
+        /* Adjust size as needed */
+        height: 16px;
+    }
+
+    /* Responsive Font Sizes for Tables */
+    .table-responsive .table {
+        font-size: 14px;
+        /* Base font size for tables */
+    }
+
+    @media (max-width: 991px) {
+        .table-responsive .table {
+            font-size: 13px;
+            /* Slightly smaller font on tablets */
+        }
+    }
+
+    @media (max-width: 575px) {
+        .table-responsive .table {
+            font-size: 12px;
+            /* Smaller font on mobile */
+        }
+    }
+
+    /* Responsive Padding for Table Cells */
+    .table-responsive .table th,
+    .table-responsive .table td {
+        padding: 12px 8px;
+        /* Standard padding */
+    }
+
+    @media (max-width: 767px) {
+
+        .table-responsive .table th,
+        .table-responsive .table td {
+            padding: 8px 6px;
+            /* Reduced padding on mobile */
+        }
+    }
+
+    /* Improved Table Borders for Clarity */
+    .table-bordered th,
+    .table-bordered td {
+        border: 1px solid #dee2e6;
+        /* Ensure borders are consistent */
+    }
+
+    .table-bordered thead th {
+        border-bottom: 2px solid #dee2e6;
+        /* Thicker border for headers */
+    }
+
+    /* Highlight Selected Rows */
+    .table-responsive .table tbody tr.selected {
+        background-color: #d1ecf1;
+        /* Light blue background for selected rows */
+    }
+
+    /* Responsive Pagination Controls */
+    @media (max-width: 767px) {
+        .dataTables_paginate {
+            text-align: center;
+            /* Center pagination on mobile */
+        }
+
+        .dataTables_paginate .paginate_button {
+            padding: 5px 8px;
+            /* Reduce padding for pagination buttons */
+            margin: 2px;
+            /* Reduce margin */
+        }
+    }
+
+    /* Responsive Search and Length Controls */
+    @media (max-width: 767px) {
+        .dataTables_filter {
+            text-align: center;
+            /* Center search box on mobile */
+        }
+
+        .dataTables_length {
+            text-align: center;
+            /* Center length dropdown on mobile */
+        }
+    }
+
+    /* Ensuring Modals are Fully Responsive */
+    @media (max-width: 767px) {
+        .modal-dialog {
+            max-width: 95%;
+            /* Almost full width on mobile */
+            margin: 1.75rem auto;
+            /* Adjust margin */
+        }
+
+        .modal-content {
+            padding: 15px;
+            /* Increased padding for better touch targets */
+        }
+    }
+
+    /* Responsive Icons within Buttons */
+    .input-custom-css i {
+        font-size: 16px;
+        /* Increase icon size on larger screens */
+    }
+
+    @media (max-width: 767px) {
+        .input-custom-css i {
+            display: none;
+            /* Hide icons on smaller screens */
+        }
+    }
+
+    /* Responsive Badge Sizes */
+    .badge {
+        font-size: 10px;
+        /* Base font size */
+        padding: 5px 8px;
+        /* Base padding */
+    }
+
+    @media (min-width: 768px) {
+        .badge {
+            font-size: 12px;
+            /* Larger font size on desktop */
+            padding: 6px 10px;
+            /* Larger padding on desktop */
+        }
+    }
+
+    /* Table Row Hover Effects */
+    .table-hover tbody tr:hover {
+        background-color: #f1f1f1;
+        /* Light gray background on hover */
+    }
+
+    /* Responsive Dropdown Menus within Tables */
+    .table-responsive .dropdown-menu {
+        min-width: 100px;
+        /* Ensure dropdowns are wide enough */
+    }
+
+    /* Ensuring Buttons within Tables are Responsive */
+    .table-responsive .btn {
+        padding: 5px 10px;
+        /* Standard padding for buttons */
+        font-size: 14px;
+        /* Standard font size */
+    }
+
+    @media (max-width: 767px) {
+        .table-responsive .btn {
+            padding: 4px 8px;
+            /* Reduced padding on mobile */
+            font-size: 12px;
+            /* Reduced font size on mobile */
+        }
+    }
+
+    /* Enhancing Accessibility with Focus States */
+    .table-responsive .table th:focus,
+    .table-responsive .table td:focus {
+        outline: 2px solid #007bff;
+        /* Blue outline on focus */
+        outline-offset: -2px;
+    }
+
+    /* Responsive Image Handling within Tables */
+    .table-responsive .table img {
+        max-width: 100%;
+        height: auto;
+    }
+
+    /* Ensuring Text Alignment is Responsive */
+    .table-responsive .table th,
+    .table-responsive .table td {
+        text-align: left;
+        /* Default alignment */
+    }
+
+    @media (min-width: 768px) {
+
+        .table-responsive .table th,
+        .table-responsive .table td {
+            text-align: center;
+            /* Center align on larger screens */
+        }
+    }
+
+    /* Responsive Checkbox Styling */
+    .table-responsive .table input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+    }
+
+    @media (max-width: 767px) {
+        .table-responsive .table input[type="checkbox"] {
+            width: 14px;
+            height: 14px;
+        }
+    }
+
+    /* Consistent Button Shapes */
+    .btn-rounded {
+        border-radius: 20px;
+        /* Fully rounded buttons */
+    }
+
+    .btn-rounded-sm {
+        border-radius: 15px;
+        /* Slightly rounded buttons */
+    }
+
+    /* Apply rounded buttons where necessary */
+    .input-custom-css.btn-rounded,
+    .input-custom-css.btn-rounded-sm {
+        /* These classes can be applied to specific buttons in HTML */
+    }
+
+    /* Additional Table Enhancements */
+    .table-bordered th,
+    .table-bordered td {
+        border: 1px solid #dee2e6;
+        /* Ensure borders are consistent */
+    }
+
+    .table th {
+        background-color: #f8f9fa;
+        /* Light background for headers */
+        text-align: center;
+        /* Center align header text */
+    }
+
+    .table td {
+        vertical-align: middle;
+        /* Center content vertically */
+    }
+
+    /* Responsive DataTables Button Group */
+    .dt-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+        /* Add spacing between buttons */
+    }
+
+    /* Ensure DataTables responsive tables have proper width */
+    table.dataTable {
+        width: 100% !important;
+    }
+
+    /* Compact Rows for Better Mobile Fit */
+    .compact-row td {
+        padding: 8px 5px;
+        /* Reduce padding for compactness */
+    }
+
+    /* Ensure badges are responsive */
+    .badge {
+        font-size: 10px;
+        /* Reduce badge font size on mobile */
+        padding: 5px 8px;
+        /* Adjust badge padding */
+    }
+
+    /* Optional: Highlight hovered rows */
+    .table-hover tbody tr:hover {
+        background-color: #f1f1f1;
+        /* Light gray background on hover */
     }
 }

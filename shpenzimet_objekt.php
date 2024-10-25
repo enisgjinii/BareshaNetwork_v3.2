@@ -6,26 +6,24 @@ include 'conn-d.php';
     <div class="content-wrapper">
         <div class="container-fluid">
             <!-- Breadcrumb Navigation -->
-            <nav class="bg-white px-2 rounded-5" style="width:fit-content;" aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a class="text-reset" style="text-decoration: none;">Kontabiliteti</a></li>
-                    <li class="breadcrumb-item active" aria-current="page"><a href="<?php echo __FILE__; ?>" class="text-reset" style="text-decoration: none;">Shpenzimet e objektit</a></li>
+            <nav class="bg-white px-3 py-2 rounded-5 mb-4" aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="#" class="text-reset text-decoration-none">Kontabiliteti</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">
+                        <a href="<?php echo __FILE__; ?>" class="text-reset text-decoration-none">Shpenzimet e objektit</a>
+                    </li>
                 </ol>
             </nav>
             <!-- Add Expense Button -->
-            <div class="row mb-2">
-                <div>
-                    <a type="button" style="text-decoration: none" class="input-custom-css px-3 py-2 position-relative" href="post_newKont.php">
+            <div class="row mb-4 position-relative">
+                <div class="col-12">
+                    <a href="post_newKont.php" class="input-custom-css px-3 py-2 text-decoration-none">
                         Shto shpenzim
-                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                            BETA
-                            <span class="visually-hidden">unread messages</span>
-                        </span>
                     </a>
                 </div>
             </div>
             <!-- Main Tabs -->
-            <ul class="nav nav-pills" id="myTab" role="tablist">
+            <ul class="nav nav-pills mb-3 flex-nowrap overflow-auto" id="myTab" role="tablist">
                 <li class="nav-item" role="presentation">
                     <button class="nav-link active" id="tabelat-tab" data-bs-toggle="tab" data-bs-target="#tabelat-tab-pane" type="button" role="tab" aria-controls="tabelat-tab-pane" aria-selected="true">Tabelat</button>
                 </li>
@@ -36,9 +34,9 @@ include 'conn-d.php';
             <div class="tab-content" id="myTabContent">
                 <!-- Tabelat Tab Pane -->
                 <div class="tab-pane fade show active" id="tabelat-tab-pane" role="tabpanel" aria-labelledby="tabelat-tab" tabindex="0">
-                    <div class="p-3 shadow-sm mb-4 card">
+                    <div class="card shadow-sm mb-4 p-3">
                         <!-- Sub Tabs for Tables -->
-                        <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+                        <ul class="nav nav-pills mb-3 flex-nowrap overflow-auto" id="pills-tab" role="tablist">
                             <?php
                             $tabs = [
                                 'all' => 'Të gjitha',
@@ -51,7 +49,7 @@ include 'conn-d.php';
                                 $active = ($key === 'all') ? 'active' : '';
                                 echo "
                                 <li class='nav-item' role='presentation'>
-                                    <button class='nav-link rounded-5 {$active}' 
+                                    <button class='nav-link rounded-pill {$active}' 
                                             id='pills-{$key}-tab' 
                                             data-bs-toggle='pill' 
                                             data-bs-target='#pills-{$key}' 
@@ -84,7 +82,7 @@ include 'conn-d.php';
                                 $activeClass = ($key === 'all') ? 'show active' : '';
                                 echo "<div class='tab-pane fade {$activeClass}' id='pills-{$key}' role='tabpanel' aria-labelledby='pills-{$key}-tab' tabindex='0'>";
                                 echo "<div class='table-responsive'>";
-                                echo "<table class='table table-border table-striped' id='table-{$key}'>";
+                                echo "<table class='table table-bordered table-striped table-hover w-100' id='table-{$key}'>";
                                 echo "<thead class='table-light'><tr>";
                                 foreach ($columns as $columnName) {
                                     echo "<th>{$columnName}</th>";
@@ -97,29 +95,31 @@ include 'conn-d.php';
                 </div>
                 <!-- Raportet Tab Pane -->
                 <div class="tab-pane fade" id="raportet-tab-pane" role="tabpanel" aria-labelledby="raportet-tab" tabindex="0">
-                    <div class="p-3 shadow-sm mb-4 card">
+                    <div class="card shadow-sm mb-4 p-3">
                         <h3 class="mb-4">Raportet Financiare</h3>
                         <!-- Filters Section -->
-                        <div class="row g-3 d-flex align-items-center justify-content-between">
-                            <div class="col-md-2">
+                        <div class="row g-3 align-items-center justify-content-between">
+                            <div class="col-12 col-md-2">
                                 <label for="filterStartDate" class="form-label">Data e Fillimit</label>
-                                <input type="date" id="filterStartDate" class="form-control" placeholder="Data e Fillimit">
+                                <input type="text" id="filterStartDate" class="form-control flatpickr-date" placeholder="Data e Fillimit">
                             </div>
-                            <div class="col-md-2">
+                            <div class="col-12 col-md-2">
                                 <label for="filterEndDate" class="form-label">Data e Mbarimit</label>
-                                <input type="date" id="filterEndDate" class="form-control" placeholder="Data e Mbarimit">
+                                <input type="text" id="filterEndDate" class="form-control flatpickr-date" placeholder="Data e Mbarimit">
                             </div>
-                            <div class="col-md-2">
+                            <div class="col-12 col-md-2">
                                 <label for="filterCategory" class="form-label">Kategoria</label>
                                 <select id="filterCategory" class="form-select">
                                     <option value="">Të gjitha</option>
                                     <option value="Shpenzimet">Shpenzimet</option>
                                     <option value="Investimet">Investimet</option>
                                     <option value="Obligime">Obligime</option>
+                                    <option value="Pagesa KS">Pagesa KS</option>
+                                    <option value="Pagesa AL">Pagesa AL</option>
                                     <option value="Tjetër">Tjetër</option>
                                 </select>
                             </div>
-                            <div class="col-md-2">
+                            <div class="col-12 col-md-2">
                                 <label for="filterCompany" class="form-label">Kompania</label>
                                 <select id="filterCompany" class="form-select">
                                     <option value="">Të gjitha</option>
@@ -138,7 +138,7 @@ include 'conn-d.php';
                                     ?>
                                 </select>
                             </div>
-                            <div class="col-md-2">
+                            <div class="col-12 col-md-2">
                                 <label for="filterRegistrant" class="form-label">Regjistruesi</label>
                                 <select id="filterRegistrant" class="form-select">
                                     <option value="">Të gjitha</option>
@@ -159,13 +159,13 @@ include 'conn-d.php';
                             </div>
                         </div>
                         <!-- Filter Buttons -->
-                        <div class="row my-2">
-                            <div class="col-md-2 d-flex">
-                                <button id="applyFilters" class="input-custom-css px-3 py-2 me-2 d-flex align-items-center">
-                                    <i class="fi fi-rr-filter"></i>
+                        <div class="row my-3">
+                            <div class="col-12 col-md-3 d-flex">
+                                <button id="applyFilters" class="input-custom-css px-3 py-2 me-2">
+                                    <i class="fi fi-rr-filter me-1"></i> Apliko
                                 </button>
-                                <button id="resetFilters" class="input-custom-css px-3 py-2 d-flex align-items-center">
-                                    <i class="fi fi-rr-rotate-right"></i>
+                                <button id="resetFilters" class="input-custom-css px-3 py-2">
+                                    <i class="fi fi-rr-rotate-right me-1"></i> Rivendos
                                 </button>
                             </div>
                         </div>
@@ -173,63 +173,107 @@ include 'conn-d.php';
                         <script>
                             new Selectr('#filterCategory', {
                                 searchable: true,
-                                width: 300
+                                width: '100%'
                             });
                             new Selectr('#filterCompany', {
                                 searchable: true,
-                                width: 300
+                                width: '100%'
                             });
                             new Selectr('#filterRegistrant', {
                                 searchable: true,
-                                width: 300
+                                width: '100%'
                             });
                         </script>
                         <!-- Detailed Totals Section -->
                         <div class="row mb-4 g-3">
                             <!-- Total by Category -->
-                            <div class="col-md-6">
+                            <div class="col-12 col-md-6">
                                 <div class="card rounded-5">
                                     <div class="card-header">
                                         <h5 class="mb-0">Total sipas Kategorisë</h5>
                                     </div>
                                     <div class="card-body p-2">
-                                        <table class="table table-sm table-bordered mb-0">
-                                            <thead class="table-light">
-                                                <tr>
-                                                    <th>Kategoria</th>
-                                                    <th>Vlera</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="detailedTotalByCategory">
-                                                <!-- Dynamically populated -->
-                                            </tbody>
-                                        </table>
+                                        <div class="table-responsive">
+                                            <table class="table table-sm table-bordered mb-0">
+                                                <thead class="table-light">
+                                                    <tr>
+                                                        <th>Kategoria</th>
+                                                        <th>Vlera</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="detailedTotalByCategory">
+                                                    <!-- Dynamically populated -->
+                                                </tbody>
+                                            </table>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                             <!-- Total by Company -->
-                            <div class="col-md-6">
+                            <div class="col-12 col-md-6">
                                 <div class="card rounded-5">
                                     <div class="card-header">
                                         <h5 class="mb-0">Total sipas Kompanisë</h5>
                                     </div>
                                     <div class="card-body p-2">
-                                        <table class="table table-sm table-bordered mb-0">
-                                            <thead class="table-light">
-                                                <tr>
-                                                    <th>Kompania</th>
-                                                    <th>Vlera</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="detailedTotalByCompany">
-                                                <!-- Dynamically populated -->
-                                            </tbody>
-                                        </table>
+                                        <div class="table-responsive">
+                                            <table class="table table-sm table-bordered mb-0">
+                                                <thead class="table-light">
+                                                    <tr>
+                                                        <th>Kompania</th>
+                                                        <th>Vlera</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="detailedTotalByCompany">
+                                                    <!-- Dynamically populated -->
+                                                </tbody>
+                                            </table>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <!-- Charts Section Removed -->
+                        <!-- Charts Section -->
+                        <div class="row mb-4 g-3">
+                            <!-- Line Chart -->
+                            <div class="col-12">
+                                <div class="card rounded-5">
+                                    <div class="card-header">
+                                        <h5 class="mb-0">Trend i Shpenzimeve</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="lineChart"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mb-4 g-3">
+                            <!-- Doughnut Chart -->
+                            <div class="col-12">
+                                <div class="card rounded-5">
+                                    <div class="card-header">
+                                        <h5 class="mb-0">Përqendrimi sipas Kategorisë</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="doughnutChart"></div> <!-- Changed ID to 'doughnutChart' -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mb-4 g-3">
+                            <!-- Bar Chart -->
+                            <div class="col-12">
+                                <div class="card rounded-5">
+                                    <div class="card-header">
+                                        <h5 class="mb-0">Shpenzimet sipas Kompanisë</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="barChart"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- End of Charts Section -->
                     </div>
                 </div>
             </div>
@@ -239,7 +283,7 @@ include 'conn-d.php';
 <?php include 'partials/footer.php'; ?>
 <!-- Document Preview Modal -->
 <div class="modal fade" id="documentModal" tabindex="-1" aria-labelledby="documentModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title"><span id="documentName">Document</span> Preview</h5>
@@ -247,9 +291,9 @@ include 'conn-d.php';
             </div>
             <div class="modal-body">
                 <div id="documentContent" class="text-center">
-                    <img id="documentImage" src="" alt="Document Image" class="img-fluid" style="display: none; max-height: 80vh;">
+                    <img id="documentImage" src="" alt="Document Image" class="img-fluid mb-3" style="display: none; max-height: 80vh;">
                     <iframe id="documentPDF" src="" width="100%" height="600px" style="display: none;"></iframe>
-                    <p id="documentMessage" style="display: none;">
+                    <p id="documentMessage" class="mt-3" style="display: none;">
                         Preview not available.
                         <a id="downloadLinkBody" href="#" download>Download</a>
                     </p>
@@ -287,11 +331,29 @@ include 'conn-d.php';
     </div>
 </div>
 <!-- Scripts -->
+<!-- Bootstrap JS Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Flatpickr JS -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<!-- ApexCharts JS -->
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<!-- jQuery (if not already included) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- Selectr JS (Assuming you are using Selectr) -->
+<script src="https://cdn.jsdelivr.net/npm/selectr/dist/selectr.min.js"></script>
+<!-- DataTables JS -->
+<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.4.1/js/dataTables.responsive.min.js"></script>
+<!-- Custom JS (if any) -->
+<script src="path/to/your/custom.js"></script>
 <script>
     // JavaScript code for handling tables and modals
     // Global variable to store DataTables instances
     var dataTables = {};
-
+    // Variables to store ApexCharts instances
+    var lineChart, doughnutChart, barChart;
     function confirmDelete(id) {
         Swal.fire({
             title: 'A jeni i sigurt?',
@@ -304,12 +366,9 @@ include 'conn-d.php';
             cancelButtonColor: '#d33',
         }).then((result) => {
             if (result.isConfirmed) {
-                // First, fetch all information (if needed)
-                fetch(`api/delete_methods/delete_newKont.php?id=${id}&action=fetch`)
-                    .then(response => response.json())
-                    .then(data => {
-                        // Now delete the record
-                        return fetch(`api/delete_methods/delete_newKont.php?id=${id}&action=delete`);
+                // Proceed with deletion via POST request
+                fetch(`api/delete_methods/delete_newKont.php?id=${id}&action=delete`, {
+                        method: 'POST',
                     })
                     .then(response => response.json())
                     .then(result => {
@@ -319,8 +378,10 @@ include 'conn-d.php';
                                 'Rekordi është fshirë me sukses.',
                                 'success'
                             ).then(() => {
-                                // Refresh the table instead of reloading the page
+                                // Refresh only the active table
                                 refreshTable();
+                                // Refresh charts
+                                fetchAndRenderData();
                             });
                         } else {
                             Swal.fire(
@@ -341,9 +402,8 @@ include 'conn-d.php';
             }
         });
     }
-
     function refreshTable() {
-        var activeTab = $('ul.nav-pills .active').attr('id');
+        var activeTab = $('#pills-tab .nav-link.active').attr('id');
         var tableId = 'table-' + activeTab.replace('pills-', '').replace('-tab', '');
         var dataTable = dataTables[tableId];
         if (dataTable) {
@@ -379,8 +439,9 @@ include 'conn-d.php';
                             text: 'Dokumenti u zëvendësua me sukses.',
                             icon: 'success'
                         }).then(() => {
-                            // Refresh the table
+                            // Refresh only the active table and charts
                             refreshTable();
+                            fetchAndRenderData();
                         });
                     } else {
                         Swal.fire({
@@ -412,11 +473,33 @@ include 'conn-d.php';
                 stripeClasses: ["stripe-color"],
                 ajax: {
                     url: 'api/get_methods/get_table_data.php',
-                    type: 'POST', // Use POST if your API expects it
+                    type: 'POST', // Use POST as per your PHP script
                     data: function(d) {
                         d.category = tableId.replace('table-', '');
+                        console.log('Loading table:', tableId, 'Category:', d.category);
                     },
-                    dataSrc: '',
+                    dataSrc: function(json) {
+                        if (Array.isArray(json.data)) {
+                            return json.data;
+                        } else if (json.success === false) {
+                            Swal.fire({
+                                title: 'Error',
+                                text: json.message || 'Failed to load data.',
+                                icon: 'error',
+                                confirmButtonText: 'OK'
+                            });
+                            return [];
+                        } else {
+                            // Handle unexpected response format
+                            Swal.fire({
+                                title: 'Error',
+                                text: 'Unexpected response format.',
+                                icon: 'error',
+                                confirmButtonText: 'OK'
+                            });
+                            return [];
+                        }
+                    },
                     error: function(xhr, error, thrown) {
                         console.error('Error fetching data for ' + tableId + ': ', error);
                         Swal.fire({
@@ -430,7 +513,7 @@ include 'conn-d.php';
                 columnDefs: [{
                     targets: '_all',
                     render: function(data, type, row) {
-                        return type === 'display' && data !== null ? '<div style="white-space: normal;">' + data + '</div>' : data;
+                        return type === 'display' && data !== null ? '<div class="text-wrap">' + data + '</div>' : data;
                     }
                 }],
                 columns: [{
@@ -467,11 +550,12 @@ include 'conn-d.php';
                         data: 'document_path',
                         render: function(data, type, row) {
                             var fileName = data.split('/').pop(); // Extract basename
-                            return `<a href="#" class="view-document input-custom-css px-3 py-2 me-2" data-bs-toggle="modal" data-bs-target="#documentModal" data-file="${data}" data-name="${fileName}">
+                            return `<a href="#" class="view-document btn btn-sm btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#documentModal" data-file="${data}" data-name="${fileName}">
                                     <i class="fi fi-rr-file"></i>
-                                </a><button onclick="showReplaceModal(${row.id})" class="input-custom-css px-3 py-2">
-                                <i class="fi fi-rr-pencil"></i>
-                            </button>`;
+                                </a>
+                                <button onclick="showReplaceModal(${row.id})" class="btn btn-sm btn-outline-secondary">
+                                    <i class="fi fi-rr-pencil"></i>
+                                </button>`;
                         }
                     },
                     {
@@ -486,7 +570,7 @@ include 'conn-d.php';
                         searchable: false,
                         render: function(data, type, row) {
                             return `
-                            <button onclick="confirmDelete(${row.id})" class="input-custom-css px-3 py-2">
+                            <button onclick="confirmDelete(${row.id})" class="btn btn-sm btn-outline-danger">
                                 <i class="fi fi-rr-trash"></i>
                             </button>
                         `;
@@ -537,7 +621,7 @@ include 'conn-d.php';
                 showLoaderOnConfirm: true,
                 preConfirm: () => {
                     return new Promise((resolve, reject) => {
-                        const newValue = document.getElementById('swal-input').value;
+                        const newValue = document.getElementById('swal-input').value.trim();
                         if (newValue) {
                             updateValue(id, column, newValue, $this, resolve);
                         } else {
@@ -548,21 +632,13 @@ include 'conn-d.php';
                 allowOutsideClick: () => !Swal.isLoading(),
                 customClass: {
                     popup: 'custom-swal-popup',
-                    confirmButton: 'input-custom-css px-3 py-2 me-2',
-                    cancelButton: 'input-custom-css px-3 py-2'
+                    confirmButton: 'btn btn-primary me-2',
+                    cancelButton: 'btn btn-secondary'
                 },
                 buttonsStyling: false
             }).then((result) => {
                 if (result.isConfirmed) {
-                    Swal.fire({
-                        title: 'Përditësuar!',
-                        text: 'Vlera është përditësuar me sukses.',
-                        icon: 'success',
-                        customClass: {
-                            confirmButton: 'input-custom-css px-3 py-2'
-                        },
-                        buttonsStyling: false
-                    });
+                    // Success message already handled in updateValue
                 }
             }).catch(error => {
                 Swal.fire({
@@ -570,7 +646,7 @@ include 'conn-d.php';
                     text: error.message,
                     icon: 'error',
                     customClass: {
-                        confirmButton: 'input-custom-css px-3 py-2'
+                        confirmButton: 'btn btn-primary'
                     },
                     buttonsStyling: false
                 });
@@ -592,89 +668,99 @@ include 'conn-d.php';
         }
         // Handle tab shown event to adjust DataTables
         $('a[data-bs-toggle="pill"]').on('shown.bs.tab', function(e) {
-            var targetTable = $(e.target).attr("href").replace("#pills-", "table-");
-            if (dataTables['table-' + targetTable]) {
-                dataTables['table-' + targetTable].columns.adjust().responsive.recalc();
-                dataTables['table-' + targetTable].ajax.reload(null, false);
+            var targetTab = $(e.target).attr("href");
+            var key = targetTab.replace("#pills-", "");
+            var tableId = 'table-' + key;
+            if (dataTables[tableId]) {
+                dataTables[tableId].columns.adjust().responsive.recalc();
+                dataTables[tableId].ajax.reload(null, false);
             }
         });
-    });
-
-    function updateValue(id, column, value, $element, resolve) {
-        $.ajax({
-            url: 'api/edit_methods/update_newKont.php',
-            method: 'POST',
-            data: {
-                id: id,
-                column: column,
-                value: value
-            },
-            dataType: 'json',
-            success: function(response) {
-                if (response.success) {
-                    // Successfully updated
-                    $element.text(value); // Update the UI
-                    resolve(); // Resolve the Swal promise
-                    // Display success alert
-                    Swal.fire({
-                        title: 'Sukses!',
-                        text: 'Vlera është përditësuar me sukses.',
-                        icon: 'success',
-                        customClass: {
-                            confirmButton: 'input-custom-css px-3 py-2'
-                        },
-                        buttonsStyling: false
-                    });
-                } else {
-                    // If update fails, handle error
-                    Swal.showValidationMessage('Dështoi përditësimi: ' + (response.message || 'Ndodhi një gabim i panjohur.'));
+        function updateValue(id, column, value, $element, resolve) {
+            $.ajax({
+                url: 'api/edit_methods/update_newKont.php',
+                method: 'POST',
+                data: {
+                    id: id,
+                    column: column,
+                    value: value
+                },
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        // Successfully updated
+                        $element.text(value); // Update the UI
+                        resolve(); // Resolve the Swal promise
+                        // Display success alert
+                        Swal.fire({
+                            title: 'Sukses!',
+                            text: 'Vlera është përditësuar me sukses.',
+                            icon: 'success',
+                            customClass: {
+                                confirmButton: 'btn btn-primary'
+                            },
+                            buttonsStyling: false
+                        });
+                        // Refresh charts
+                        fetchAndRenderData();
+                    } else {
+                        // If update fails, handle error
+                        Swal.showValidationMessage('Dështoi përditësimi: ' + (response.message || 'Ndodhi një gabim i panjohur.'));
+                    }
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    Swal.showValidationMessage('Ndodhi një gabim gjatë përditësimit: ' + textStatus);
                 }
-            },
-            error: function(jqXHR, textStatus, errorThrown) {
-                Swal.showValidationMessage('Ndodhi një gabim gjatë përditësimit: ' + textStatus);
-            }
-        });
-    }
-    document.addEventListener('DOMContentLoaded', function() {
-        const documentModal = document.getElementById('documentModal');
-        const documentName = document.getElementById('documentName');
-        const documentImage = document.getElementById('documentImage');
-        const documentPDF = document.getElementById('documentPDF');
-        const documentMessage = document.getElementById('documentMessage');
-        const downloadLinkBody = document.getElementById('downloadLinkBody');
-        const downloadLinkFooter = document.getElementById('downloadLinkFooter');
-        documentModal.addEventListener('show.bs.modal', function(event) {
-            const triggerLink = event.relatedTarget;
-            const filePath = triggerLink.getAttribute('data-file');
-            const fileName = triggerLink.getAttribute('data-name');
-            // Update modal title
-            documentName.textContent = fileName;
-            // Reset modal content
-            documentImage.style.display = 'none';
-            documentPDF.style.display = 'none';
-            documentMessage.style.display = 'none';
-            // Set download links
-            downloadLinkFooter.href = filePath;
-            // Determine file type
-            const fileExtension = filePath.split('.').pop().toLowerCase();
-            if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg'].includes(fileExtension)) {
-                // It's an image
-                documentImage.src = filePath;
-                documentImage.style.display = 'block';
-            } else if (fileExtension === 'pdf') {
-                // It's a PDF
-                documentPDF.src = filePath;
-                documentPDF.style.display = 'block';
-            } else {
-                // Other file types
-                documentMessage.style.display = 'block';
-                downloadLinkBody.href = filePath;
-            }
+            });
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+            const documentModal = document.getElementById('documentModal');
+            const documentName = document.getElementById('documentName');
+            const documentImage = document.getElementById('documentImage');
+            const documentPDF = document.getElementById('documentPDF');
+            const documentMessage = document.getElementById('documentMessage');
+            const downloadLinkBody = document.getElementById('downloadLinkBody');
+            const downloadLinkFooter = document.getElementById('downloadLinkFooter');
+            documentModal.addEventListener('show.bs.modal', function(event) {
+                const triggerLink = event.relatedTarget;
+                if (!triggerLink) return; // Prevent errors if no trigger
+                const filePath = triggerLink.getAttribute('data-file');
+                const fileName = triggerLink.getAttribute('data-name');
+                // Update modal title
+                documentName.textContent = fileName;
+                // Reset modal content
+                documentImage.style.display = 'none';
+                documentPDF.style.display = 'none';
+                documentMessage.style.display = 'none';
+                // Set download links
+                downloadLinkFooter.href = filePath;
+                // Determine file type
+                const fileExtension = filePath.split('.').pop().toLowerCase();
+                if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg'].includes(fileExtension)) {
+                    // It's an image
+                    documentImage.src = filePath;
+                    documentImage.style.display = 'block';
+                } else if (fileExtension === 'pdf') {
+                    // It's a PDF
+                    documentPDF.src = filePath;
+                    documentPDF.style.display = 'block';
+                } else {
+                    // Other file types
+                    documentMessage.style.display = 'block';
+                    downloadLinkBody.href = filePath;
+                }
+            });
         });
     });
 </script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Initialize Flatpickr on date inputs
+        flatpickr(".flatpickr-date", {
+            dateFormat: "Y-m-d",
+            allowInput: true,
+            locale: "sq" // Set locale to Albanian if needed
+        });
         // Function to fetch and render data based on filters
         function fetchAndRenderData() {
             var startDate = $('#filterStartDate').val();
@@ -682,7 +768,6 @@ include 'conn-d.php';
             var category = $('#filterCategory').val();
             var company = $('#filterCompany').val();
             var registrant = $('#filterRegistrant').val();
-
             // Show loading spinner
             Swal.fire({
                 title: 'Po ngarkohet...',
@@ -691,7 +776,6 @@ include 'conn-d.php';
                     Swal.showLoading();
                 }
             });
-
             $.ajax({
                 url: 'api/get_methods/get_profit_data.php',
                 type: 'POST',
@@ -707,6 +791,8 @@ include 'conn-d.php';
                     if (response.success) {
                         // Process and display totals
                         displayTotals(response.data);
+                        // Render charts
+                        renderCharts(response.data);
                         Swal.close(); // Close the loading spinner
                     } else {
                         Swal.fire({
@@ -728,43 +814,180 @@ include 'conn-d.php';
                 }
             });
         }
-
         // Function to display totals
         function displayTotals(data) {
             var categoryTotals = data.category_totals;
             var companyTotals = data.company_totals;
-
             // Display detailed totals by category
             var detailedCategoryHTML = '';
             categoryTotals.forEach(function(record) {
                 var category = record.category;
-                var total = record.total_shuma;
+                var total = parseFloat(record.total_shuma).toFixed(2);
                 detailedCategoryHTML += `<tr>
-                    <td>${capitalizeFirstLetter(category)}</td>
-                    <td>€${total}</td>
-                </tr>`;
+                            <td>${capitalizeFirstLetter(category)}</td>
+                            <td>€${total}</td>
+                        </tr>`;
             });
             $('#detailedTotalByCategory').html(detailedCategoryHTML);
-
             // Display detailed totals by company
             var detailedCompanyHTML = '';
             companyTotals.forEach(function(record) {
                 var company = record.company_name;
-                var total = record.total_shuma;
+                var total = parseFloat(record.total_shuma).toFixed(2);
                 detailedCompanyHTML += `<tr>
-                    <td>${capitalizeFirstLetter(company)}</td>
-                    <td>€${total}</td>
-                </tr>`;
+                            <td>${capitalizeFirstLetter(company)}</td>
+                            <td>€${total}</td>
+                        </tr>`;
             });
             $('#detailedTotalByCompany').html(detailedCompanyHTML);
         }
-
         // Helper function to capitalize first letter
         function capitalizeFirstLetter(string) {
             if (typeof string !== 'string' || string.length === 0) return string;
             return string.charAt(0).toUpperCase() + string.slice(1);
         }
-
+        // Function to render ApexCharts
+        function renderCharts(data) {
+            var categoryTotals = data.category_totals;
+            var companyTotals = data.company_totals;
+            var monthlyTotals = data.monthly_totals; // Assuming your API provides monthly totals
+            // Prepare data for Line Chart (Trend of Expenses Over Time)
+            var lineCategories = [];
+            var lineSeriesData = [];
+            if (monthlyTotals && Array.isArray(monthlyTotals)) {
+                monthlyTotals.forEach(function(record) {
+                    lineCategories.push(record.month); // e.g., 'Jan', 'Feb', etc.
+                    lineSeriesData.push(parseFloat(record.total).toFixed(2));
+                });
+            }
+            // Prepare data for Doughnut Chart (Distribution by Category)
+            var doughnutLabels = [];
+            var doughnutSeries = [];
+            categoryTotals.forEach(function(record) {
+                doughnutLabels.push(record.category);
+                doughnutSeries.push(parseFloat(record.total_shuma).toFixed(2));
+            });
+            // Prepare data for Bar Chart (Expenses by Company)
+            var barLabels = [];
+            var barSeriesData = [];
+            companyTotals.forEach(function(record) {
+                barLabels.push(record.company_name);
+                barSeriesData.push(parseFloat(record.total_shuma).toFixed(2));
+            });
+            // Initialize or Update Line Chart
+            if (!lineChart) {
+                var lineOptions = {
+                    chart: {
+                        type: 'line',
+                        height: 350
+                    },
+                    series: [{
+                        name: 'Shpenzimet',
+                        data: lineSeriesData
+                    }],
+                    xaxis: {
+                        categories: lineCategories,
+                        title: {
+                            text: 'Muaji'
+                        }
+                    },
+                    yaxis: {
+                        title: {
+                            text: '€'
+                        }
+                    },
+                    title: {
+                        text: 'Trend i Shpenzimeve',
+                        align: 'center'
+                    }
+                };
+                lineChart = new ApexCharts(document.querySelector("#lineChart"), lineOptions);
+                lineChart.render();
+            } else {
+                lineChart.updateOptions({
+                    xaxis: {
+                        categories: lineCategories
+                    },
+                    series: [{
+                        name: 'Shpenzimet',
+                        data: lineSeriesData
+                    }]
+                });
+            }
+            // Initialize or Update Doughnut Chart
+            if (!doughnutChart) {
+                var doughnutOptions = {
+                    chart: {
+                        type: 'donut', // Changed from 'pie' to 'donut'
+                        height: 350
+                    },
+                    series: doughnutSeries,
+                    labels: doughnutLabels,
+                    title: {
+                        text: 'Përqendrimi sipas Kategorisë',
+                        align: 'center'
+                    },
+                    responsive: [{
+                        breakpoint: 480,
+                        options: {
+                            chart: {
+                                width: 300
+                            },
+                            legend: {
+                                position: 'bottom'
+                            }
+                        }
+                    }]
+                };
+                doughnutChart = new ApexCharts(document.querySelector("#doughnutChart"), doughnutOptions);
+                doughnutChart.render();
+            } else {
+                doughnutChart.updateOptions({
+                    labels: doughnutLabels,
+                    series: doughnutSeries
+                });
+            }
+            // Initialize or Update Bar Chart
+            if (!barChart) {
+                var barOptions = {
+                    chart: {
+                        type: 'bar',
+                        height: 350
+                    },
+                    series: [{
+                        name: 'Shpenzimet',
+                        data: barSeriesData
+                    }],
+                    xaxis: {
+                        categories: barLabels,
+                        title: {
+                            text: 'Kompania'
+                        }
+                    },
+                    yaxis: {
+                        title: {
+                            text: '€'
+                        }
+                    },
+                    title: {
+                        text: 'Shpenzimet sipas Kompanisë',
+                        align: 'center'
+                    }
+                };
+                barChart = new ApexCharts(document.querySelector("#barChart"), barOptions);
+                barChart.render();
+            } else {
+                barChart.updateOptions({
+                    xaxis: {
+                        categories: barLabels
+                    },
+                    series: [{
+                        name: 'Shpenzimet',
+                        data: barSeriesData
+                    }]
+                });
+            }
+        }
         // Event listeners for filter buttons
         $('#applyFilters').on('click', function() {
             fetchAndRenderData();
@@ -777,31 +1000,53 @@ include 'conn-d.php';
             $('#filterRegistrant').val('');
             fetchAndRenderData();
         });
-
         // Initial data load
         fetchAndRenderData();
     });
 </script>
-
-
 <style>
-    /* Optional: Custom styles for the modal */
+    /* Custom styles for the modal */
     #documentImage {
         max-height: 80vh;
         object-fit: contain;
     }
-
     #documentMessage {
         text-align: center;
     }
-
     /* Custom styles for DataTables */
     .table-responsive {
         overflow-x: auto;
     }
-
     /* Optional: Adjust badge positioning */
     .badge {
         font-size: 0.75rem;
+    }
+    /* Adjust nav-pills for better responsiveness */
+    .nav-pills {
+        flex-wrap: nowrap;
+    }
+    .nav-pills .nav-link {
+        white-space: nowrap;
+    }
+    /* Customize Swal alerts to use Bootstrap buttons */
+    .swal2-popup.custom-swal-popup {
+        width: 100% !important;
+        max-width: 500px;
+    }
+    /* Additional Flatpickr styling (optional) */
+    .flatpickr-calendar {
+        z-index: 9999;
+        /* Ensure the calendar appears above other elements */
+    }
+    /* Chart Container Styling */
+    #lineChart,
+    #doughnutChart,
+    #barChart {
+        max-width: 100%;
+        margin: 0 auto;
+    }
+    /* Card Body Padding Adjustment for Charts */
+    .card-body {
+        padding: 1rem;
     }
 </style>

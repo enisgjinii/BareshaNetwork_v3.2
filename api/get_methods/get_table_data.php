@@ -1,28 +1,47 @@
 <?php
 include '../../conn-d.php'; // Adjust the path as needed
 
-$category = isset($_GET['category']) ? $_GET['category'] : 'all';
+// Retrieve 'category' from POST data instead of GET
+$category = isset($_POST['category']) ? $_POST['category'] : 'all';
 
-if ($category === 'all') {
-    $sql = "SELECT * FROM invoices_kont ORDER BY id DESC";
-} else {
-    $sql = "SELECT * FROM invoices_kont WHERE category = ? ORDER BY id DESC";
+// Initialize response array
+$response = [
+    'success' => true,
+    'data' => []
+];
+
+try {
+    if ($category === 'all') {
+        $sql = "SELECT * FROM invoices_kont ORDER BY id DESC";
+        $stmt = $conn->prepare($sql);
+    } else {
+        $sql = "SELECT * FROM invoices_kont WHERE category = ? ORDER BY id DESC";
+        $stmt = $conn->prepare($sql);
+        if (!$stmt) {
+            throw new Exception("Failed to prepare statement: " . $conn->error);
+        }
+        $stmt->bind_param("s", $category);
+    }
+
+    // Execute the prepared statement
+    if (!$stmt->execute()) {
+        throw new Exception("Failed to execute statement: " . $stmt->error);
+    }
+
+    $result = $stmt->get_result();
+
+    while ($row = $result->fetch_assoc()) {
+        $response['data'][] = $row;
+    }
+
+    // Close the statement and connection
+    $stmt->close();
+    $conn->close();
+} catch (Exception $e) {
+    $response['success'] = false;
+    $response['message'] = $e->getMessage();
 }
 
-$stmt = $conn->prepare($sql);
-
-if ($category !== 'all') {
-    $stmt->bind_param("s", $category);
-}
-
-$stmt->execute();
-$result = $stmt->get_result();
-
-$data = [];
-
-while ($row = $result->fetch_assoc()) {
-    $data[] = $row;
-}
-
+// Set the header to JSON and output the response
 header('Content-Type: application/json');
-echo json_encode($data);
+echo json_encode($response);

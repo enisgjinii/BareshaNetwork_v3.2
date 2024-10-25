@@ -1,41 +1,72 @@
 <?php
-include '../../conn-d.php';
+include '../../conn-d.php'; // Adjust the path as needed
 
-$response = array('success' => false);
+header('Content-Type: application/json');
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $id = $_POST['id'];
-    $column = $_POST['column'];
-    $value = $_POST['value'];
+// Check if the request method is POST
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    echo json_encode([
+        'success' => false,
+        'message' => 'Invalid request method.'
+    ]);
+    exit;
+}
 
-    // Validate inputs (you can add more specific validation if necessary)
-    $allowedColumns = ['invoice_date','invoice_number', 'description', 'category', 'company_name', 'vlera_faktura'];
-    if (!in_array($column, $allowedColumns)) {
-        $response['message'] = 'Kolona e specifikuar është e pavlefshme.';
-        echo json_encode($response);
-        exit;
-    }
+// Check if 'id', 'column', and 'value' are present
+if (!isset($_POST['id']) || !isset($_POST['column']) || !isset($_POST['value'])) {
+    echo json_encode([
+        'success' => false,
+        'message' => 'Missing required parameters.'
+    ]);
+    exit;
+}
 
-    $sql = "UPDATE invoices_kont SET $column = ? WHERE id = ?";
-    $stmt = $conn->prepare($sql);
+$id = $_POST['id'];
+$column = $_POST['column'];
+$value = $_POST['value'];
 
-    if (!$stmt) {
-        $response['message'] = 'Gabim në bazën e të dhënave: ' . $conn->error;
-        echo json_encode($response);
-        exit;
-    }
+// Whitelist columns that can be updated to prevent SQL injection
+$allowedColumns = ['invoice_date', 'invoice_number', 'description', 'category', 'company_name', 'vlera_faktura'];
+if (!in_array($column, $allowedColumns)) {
+    echo json_encode([
+        'success' => false,
+        'message' => 'Invalid column specified.'
+    ]);
+    exit;
+}
 
-    $stmt->bind_param('si', $value, $id);
-
-    if ($stmt->execute()) {
-        $response['success'] = true;
+// Prepare the SQL statement
+$sql = "UPDATE invoices_kont SET {$column} = ? WHERE id = ?";
+$stmt = $conn->prepare($sql);
+if ($stmt) {
+    // Bind parameters based on column type
+    if ($column === 'vlera_faktura') {
+        // Assuming 'vlera_faktura' is a decimal
+        $stmt->bind_param("di", $value, $id);
     } else {
-        $response['message'] = 'Dështoi përditësimi i rekordit. Gabimi: ' . $stmt->error;
+        // For other columns, bind as string
+        $stmt->bind_param("si", $value, $id);
+    }
+
+    // Execute the statement
+    if ($stmt->execute()) {
+        echo json_encode([
+            'success' => true,
+            'message' => 'Record updated successfully.'
+        ]);
+    } else {
+        echo json_encode([
+            'success' => false,
+            'message' => 'Failed to update record.'
+        ]);
     }
 
     $stmt->close();
 } else {
-    $response['message'] = 'Metoda e kërkesës është e pavlefshme.';
+    echo json_encode([
+        'success' => false,
+        'message' => 'Failed to prepare statement.'
+    ]);
 }
 
-echo json_encode($response);
+$conn->close();

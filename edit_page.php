@@ -13,20 +13,20 @@ function format_page_name($page)
 {
     $pageNames = [
         'index.php' => 'Shtepia',
-        'strike-platform.php' => 'Strikes',
+        'strike-platform.php' => 'Strikes Platform',
         'roles.php' => 'Rolet',
         'stafi.php' => 'Stafi',
-        'ads.php' => 'Llogarit&euml; e ADS',
+        'ads.php' => 'Llogaritë e ADS',
         'emails.php' => 'Lista e email-eve',
-        'klient.php' => 'Lista e klient&euml;ve',
+        'klient.php' => 'Lista e klientëve',
         'kategorit.php' => 'Lista e kategorive',
         'claim.php' => 'Recent Claim',
         'tiketa.php' => 'Lista e tiketave',
-        'listang.php' => 'Lista e k&euml;ng&euml;ve',
-        'shtoy.php' => 'Regjistro k&euml;ng&euml;',
+        'listang.php' => 'Lista e këngëve',
+        'shtoy.php' => 'Regjistro këngë',
         'listat.php' => 'Lista e tiketave',
         'whitelist.php' => 'Whitelist',
-        'faturat.php' => 'Pagesat Youtube',
+        'faturat.php' => 'Pagesat YouTube',
         'invoice.php' => 'Faturat ( New )',
         'pagesat.php' => 'Pagesat e kryera',
         'rrogat.php' => 'Pagat',
@@ -54,7 +54,7 @@ function format_page_name($page)
         'vegla_facebook.php' => 'Vegla Facebook',
         'lista_faturave_facebook.php' => 'Lista e faturave (Facebook)',
         'autor.php' => 'Autor',
-        'faturaFacebook.php' => 'Krijo fatur&euml; ( Facebook )',
+        'faturaFacebook.php' => 'Krijo faturë ( Facebook )',
         'ascap.php' => 'Ascap',
         'lista_kopjeve_rezerve.php' => 'Lista e kopjeve rezerve',
         'investime.php' => 'Investime',
@@ -68,7 +68,6 @@ function format_page_name($page)
         'currency.php' => 'Valutimi',
         'rating_list.php' => 'Lista e vlersimeve',
         'invoice_list_2.php' => 'Faturë e shpejtë',
-        'strike-platform.php' => 'Strikes Platform',
         'pagesat_punetor.php' => 'Pagesat e punetorit',
         'shpenzimet_objekt.php' => 'Shpenzimet e objektit',
         'ttatimi.php' => 'Tatimi',
@@ -147,6 +146,8 @@ $pages = [
         'ofertat.php' => format_page_name('ofertat.php'),
         'kontrata_gjenelare_2.php' => format_page_name('kontrata_gjenelare_2.php'),
         'lista_kontratave_gjenerale.php' => format_page_name('lista_kontratave_gjenerale.php'),
+        'kontrata_2.php' => format_page_name('kontrata_2.php'),
+        'lista_kontratave.php' => format_page_name('lista_kontratave.php'),
     ],
     'Office Management' => [
         'office_investments.php' => format_page_name('office_investments.php'),
@@ -172,25 +173,31 @@ if (isset($_GET['role_id'])) {
                                 FROM roles
                                 LEFT JOIN role_pages ON roles.id = role_pages.role_id
                                 WHERE roles.id = ?");
-        $stmt->bind_param("i", $roleId);
-        $stmt->execute();
-        $result = $stmt->get_result();
+        if ($stmt) { // Added check for prepare success
+            $stmt->bind_param("i", $roleId);
+            $stmt->execute();
+            $result = $stmt->get_result();
 
-        if ($result->num_rows > 0) {
-            // Role found, process the data
-            while ($row = $result->fetch_assoc()) {
-                $roleName = htmlspecialchars($row['role_name'], ENT_QUOTES, 'UTF-8');
-                if (!empty($row['page_name'])) {
-                    $selectedPages[] = $row['page_name'];
+            if ($result->num_rows > 0) {
+                // Role found, process the data
+                while ($row = $result->fetch_assoc()) {
+                    $roleName = htmlspecialchars($row['role_name'], ENT_QUOTES, 'UTF-8');
+                    if (!empty($row['page_name'])) {
+                        $selectedPages[] = $row['page_name'];
+                    }
                 }
+            } else {
+                // Role not found
+                echo "<div class='alert alert-danger' role='alert'>Role not found.</div>";
+                exit;
             }
+
+            $stmt->close();
         } else {
-            // Role not found
-            echo "<div class='alert alert-danger' role='alert'>Role not found.</div>";
+            // Handle statement preparation failure
+            echo "<div class='alert alert-danger' role='alert'>Failed to prepare the database query.</div>";
             exit;
         }
-
-        $stmt->close();
     } else {
         // Invalid role ID
         echo "<div class='alert alert-danger' role='alert'>Invalid role ID.</div>";
@@ -205,62 +212,142 @@ if (isset($_GET['role_id'])) {
 <div class="main-panel">
     <div class="content-wrapper">
         <div class="container-fluid">
-            <div class="p-5 rounded-5 shadow-sm mb-4 card">
-                <h3 class="mb-4">Manage Role Permissions</h3>
-                <div class="mb-3">
-                    <p><strong>ID e rolit:</strong> <?php echo $roleId; ?></p>
-                    <p><strong>Emri i rolit:</strong> <?php echo $roleName; ?></p>
+            <!-- Card Container -->
+            <div class="card p-4 shadow-sm rounded-4 mb-4">
+                <!-- Header Section -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3 class="mb-0">Manage Role Permissions</h3>
+                    <a href="roles.php" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Back to Roles</a>
                 </div>
+
+                <!-- Role Information -->
+                <div class="mb-4">
+                    <h5>Role Details</h5>
+                    <ul class="list-group">
+                        <li class="list-group-item"><strong>ID e rolit:</strong> <?php echo $roleId; ?></li>
+                        <li class="list-group-item"><strong>Emri i rolit:</strong> <?php echo $roleName; ?></li>
+                    </ul>
+                </div>
+
+                <!-- Permissions Form -->
                 <form method="POST" action="api/post_methods/post_update_page.php" id="pageForm">
-                    <!-- Select All Checkbox -->
-                    <div class="mb-3 form-check">
-                        <input type="checkbox" class="form-check-input" id="selectAll">
-                        <label class="form-check-label" for="selectAll"><strong>Select All</strong></label>
+                    <!-- Action Buttons -->
+                    <div class="d-flex justify-content-end mb-3">
+                        <button type="submit" class="btn btn-primary me-2 shadow-sm rounded-3" id="submitButton" disabled>
+                            <i class="bi bi-save"></i> Përditso
+                        </button>
+                        <button type="reset" class="btn btn-outline-secondary shadow-sm rounded-3" id="resetButton">
+                            <i class="bi bi-x-circle"></i> Anulo
+                        </button>
                     </div>
-                    <!-- Search Input -->
-                    <div class="mb-3">
-                        <input type="text" id="searchInput" class="form-control" placeholder="Search pages...">
-                    </div>
-                    <!-- Pages Grouped by Categories -->
-                    <?php foreach ($pages as $category => $pagesInCategory): ?>
-                        <div class="card mb-3">
-                            <div class="card-header">
-                                <input type="checkbox" class="form-check-input category-checkbox" id="category-<?php echo md5($category); ?>">
-                                <label class="form-check-label" for="category-<?php echo md5($category); ?>"><strong><?php echo htmlspecialchars($category, ENT_QUOTES, 'UTF-8'); ?></strong></label>
-                            </div>
-                            <div class="card-body">
-                                <table class="table table-bordered table-hover mb-0">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th>Faqja</th>
-                                            <th class="text-center">Aksesi</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php foreach ($pagesInCategory as $page => $formattedPage): ?>
-                                            <?php
-                                            $isChecked = in_array($page, $selectedPages);
-                                            $formattedPageEscaped = htmlspecialchars($formattedPage, ENT_QUOTES, 'UTF-8');
-                                            ?>
-                                            <tr class="page-row">
-                                                <td><?php echo $formattedPageEscaped; ?></td>
-                                                <td class="text-center">
-                                                    <input type="checkbox" class="form-check-input page-checkbox" name="page[]" value="<?php echo $page; ?>" <?php echo $isChecked ? 'checked' : ''; ?>>
-                                                </td>
-                                            </tr>
-                                        <?php endforeach; ?>
-                                    </tbody>
-                                </table>
+
+                    <!-- Select All and Search -->
+                    <div class="row mb-4">
+                        <div class="col-md-6 d-flex align-items-center">
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="selectAll">
+                                <label class="form-check-label fw-bold" for="selectAll">Select All</label>
                             </div>
                         </div>
-                    <?php endforeach; ?>
-                    <!-- Hidden Role ID and Submit Button -->
-                    <div class="d-flex justify-content-end">
-                        <input type="hidden" name="role_id" value="<?php echo $roleId; ?>">
-                        <button type="submit" class="btn btn-primary shadow-sm rounded-5 text-white" id="submitButton" disabled>P&euml;rditso</button>
+                        <div class="col-md-6">
+                            <input type="text" id="searchInput" class="form-control" placeholder="Search pages...">
+                        </div>
                     </div>
+
+                    <!-- Accordion for Categories -->
+                    <div class="accordion" id="permissionsAccordion">
+                        <?php foreach ($pages as $category => $pagesInCategory): ?>
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="heading-<?php echo md5($category); ?>">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-<?php echo md5($category); ?>" aria-expanded="false" aria-controls="collapse-<?php echo md5($category); ?>">
+                                        <?php echo htmlspecialchars($category, ENT_QUOTES, 'UTF-8'); ?>
+                                    </button>
+                                </h2>
+                                <div id="collapse-<?php echo md5($category); ?>" class="accordion-collapse collapse" aria-labelledby="heading-<?php echo md5($category); ?>" data-bs-parent="#permissionsAccordion">
+                                    <div class="accordion-body">
+                                        <!-- Category Description -->
+                                        <p class="text-muted">
+                                            <?php
+                                            // Add descriptions for each category here
+                                            switch ($category) {
+                                                case 'User Management':
+                                                    echo 'Manage staff and role assignments.';
+                                                    break;
+                                                case 'Client Management':
+                                                    echo 'Handle client information and categories.';
+                                                    break;
+                                                case 'Finance':
+                                                    echo 'Manage financial transactions and records.';
+                                                    break;
+                                                case 'Content Management':
+                                                    echo 'Manage ads, emails, and content-related operations.';
+                                                    break;
+                                                case 'Support':
+                                                    echo 'Handle support tickets, claims, and related activities.';
+                                                    break;
+                                                case 'Tools':
+                                                    echo 'Access various tools and utilities.';
+                                                    break;
+                                                case 'Reporting':
+                                                    echo 'View and manage reports and statistics.';
+                                                    break;
+                                                case 'Platform Management':
+                                                    echo 'Manage platform-specific settings and contracts.';
+                                                    break;
+                                                case 'Office Management':
+                                                    echo 'Manage office-related investments, damages, and requirements.';
+                                                    break;
+                                                default:
+                                                    echo 'Manage related permissions.';
+                                            }
+                                            ?>
+                                        </p>
+
+                                        <!-- Category Checkbox -->
+                                        <div class="form-check mb-3">
+                                            <input type="checkbox" class="form-check-input category-checkbox" id="category-<?php echo md5($category); ?>">
+                                            <label class="form-check-label fw-bold" for="category-<?php echo md5($category); ?>">Select All in <?php echo htmlspecialchars($category, ENT_QUOTES, 'UTF-8'); ?></label>
+                                        </div>
+
+                                        <!-- Pages Table -->
+                                        <div class="table-responsive">
+                                            <table class="table table-bordered table-hover mb-0">
+                                                <thead class="table-light">
+                                                    <tr>
+                                                        <th>Faqja</th>
+                                                        <th class="text-center">Aksesi</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <?php foreach ($pagesInCategory as $page => $formattedPage): ?>
+                                                        <?php
+                                                        $isChecked = in_array($page, $selectedPages);
+                                                        $formattedPageEscaped = htmlspecialchars($formattedPage, ENT_QUOTES, 'UTF-8');
+                                                        ?>
+                                                        <tr class="page-row">
+                                                            <td><?php echo $formattedPageEscaped; ?></td>
+                                                            <td class="text-center">
+                                                                <input type="checkbox" class="form-check-input page-checkbox" name="page[]" value="<?php echo htmlspecialchars($page, ENT_QUOTES, 'UTF-8'); ?>" <?php echo $isChecked ? 'checked' : ''; ?>>
+                                                            </td>
+                                                        </tr>
+                                                    <?php endforeach; ?>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <!-- End of Pages Table -->
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                    <!-- End of Accordion -->
+
+                    <!-- Hidden Role ID -->
+                    <input type="hidden" name="role_id" value="<?php echo $roleId; ?>">
                 </form>
+                <!-- End of Permissions Form -->
             </div>
+            <!-- End of Card Container -->
         </div>
     </div>
 </div>
@@ -297,7 +384,7 @@ if (isset($_GET['role_id'])) {
 
     // Function to handle category "Select All" checkbox
     function handleCategorySelect(categoryCheckbox) {
-        const categoryCard = categoryCheckbox.closest('.card');
+        const categoryCard = categoryCheckbox.closest('.accordion-item');
         const pageCheckboxes = categoryCard.querySelectorAll('.page-checkbox');
         pageCheckboxes.forEach(function(checkbox) {
             checkbox.checked = categoryCheckbox.checked;
@@ -329,7 +416,7 @@ if (isset($_GET['role_id'])) {
         updateSelectAllCheckbox();
 
         // Initialize category checkboxes
-        const categoryCards = document.querySelectorAll('.card');
+        const categoryCards = document.querySelectorAll('.accordion-item');
         categoryCards.forEach(function(card) {
             updateCategoryCheckbox(card);
         });
@@ -354,7 +441,7 @@ if (isset($_GET['role_id'])) {
     pageCheckboxes.forEach(function(checkbox) {
         checkbox.addEventListener('change', function() {
             // Update category checkbox based on page checkboxes
-            const categoryCard = checkbox.closest('.card');
+            const categoryCard = checkbox.closest('.accordion-item');
             updateCategoryCheckbox(categoryCard);
 
             // Update global "Select All" checkbox
@@ -377,6 +464,12 @@ if (isset($_GET['role_id'])) {
                 row.style.display = 'none';
             }
         });
+    });
+
+    // Event Listener for Reset Button to reset form state
+    document.getElementById('resetButton').addEventListener('click', function() {
+        // Re-initialize checkboxes to their original state
+        initializeCheckboxes();
     });
 
     // Initialize checkboxes on page load
