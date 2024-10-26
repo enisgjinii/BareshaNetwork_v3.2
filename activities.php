@@ -37,7 +37,7 @@ include 'partials/header.php';
             "processing": true,
             "serverSide": true,
             "ajax": {
-                "url": "activities_data.php",
+                "url": "api/get_methods/get_activities_data.php",
                 "type": "POST"
             },
             "columns": [{

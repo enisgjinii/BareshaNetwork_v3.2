@@ -1,95 +1,176 @@
 <?php
-if (isset($_GET['email'])) {
-    $deniedEmail = $_GET['email'];
+// access_denied.php
 
-    // Get user's IP address and user agent
-    $ipAddress = $_SERVER['REMOTE_ADDR'];
-    $userAgent = $_SERVER['HTTP_USER_AGENT'];
+// Start output buffering and session (if needed)
+session_start();
+ob_start();
 
-    // Include your database connection code (conn-d.php)
-    require_once('conn-d.php');
-
-    // Insert the denial record into the database
-    $sql = "INSERT INTO access_denial_logs (ip_address, email_attempted, user_agent) 
-            VALUES (?, ?, ?)";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param('sss', $ipAddress, $deniedEmail, $userAgent);
-
-    if ($stmt->execute()) {
-        // Record inserted successfully
-        // echo "Access denied. Your email: " . htmlspecialchars($deniedEmail);
-    } else {
-        // Error occurred while inserting the record
-        echo "Error: Unable to log access denial.";
+// Function to retrieve the client's real IP address
+function getClientIP()
+{
+    $ipKeys = [
+        'HTTP_CLIENT_IP',
+        'HTTP_X_FORWARDED_FOR',
+        'REMOTE_ADDR'
+    ];
+    foreach ($ipKeys as $key) {
+        if (!empty($_SERVER[$key])) {
+            // Handle multiple IP addresses (e.g., proxies)
+            $ipList = explode(',', $_SERVER[$key]);
+            foreach ($ipList as $ip) {
+                $ip = trim($ip);
+                if (filter_var($ip, FILTER_VALIDATE_IP)) {
+                    return $ip;
+                }
+            }
+        }
     }
-
-    // Close the database connection
-    $stmt->close();
-    $conn->close();
-} else {
-    // echo "Access denied.";
+    return 'UNKNOWN';
 }
+
+// Initialize variables
+$deniedEmail = '';
+$logStatus = '';
+$errorOccurred = false;
+
+// Process GET parameter
+if (isset($_GET['email'])) {
+    $deniedEmail = trim($_GET['email']);
+
+    // Validate email format
+    if (filter_var($deniedEmail, FILTER_VALIDATE_EMAIL)) {
+        // Get user's IP address and user agent
+        $ipAddress = getClientIP();
+        $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown';
+
+        // Include your database connection code (conn-d.php)
+        require_once('conn-d.php');
+
+        try {
+            // Prepare the SQL statement
+            $sql = "INSERT INTO access_denial_logs (ip_address, email_attempted, user_agent, denied_at) 
+                    VALUES (?, ?, ?, NOW())";
+            if ($stmt = $conn->prepare($sql)) {
+                // Bind parameters
+                $stmt->bind_param('sss', $ipAddress, $deniedEmail, $userAgent);
+
+                // Execute the statement
+                if ($stmt->execute()) {
+                    $logStatus = 'Your access denial attempt has been logged.';
+                } else {
+                    // Log the error internally
+                    error_log("Database Execution Error: " . $stmt->error);
+                    $logStatus = 'There was an issue logging your access attempt.';
+                }
+
+                // Close the statement
+                $stmt->close();
+            } else {
+                // Log the error internally
+                error_log("Database Preparation Error: " . $conn->error);
+                $logStatus = 'There was an issue preparing the logging mechanism.';
+            }
+
+            // Close the database connection
+            $conn->close();
+        } catch (Exception $e) {
+            // Log the exception internally
+            error_log("Exception: " . $e->getMessage());
+            $logStatus = 'An unexpected error occurred.';
+            $errorOccurred = true;
+        }
+    } else {
+        $logStatus = 'Invalid email format provided.';
+        $errorOccurred = true;
+    }
+} else {
+    $logStatus = 'No email parameter provided.';
+    $errorOccurred = true;
+}
+
+// End output buffering and clean the buffer
+ob_end_clean();
 ?>
+
+<!DOCTYPE html>
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Access Denied</title>
     <!-- Include Bootstrap 5 CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <!-- Include jQuery library -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <!-- Include Bootstrap 5 JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f3f3f3;
+            background-color: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .access-denied-container {
+            max-width: 500px;
+            padding: 30px;
+            background-color: #ffffff;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             text-align: center;
         }
 
-        .container {
-            max-width: 400px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #ffffff;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        .access-denied-container h1 {
+            color: #dc3545;
+            margin-bottom: 20px;
         }
 
-        h1 {
-            color: #d9534f;
+        .access-denied-container p {
+            font-size: 1rem;
+            color: #6c757d;
         }
 
-        p {
-            font-size: 16px;
+        .access-denied-container .alert {
+            margin-top: 20px;
         }
     </style>
 </head>
 
 <body>
-    <div class="container mt-5">
+    <div class="access-denied-container">
         <h1>Access Denied</h1>
-        <p>This web app is for internal use only.</p>
+        <p>This web application is intended for internal use only.</p>
         <p>If you believe you should have access, please contact the administrator.</p>
 
-        <?php
-        if (isset($_GET['email'])) {
-            $deniedEmail = $_GET['email'];
-            echo '<p>Your email: ' . htmlspecialchars($deniedEmail) . '</p>';
-        }
-        ?>
+        <?php if ($deniedEmail): ?>
+            <p><strong>Your email:</strong> <?= htmlspecialchars($deniedEmail, ENT_QUOTES, 'UTF-8') ?></p>
+        <?php endif; ?>
 
-        <a href="kycu_1.php" class="btn btn-primary">Go Back</a>
+        <?php if ($logStatus): ?>
+            <?php if ($errorOccurred): ?>
+                <div class="alert alert-warning" role="alert">
+                    <?= htmlspecialchars($logStatus, ENT_QUOTES, 'UTF-8') ?>
+                </div>
+            <?php else: ?>
+                <div class="alert alert-success" role="alert">
+                    <?= htmlspecialchars($logStatus, ENT_QUOTES, 'UTF-8') ?>
+                </div>
+            <?php endif; ?>
+        <?php endif; ?>
+
+        <a href="kycu_1.php" class="btn btn-primary mt-3">Go Back</a>
     </div>
 
+    <!-- Include Bootstrap 5 JS and dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Optional: Add a fade-in animation using jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(document).ready(function() {
-            $(".container").fadeIn(1000);
+            $(".access-denied-container").hide().fadeIn(1000);
         });
     </script>
 </body>
 
-
+</html>

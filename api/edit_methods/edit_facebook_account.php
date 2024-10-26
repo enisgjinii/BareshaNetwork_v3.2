@@ -1,5 +1,5 @@
 <?php
-include 'conn-d.php';
+include '../../conn-d.php';
 
 // Check if the form is submitted
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -42,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (mysqli_query($conn, $query)) {
         // The update was successful
         echo "Update successful!";
-        $redirectURL = "facebook-account.php?kid=" . $kid;
+        $redirectURL = "../../facebook-account.php?kid=" . $kid;
         header("Location: " . $redirectURL);
         exit(); // Make sure to include this line after the redirect
     } else {
