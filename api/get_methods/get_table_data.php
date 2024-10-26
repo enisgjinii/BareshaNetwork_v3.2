@@ -4,6 +4,9 @@ include '../../conn-d.php'; // Adjust the path as needed
 // Retrieve 'category' from POST data instead of GET
 $category = isset($_POST['category']) ? $_POST['category'] : 'all';
 
+// Log the received category (Optional: Remove in production)
+error_log("Received category: " . $category);
+
 // Initialize response array
 $response = [
     'success' => true,
@@ -11,7 +14,7 @@ $response = [
 ];
 
 try {
-    if ($category === 'all') {
+    if (strtolower($category) === 'all') {
         $sql = "SELECT * FROM invoices_kont ORDER BY id DESC";
         $stmt = $conn->prepare($sql);
     } else {

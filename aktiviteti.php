@@ -4,10 +4,8 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 require 'vendor/autoload.php';
 include 'partials/header.php';
-
 // Initialize messages
 $mesazhi_sukses = $mesazhi_error = "";
-
 // SMTP Configuration Constants
 define('SMTP_HOST', 'smtp.gmail.com');
 define('SMTP_USERNAME', 'egjini@bareshamusic.com'); // Replace with your actual email
@@ -16,7 +14,6 @@ define('SMTP_SECURE', 'tls');
 define('SMTP_PORT', 587);
 define('SMTP_FROM_EMAIL', 'egjini@bareshamusic.com'); // Replace with your actual email
 define('SMTP_FROM_NAME', 'Departamenti HR');
-
 /**
  * Helper function to configure and return a PHPMailer instance
  */
@@ -40,14 +37,12 @@ function getMailer()
         return false;
     }
 }
-
 /**
  * Function to sanitize user input
  */
 function sanitizeInput($data) {
     return htmlspecialchars(trim($data));
 }
-
 // Check if user is authenticated via email cookie
 if (isset($_COOKIE['email'])) {
     // Retrieve email from cookie
@@ -57,16 +52,13 @@ if (isset($_COOKIE['email'])) {
     header("Location: login.php");
     exit();
 }
-
 // Validate email
 if (empty($user_email)) {
     header("Location: login.php");
     exit();
 }
-
 // Database connection (Assuming you have a connection script)
 include 'partials/db_connection.php';
-
 // Retrieve user details
 $stmt = $conn->prepare("SELECT id, firstName, last_name FROM googleauth WHERE email = ?");
 $stmt->bind_param("s", $user_email);
@@ -81,7 +73,6 @@ if ($result->num_rows !== 1) {
 $user = $result->fetch_assoc();
 $user_employee_id = $user['id'];
 $is_admin = ($user_email === 'egjini17@gmail.com') ? true : false;
-
 // Handle POST Requests
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Assign Activity
@@ -97,7 +88,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $reason = sanitizeInput($_POST['reason']);
         $start_date = $_POST['start_date'];
         $end_date = $_POST['end_date'];
-        
         // Validate inputs
         if (empty($status) || empty($start_date) || empty($end_date)) {
             $mesazhi_error = "Të gjitha fushat përveç arsyeve janë të nevojshme.";
@@ -163,7 +153,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $reason = sanitizeInput($_POST['reason']);
         $start_date = $_POST['start_date'];
         $end_date = $_POST['end_date'];
-        
         // Validate inputs
         if (empty($status) || empty($start_date) || empty($end_date)) {
             $mesazhi_error = "Të gjitha fushat përveç arsyeve janë të nevojshme.";
@@ -216,7 +205,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     }
 }
-
 // Handle GET Requests for Approval, Rejection, and Deletion
 if ($_SERVER["REQUEST_METHOD"] == "GET") {
     // Only admins can approve, reject, or delete
@@ -325,11 +313,9 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
         }
     }
 }
-
 /**
  * Email Sending Functions Using the Helper Function
  */
-
 /**
  * Sends notification emails for assigning and updating activities
  */
@@ -387,7 +373,6 @@ function sendEmailNotification($to_email, $firstName, $lastName, $status, $start
         return false;
     }
 }
-
 /**
  * Sends approval notification emails
  */
@@ -420,7 +405,6 @@ function sendApprovalNotification($to_email, $firstName, $lastName, $status, $st
         return false;
     }
 }
-
 /**
  * Sends rejection notification emails
  */
@@ -454,7 +438,6 @@ function sendRejectionNotification($to_email, $firstName, $lastName, $status, $s
         return false;
     }
 }
-
 /**
  * Sends deletion notification emails
  */
@@ -488,7 +471,6 @@ function sendDeletionNotification($to_email, $firstName, $lastName, $status, $st
         return false;
     }
 }
-
 // Retrieve Employees
 $employees = [];
 if ($is_admin) {
@@ -528,7 +510,6 @@ if ($is_admin) {
         $mesazhi_error = "Dështoi përgatitja e pyetjes për punonjësin.";
     }
 }
-
 // Retrieve Activities
 $activities = [];
 if ($is_admin) {
@@ -554,7 +535,6 @@ if ($is_admin) {
         $mesazhi_error = "Dështoi përgatitja e pyetjes për aktivitetet.";
     }
 }
-
 if ($act_result && $act_result->num_rows > 0) {
     while ($row = $act_result->fetch_assoc()) {
         $activities[] = $row;
@@ -566,7 +546,6 @@ if ($act_result && $act_result->num_rows > 0) {
         $mesazhi_error = "Ju nuk keni aktivitete të regjistruara.";
     }
 }
-
 $conn->close();
 ?>
 <div class="main-panel">
@@ -827,7 +806,6 @@ $conn->close();
                     dateFormat: "Y-m-d",
                     locale: "sq", // Set language to Albanian
                 });
-
                 // Initialize FullCalendar
                 var calendarEl = document.getElementById('calendar');
                 var calendar = new FullCalendar.Calendar(calendarEl, {
@@ -885,13 +863,11 @@ $conn->close();
                     }
                 });
                 calendar.render();
-
                 <?php if ($is_admin): ?>
                     // Initialize Edit Modal
                     var editModal = new bootstrap.Modal(document.getElementById('editModal'), {
                         keyboard: false
                     });
-
                     // Populate and Show Edit Modal on Edit Button Click
                     document.querySelectorAll('.edit-btn').forEach(function(button) {
                         button.addEventListener('click', function() {
@@ -910,7 +886,6 @@ $conn->close();
                             editModal.show();
                         });
                     });
-
                     // Handle Approve Button Click
                     document.querySelectorAll('.approve-btn').forEach(function(button) {
                         button.addEventListener('click', function() {
@@ -930,7 +905,6 @@ $conn->close();
                             });
                         });
                     });
-
                     // Handle Reject Button Click
                     document.querySelectorAll('.reject-btn').forEach(function(button) {
                         button.addEventListener('click', function() {
@@ -950,7 +924,6 @@ $conn->close();
                             });
                         });
                     });
-
                     // Handle Delete Button Click
                     document.querySelectorAll('.delete-btn').forEach(function(button) {
                         button.addEventListener('click', function() {

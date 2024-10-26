@@ -1,90 +1,150 @@
 <?php
 include 'partials/header.php';
+
+// Ensure $conn is defined in header.php
+if (!isset($conn)) {
+    die("Database connection not established.");
+}
+
 function sanitize_input($conn, $input)
 {
     return mysqli_real_escape_string($conn, $input);
 }
+
 if (isset($_GET['id'])) {
     $gid = sanitize_input($conn, $_GET['id']);
     $stmt = $conn->prepare("UPDATE rrogat SET lexuar = ? WHERE id = ?");
-    $status = 1;
-    $stmt->bind_param("ii", $status, $gid);
-    $stmt->execute();
-    $stmt->close();
-}
-if (isset($_POST['ruaj'])) {
-    $emri = sanitize_input($conn, $_POST['emri']);
-    $stmt = $conn->prepare("SELECT emri FROM klientet WHERE id = ?");
-    $stmt->bind_param("i", $emri);
-    $stmt->execute();
-    $stmt->bind_result($emrifull);
-    $stmt->fetch();
-    $stmt->close();
-    $data = sanitize_input($conn, $_POST['data']);
-    $fatura = sanitize_input($conn, $_POST['fatura']);
-    $stmt = $conn->prepare("INSERT INTO fatura (emri, emrifull, data, fatura) VALUES (?, ?, ?, ?)");
-    $stmt->bind_param("ssis", $emri, $emrifull, $data, $fatura);
-    if ($stmt->execute()) {
-        echo "<meta http-equiv='refresh' content='0;URL=\'shitje.php?fatura={$fatura}\' />";
+    if ($stmt) {
+        $status = 1;
+        $stmt->bind_param("ii", $status, $gid);
+        $stmt->execute();
+        $stmt->close();
     } else {
-        echo "Gabim: " . $conn->error;
+        echo "Error preparing statement: " . $conn->error;
     }
-    $stmt->close();
 }
-if (isset($_GET['fshij'])) {
-    $fshijid = sanitize_input($conn, $_GET['fshij']);
-    $stmt = $conn->prepare("SELECT emri, fatura, data FROM fatura WHERE fatura = ?");
-    $stmt->bind_param("s", $fshijid);
-    $stmt->execute();
-    $stmt->bind_result($emr, $fatura2, $data2);
-    $stmt->fetch();
-    $stmt->close();
-    $stmt = $conn->prepare("INSERT INTO draft (emri, data, fatura) VALUES (?, ?, ?)");
-    $stmt->bind_param("sss", $emr, $data2, $fatura2);
-    if ($stmt->execute()) {
-        $stmt->close();
-        $stmt = $conn->prepare("DELETE FROM fatura WHERE fatura = ?");
-        $stmt->bind_param("s", $fshijid);
+
+if (isset($_POST['ruaj'])) {
+    $emri_id = sanitize_input($conn, $_POST['emri']);
+
+    // Fetch emrifull based on emri_id
+    $stmt = $conn->prepare("SELECT emri FROM klientet WHERE id = ?");
+    if ($stmt) {
+        $stmt->bind_param("i", $emri_id);
         $stmt->execute();
-        $stmt->close();
-        $stmt = $conn->prepare("SELECT emertimi, qmimi, perqindja, klientit, mbetja, totali, fatura, data FROM shitje WHERE fatura = ?");
-        $stmt->bind_param("s", $fshijid);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        while ($draft = $result->fetch_assoc()) {
-            $insertStmt = $conn->prepare("INSERT INTO shitjedraft (emertimi, qmimi, perqindja, klientit, mbetja, totali, fatura, data) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-            $insertStmt->bind_param(
-                "sddsdiss",
-                $draft['emertimi'],
-                $draft['qmimi'],
-                $draft['perqindja'],
-                $draft['klientit'],
-                $draft['mbetja'],
-                $draft['totali'],
-                $draft['fatura'],
-                $draft['data']
-            );
-            if ($insertStmt->execute()) {
-                $deleteStmt = $conn->prepare("DELETE FROM shitje WHERE fatura = ?");
-                $deleteStmt->bind_param("s", $fshijid);
-                $deleteStmt->execute();
-                $deleteStmt->close();
-            }
-            $insertStmt->close();
+        $stmt->bind_result($emrifull);
+        if (!$stmt->fetch()) {
+            $emrifull = '';
         }
         $stmt->close();
     } else {
-        echo "<script>alert('{$conn->error}');</script>";
+        echo "Error preparing statement: " . $conn->error;
+    }
+
+    $data = sanitize_input($conn, $_POST['data']);
+    $fatura = sanitize_input($conn, $_POST['fatura']);
+
+    $stmt = $conn->prepare("INSERT INTO fatura (emri, emrifull, data, fatura) VALUES (?, ?, ?, ?)");
+    if ($stmt) {
+        $stmt->bind_param("ssis", $emri_id, $emrifull, $data, $fatura);
+        if ($stmt->execute()) {
+            // Corrected the meta refresh syntax
+            echo "<meta http-equiv='refresh' content='0;URL=shitje.php?fatura={$fatura}' />";
+        } else {
+            echo "Gabim: " . $stmt->error;
+        }
+        $stmt->close();
+    } else {
+        echo "Error preparing statement: " . $conn->error;
+    }
+}
+
+if (isset($_GET['fshij'])) {
+    $fshijid = sanitize_input($conn, $_GET['fshij']);
+
+    // Fetch existing fatura details
+    $stmt = $conn->prepare("SELECT emri, fatura, data FROM fatura WHERE fatura = ?");
+    if ($stmt) {
+        $stmt->bind_param("s", $fshijid);
+        $stmt->execute();
+        $stmt->bind_result($emr, $fatura2, $data2);
+        if ($stmt->fetch()) {
+            // Insert into draft
+            $stmt->close();
+            $stmt = $conn->prepare("INSERT INTO draft (emri, data, fatura) VALUES (?, ?, ?)");
+            if ($stmt) {
+                $stmt->bind_param("sss", $emr, $data2, $fatura2);
+                if ($stmt->execute()) {
+                    $stmt->close();
+
+                    // Delete from fatura
+                    $stmt = $conn->prepare("DELETE FROM fatura WHERE fatura = ?");
+                    if ($stmt) {
+                        $stmt->bind_param("s", $fshijid);
+                        $stmt->execute();
+                        $stmt->close();
+                    } else {
+                        echo "<script>alert('Error preparing delete statement: {$conn->error}');</script>";
+                    }
+
+                    // Fetch related shitje entries
+                    $stmt = $conn->prepare("SELECT emertimi, qmimi, perqindja, klientit, mbetja, totali, fatura, data FROM shitje WHERE fatura = ?");
+                    if ($stmt) {
+                        $stmt->bind_param("s", $fshijid);
+                        $stmt->execute();
+                        $result = $stmt->get_result();
+                        while ($draft = $result->fetch_assoc()) {
+                            $insertStmt = $conn->prepare("INSERT INTO shitjedraft (emertimi, qmimi, perqindja, klientit, mbetja, totali, fatura, data) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+                            if ($insertStmt) {
+                                $insertStmt->bind_param(
+                                    "sddsdiss",
+                                    $draft['emertimi'],
+                                    $draft['qmimi'],
+                                    $draft['perqindja'],
+                                    $draft['klientit'],
+                                    $draft['mbetja'],
+                                    $draft['totali'],
+                                    $draft['fatura'],
+                                    $draft['data']
+                                );
+                                if ($insertStmt->execute()) {
+                                    // Delete the original shitje entry
+                                    $deleteStmt = $conn->prepare("DELETE FROM shitje WHERE fatura = ?");
+                                    if ($deleteStmt) {
+                                        $deleteStmt->bind_param("s", $fshijid);
+                                        $deleteStmt->execute();
+                                        $deleteStmt->close();
+                                    } else {
+                                        echo "<script>alert('Error preparing delete shitje statement: {$conn->error}');</script>";
+                                    }
+                                } else {
+                                    echo "<script>alert('Error executing insert into shitjedraft: {$insertStmt->error}');</script>";
+                                }
+                                $insertStmt->close();
+                            } else {
+                                echo "<script>alert('Error preparing insert into shitjedraft: {$conn->error}');</script>";
+                            }
+                        }
+                        $stmt->close();
+                    } else {
+                        echo "<script>alert('Error preparing select shitje statement: {$conn->error}');</script>";
+                    }
+                } else {
+                    echo "<script>alert('Error executing insert into draft: {$stmt->error}');</script>";
+                }
+            } else {
+                echo "<script>alert('Error preparing insert into draft statement: {$conn->error}');</script>";
+            }
+        } else {
+            echo "<script>alert('Fatura not found.');</script>";
+            $stmt->close();
+        }
+    } else {
+        echo "<script>alert('Error preparing select fatura statement: {$conn->error}');</script>";
     }
 }
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
-    <link rel="stylesheet" href="tcal.css" />
-    <script src="tcal.js"></script>
-</head>
+
 <body>
     <!-- Modal for Creating New Fatura -->
     <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -97,18 +157,23 @@ if (isset($_GET['fshij'])) {
                     </div>
                     <div class="modal-body">
                         <label for="emri">Emri & Mbiemri</label>
-                        <select name="emri" class="form-select shadow-sm rounded-5 my-2">
+                        <select name="emri" class="form-select shadow-sm rounded-5 my-2" required>
+                            <option value="" disabled selected>Zgjidhni një klient</option>
                             <?php
                             $result = $conn->query("SELECT id, emri FROM klientet WHERE blocked = '0'");
-                            while ($client = $result->fetch_assoc()) {
-                                echo "<option value='{$client['id']}'>{$client['emri']}</option>";
+                            if ($result) {
+                                while ($client = $result->fetch_assoc()) {
+                                    echo "<option value='{$client['id']}'>{$client['emri']}</option>";
+                                }
+                            } else {
+                                echo "<option value=''>Nuk u gjet asnjë klient</option>";
                             }
                             ?>
                         </select>
-                        <label for="datas">Data:</label>
-                        <input type="text" name="data" class="form-control shadow-sm rounded-5 my-2" value="<?= date("Y-m-d") ?>">
-                        <label for="imei">Fatura:</label>
-                        <input type="text" name="fatura" class="form-control shadow-sm rounded-5 my-2" value="<?= date('dmYhis') ?>" readonly>
+                        <label for="data">Data:</label>
+                        <input type="date" name="data" class="form-control shadow-sm rounded-5 my-2" value="<?= date("Y-m-d") ?>" required>
+                        <label for="fatura">Fatura:</label>
+                        <input type="text" name="fatura" class="form-control shadow-sm rounded-5 my-2" value="<?= date('dmYHis') ?>" readonly>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Mbylle</button>
@@ -123,12 +188,10 @@ if (isset($_GET['fshij'])) {
         <div class="content-wrapper">
             <div class="container-fluid">
                 <!-- Breadcrumb -->
-                <nav class="bg-white px-2 rounded-5" style="width:fit-content;" aria-label="breadcrumb">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><span class="text-reset">Financat</span></li>
-                        <li class="breadcrumb-item active" aria-current="page">
-                            <span class="text-reset">Pagesat Youtube</span>
-                        </li>
+                <nav class="bg-white px-2 rounded-5 my-3" aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item"><a href="#">Financat</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Pagesat Youtube</li>
                     </ol>
                 </nav>
                 <!-- Modal for Adding Payment -->
@@ -142,17 +205,18 @@ if (isset($_GET['fshij'])) {
                                 </div>
                                 <div class="modal-body">
                                     <label>Fatura:</label>
-                                    <input type="text" name="fatura" id="fatura" class="form-control shadow-sm rounded-5 my-2" placeholder="Shëno numrin e faturës">
+                                    <input type="text" name="fatura" id="fatura" class="form-control shadow-sm rounded-5 my-2" placeholder="Shëno numrin e faturës" required>
                                     <label>Përshkrimi:</label>
-                                    <textarea name="pershkrimi" id="pershkrimi" class="form-control shadow-sm rounded-5 my-2"></textarea>
+                                    <textarea name="pershkrimi" id="pershkrimi" class="form-control shadow-sm rounded-5 my-2" required></textarea>
                                     <label>Shuma:</label>
                                     <div class="input-group mb-3">
                                         <span class="input-group-text">€</span>
-                                        <input type="text" name="shuma" id="shuma" class="form-control shadow-sm rounded-5 my-2" placeholder="0" aria-label="Shuma">
+                                        <input type="number" step="0.01" name="shuma" id="shuma" class="form-control shadow-sm rounded-5 my-2" placeholder="0.00" aria-label="Shuma" required>
                                         <span class="input-group-text">.00</span>
                                     </div>
                                     <label>Mënyra e Pagesës</label>
-                                    <select name="menyra" id="menyra" class="form-select shadow-sm rounded-5 my-2">
+                                    <select name="menyra" id="menyra" class="form-select shadow-sm rounded-5 my-2" required>
+                                        <option value="" disabled selected>Zgjidhni një metodë</option>
                                         <?php
                                         $methods = ["BANK", "CASH", "PayPal", "Ria", "MoneyGram", "WesternUnion"];
                                         foreach ($methods as $method) {
@@ -161,7 +225,7 @@ if (isset($_GET['fshij'])) {
                                         ?>
                                     </select>
                                     <label>Data</label>
-                                    <input type="text" name="data" id="data" value="<?= date("Y-m-d") ?>" class="form-control shadow-sm rounded-5 my-2">
+                                    <input type="date" name="data" id="data" value="<?= date("Y-m-d") ?>" class="form-control shadow-sm rounded-5 my-2" required>
                                     <div id="mesg" class="text-danger"></div>
                                 </div>
                                 <div class="modal-footer">
@@ -186,7 +250,7 @@ if (isset($_GET['fshij'])) {
                                         <th>Shuma</th>
                                         <th>Sh.Paguar</th>
                                         <th>Obligim</th>
-                                        <th></th>
+                                        <th>Aksion</th>
                                     </tr>
                                 </thead>
                                 <tbody></tbody>
@@ -201,9 +265,17 @@ if (isset($_GET['fshij'])) {
                                             success: function(response) {
                                                 $('#mesg').text(response);
                                                 $('#employeeList').DataTable().ajax.reload();
+                                                // Optionally, hide the modal after successful save
+                                                if (response.trim() === "Success") {
+                                                    $('#pagesmodal').modal('hide');
+                                                }
+                                            },
+                                            error: function(xhr, status, error) {
+                                                $('#mesg').text("Error: " + error);
                                             }
                                         });
                                     });
+
                                     var dataTables = $('#employeeList').DataTable({
                                         responsive: false,
                                         order: [
@@ -249,19 +321,19 @@ if (isset($_GET['fshij'])) {
                                                 extend: 'pdfHtml5',
                                                 text: '<i class="fi fi-rr-file-pdf fa-lg"></i>&nbsp;&nbsp; PDF',
                                                 titleAttr: 'Eksporto tabelen në formatin PDF',
-                                                className: 'input-custom-css px-3 py-2'
+                                                className: 'btn btn-danger'
                                             },
                                             {
                                                 extend: 'copyHtml5',
                                                 text: '<i class="fi fi-rr-copy fa-lg"></i>&nbsp;&nbsp; Kopjo',
                                                 titleAttr: 'Kopjo tabelen në formatin Clipboard',
-                                                className: 'input-custom-css px-3 py-2'
+                                                className: 'btn btn-secondary'
                                             },
                                             {
                                                 extend: 'excelHtml5',
                                                 text: '<i class="fi fi-rr-file-excel fa-lg"></i>&nbsp;&nbsp; Excel',
                                                 titleAttr: 'Eksporto tabelen në formatin Excel',
-                                                className: 'input-custom-css px-3 py-2',
+                                                className: 'btn btn-success',
                                                 exportOptions: {
                                                     modifier: {
                                                         search: 'applied',
@@ -274,7 +346,7 @@ if (isset($_GET['fshij'])) {
                                                 extend: 'print',
                                                 text: '<i class="fi fi-rr-print fa-lg"></i>&nbsp;&nbsp; Printo',
                                                 titleAttr: 'Printo tabelën',
-                                                className: 'input-custom-css px-3 py-2'
+                                                className: 'btn btn-info'
                                             }
                                         ],
                                         initComplete: function() {
@@ -295,6 +367,8 @@ if (isset($_GET['fshij'])) {
                                         },
                                         stripeClasses: ['stripe-color']
                                     });
+
+                                    // Delete functionality
                                     $(document).on('click', '.delete', function() {
                                         var id = $(this).attr("id");
                                         if (confirm("A jeni i sigurt që doni ta hiqni këtë?")) {
@@ -307,6 +381,9 @@ if (isset($_GET['fshij'])) {
                                                 success: function(data) {
                                                     $('#alert_message').html('<div class="alert alert-success">' + data + '</div>');
                                                     dataTables.ajax.reload();
+                                                },
+                                                error: function(xhr, status, error) {
+                                                    $('#alert_message').html('<div class="alert alert-danger">Error: ' + error + '</div>');
                                                 }
                                             });
                                             setTimeout(function() {
@@ -314,6 +391,8 @@ if (isset($_GET['fshij'])) {
                                             }, 5000);
                                         }
                                     });
+
+                                    // Open modal and populate fields
                                     $(document).on('click', '.open-modal', function() {
                                         var fatura = $(this).closest('tr').find('td').eq(2).text().trim();
                                         var obli = $(this).closest('tr').find('td').eq(6).text().trim();
@@ -330,6 +409,11 @@ if (isset($_GET['fshij'])) {
             </div>
         </div>
     </div>
+
+    <!-- Alert Message Placeholder -->
+    <div id="alert_message" class="position-fixed bottom-0 end-0 p-3" style="z-index: 11;">
+        <!-- Alerts will be injected here -->
+    </div>
+
     <?php include 'partials/footer.php'; ?>
 </body>
-</html>
