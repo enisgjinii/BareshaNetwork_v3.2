@@ -339,85 +339,85 @@ if (isset($_POST['shto'])) {
                               <br><a href='https://www.google.com/maps/place/" . $ads['shteti'] . "' target='_blank' class='btn btn-light shadow-sm border btn-sm'><img src='https://img.icons8.com/emoji/36/null/" . strtolower($ads['shteti']) . "-emoji.png'/></a>";
                                                           ?> </td>
                 </tr>
-               
-                  <tr>
-                    <th>Perqindja</th>
-                    <td><?php echo $guse2['perqindja']; ?>%</td>
-                  </tr>
-               
+
+                <tr>
+                  <th>Perqindja</th>
+                  <td><?php echo $guse2['perqindja']; ?>%</td>
+                </tr>
+
                 <?php
+                $totali = 0.00;
+                $totaliMbetur = 0.00;
+                $totaliYoutube = 0.00;
+                $totaliObligimitYoutube = 0.00;
+                $pyetja = $conn->query("SELECT * FROM fatura WHERE emri='$kid'");
+                while ($rreshti = mysqli_fetch_array($pyetja)) {
+                  $fatura = $rreshti['fatura'];
+                  $shumaKlientit = $conn->query("SELECT SUM(klientit) as total FROM shitje WHERE fatura='$fatura'");
+                  $shumaMbetur = $conn->query("SELECT SUM(mbetja) as total FROM shitje WHERE fatura='$fatura'");
+                  $shumaYoutube = $conn->query("SELECT SUM(`totali`) as `sum` FROM `shitje` WHERE fatura='$fatura'");
+                  $shumaObligimitYoutube = $conn->query("SELECT SUM(`shuma`) as `sum` FROM `pagesat` WHERE fatura='$fatura'");
+                  $rreshtiShumaKlientit = mysqli_fetch_array($shumaKlientit);
+                  $rreshtiShumaMbetur = mysqli_fetch_array($shumaMbetur);
+                  $rreshtiShumaYoutube = mysqli_fetch_array($shumaYoutube);
+                  $rreshtiShumaObligimitYoutube = mysqli_fetch_array($shumaObligimitYoutube);
+                  $obligimi = $rreshtiShumaObligimitYoutube['sum'] - $rreshtiShumaYoutube['sum'];
+                  $totali += $rreshtiShumaKlientit['total'];
+                  $totaliMbetur += $rreshtiShumaMbetur['total'];
+                  $totaliYoutube += $rreshtiShumaYoutube['sum'];
+                  $totaliObligimitYoutube += $obligimi;
+                }
+                if (empty($totali)) {
                   $totali = 0.00;
+                }
+                if (empty($totaliMbetur)) {
                   $totaliMbetur = 0.00;
+                }
+                if (empty($totaliYoutube)) {
                   $totaliYoutube = 0.00;
+                }
+                if (empty($totaliObligimitYoutube)) {
                   $totaliObligimitYoutube = 0.00;
-                  $pyetja = $conn->query("SELECT * FROM fatura WHERE emri='$kid'");
-                  while ($rreshti = mysqli_fetch_array($pyetja)) {
-                    $fatura = $rreshti['fatura'];
-                    $shumaKlientit = $conn->query("SELECT SUM(klientit) as total FROM shitje WHERE fatura='$fatura'");
-                    $shumaMbetur = $conn->query("SELECT SUM(mbetja) as total FROM shitje WHERE fatura='$fatura'");
-                    $shumaYoutube = $conn->query("SELECT SUM(`totali`) as `sum` FROM `shitje` WHERE fatura='$fatura'");
-                    $shumaObligimitYoutube = $conn->query("SELECT SUM(`shuma`) as `sum` FROM `pagesat` WHERE fatura='$fatura'");
-                    $rreshtiShumaKlientit = mysqli_fetch_array($shumaKlientit);
-                    $rreshtiShumaMbetur = mysqli_fetch_array($shumaMbetur);
-                    $rreshtiShumaYoutube = mysqli_fetch_array($shumaYoutube);
-                    $rreshtiShumaObligimitYoutube = mysqli_fetch_array($shumaObligimitYoutube);
-                    $obligimi = $rreshtiShumaObligimitYoutube['sum'] - $rreshtiShumaYoutube['sum'];
-                    $totali += $rreshtiShumaKlientit['total'];
-                    $totaliMbetur += $rreshtiShumaMbetur['total'];
-                    $totaliYoutube += $rreshtiShumaYoutube['sum'];
-                    $totaliObligimitYoutube += $obligimi;
-                  }
-                  if (empty($totali)) {
-                    $totali = 0.00;
-                  }
-                  if (empty($totaliMbetur)) {
-                    $totaliMbetur = 0.00;
-                  }
-                  if (empty($totaliYoutube)) {
-                    $totaliYoutube = 0.00;
-                  }
-                  if (empty($totaliObligimitYoutube)) {
-                    $totaliObligimitYoutube = 0.00;
-                  }
+                }
                 ?>
-                  <tr>
-                    <th>Shuma totale e pagesave</th>
-                    <td><?php echo $totali; ?>&euro;</td>
-                  </tr>
-                  <tr>
+                <tr>
+                  <th>Shuma totale e pagesave</th>
+                  <td><?php echo $totali; ?>&euro;</td>
+                </tr>
+                <tr>
+                  <?php
+                  $emri_i_artistit = $guse2['emri'];
+                  $kerkesa = $conn->query("SELECT SUM(`RevenueUSD`) as `sum` FROM `platformat` WHERE Artist='$emri_i_artistit'");
+                  $nxerrja_e_kerkeses = mysqli_fetch_array($kerkesa);
+                  ?>
+                  <th>Shuma totale e pagesave ne platforma tjera</th>
+                  <td>
+                    <?php echo $nxerrja_e_kerkeses['sum']; ?> &euro;
+                  </td>
+                </tr>
+                <tr>
+                  <th>Shuma totale e pagesave ne platformen Youtube</th>
+                  <td>
+                    <?php echo $totaliYoutube; ?> &euro;
+                  </td>
+                </tr>
+                <tr>
+                  <th>Shuma totale e obligimit ne platformen Youtube</th>
+                  <td>
                     <?php
-                    $emri_i_artistit = $guse2['emri'];
-                    $kerkesa = $conn->query("SELECT SUM(`RevenueUSD`) as `sum` FROM `platformat` WHERE Artist='$emri_i_artistit'");
-                    $nxerrja_e_kerkeses = mysqli_fetch_array($kerkesa);
-                    ?>
-                    <th>Shuma totale e pagesave ne platforma tjera</th>
-                    <td>
-                      <?php echo $nxerrja_e_kerkeses['sum']; ?> &euro;
-                    </td>
-                  </tr>
-                  <tr>
-                    <th>Shuma totale e pagesave ne platformen Youtube</th>
-                    <td>
-                      <?php echo $totaliYoutube; ?> &euro;
-                    </td>
-                  </tr>
-                  <tr>
-                    <th>Shuma totale e obligimit ne platformen Youtube</th>
-                    <td>
-                      <?php
-                      if ($totaliObligimitYoutube == 0) {
-                        echo "<span style='color:green;'>Ky klient nuk ka obligim</span> ";
-                      } else {
-                        echo "<span>" . $totaliObligimitYoutube . "</span>";
-                      }
-                      // echo $totaliObligimitYoutube; 
-                      ?> &euro;
-                    </td>
-                  </tr>
-                  <tr>
-                    <th>Fitimi total nga klienti</th>
-                    <td><?php echo $totaliMbetur; ?>&euro;</td>
-                  </tr>
+                    if ($totaliObligimitYoutube == 0) {
+                      echo "<span style='color:green;'>Ky klient nuk ka obligim</span> ";
+                    } else {
+                      echo "<span>" . $totaliObligimitYoutube . "</span>";
+                    }
+                    // echo $totaliObligimitYoutube; 
+                    ?> &euro;
+                  </td>
+                </tr>
+                <tr>
+                  <th>Fitimi total nga klienti</th>
+                  <td><?php echo $totaliMbetur; ?>&euro;</td>
+                </tr>
                 <tr>
                   <th>Data e kontratës</th>
                   <td><?php echo $guse2['dk']; ?></td>
@@ -640,4 +640,3 @@ if (isset($_POST['shto'])) {
     });
   }
 </script>
-<!-- AIzaSyBQeKTHOfJHUc92IYtvHzQvj-vFXysqMqQ -->
