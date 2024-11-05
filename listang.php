@@ -9,7 +9,7 @@ if (isset($_GET['import'])) {
     echo "<script>alert('" . ($cdata['error'] ?? $cdata['status']) . "');</script>";
 }
 $breadcrumbItems = [
-    ['text' => 'Videot / Ngarkimi', 'link' => '#'],
+    ['text' => 'Videot & Ngarkimi', 'link' => '#'],
     ['text' => 'Lista e këngëve', 'link' => __FILE__, 'active' => true]
 ];
 $tableHeaders = ['Id', 'Këngëtari', 'Informacioni', 'Rrjete sociale', 'Klienti', 'Info Shtes'];

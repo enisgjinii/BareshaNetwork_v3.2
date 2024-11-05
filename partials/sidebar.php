@@ -58,7 +58,7 @@
         ],
       ],
       [
-        "title" => "Videot / Ngarkimi",
+        "title" => "Videot & Ngarkimi",
         "icon" => "fi fi-rr-cloud-upload-alt menu-icon pe-3",
         "collapseId" => "video",
         "menuItems" => [
@@ -139,12 +139,7 @@
         "icon" => "fi fi-rr-share menu-icon pe-3",
         "collapseId" => "platformat2",
         "menuItems" => [
-          "csvFiles.php" => ["title" => "Inserto CSV"],
-          "filtroCSV.php" => ["title" => "Filtro CSV"],
-          "listaEFaturaveTePlatformave.php" => ["title" => "Lista e faturave"],
-          "pagesatEKryera.php" => ["title" => "Pagesat e perfunduara"],
           "platform_invoices.php" => ["title" => "Raporte te platformave"],
-          "currency.php" => ["title" => "Valutimi"],
         ],
       ],
     ];
