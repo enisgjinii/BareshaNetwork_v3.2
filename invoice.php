@@ -46,7 +46,7 @@ function generateInvoiceNumber()
           </ul>
         </div>
       </div>
-      <div>
+      <div>  
         <?php
         $buttons = [
           ['icon' => 'fi fi-rr-add-document fa-lg', 'text' => 'Fatur&euml; e re', 'target' => '#newInvoice']

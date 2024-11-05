@@ -268,7 +268,7 @@ if (!empty($_POST['companyName']) && $_POST['companyName']) {
         [10, 25, 50, 100, "Te gjitha"]
       ],
       stripeClasses: ['stripe-color'],
-      dom: "<'row'<'col-md-3'l><'col-md-6'B><'col-md-3'f>><'row'<'col-md-12'tr>><'row'<'col-md-6'i><'col-md-6'p>>",
+      dom: "<'row'<'col-md-3'l><'col-md-6'BSR><'col-md-3'f>><'row'<'col-md-12'QPtr>><'row'<'col-md-6'i><'col-md-6'p>>",
       buttons: ['pdfHtml5', 'excelHtml5', 'copyHtml5', 'print'].map(type => ({
         extend: type,
         text: `<i class="fi fi-rr-file-${type.split('Html5')[0]} fa-lg"></i> ${type.split('Html5')[0].toUpperCase()}`,

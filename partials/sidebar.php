@@ -109,7 +109,6 @@
         "menuItems" => [
           "filet.php" => ["title" => "Dokumente tjera"],
           "notes.php" => ["title" => "Shenime"],
-          "klient_CSV.php" => ["title" => "Klient CSV"],
           "logs.php" => ["title" => "Logs"],
         ],
       ],

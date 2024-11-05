@@ -5,7 +5,9 @@ include 'conn-d.php';
 ?>
 <!DOCTYPE html>
 <html lang="sq">
+
 <head>
+    <!-- Existing CSS and Libraries -->
     <!-- Include Flatpickr CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <!-- Include SweetAlert2 CSS (if not already included in header.php) -->
@@ -14,60 +16,81 @@ include 'conn-d.php';
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/selectr/dist/selectr.min.css">
     <!-- Include any other necessary CSS here -->
     <style>
+        /* Existing Styles */
+        /* ... (Your existing CSS) ... */
+
         /* Custom styles for the modal */
         #documentImage {
             max-height: 80vh;
             object-fit: contain;
         }
+
         #documentMessage {
             text-align: center;
         }
+
         /* Custom styles for DataTables */
         .table-responsive {
             overflow-x: auto;
         }
+
         /* Optional: Adjust badge positioning */
         .badge {
             font-size: 0.75rem;
         }
+
         /* Adjust nav-pills for better responsiveness */
         .nav-pills {
             flex-wrap: nowrap;
         }
+
         .nav-pills .nav-link {
             white-space: nowrap;
         }
+
         /* Customize Swal alerts to use Bootstrap buttons */
         .swal2-popup.custom-swal-popup {
             width: 100% !important;
-            max-width: 400px; /* Reduced max-width for compactness */
-            padding: 1.5rem; /* Adjust padding as needed */
+            max-width: 400px;
+            /* Reduced max-width for compactness */
+            padding: 1.5rem;
+            /* Adjust padding as needed */
         }
+
         .swal2-title {
-            font-size: 1.25rem; /* Adjust title font size */
+            font-size: 1.25rem;
+            /* Adjust title font size */
             margin-bottom: 1rem;
         }
-        .swal2-input, .swal2-select {
+
+        .swal2-input,
+        .swal2-select {
             width: 100% !important;
             padding: 0.5rem;
             box-sizing: border-box;
         }
-        .swal2-confirm, .swal2-cancel {
+
+        .swal2-confirm,
+        .swal2-cancel {
             padding: 0.5rem 1rem;
             font-size: 0.875rem;
         }
+
         .form-label {
             font-weight: 600;
         }
+
         .form-text {
             font-size: 0.75rem;
             color: #6c757d;
         }
+
         /* Additional Flatpickr styling (optional) */
         .flatpickr-calendar {
             z-index: 9999;
             /* Ensure the calendar appears above other elements */
         }
+
         /* Chart Container Styling */
         #lineChart,
         #doughnutChart,
@@ -75,12 +98,33 @@ include 'conn-d.php';
             max-width: 100%;
             margin: 0 auto;
         }
+
         /* Card Body Padding Adjustment for Charts */
         .card-body {
             padding: 1rem;
         }
+
+        /* START BULK EDIT ENHANCEMENTS */
+
+        /* Style for the Bulk Edit Button */
+        #bulkEditButton {
+            margin-bottom: 15px;
+        }
+
+        /* Adjust table for checkbox column */
+        th.select-checkbox {
+            width: 40px;
+            text-align: center;
+        }
+
+        td.select-checkbox {
+            text-align: center;
+        }
+
+        /* END BULK EDIT ENHANCEMENTS */
     </style>
 </head>
+
 <body>
     <div class="main-panel">
         <div class="content-wrapper">
@@ -115,6 +159,14 @@ include 'conn-d.php';
                     <!-- Tabelat Tab Pane -->
                     <div class="tab-pane fade show active" id="tabelat-tab-pane" role="tabpanel" aria-labelledby="tabelat-tab" tabindex="0">
                         <div class="card shadow-sm mb-4 p-3">
+                            <!-- Bulk Edit Button -->
+                            <div class="row mb-3">
+                                <div class="col-12">
+                                    <button id="bulkEditButton" class="btn btn-warning" disabled>
+                                        <i class="fi fi-rr-edit me-1"></i> Edito të zgjedhurat
+                                    </button>
+                                </div>
+                            </div>
                             <!-- Sub Tabs for Tables -->
                             <ul class="nav nav-pills mb-3 flex-nowrap overflow-auto" id="pills-tab" role="tablist">
                                 <?php
@@ -148,8 +200,9 @@ include 'conn-d.php';
                             <!-- Sub Tab Content -->
                             <div class="tab-content" id="pills-tabContent">
                                 <?php
-                                // Define column labels
+                                // Define column labels including a new checkbox column
                                 $columns = [
+                                    'select' => '<input type="checkbox" id="select-all" />', // Checkbox for selecting all rows
                                     'invoice_date' => 'Data e fat.',
                                     'invoice_number' => 'Nr. fat.',
                                     'description' => 'Përshkrimi',
@@ -167,7 +220,7 @@ include 'conn-d.php';
                                     echo "<table class='table table-bordered table-striped table-hover w-100' id='table-{$key}'>";
                                     echo "<thead class='table-light'><tr>";
                                     foreach ($columns as $columnName) {
-                                        echo "<th>{$columnName}</th>";
+                                        echo "<th class='select-checkbox'>{$columnName}</th>";
                                     }
                                     echo "</tr></thead><tbody></tbody></table></div></div>";
                                 }
@@ -416,6 +469,44 @@ include 'conn-d.php';
         </div>
     </div>
 
+    <!-- Bulk Edit Modal -->
+    <div class="modal fade" id="bulkEditModal" tabindex="-1" aria-labelledby="bulkEditModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <form id="bulkEditForm">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Edito të zgjedhurat</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Mbyll"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="bulkEditColumn" class="form-label">Zgjidh Kolonën</label>
+                            <select id="bulkEditColumn" class="form-select" required>
+                                <option value="" disabled selected>Zgjidh një kolonë</option>
+                                <option value="invoice_date">Data e fat.</option>
+                                <option value="invoice_number">Nr. fat.</option>
+                                <option value="description">Përshkrimi</option>
+                                <option value="category">Kategoria</option>
+                                <option value="company_name">Kompani</option>
+                                <option value="vlera_faktura">Vlera</option>
+                                <!-- Add more columns if needed -->
+                            </select>
+                        </div>
+                        <div class="mb-3" id="bulkEditValueContainer">
+                            <label for="bulkEditValue" class="form-label">Vlera e Re</label>
+                            <input type="text" id="bulkEditValue" class="form-control" required>
+                            <!-- Additional inputs can be dynamically inserted based on column type -->
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Ruaj</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anulo</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Include Flatpickr JS -->
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <!-- Include SweetAlert2 JS (if not already included in footer.php) -->
@@ -549,12 +640,26 @@ include 'conn-d.php';
                 });
             });
 
-            var tableIds = ['table-all', 'table-investimet', 'table-obligime', 'table-shpenzimet', 'table-Pagesa_KS', 'table-Pagesa_AL', 'table-tjeter'];
+            // Define your initCSS function for reusability
+            function initCSS(selector, classes, styles) {
+                $(selector).addClass(classes).css(styles);
+            }
+
+            var tableIds = [
+                'table-all',
+                'table-investimet',
+                'table-obligime',
+                'table-shpenzimet',
+                'table-Pagesa_KS',
+                'table-Pagesa_AL',
+                'table-tjeter'
+            ];
+
             tableIds.forEach(function(tableId) {
                 dataTables[tableId] = $('#' + tableId).DataTable({
                     responsive: true, // Enable Responsive Extension
                     dom: "<'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
-                        "<'row'<'col-sm-12'tr>>" +
+                        "<'row'<'col-sm-12'QPBtr>>" +
                         "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
                     stripeClasses: ["stripe-color"],
                     ajax: {
@@ -605,6 +710,14 @@ include 'conn-d.php';
                         }
                     }],
                     columns: [{
+                            data: 'id',
+                            orderable: false,
+                            searchable: false,
+                            render: function(data, type, row) {
+                                return `<input type="checkbox" class="row-select" data-id="${data}" />`;
+                            }
+                        },
+                        {
                             data: 'invoice_date',
                             render: function(data, type, row) {
                                 return type === 'display' ? `<span class="editable" data-column="invoice_date" data-id="${row.id}">${data}</span>` : data;
@@ -640,12 +753,12 @@ include 'conn-d.php';
                                 var fileName = data.split('/').pop(); // Extract basename
                                 // Use encodeURIComponent to safely include the file path and name
                                 return `
-                                    <a href="#" class="view-document input-custom-css text-decoration-none px-3 py-2 me-2" data-bs-toggle="modal" data-bs-target="#documentModal" data-file="${encodeURIComponent(data)}" data-name="${encodeURIComponent(fileName)}">
-                                        <i class="fi fi-rr-file"></i>
-                                    </a>
-                                    <button onclick="showReplaceModal(${row.id})" class="input-custom-css px-3 py-2">
-                                        <i class="fi fi-rr-pencil"></i>
-                                    </button>`;
+                        <a href="#" class="view-document input-custom-css text-decoration-none px-3 py-2 me-2" data-bs-toggle="modal" data-bs-target="#documentModal" data-file="${encodeURIComponent(data)}" data-name="${encodeURIComponent(fileName)}">
+                            <i class="fi fi-rr-file"></i>
+                        </a>
+                        <button onclick="showReplaceModal(${row.id})" class="input-custom-css px-3 py-2">
+                            <i class="fi fi-rr-pencil"></i>
+                        </button>`;
                             }
                         },
                         {
@@ -660,16 +773,16 @@ include 'conn-d.php';
                             searchable: false,
                             render: function(data, type, row) {
                                 return `
-                                    <button onclick="confirmDelete(${row.id})" class="input-custom-css px-3 py-2">
-                                        <i class="fi fi-rr-trash"></i>
-                                    </button>
-                                `;
+                        <button onclick="confirmDelete(${row.id})" class="input-custom-css px-3 py-2">
+                            <i class="fi fi-rr-trash"></i>
+                        </button>
+                    `;
                             }
                         }
                     ],
                     initComplete: function() {
-                        var lengthSelect = $("div.dataTables_length select");
-                        lengthSelect.addClass("form-select").css({
+                        // Apply CSS to the length select dropdown
+                        initCSS("div.dataTables_length select", "form-select", {
                             width: "auto",
                             margin: "0 8px",
                             padding: "0.375rem 1.75rem 0.375rem 0.75rem",
@@ -677,6 +790,39 @@ include 'conn-d.php';
                             border: "1px solid #ced4da",
                             borderRadius: "0.25rem",
                         });
+
+                        // Apply CSS to Q (Assuming Q corresponds to a specific element)
+                        initCSS("div.dataTables_Q", "custom-Q-class", {
+                            /* Your desired CSS properties for Q */
+                            margin: "0 8px",
+                            padding: "0.5rem",
+                            backgroundColor: "#f8f9fa",
+                            borderRadius: "0.25rem",
+                        });
+
+                        // Apply CSS to B (Buttons)
+                        initCSS("div.dataTables_B", "btn-group", {
+                            /* Your desired CSS properties for B */
+                            margin: "0 8px",
+                        });
+
+                        // Apply CSS to P (Pagination)
+                        initCSS("div.dataTables_p", "pagination-custom", {
+                            /* Your desired CSS properties for Pagination */
+                            margin: "0 8px",
+                        });
+
+                        // Apply CSS to other elements as needed
+                        // For example, to the filter input
+                        initCSS("div.dataTables_filter input", "form-control", {
+                            width: "250px",
+                            padding: "0.375rem 0.75rem",
+                            border: "1px solid #ced4da",
+                            borderRadius: "0.25rem",
+                        });
+
+                        // You can continue adding CSS for other elements represented by different letters
+                        // For instance, 't' for the table, 'r' for processing, etc.
                     },
                     language: {
                         url: "https://cdn.datatables.net/plug-ins/1.13.1/i18n/sq.json",
@@ -690,6 +836,7 @@ include 'conn-d.php';
                 });
             });
 
+
             // Editable fields handling with Flatpickr integration for date fields
             $('body').on('click', '.editable', function() {
                 var $this = $(this);
@@ -697,10 +844,10 @@ include 'conn-d.php';
                 var column = $this.data('column');
                 var id = $this.data('id');
                 var columnHeader = getColumnHeader(column);
-                
+
                 // Define predefined categories
                 var categories = ["Shpenzimet", "Investimet", "Obligime", "Pagesa KS", "Pagesa AL", "Tjetër"];
-                
+
                 // Determine if the current column is a date field
                 var isDateField = (column === 'invoice_date'); // Add more date columns if necessary
 
@@ -1256,6 +1403,760 @@ include 'conn-d.php';
     </script>
     <script>
         // Additional JavaScript functions can be placed here if needed
+
+        // Bulk Edit Functionality
+        $(document).ready(function() {
+            // Function to toggle the Bulk Edit button
+            function toggleBulkEditButton() {
+                var selectedCount = $('.row-select:checked').length;
+                if (selectedCount > 0 && selectedCount <= 10) {
+                    $('#bulkEditButton').prop('disabled', false);
+                } else {
+                    $('#bulkEditButton').prop('disabled', true);
+                    if (selectedCount > 10) {
+                        Swal.fire({
+                            title: 'Shumë të zgjedhura!',
+                            text: 'Ju mund të zgjidhni deri në 10 rreshta për një herë.',
+                            icon: 'warning',
+                            confirmButtonText: 'OK',
+                            customClass: {
+                                confirmButton: 'btn btn-primary'
+                            },
+                            buttonsStyling: false
+                        });
+                    }
+                }
+            }
+
+            // Monitor checkbox changes
+            $('body').on('change', '.row-select', function() {
+                var selectedCount = $('.row-select:checked').length;
+                if (selectedCount > 10) {
+                    $(this).prop('checked', false);
+                    toggleBulkEditButton();
+                } else {
+                    toggleBulkEditButton();
+                }
+            });
+
+            // Handle "Select All" checkbox functionality
+            $('body').on('change', '#select-all', function() {
+                var isChecked = $(this).is(':checked');
+                $('.row-select').prop('checked', isChecked);
+                toggleBulkEditButton();
+            });
+
+            // Handle Bulk Edit Button Click
+            $('#bulkEditButton').on('click', function() {
+                var selectedCount = $('.row-select:checked').length;
+                if (selectedCount === 0) {
+                    Swal.fire({
+                        title: 'Asnjë zgjedhje!',
+                        text: 'Ju duhet të zgjidhni të paktën një rresht për të edituar.',
+                        icon: 'warning',
+                        confirmButtonText: 'OK',
+                        customClass: {
+                            confirmButton: 'btn btn-primary'
+                        },
+                        buttonsStyling: false
+                    });
+                    return;
+                }
+                $('#bulkEditModal').modal('show');
+            });
+
+            // Handle Column Selection to Adjust Input Type
+            $('#bulkEditColumn').on('change', function() {
+                var selectedColumn = $(this).val();
+                var container = $('#bulkEditValueContainer');
+                container.empty(); // Clear previous input
+
+                if (selectedColumn === 'invoice_date') {
+                    container.append(`
+                        <label for="bulkEditValue" class="form-label">Data e Re</label>
+                        <input type="text" id="bulkEditValue" class="form-control flatpickr-date" placeholder="Zgjidhni datën" required>
+                    `);
+                    flatpickr("#bulkEditValue", {
+                        dateFormat: "Y-m-d",
+                        allowInput: true,
+                        locale: "sq"
+                    });
+                } else if (selectedColumn === 'category') {
+                    container.append(`
+                        <label for="bulkEditValue" class="form-label">Kategoria e Re</label>
+                        <select id="bulkEditValue" class="form-select" required>
+                            <option value="" disabled selected>Zgjidhni një kategori</option>
+                            <option value="Shpenzimet">Shpenzimet</option>
+                            <option value="Investimet">Investimet</option>
+                            <option value="Obligime">Obligime</option>
+                            <option value="Pagesa KS">Pagesa KS</option>
+                            <option value="Pagesa AL">Pagesa AL</option>
+                            <option value="Tjetër">Tjetër</option>
+                        </select>
+                    `);
+                } else {
+                    // Default input for text fields
+                    container.append(`
+                        <label for="bulkEditValue" class="form-label">Vlera e Re</label>
+                        <input type="text" id="bulkEditValue" class="form-control" placeholder="Shkruani vlerën e re" required>
+                    `);
+                }
+            });
+
+            // Handle Bulk Edit Form Submission
+            $('#bulkEditForm').on('submit', function(e) {
+                e.preventDefault();
+
+                var selectedIds = [];
+                $('.row-select:checked').each(function() {
+                    selectedIds.push($(this).data('id'));
+                });
+
+                var selectedColumn = $('#bulkEditColumn').val();
+                var newValue = $('#bulkEditValue').val().trim();
+
+                if (selectedIds.length === 0) {
+                    Swal.fire({
+                        title: 'Asnjë zgjedhje!',
+                        text: 'Ju duhet të zgjidhni të paktën një rresht për të edituar.',
+                        icon: 'warning',
+                        confirmButtonText: 'OK',
+                        customClass: {
+                            confirmButton: 'btn btn-primary'
+                        },
+                        buttonsStyling: false
+                    });
+                    return;
+                }
+
+                if (!selectedColumn || !newValue) {
+                    Swal.fire({
+                        title: 'Gabim!',
+                        text: 'Ju lutem zgjidhni kolonën dhe futni vlerën e re.',
+                        icon: 'error',
+                        confirmButtonText: 'OK',
+                        customClass: {
+                            confirmButton: 'btn btn-primary'
+                        },
+                        buttonsStyling: false
+                    });
+                    return;
+                }
+
+                // Confirm the bulk edit action
+                Swal.fire({
+                    title: 'Jeni i sigurt?',
+                    text: `Dëshironi të ndryshoni kolonën "${getColumnHeader(selectedColumn)}" për ${selectedIds.length} rreshta?`,
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'Po, vazhdo',
+                    cancelButtonText: 'Anulo',
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Show loading spinner
+                        Swal.fire({
+                            title: 'Duke përditësuar...',
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
+
+                        // Send AJAX request for bulk update
+                        $.ajax({
+                            url: 'bulk_update_newKont.php', // New API endpoint
+                            method: 'POST',
+                            data: {
+                                ids: selectedIds,
+                                column: selectedColumn,
+                                value: newValue
+                            },
+                            dataType: 'json',
+                            success: function(response) {
+                                Swal.close(); // Close the loading spinner
+                                if (response.success) {
+                                    Swal.fire({
+                                        title: 'Sukses!',
+                                        text: 'Rekordet janë përditësuar me sukses.',
+                                        icon: 'success',
+                                        confirmButtonText: 'OK',
+                                        customClass: {
+                                            confirmButton: 'btn btn-primary'
+                                        },
+                                        buttonsStyling: false
+                                    }).then(() => {
+                                        // Refresh the active table and charts
+                                        refreshTable();
+                                        fetchAndRenderData();
+                                        // Reset selections
+                                        $('.row-select').prop('checked', false);
+                                        $('#select-all').prop('checked', false);
+                                        toggleBulkEditButton();
+                                        // Hide the modal
+                                        $('#bulkEditModal').modal('hide');
+                                    });
+                                } else {
+                                    Swal.fire({
+                                        title: 'Gabim!',
+                                        text: response.message || 'Ndodhi një gabim gjatë përditësimit të rekordit.',
+                                        icon: 'error',
+                                        confirmButtonText: 'OK',
+                                        customClass: {
+                                            confirmButton: 'btn btn-primary'
+                                        },
+                                        buttonsStyling: false
+                                    });
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                Swal.close(); // Close the loading spinner
+                                Swal.fire({
+                                    title: 'Gabim!',
+                                    text: 'Ndodhi një gabim gjatë përpunimit të kërkesës.',
+                                    icon: 'error',
+                                    confirmButtonText: 'OK',
+                                    customClass: {
+                                        confirmButton: 'btn btn-primary'
+                                    },
+                                    buttonsStyling: false
+                                });
+                            }
+                        });
+                    }
+                });
+            });
+
+            // Function to get the correct column header
+            function getColumnHeader(column) {
+                var headers = {
+                    'select': 'Zgjidh',
+                    'invoice_date': 'Data e faturës',
+                    'invoice_number': 'Numri i faturës',
+                    'description': 'Përshkrimi',
+                    'category': 'Kategoria',
+                    'company_name': 'Emri i kompanisë',
+                    'document_path': 'Dokumenti',
+                    'vlera_faktura': 'Vlera e faturës'
+                };
+                return headers[column] || column;
+            }
+
+            // Initial call to ensure the Bulk Edit button is in the correct state
+            toggleBulkEditButton();
+        });
+
+        // Modal Handling for Document Preview
+        $('#documentModal').on('show.bs.modal', function(event) {
+            const triggerLink = $(event.relatedTarget); // The element that triggered the modal
+            const filePathEncoded = triggerLink.data('file');
+            const fileNameEncoded = triggerLink.data('name');
+            // Decode URI components
+            const filePath = decodeURIComponent(filePathEncoded);
+            const fileName = decodeURIComponent(fileNameEncoded);
+            // Update modal title
+            $('#documentName').text(fileName);
+            // Reset modal content
+            $('#documentImage').hide();
+            $('#documentPDF').hide();
+            $('#documentMessage').hide();
+            // Set download links
+            $('#downloadLinkFooter').attr('href', filePath);
+            $('#downloadLinkBody').attr('href', filePath);
+            // Determine file type using a regex to extract extension
+            const extensionMatch = filePath.match(/\.([^.?#]+)(?:[\?#]|$)/);
+            const fileExtension = extensionMatch ? extensionMatch[1].toLowerCase() : '';
+            if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg'].includes(fileExtension)) {
+                // It's an image
+                $('#documentImage').attr('src', filePath).show();
+            } else if (fileExtension === 'pdf') {
+                // It's a PDF
+                $('#documentPDF').attr('src', filePath).show();
+            } else {
+                // Other file types
+                $('#documentMessage').show();
+            }
+        });
+
+        // Function to fetch and render data based on filters
+        function fetchAndRenderData() {
+            var startDate = $('#filterStartDate').val();
+            var endDate = $('#filterEndDate').val();
+            var category = $('#filterCategory').val();
+            var company = $('#filterCompany').val();
+            var registrant = $('#filterRegistrant').val();
+            // Show loading spinner
+            Swal.fire({
+                title: 'Po ngarkohet...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+            $.ajax({
+                url: 'api/get_methods/get_profit_data.php',
+                type: 'POST',
+                data: {
+                    startDate: startDate,
+                    endDate: endDate,
+                    category: category,
+                    company: company,
+                    registrant: registrant
+                },
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        // Process and display totals
+                        displayTotals(response.data);
+                        // Render charts
+                        renderCharts(response.data);
+                        Swal.close(); // Close the loading spinner
+                    } else {
+                        Swal.fire({
+                            title: 'Gabim',
+                            text: response.message || 'Ndodhi një gabim gjatë marrjes së të dhënave të raportit.',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error fetching profit data:', error);
+                    Swal.fire({
+                        title: 'Gabim',
+                        text: 'Ndodhi një gabim gjatë marrjes së të dhënave të raportit.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            });
+        }
+
+        // Function to display totals
+        function displayTotals(data) {
+            var categoryTotals = data.category_totals;
+            var companyTotals = data.company_totals;
+            // Display detailed totals by category
+            var detailedCategoryHTML = '';
+            categoryTotals.forEach(function(record) {
+                var category = record.category;
+                var total = parseFloat(record.total_shuma).toFixed(2);
+                detailedCategoryHTML += `<tr>
+                        <td>${capitalizeFirstLetter(category)}</td>
+                        <td>€${total}</td>
+                    </tr>`;
+            });
+            $('#detailedTotalByCategory').html(detailedCategoryHTML);
+            // Display detailed totals by company
+            var detailedCompanyHTML = '';
+            companyTotals.forEach(function(record) {
+                var company = record.company_name;
+                var total = parseFloat(record.total_shuma).toFixed(2);
+                detailedCompanyHTML += `<tr>
+                        <td>${capitalizeFirstLetter(company)}</td>
+                        <td>€${total}</td>
+                    </tr>`;
+            });
+            $('#detailedTotalByCompany').html(detailedCompanyHTML);
+        }
+
+        // Helper function to capitalize first letter
+        function capitalizeFirstLetter(string) {
+            if (typeof string !== 'string' || string.length === 0) return string;
+            return string.charAt(0).toUpperCase() + string.slice(1);
+        }
+
+        // Function to render ApexCharts
+        function renderCharts(data) {
+            var categoryTotals = data.category_totals;
+            var companyTotals = data.company_totals;
+            var monthlyTotals = data.monthly_totals; // Assuming your API provides monthly totals
+            // Prepare data for Line Chart (Trend of Expenses Over Time)
+            var lineCategories = [];
+            var lineSeriesData = [];
+            if (monthlyTotals && Array.isArray(monthlyTotals)) {
+                monthlyTotals.forEach(function(record) {
+                    lineCategories.push(record.month); // e.g., 'Jan', 'Feb', etc.
+                    lineSeriesData.push(parseFloat(record.total).toFixed(2));
+                });
+            }
+            // Prepare data for Doughnut Chart (Distribution by Category)
+            var doughnutLabels = [];
+            var doughnutSeries = [];
+            categoryTotals.forEach(function(record) {
+                doughnutLabels.push(record.category);
+                doughnutSeries.push(parseFloat(record.total_shuma).toFixed(2));
+            });
+            // Prepare data for Bar Chart (Expenses by Company)
+            var barLabels = [];
+            var barSeriesData = [];
+            companyTotals.forEach(function(record) {
+                barLabels.push(record.company_name);
+                barSeriesData.push(parseFloat(record.total_shuma).toFixed(2));
+            });
+            // Initialize or Update Line Chart
+            if (!lineChart) {
+                var lineOptions = {
+                    chart: {
+                        type: 'line',
+                        height: 350
+                    },
+                    series: [{
+                        name: 'Shpenzimet',
+                        data: lineSeriesData
+                    }],
+                    xaxis: {
+                        categories: lineCategories,
+                        title: {
+                            text: 'Muaji'
+                        }
+                    },
+                    yaxis: {
+                        title: {
+                            text: '€'
+                        }
+                    },
+                    title: {
+                        text: 'Trend i Shpenzimeve',
+                        align: 'center'
+                    }
+                };
+                lineChart = new ApexCharts(document.querySelector("#lineChart"), lineOptions);
+                lineChart.render();
+            } else {
+                lineChart.updateOptions({
+                    xaxis: {
+                        categories: lineCategories
+                    },
+                    series: [{
+                        name: 'Shpenzimet',
+                        data: lineSeriesData
+                    }]
+                });
+            }
+            // Initialize or Update Doughnut Chart
+            if (!doughnutChart) {
+                var doughnutOptions = {
+                    chart: {
+                        type: 'donut', // Changed from 'pie' to 'donut'
+                        height: 350
+                    },
+                    series: doughnutSeries,
+                    labels: doughnutLabels,
+                    title: {
+                        text: 'Përqendrimi sipas Kategorisë',
+                        align: 'center'
+                    },
+                    responsive: [{
+                        breakpoint: 480,
+                        options: {
+                            chart: {
+                                width: 300
+                            },
+                            legend: {
+                                position: 'bottom'
+                            }
+                        }
+                    }]
+                };
+                doughnutChart = new ApexCharts(document.querySelector("#doughnutChart"), doughnutOptions);
+                doughnutChart.render();
+            } else {
+                doughnutChart.updateOptions({
+                    labels: doughnutLabels,
+                    series: doughnutSeries
+                });
+            }
+            // Initialize or Update Bar Chart
+            if (!barChart) {
+                var barOptions = {
+                    chart: {
+                        type: 'bar',
+                        height: 350
+                    },
+                    series: [{
+                        name: 'Shpenzimet',
+                        data: barSeriesData
+                    }],
+                    xaxis: {
+                        categories: barLabels,
+                        title: {
+                            text: 'Kompania'
+                        }
+                    },
+                    yaxis: {
+                        title: {
+                            text: '€'
+                        }
+                    },
+                    title: {
+                        text: 'Shpenzimet sipas Kompanisë',
+                        align: 'center'
+                    }
+                };
+                barChart = new ApexCharts(document.querySelector("#barChart"), barOptions);
+                barChart.render();
+            } else {
+                barChart.updateOptions({
+                    xaxis: {
+                        categories: barLabels
+                    },
+                    series: [{
+                        name: 'Shpenzimet',
+                        data: barSeriesData
+                    }]
+                });
+            }
+        }
+
+        // Function to handle updating values via AJAX (Duplicate Function Removed)
+        // (Note: The function is already defined above. Remove duplicate definitions to prevent conflicts.)
+    </script>
+    <script>
+        // Bulk Edit Functionality
+        $(document).ready(function() {
+            // Function to toggle the Bulk Edit button
+            function toggleBulkEditButton() {
+                var selectedCount = $('.row-select:checked').length;
+                if (selectedCount > 0 && selectedCount <= 10) {
+                    $('#bulkEditButton').prop('disabled', false);
+                } else {
+                    $('#bulkEditButton').prop('disabled', true);
+                    if (selectedCount > 10) {
+                        Swal.fire({
+                            title: 'Shumë të zgjedhura!',
+                            text: 'Ju mund të zgjidhni deri në 10 rreshta për një herë.',
+                            icon: 'warning',
+                            confirmButtonText: 'OK',
+                            customClass: {
+                                confirmButton: 'btn btn-primary'
+                            },
+                            buttonsStyling: false
+                        });
+                    }
+                }
+            }
+
+            // Monitor checkbox changes
+            $('body').on('change', '.row-select', function() {
+                var selectedCount = $('.row-select:checked').length;
+                if (selectedCount > 10) {
+                    $(this).prop('checked', false);
+                    toggleBulkEditButton();
+                } else {
+                    toggleBulkEditButton();
+                }
+            });
+
+            // Handle "Select All" checkbox functionality
+            $('body').on('change', '#select-all', function() {
+                var isChecked = $(this).is(':checked');
+                $('.row-select').prop('checked', isChecked);
+                toggleBulkEditButton();
+            });
+
+            // Handle Bulk Edit Button Click
+            $('#bulkEditButton').on('click', function() {
+                var selectedCount = $('.row-select:checked').length;
+                if (selectedCount === 0) {
+                    Swal.fire({
+                        title: 'Asnjë zgjedhje!',
+                        text: 'Ju duhet të zgjidhni të paktën një rresht për të edituar.',
+                        icon: 'warning',
+                        confirmButtonText: 'OK',
+                        customClass: {
+                            confirmButton: 'btn btn-primary'
+                        },
+                        buttonsStyling: false
+                    });
+                    return;
+                }
+                $('#bulkEditModal').modal('show');
+            });
+
+            // Handle Column Selection to Adjust Input Type
+            $('#bulkEditColumn').on('change', function() {
+                var selectedColumn = $(this).val();
+                var container = $('#bulkEditValueContainer');
+                container.empty(); // Clear previous input
+
+                if (selectedColumn === 'invoice_date') {
+                    container.append(`
+                        <label for="bulkEditValue" class="form-label">Data e Re</label>
+                        <input type="text" id="bulkEditValue" class="form-control flatpickr-date" placeholder="Zgjidhni datën" required>
+                    `);
+                    flatpickr("#bulkEditValue", {
+                        dateFormat: "Y-m-d",
+                        allowInput: true,
+                        locale: "sq"
+                    });
+                } else if (selectedColumn === 'category') {
+                    container.append(`
+                        <label for="bulkEditValue" class="form-label">Kategoria e Re</label>
+                        <select id="bulkEditValue" class="form-select" required>
+                            <option value="" disabled selected>Zgjidhni një kategori</option>
+                            <option value="Shpenzimet">Shpenzimet</option>
+                            <option value="Investimet">Investimet</option>
+                            <option value="Obligime">Obligime</option>
+                            <option value="Pagesa KS">Pagesa KS</option>
+                            <option value="Pagesa AL">Pagesa AL</option>
+                            <option value="Tjetër">Tjetër</option>
+                        </select>
+                    `);
+                } else {
+                    // Default input for text fields
+                    container.append(`
+                        <label for="bulkEditValue" class="form-label">Vlera e Re</label>
+                        <input type="text" id="bulkEditValue" class="form-control" placeholder="Shkruani vlerën e re" required>
+                    `);
+                }
+            });
+
+            // Handle Bulk Edit Form Submission
+            $('#bulkEditForm').on('submit', function(e) {
+                e.preventDefault();
+
+                var selectedIds = [];
+                $('.row-select:checked').each(function() {
+                    selectedIds.push($(this).data('id'));
+                });
+
+                var selectedColumn = $('#bulkEditColumn').val();
+                var newValue = $('#bulkEditValue').val().trim();
+
+                if (selectedIds.length === 0) {
+                    Swal.fire({
+                        title: 'Asnjë zgjedhje!',
+                        text: 'Ju duhet të zgjidhni të paktën një rresht për të edituar.',
+                        icon: 'warning',
+                        confirmButtonText: 'OK',
+                        customClass: {
+                            confirmButton: 'btn btn-primary'
+                        },
+                        buttonsStyling: false
+                    });
+                    return;
+                }
+
+                if (!selectedColumn || !newValue) {
+                    Swal.fire({
+                        title: 'Gabim!',
+                        text: 'Ju lutem zgjidhni kolonën dhe futni vlerën e re.',
+                        icon: 'error',
+                        confirmButtonText: 'OK',
+                        customClass: {
+                            confirmButton: 'btn btn-primary'
+                        },
+                        buttonsStyling: false
+                    });
+                    return;
+                }
+
+                // Confirm the bulk edit action
+                Swal.fire({
+                    title: 'Jeni i sigurt?',
+                    text: `Dëshironi të ndryshoni kolonën "${getColumnHeader(selectedColumn)}" për ${selectedIds.length} rreshta?`,
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'Po, vazhdo',
+                    cancelButtonText: 'Anulo',
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Show loading spinner
+                        Swal.fire({
+                            title: 'Duke përditësuar...',
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
+
+                        // Send AJAX request for bulk update
+                        $.ajax({
+                            url: 'bulk_update_newKont.php', // New API endpoint
+                            method: 'POST',
+                            data: {
+                                ids: selectedIds,
+                                column: selectedColumn,
+                                value: newValue
+                            },
+                            dataType: 'json',
+                            success: function(response) {
+                                Swal.close(); // Close the loading spinner
+                                if (response.success) {
+                                    Swal.fire({
+                                        title: 'Sukses!',
+                                        text: 'Rekordet janë përditësuar me sukses.',
+                                        icon: 'success',
+                                        confirmButtonText: 'OK',
+                                        customClass: {
+                                            confirmButton: 'btn btn-primary'
+                                        },
+                                        buttonsStyling: false
+                                    }).then(() => {
+                                        // Refresh the active table and charts
+                                        refreshTable();
+                                        fetchAndRenderData();
+                                        // Reset selections
+                                        $('.row-select').prop('checked', false);
+                                        $('#select-all').prop('checked', false);
+                                        toggleBulkEditButton();
+                                        // Hide the modal
+                                        $('#bulkEditModal').modal('hide');
+                                    });
+                                } else {
+                                    Swal.fire({
+                                        title: 'Gabim!',
+                                        text: response.message || 'Ndodhi një gabim gjatë përditësimit të rekordit.',
+                                        icon: 'error',
+                                        confirmButtonText: 'OK',
+                                        customClass: {
+                                            confirmButton: 'btn btn-primary'
+                                        },
+                                        buttonsStyling: false
+                                    });
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                Swal.close(); // Close the loading spinner
+                                Swal.fire({
+                                    title: 'Gabim!',
+                                    text: 'Ndodhi një gabim gjatë përpunimit të kërkesës.',
+                                    icon: 'error',
+                                    confirmButtonText: 'OK',
+                                    customClass: {
+                                        confirmButton: 'btn btn-primary'
+                                    },
+                                    buttonsStyling: false
+                                });
+                            }
+                        });
+                    }
+                });
+            });
+
+            // Function to get the correct column header
+            function getColumnHeader(column) {
+                var headers = {
+                    'select': 'Zgjidh',
+                    'invoice_date': 'Data e faturës',
+                    'invoice_number': 'Numri i faturës',
+                    'description': 'Përshkrimi',
+                    'category': 'Kategoria',
+                    'company_name': 'Emri i kompanisë',
+                    'document_path': 'Dokumenti',
+                    'vlera_faktura': 'Vlera e faturës'
+                };
+                return headers[column] || column;
+            }
+
+            // Initial call to ensure the Bulk Edit button is in the correct state
+            toggleBulkEditButton();
+        });
     </script>
 </body>
+
 </html>
