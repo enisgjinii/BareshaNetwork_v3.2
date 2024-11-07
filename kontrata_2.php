@@ -1,12 +1,33 @@
 <?php
-include 'partials/header.php';
-include 'page_access_controller.php';
+// Use require_once to ensure files are included only once and are mandatory
+require_once 'partials/header.php';
+require_once 'page_access_controller.php';
 
-// Fetch clients data
+// Ensure $conn is defined
+if (!isset($conn)) {
+    // Handle the missing connection appropriately
+    error_log("Database connection not established.");
+    die("Internal server error. Please try again later.");
+}
+
+// Fetch clients data with error handling
 $sql = "SELECT * FROM klientet ORDER BY emri ASC";
 $result = $conn->query($sql);
-$clients = $result->num_rows > 0 ? $result->fetch_all(MYSQLI_ASSOC) : [];
+
+if ($result === false) {
+    // Log the error and handle gracefully
+    error_log("Database query failed: " . $conn->error);
+    $clients = [];
+    // Optionally, display a user-friendly message
+    echo "<div class='alert alert-danger'>Failed to load clients. Please try again later.</div>";
+} else {
+    $clients = $result->num_rows > 0 ? $result->fetch_all(MYSQLI_ASSOC) : [];
+}
+
+// Close the database connection if not needed further
+// $conn->close(); // Uncomment if appropriate
 ?>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="ajax.js"></script>
 <div class="main-panel">
     <div class="content-wrapper">
@@ -35,20 +56,32 @@ $clients = $result->num_rows > 0 ? $result->fetch_all(MYSQLI_ASSOC) : [];
                                 ["label" => "Numri personal", "name" => "numri_personal", "type" => "text", "placeholder" => "Sheno numrin personal"],
                             ];
                             foreach ($fields as $field) {
+                                // Escape output to prevent XSS
+                                $label = htmlspecialchars($field['label'], ENT_QUOTES, 'UTF-8');
+                                $name = htmlspecialchars($field['name'], ENT_QUOTES, 'UTF-8');
+                                $type = htmlspecialchars($field['type'], ENT_QUOTES, 'UTF-8');
+                                $placeholder = htmlspecialchars($field['placeholder'], ENT_QUOTES, 'UTF-8');
                                 echo "<div class='mb-3'>
-                                        <label class='form-label fw-semibold' for='{$field['name']}'>{$field['label']}</label>
-                                        <input type='{$field['type']}' name='{$field['name']}' id='{$field['name']}' class='form-control rounded-4 border' required placeholder='{$field['placeholder']}'>
+                                        <label class='form-label fw-semibold' for='{$name}'>{$label}</label>
+                                        <input type='{$type}' name='{$name}' id='{$name}' class='form-control rounded-4 border' placeholder='{$placeholder}'>
                                       </div>";
                             }
                             ?>
                             <!-- Klienti Select -->
                             <div class="mb-3">
                                 <label class="form-label fw-semibold" for="klienti22">Klienti</label>
-                                <select name="klienti" id="klienti22" class="form-select rounded-4 border" onchange="showEmail(this)" required>
+                                <select name="klienti" id="klienti22" class="form-select rounded-4 border">
                                     <option value="" disabled selected>Zgjidhni një klient</option>
-                                    <?php foreach ($clients as $client) {
-                                        echo "<option value='{$client['emri']}|{$client['emailadd']}|{$client['emriart']}'>{$client['emri']}</option>";
-                                    } ?>
+                                    <?php
+                                    foreach ($clients as $client) {
+                                        // Ensure the client data is properly escaped
+                                        $emri = htmlspecialchars($client['emri'], ENT_QUOTES, 'UTF-8');
+                                        $emailadd = htmlspecialchars($client['emailadd'], ENT_QUOTES, 'UTF-8');
+                                        $emriart = htmlspecialchars($client['emriart'], ENT_QUOTES, 'UTF-8');
+                                        // Use a delimiter that won't appear in the data or consider using JSON encoding
+                                        echo "<option value='{$emri}|{$emailadd}|{$emriart}'>{$emri}</option>";
+                                    }
+                                    ?>
                                 </select>
                             </div>
                             <?php
@@ -57,24 +90,31 @@ $clients = $result->num_rows > 0 ? $result->fetch_all(MYSQLI_ASSOC) : [];
                                 ["label" => "Emri artistik", "name" => "emriartistik", "type" => "text", "placeholder" => "Sheno emrin artistik"],
                                 ["label" => "Vepra", "name" => "vepra", "type" => "text", "placeholder" => "Sheno veprën"],
                                 ["label" => "Data", "name" => "data", "type" => "date"],
-                                ["label" => "Ngarko kontratën", "name" => "pdf_file", "type" => "file", "attributes" => "accept='.docx,.pdf' onchange='validateFile(this)'"],  // Removed 'required'
+                                ["label" => "Ngarko kontratën", "name" => "pdf_file", "type" => "file", "attributes" => "accept='.docx,.pdf' onchange='validateFile(this)'"],
                                 ["label" => "Përqindja (Baresha)", "name" => "perqindja", "type" => "number", "placeholder" => "Sheno përqindjen", "attributes" => "onchange='updatePerqindjaOther()'"],
                                 ["label" => "Përqindja (Klienti)", "name" => "perqindja_other", "type" => "number", "readonly" => true],
                                 ["label" => "Shënime", "name" => "shenime", "type" => "textarea", "rows" => 5, "placeholder" => "Shëno..."]
                             ];
                             foreach ($additionalFields as $field) {
-                                if ($field['type'] == 'textarea') {
+                                // Escape output
+                                $label = htmlspecialchars($field['label'], ENT_QUOTES, 'UTF-8');
+                                $name = htmlspecialchars($field['name'], ENT_QUOTES, 'UTF-8');
+                                $type = htmlspecialchars($field['type'], ENT_QUOTES, 'UTF-8');
+                                $placeholder = isset($field['placeholder']) ? htmlspecialchars($field['placeholder'], ENT_QUOTES, 'UTF-8') : '';
+                                $attributes = isset($field['attributes']) ? ' ' . $field['attributes'] : '';
+                                $readonly = isset($field['readonly']) && $field['readonly'] ? ' readonly' : '';
+                                // Removed the required attribute
+
+                                if ($type == 'textarea') {
+                                    $rows = isset($field['rows']) ? (int)$field['rows'] : 3;
                                     echo "<div class='mb-3'>
-                                            <label class='form-label fw-semibold' for='{$field['name']}'>{$field['label']}</label>
-                                            <textarea name='{$field['name']}' id='{$field['name']}' class='form-control rounded-4 border' rows='{$field['rows']}' placeholder='{$field['placeholder']}' required></textarea>
+                                            <label class='form-label fw-semibold' for='{$name}'>{$label}</label>
+                                            <textarea name='{$name}' id='{$name}' class='form-control rounded-4 border' rows='{$rows}' placeholder='{$placeholder}'></textarea>
                                           </div>";
                                 } else {
-                                    $attributes = isset($field['attributes']) ? $field['attributes'] : '';
-                                    $readonly = isset($field['readonly']) ? 'readonly' : '';
-                                    $required = isset($field['required']) && $field['required'] ? 'required' : '';
                                     echo "<div class='mb-3'>
-                                            <label class='form-label fw-semibold' for='{$field['name']}'>{$field['label']}</label>
-                                            <input type='{$field['type']}' name='{$field['name']}' id='{$field['name']}' class='form-control rounded-4 border' placeholder='{$field['placeholder']}' {$attributes} {$readonly} {$required}>
+                                            <label class='form-label fw-semibold' for='{$name}'>{$label}</label>
+                                            <input type='{$type}' name='{$name}' id='{$name}' class='form-control rounded-4 border' placeholder='{$placeholder}'{$attributes}{$readonly}>
                                           </div>";
                                 }
                             }
@@ -112,158 +152,173 @@ $clients = $result->num_rows > 0 ? $result->fetch_all(MYSQLI_ASSOC) : [];
         </div>
     </div>
 </div>
-<?php include('partials/footer.php'); ?>
+<?php require_once 'partials/footer.php'; ?>
 <script>
-    // Initialize Toastr options
-    toastr.options = {
-        "closeButton": true,
-        "progressBar": true,
-        "positionClass": "toast-top-right",
-        "timeOut": "5000",
-    };
+    $(document).ready(function() {
+        // Initialize Toastr options
+        toastr.options = {
+            "closeButton": true,
+            "progressBar": true,
+            "positionClass": "toast-top-right",
+            "timeOut": "5000",
+        };
 
-    // Event listeners for form inputs to update preview
-    document.querySelectorAll('#contractForm input, #contractForm select, #contractForm textarea').forEach(input => {
-        input.addEventListener('input', updatePreview);
-    });
+        // Event listeners for form inputs to update preview
+        $('#contractForm').on('input change', 'input, select, textarea', updatePreview);
 
-    // Show email and artist name based on selected client
-    function showEmail(select) {
-        const [_, email, emriartistik] = select.value.split("|");
-        document.getElementById("email").value = email || "Klienti që keni zgjedhur nuk ka adresë te emailit";
-        document.getElementById("emriartistik").value = emriartistik || "";
-        updatePreview();
-    }
+        // Show email and artist name based on selected client
+        $('#klienti22').on('change', function() {
+            const [emri, email, emriartistik] = $(this).val().split("|") || [];
+            $(this).val()
+                ? (email && emriartistik
+                    ? (
+                        $('#email').val(email || "Klienti që keni zgjedhur nuk ka adresë te emailit"),
+                        $('#emriartistik').val(emriartistik || ""),
+                        updatePreview()
+                      )
+                    : (
+                        toastr.error('Të dhënat e klientit janë të pavlefshme.'),
+                        $('#email').val(""),
+                        $('#emriartistik').val("")
+                      )
+                  )
+                : toastr.warning('Ju lutem zgjidhni një klient.');
+        });
 
-    // Update the 'perqindja_other' field based on 'perqindja'
-    function updatePerqindjaOther() {
-        const perqindja = parseFloat(document.getElementById('perqindja').value);
-        document.getElementById('perqindja_other').value = isNaN(perqindja) ? "" : 100 - perqindja;
-        updatePreview();
-    }
+        // Update the 'perqindja_other' field based on 'perqindja'
+        $('#perqindja').on('change', function() {
+            const perqindja = parseFloat($(this).val());
+            const $perqindjaOther = $('#perqindja_other');
+            !$('#perqindja').length || !$perqindjaOther.length
+                ? toastr.error('Fusha përqindja nuk është gjetur.')
+                : isNaN(perqindja)
+                ? (
+                    $perqindjaOther.val(""),
+                    toastr.warning('Ju lutem shkruani një vlerë të vlefshme për përqindjen.')
+                  )
+                : (perqindja < 0 || perqindja > 100)
+                ? (
+                    $perqindjaOther.val(""),
+                    toastr.warning('Përqindja duhet të jetë midis 0 dhe 100.')
+                  )
+                : (
+                    $perqindjaOther.val((100 - perqindja).toFixed(2)),
+                    updatePreview()
+                  );
+        });
 
-    // Update the contract preview by fetching from the server
-    function updatePreview() {
-        const formData = new FormData(document.getElementById('contractForm'));
-        fetch('preview-contract.php', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.text())
-            .then(data => {
-                document.getElementById('contractContent').innerHTML = data;
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                toastr.error('Dështoi për të ngarkuar preview-n e kontratës.');
-            });
-    }
-
-    // Initialize Selectr for the klienti select element
-    new Selectr('#klienti22', {
-        searchable: true
-    });
-
-    // Initialize flatpickr for the date input
-    $("input[name='data']").flatpickr({
-        dateFormat: "Y-m-d",
-        maxDate: "today",
-    });
-
-    // Validate the uploaded file
-    function validateFile(input) {
-        const file = input.files[0];
-        const maxSize = 10 * 1024 * 1024; // 10MB
-        const allowedTypes = [
-            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-            'application/pdf'
-        ];
-
-        if (!file) {
-            toastr.warning('Ju lutem zgjidhni një skedar.');
-            return;
-        }
-
-        if (!allowedTypes.includes(file.type)) {
-            toastr.error('Ju lutem zgjidhni një lloj skedari të vlefshëm (docx ose pdf).');
-            input.value = '';
-            return;
-        }
-
-        if (file.size > maxSize) {
-            toastr.error('Madhësia e skedarit tejkalon limitin (10MB).');
-            input.value = '';
-            return;
-        }
-
-        // If validation passes, update the preview
-        updatePreview();
-    }
-
-    // Handle form submission via AJAX
-    document.getElementById('contractForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-
-        const form = e.target;
-        const formData = new FormData(form);
-
-        fetch('submit-contract.php', { // Ensure this endpoint exists and handles the form submission
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    toastr.success('Kontrata u krijua me sukses!');
-                    form.reset();
-                    updatePreview();
-                } else {
-                    toastr.error(data.message || 'Dështoi krijimi i kontratës.');
+        // Update the contract preview by fetching from the server
+        function updatePreview() {
+            const formData = new FormData($('#contractForm')[0]);
+            $.ajax({
+                url: 'preview-contract.php',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(data) {
+                    $('#contractContent').html(data);
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    console.error('Error fetching contract preview:', errorThrown);
+                    toastr.error('Dështoi për të ngarkuar preview-n e kontratës.');
                 }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                toastr.error('Dështoi dërgimi i formularit.');
             });
-    });
-
-    // Function to view documents in the modal
-    $(document).on('click', '.view-document', function(e) {
-        e.preventDefault();
-        const file = decodeURIComponent($(this).data('file'));
-        const name = decodeURIComponent($(this).data('name'));
-        $('#documentModalLabel').text(name);
-        $('#documentViewer').attr('src', file);
-    });
-
-    // Function to show the replace modal (Ensure you have a corresponding modal)
-    function showReplaceModal(id) {
-        // Implement the logic to show the replace modal
-        // For example, populate the modal with relevant data and then show it
-        toastr.info('Replace modal functionality to be implemented.');
-    }
-
-    // Function to confirm deletion (Implement deletion logic)
-    function confirmDelete(id) {
-        if (confirm('A jeni të sigurtë që dëshironi të fshini këtë kontratë?')) {
-            // Implement the deletion via AJAX
-            fetch(`delete-contract.php?id=${id}`, { // Ensure this endpoint exists
-                    method: 'DELETE'
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        toastr.success('Kontrata u fshi me sukses.');
-                        // Optionally, remove the contract from the UI or refresh the table
-                        location.reload(); // Simple approach to refresh the page
-                    } else {
-                        toastr.error(data.message || 'Dështoi fshirja e kontratës.');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    toastr.error('Dështoi dështoi fshirja e kontratës.');
-                });
         }
-    }
+
+        // Initialize Selectr for the klienti select element (Ensure Selectr library is loaded)
+        if (typeof Selectr !== 'undefined') {
+            new Selectr('#klienti22', { searchable: true });
+        } else {
+            console.warn('Selectr library is not loaded.');
+        }
+
+        // Initialize flatpickr for the date input (Ensure flatpickr library is loaded)
+        if (typeof flatpickr !== 'undefined') {
+            flatpickr("input[name='data']", {
+                dateFormat: "Y-m-d",
+                maxDate: "today",
+                onChange: updatePreview
+            });
+        } else {
+            console.warn('flatpickr library is not loaded.');
+        }
+
+        // Validate the uploaded file
+        window.validateFile = function(input) {
+            const file = input.files[0];
+            const maxSize = 10 * 1024 * 1024; // 10MB
+            const allowedTypes = [
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                'application/pdf'
+            ];
+
+            file
+                ? (
+                    allowedTypes.includes(file.type)
+                        ? (file.size <= maxSize
+                            ? updatePreview()
+                            : (
+                                toastr.error('Madhësia e skedarit tejkalon limitin (10MB).'),
+                                $(input).val('')
+                              )
+                          )
+                        : (
+                            toastr.error('Ju lutem zgjidhni një lloj skedari të vlefshëm (docx ose pdf).'),
+                            $(input).val('')
+                          )
+                  )
+                : toastr.warning('Ju lutem zgjidhni një skedar.');
+        };
+
+        // Function to view documents in the modal
+        $(document).on('click', '.view-document', function(e) {
+            e.preventDefault();
+            const file = decodeURIComponent($(this).data('file') || '');
+            const name = decodeURIComponent($(this).data('name') || '');
+
+            file && name
+                ? (
+                    $('#documentModalLabel').text(name),
+                    $('#documentViewer').attr('src', file),
+                    $('#documentModal').modal('show')
+                  )
+                : toastr.error('Dokumenti është i pavlefshëm.');
+        });
+
+        // Function to show the replace modal (Ensure you have a corresponding modal)
+        window.showReplaceModal = function(id) {
+            id
+                ? toastr.info('Replace modal functionality to be implemented.')
+                : toastr.error('Identifikimi i kontratës është i pavlefshëm.');
+        };
+
+        // Function to confirm deletion (Implement deletion logic)
+        window.confirmDelete = function(id) {
+            id
+                ? (
+                    confirm('A jeni të sigurtë që dëshironi të fshini këtë kontratë?')
+                        ? $.ajax({
+                            url: `delete-contract.php?id=${encodeURIComponent(id)}`,
+                            type: 'DELETE',
+                            contentType: 'application/json',
+                            success: function(data) {
+                                data.success
+                                    ? (
+                                        toastr.success('Kontrata u fshi me sukses.'),
+                                        location.reload()
+                                      )
+                                    : toastr.error(data.message || 'Dështoi fshirja e kontratës.')
+                            },
+                            error: function(jqXHR, textStatus, errorThrown) {
+                                console.error('Error deleting contract:', errorThrown);
+                                toastr.error('Dështoi fshirja e kontratës.');
+                            }
+                        })
+                        : null
+                  )
+                : toastr.error('Identifikimi i kontratës është i pavlefshëm.');
+        };
+    });
 </script>
+<?php require_once 'partials/footer.php'; ?>

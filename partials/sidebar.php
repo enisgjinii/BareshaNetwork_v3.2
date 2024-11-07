@@ -1,24 +1,102 @@
-<nav class="sidebar sidebar-offcanvas border border-2 rounded-5" style="margin-top:30px;margin-left:8px;height:fit-content;">
+<nav class="sidebar sidebar-offcanvas ">
   <ul class="nav">
     <?php
-    error_reporting(0);
-    session_start();
+    // Enable error reporting for debugging (disable in production)
+    error_reporting(E_ALL);
+    ini_set('display_errors', 1);
+
+    // Start the session if not already started
+    if (session_status() === PHP_SESSION_NONE) {
+      session_start();
+    }
+
+    // Include the database connection file
     require_once 'conn-d.php';
-    $invoice_count = 0;
-    $stmt = $conn->prepare("
-      SELECT COUNT(*) as count FROM invoices
-      WHERE paid_amount < COALESCE(total_amount_after_percentage, total_amount_in_eur_after_percentage, total_amount)
-    ");
+
+    // Fetch the count from parapagimtable where EShikuar = 'No'
+    $count = 0;
+    $stmt = $conn->prepare("SELECT COUNT(*) as count FROM parapagimtable WHERE EShikuar = ?");
     if ($stmt) {
+      $eshuar = 'No';
+      $stmt->bind_param("s", $eshuar);
       $stmt->execute();
       $result = $stmt->get_result();
-      if ($row = $result->fetch_assoc()) {
-        $invoice_count = $row['count'] ?? 0;
-      }
+      $row = $result->fetch_assoc();
+      $count = $row['count'] ?? 0;
       $stmt->close();
     } else {
+      // Handle statement preparation error
       echo "<li class='nav-item'><span class='text-danger'>Database query failed.</span></li>";
     }
+
+    /**
+     * Function to generate a single menu item with a direct link.
+     *
+     * @param string $page        The actual page the menu item links to.
+     * @param string $icon        The icon classes for the menu item.
+     * @param string $title       The display title of the menu item.
+     * @param string $badgeHtml   Optional HTML for badges.
+     * @param bool   $includeIcon Whether to include the icon.
+     */
+    function generateMenuItem($page, $icon, $title, $badgeHtml = '', $includeIcon = true)
+    {
+      // If icons are not to be included, set icon HTML to empty
+      $iconHtml = $includeIcon ? "<i class='{$icon} menu-icon pe-3'></i>" : "";
+
+      // Construct the href to link directly to the page
+      $href = "./" . $page;
+
+      echo <<<HTML
+        <li class="nav-item">
+            <a class="nav-link" href="{$href}">
+                {$iconHtml}
+                <span class="menu-title">{$title}</span>
+                {$badgeHtml}
+            </a>
+        </li>
+        HTML;
+    }
+
+    /**
+     * Function to generate a collapsible menu section.
+     *
+     * @param array  $section    The section configuration.
+     * @param array  $userPages  The pages accessible to the user.
+     */
+    function generateMenuSection($section, $userPages)
+    {
+      // Filter menu items based on user permissions
+      $filteredItems = array_intersect_key($section['menuItems'], array_flip($userPages));
+
+      // If no accessible items, skip rendering this section
+      if (empty($filteredItems)) {
+        return;
+      }
+
+      echo <<<HTML
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="collapse" href="#{$section['collapseId']}" aria-expanded="false" aria-controls="{$section['collapseId']}">
+                <i class="{$section['icon']}"></i>
+                <span class="menu-title">{$section['title']}</span>
+                <i class="menu-arrow pe-3"></i>
+            </a>
+            <div class="collapse" id="{$section['collapseId']}">
+                <ul class="nav flex-column sub-menu">
+      HTML;
+
+      foreach ($filteredItems as $page => $item) {
+        // Sub-menu items do not include icons
+        generateMenuItem($page, '', $item['title'], $item['badge'] ?? '', false);
+      }
+
+      echo <<<HTML
+                </ul>
+            </div>
+        </li>
+        HTML;
+    }
+
+    // Define all possible menu sections and items
     $menuSections = [
       [
         "title" => "Menaxhimi",
@@ -52,13 +130,13 @@
           "emails.php" => ["title" => "Lista e email-ave"],
           "klient-avanc.php" => [
             "title" => "Lista e avanceve",
-            "badge" => $count > 0 ? "<span class='badge bg-success rounded-pill ms-2'><i class='fi fi-rr-eye me-2'></i>{$count}</span>" : "",
+            "badge" => $count > 0 ? "<span class='badge bg-success rounded ms-2'><i class='fi fi-rr-eye me-2'></i>{$count}</span>" : ""
           ],
           "rating_list.php" => ["title" => "Lista e vlersimeve"],
         ],
       ],
       [
-        "title" => "Videot & Ngarkimi",
+        "title" => "Videot / Ngarkimi",
         "icon" => "fi fi-rr-cloud-upload-alt menu-icon pe-3",
         "collapseId" => "video",
         "menuItems" => [
@@ -82,10 +160,11 @@
         "menuItems" => [
           "invoice.php" => [
             "title" => "Pagesat YouTube",
-            "badge" => $invoice_count > 0 ? "<span class='badge bg-success rounded-pill ms-2'>{$invoice_count}</span>" : "",
+            "badge" => "<span class='badge bg-success rounded ms-2'>New</span>"
           ],
           "faturat.php" => ["title" => "Pagesat YouTube"],
           "pagesat.php" => ["title" => "Pagesat e kryera"],
+          "tatimi.php" => ["title" => "Tatimi"],
           "yinc.php" => ["title" => "Borxhi"],
           "shpenzimep.php" => ["title" => "Borxhet personale"],
         ],
@@ -95,6 +174,7 @@
         "icon" => "fi fi-rr-calculator-money menu-icon pe-3",
         "collapseId" => "kontabiliteti",
         "menuItems" => [
+          "pasqyrat.php" => ["title" => "Pasqyrat"],
           "pagesat_punetor.php" => ["title" => "Pagesat e punëtorëve"],
           "shpenzimet_objekt.php" => ["title" => "Shpenzimet e objektit"],
           "ttatimi.php" => ["title" => "Tatimet"],
@@ -109,6 +189,8 @@
         "menuItems" => [
           "filet.php" => ["title" => "Dokumente tjera"],
           "notes.php" => ["title" => "Shenime"],
+          "takimet.php" => ["title" => "Takimet"],
+          "klient_CSV.php" => ["title" => "Klient CSV"],
           "logs.php" => ["title" => "Logs"],
         ],
       ],
@@ -139,87 +221,78 @@
         "icon" => "fi fi-rr-share menu-icon pe-3",
         "collapseId" => "platformat2",
         "menuItems" => [
+          "csvFiles.php" => ["title" => "Inserto CSV"],
+          "filtroCSV.php" => ["title" => "Filtro CSV"],
+          "listaEFaturaveTePlatformave.php" => ["title" => "Lista e faturave"],
+          "pagesatEKryera.php" => ["title" => "Pagesat e perfunduara"],
           "platform_invoices.php" => ["title" => "Raporte te platformave"],
+          "currency.php" => ["title" => "Valutimi"],
         ],
       ],
     ];
+
+    // Define additional standalone menu items
     $standaloneMenuItems = [
       "autor.php" => [
         "icon" => "fi fi-rr-copyright",
-        "title" => "Autor",
+        "title" => "Autor"
+      ],
+      "ascap.php" => [
+        "icon" => "fi fi-rr-copyright",
+        "title" => "ASCAP"
       ],
       "invoice_list_2.php" => [
         "icon" => "fi fi-rr-document",
-        "title" => "Faturë e shpejtë",
+        "title" => "Faturë e shpejtë"
       ],
     ];
+
+    // Define specific pages
     $specificPages = [
       "index.php" => ["icon" => "fi fi-rr-home", "title" => "Shtëpia"],
       "lista_kopjeve_rezerve.php" => ["icon" => "fi fi-rr-database", "title" => "Lista e kopjeve rezerve"],
       "strike-platform.php" => ["icon" => "fi fi-rr-megaphone", "title" => "Strikes"],
       "investime.php" => ["icon" => "fi fi-rr-money-check-edit", "title" => "Investime"],
+      // Add more specific pages as needed...
     ];
+
+    /**
+     * Function to fetch user-accessible pages
+     *
+     * @param mysqli $conn   The database connection.
+     * @param string $userId The ID of the user.
+     * @return array         Array of accessible pages.
+     */
     function getUserPages($conn, $userId)
     {
-      if (isset($_SESSION['user_pages'])) {
-        return $_SESSION['user_pages'];
-      }
       $userPages = [];
       $stmt = $conn->prepare("
-        SELECT DISTINCT role_pages.page
-        FROM roles
-        INNER JOIN user_roles ON roles.id = user_roles.role_id
-        INNER JOIN role_pages ON roles.id = role_pages.role_id
-        WHERE user_roles.user_id = ?
-      ");
+            SELECT GROUP_CONCAT(DISTINCT role_pages.page) AS pages
+            FROM roles
+            INNER JOIN user_roles ON roles.id = user_roles.role_id
+            INNER JOIN role_pages ON roles.id = role_pages.role_id
+            WHERE user_roles.user_id = ?
+            GROUP BY roles.id
+        ");
       if ($stmt) {
         $stmt->bind_param("s", $userId);
         $stmt->execute();
         $result = $stmt->get_result();
         while ($row = $result->fetch_assoc()) {
-          $userPages[] = $row['page'];
+          $pages = explode(',', $row['pages']);
+          $userPages = array_merge($userPages, $pages);
         }
         $stmt->close();
       }
-      $_SESSION['user_pages'] = array_unique($userPages);
-      return $_SESSION['user_pages'];
+      return array_unique($userPages);
     }
-    function generateMenuItem($page, $icon, $title, $badgeHtml = '', $includeIcon = true)
-    {
-      $iconHtml = $includeIcon ? "<i class='{$icon} menu-icon pe-3'></i>" : "";
-      $href = "./{$page}";
-      echo "<li class='nav-item'>
-        <a class='nav-link rounded d-flex align-items-center' href='{$href}'>
-          {$iconHtml}
-          <span class='menu-title flex-grow-1'>{$title}</span>
-          {$badgeHtml}
-        </a>
-      </li>";
-    }
-    function generateMenuSection($section, $userPages)
-    {
-      $filteredItems = array_intersect_key($section['menuItems'], array_flip($userPages));
-      if (empty($filteredItems)) {
-        return;
-      }
-      echo "<li class='nav-item'>
-        <a class='nav-link rounded d-flex align-items-center' data-bs-toggle='collapse' href='#{$section['collapseId']}' aria-expanded='false' aria-controls='{$section['collapseId']}'>
-          <i class='{$section['icon']}'></i>
-          <span class='menu-title flex-grow-1'>{$section['title']}</span>
-          <i class='menu-arrow pe-3'></i>
-        </a>
-        <div class='collapse' id='{$section['collapseId']}'>
-          <ul class='nav flex-column sub-menu'>";
-      foreach ($filteredItems as $page => $item) {
-        generateMenuItem($page, '', $item['title'], $item['badge'] ?? '', $includeIcon = false);
-      }
-      echo "</ul>
-        </div>
-      </li>";
-    }
+
+    // Check if the user is logged in
     if (isset($_SESSION['id'])) {
       $userId = $_SESSION['id'];
       $userPages = getUserPages($conn, $userId);
+
+      // Always include the home menu item
       if (isset($specificPages['index.php'])) {
         generateMenuItem(
           "index.php",
@@ -227,6 +300,8 @@
           $specificPages['index.php']['title']
         );
       }
+
+      // Generate specific menu items based on user pages
       foreach ($specificPages as $page => $data) {
         if (in_array($page, $userPages)) {
           generateMenuItem(
@@ -236,9 +311,13 @@
           );
         }
       }
+
+      // Generate collapsible menu sections
       foreach ($menuSections as $section) {
         generateMenuSection($section, $userPages);
       }
+
+      // Generate additional standalone menu items
       foreach ($standaloneMenuItems as $page => $item) {
         if (in_array(basename($page), $userPages)) {
           generateMenuItem(
@@ -249,6 +328,7 @@
         }
       }
     } else {
+      // The 'id' session variable is not set, handle accordingly
       echo "<li class='nav-item'><span class='text-danger'>User ID is not set in the session.</span></li>";
     }
     ?>
