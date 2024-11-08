@@ -148,7 +148,7 @@ include('partials/header.php');
                                                     </a>
                                                     <!-- Send Email Button -->
                                                     <?php if (empty($k['nenshkrimi'])): ?>
-                                                        <button type="button" class="btn btn-success input-custom-css px-3 py-2  rounded-5 btn-sm" data-bs-toggle="modal" data-bs-target="#sendEmailModal" data-id="<?php echo sanitizeOutput($k['id']); ?>" data-email="<?php echo sanitizeOutput($k['email']); ?>" data-link="https://panel.bareshaoffice.com/kontrataGjeneralePerKlient.php?id=" data-bs-toggle="tooltip" title="Dërgo kontratën via Email">
+                                                        <button type="button" class="btn btn-success input-custom-css px-3 py-2  rounded-5 btn-sm" data-bs-toggle="modal" data-bs-target="#sendEmailModal" data-id="<?php echo sanitizeOutput($k['id']); ?>" data-email="<?php echo sanitizeOutput($k['email']); ?>" data-link="http://localhost/BareshaNetwork_v3.2/kontrataGjeneralePerKlient.php?id=" data-bs-toggle="tooltip" title="Dërgo kontratën via Email">
                                                             <i class="fi fi-rr-envelope"></i>
                                                         </button>
                                                     <?php endif; ?>

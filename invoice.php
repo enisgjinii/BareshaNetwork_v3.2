@@ -1098,4 +1098,4 @@ function generateInvoiceNumber()
 <?php include 'partials/footer.php' ?>
 </body>
 
-</html>
+</html> 

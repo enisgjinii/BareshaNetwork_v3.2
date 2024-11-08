@@ -10,7 +10,8 @@ use PHPMailer\PHPMailer\Exception;
 require 'conn-d.php'; // Replace with your actual database connection script
 
 // Helper function to format numbers by rounding down to the nearest integer and adding two decimal places
-function formatAmount($amount) {
+function formatAmount($amount)
+{
     if (!is_numeric($amount)) {
         throw new InvalidArgumentException('Amount must be a numeric value.');
     }
@@ -18,7 +19,8 @@ function formatAmount($amount) {
 }
 
 // Helper function to fetch a single row from the database
-function fetchRow($conn, $sql, $types = "", ...$params) {
+function fetchRow($conn, $sql, $types = "", ...$params)
+{
     $stmt = $conn->prepare($sql);
     if (!$stmt) {
         throw new Exception('Failed to prepare SQL statement.');
@@ -61,6 +63,7 @@ try {
     $numriFatura = htmlspecialchars($invoice["invoice_number"], ENT_QUOTES, 'UTF-8');
     $is_new_customer = isset($customer['is_new_customer']) ? $customer['is_new_customer'] : false; // Ensure a default value if the field is not set
     $name = htmlspecialchars($customer['emri'], ENT_QUOTES, 'UTF-8');
+    $emailadd = htmlspecialchars($customer['emailadd'], ENT_QUOTES, 'UTF-8');
     $email_of_finance = htmlspecialchars($customer['email_kontablist'], ENT_QUOTES, 'UTF-8');
 
     // Prepare email greeting
@@ -206,9 +209,11 @@ try {
 
     // Decide which email address to add
     if ($env === 'local') {
-        $mail->addAddress('egjini17@gmail.com', 'Recipient Name'); // Replace with appropriate test email
+        $mail->addAddress($email_of_finance, 'Për ' . $name);
+        $mail->addAddress($emailadd, $name);
     } else {
         $mail->addAddress($email_of_finance, 'Për ' . $name);
+        $mail->addAddress($emailadd, $name);
     }
 
     $mail->Subject = 'Faturë nga Baresha Network';
@@ -236,4 +241,3 @@ try {
     </script>";
     exit();
 }
-?>
