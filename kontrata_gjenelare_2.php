@@ -65,8 +65,8 @@ $conn->close();
                                 <div class="row g-3">
                                     <!-- Client Selection Dropdown -->
                                     <div class="col-md-12">
-                                        <label for="artisti" class="form-label">Klienti <span class="text-danger">*</span></label>
-                                        <select name="artisti" id="artisti" class="form-select rounded-5" onchange="populateFields(this);" required data-bs-toggle="tooltip" data-bs-placement="right" title="Zgjidhni një klient nga lista. Zgjedhja automatikisht plotëson disa fusha të tjera si Emri, Email, dhe Përqindja e Klientit.">
+                                        <label for="artisti" class="form-label">Klienti</label>
+                                        <select name="artisti" id="artisti" class="form-select rounded-5" onchange="populateFields(this);" data-bs-toggle="tooltip" data-bs-placement="right" title="Zgjidhni një klient nga lista. Zgjedhja automatikisht plotëson disa fusha të tjera si Emri, Email, dhe Përqindja e Klientit.">
                                             <option value="" selected disabled>Zgjidhni një klient</option>
                                             <?php foreach ($clients as $client): ?>
                                                 <option value="<?= htmlspecialchars(json_encode($client)) ?>">
@@ -116,9 +116,9 @@ $conn->close();
                                     ];
                                     foreach ($fields as $name => $label): ?>
                                         <div class="col-md-6">
-                                            <label for="<?= $name ?>" class="form-label"><?= $label ?> <?= in_array($name, ['emri', 'numri_tel', 'numri_personal', 'email', 'youtube_id', 'pronari_xhiroBanka', 'numri_xhiroBanka', 'tvsh', 'emriartistik']) ? '<span class="text-danger">*</span>' : '' ?></label>
-                                            <input type="text" name="<?= $name ?>" id="<?= $name ?>" class="form-control rounded-5" placeholder="Shëno <?= strtolower($label) ?>" <?= in_array($name, ['emri', 'numri_tel', 'numri_personal', 'email', 'youtube_id', 'pronari_xhiroBanka', 'numri_xhiroBanka', 'tvsh', 'emriartistik']) ? 'readonly' : '' ?>
-                                                <?= in_array($name, ['emri', 'numri_tel', 'numri_personal', 'email', 'youtube_id', 'pronari_xhiroBanka', 'numri_xhiroBanka', 'tvsh', 'emriartistik']) ? 'required' : '' ?>
+                                            <label for="<?= $name ?>" class="form-label"><?= $label ?></label>
+                                            <input type="text" name="<?= $name ?>" id="<?= $name ?>" class="form-control rounded-5" placeholder="Shëno <?= strtolower($label) ?>"
+                                                <?= in_array($name, ['emri', 'numri_tel', 'numri_personal', 'email', 'youtube_id', 'pronari_xhiroBanka', 'numri_xhiroBanka', 'tvsh', 'emriartistik']) ? 'readonly' : '' ?>
                                                 data-bs-toggle="tooltip" data-bs-placement="right" title="<?= getTooltip($name, $label) ?>">
                                             <div class="invalid-feedback">
                                                 Ju lutem plotësoni këtë fushë.
@@ -127,17 +127,18 @@ $conn->close();
                                     <?php endforeach; ?>
                                     <!-- Duration of the Contract -->
                                     <div class="col-md-6">
-                                        <label for="kohezgjatja" class="form-label">Kohëzgjatja në muaj <span class="text-danger">*</span></label>
-                                        <input type="number" name="kohezgjatja" id="kohezgjatja" class="form-control rounded-5" placeholder="Shëno kohëzgjatjen e kontratës" min="1" required data-bs-toggle="tooltip" data-bs-placement="right" title="Vendosni numrin e muajve për sa kohë do të qëndrojë kontrata aktive. P.sh., 12 për një vit.">
+                                        <label for="kohezgjatja" class="form-label">Kohëzgjatja në muaj</label>
+                                        <input type="number" name="kohezgjatja" id="kohezgjatja" class="form-control rounded-5" placeholder="Shëno kohëzgjatjen e kontratës" min="1"
+                                            data-bs-toggle="tooltip" data-bs-placement="right" title="Vendosni numrin e muajve për sa kohë do të qëndrojë kontrata aktive. P.sh., 12 për një vit.">
                                         <div class="invalid-feedback">
                                             Ju lutem vendosni një kohëzgjatje të vlefshme.
                                         </div>
                                     </div>
                                     <!-- File Upload Field -->
                                     <div class="col-md-12">
-                                        <label for="fileUpload" class="form-label">Ngarkoni Dokumentet <span class="text-danger">*</span></label>
+                                        <label for="fileUpload" class="form-label">Ngarkoni Dokumentet</label>
                                         <div class="dropzone" id="dropzone" data-bs-toggle="tooltip" data-bs-placement="right" title="Ngarkoni dokumentet e nevojshme për kontratën, si kontratat e nënshkruara, identifikimi, etj. Mbështeten format .pdf, .doc, .docx, .jpg, .jpeg, dhe .png.">
-                                            <input type="file" name="documents[]" id="fileUpload" class="form-control" multiple accept=".pdf, .doc, .docx, .jpg, .jpeg, .png" required>
+                                            <input type="file" name="documents[]" id="fileUpload" class="form-control" multiple accept=".pdf, .doc, .docx, .jpg, .jpeg, .png">
                                             <p class="mt-2">Drag & Drop files këtu ose klikoni për të zgjedhur.</p>
                                         </div>
                                         <div id="filePreview" class="mt-3"></div>
@@ -279,31 +280,28 @@ $conn->close();
         window.validateForm = function() {
             let isValid = true;
             const form = document.getElementById('contractForm');
-            const requiredFields = ['artisti', 'kohezgjatja', 'fileUpload'];
-            requiredFields.forEach(field => {
-                const input = document.getElementById(field);
-                if (input && !input.value.trim()) {
-                    input.classList.add('is-invalid');
-                    isValid = false;
-                } else if (input) {
-                    input.classList.remove('is-invalid');
-                }
-            });
+            // Remove the requiredFields array as we no longer require fields
+            // const requiredFields = ['artisti', 'kohezgjatja', 'fileUpload'];
+            // requiredFields.forEach(field => {
+            //     const input = document.getElementById(field);
+            //     if (input && !input.value.trim()) {
+            //         input.classList.add('is-invalid');
+            //         isValid = false;
+            //     } else if (input) {
+            //         input.classList.remove('is-invalid');
+            //     }
+            // });
             // Additional custom validations
             const perqindja = parseFloat(document.getElementById('tvsh').value);
-            if (isNaN(perqindja) || perqindja < 0 || perqindja >= 100) {
+            if (!isNaN(perqindja) && (perqindja < 0 || perqindja >= 100)) {
                 document.getElementById('tvsh').classList.add('is-invalid');
                 isValid = false;
             } else {
                 document.getElementById('tvsh').classList.remove('is-invalid');
             }
-            // File Upload Validation
+            // File Upload Validation (optional)
             const fileInput = document.getElementById('fileUpload');
-            if (fileInput.files.length === 0) {
-                document.getElementById('fileUpload').classList.add('is-invalid');
-                document.getElementById('fileUploadFeedback').textContent = 'Ju lutem ngarkoni të paktën një dokument.';
-                isValid = false;
-            } else {
+            if (fileInput.files.length > 0) {
                 // Validate file types and sizes
                 const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'image/jpeg', 'image/png'];
                 const maxSize = 5 * 1024 * 1024; // 5MB per file
@@ -324,15 +322,17 @@ $conn->close();
                     document.getElementById('fileUpload').classList.remove('is-invalid');
                 }
             }
-            if (!isValid) {
-                alert('Ju lutem plotësoni të gjitha fushat e kërkuara dhe kontrolloni gabimet.');
-            }
+            // Remove the alert for incomplete required fields
+            // if (!isValid) {
+            //     alert('Ju lutem plotësoni të gjitha fushat e kërkuara dhe kontrolloni gabimet.');
+            // }
             return isValid;
         }
         // File Upload Preview Functionality
         const fileUpload = document.getElementById('fileUpload');
         const filePreview = document.getElementById('filePreview');
         fileUpload.addEventListener('change', handleFileSelect);
+
         function handleFileSelect(event) {
             const files = event.target.files;
             filePreview.innerHTML = ''; // Clear previous previews
@@ -428,13 +428,16 @@ $conn->close();
         cursor: pointer;
         transition: background-color 0.3s;
     }
+
     .dropzone.bg-light {
         background-color: #e9ecef;
     }
+
     /* File preview styles */
     #filePreview img {
         margin-bottom: 10px;
     }
+
     #filePreview i {
         color: #6c757d;
     }

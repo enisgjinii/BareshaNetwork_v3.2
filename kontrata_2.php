@@ -1,324 +1,295 @@
 <?php
-// Use require_once to ensure files are included only once and are mandatory
-require_once 'partials/header.php';
-require_once 'page_access_controller.php';
+session_start();
+include 'partials/header.php';
+include 'page_access_controller.php';
+include 'conn-d.php';
 
-// Ensure $conn is defined
-if (!isset($conn)) {
-    // Handle the missing connection appropriately
-    error_log("Database connection not established.");
-    die("Internal server error. Please try again later.");
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-// Fetch clients data with error handling
-$sql = "SELECT * FROM klientet ORDER BY emri ASC";
-$result = $conn->query($sql);
+$errors = [];
 
-if ($result === false) {
-    // Log the error and handle gracefully
-    error_log("Database query failed: " . $conn->error);
-    $clients = [];
-    // Optionally, display a user-friendly message
-    echo "<div class='alert alert-danger'>Failed to load clients. Please try again later.</div>";
-} else {
+try {
+    $stmt = $conn->prepare("SELECT * FROM klientet ORDER BY emri ASC");
+    $stmt->execute();
+    $result = $stmt->get_result();
     $clients = $result->num_rows > 0 ? $result->fetch_all(MYSQLI_ASSOC) : [];
+} catch (Exception $e) {
+    $clients = [];
+    error_log("Error fetching clients: " . $e->getMessage());
 }
 
-// Close the database connection if not needed further
-// $conn->close(); // Uncomment if appropriate
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        $errors[] = "Invalid CSRF token.";
+    } else {
+        $emri = trim($_POST['emri'] ?? '');
+        $mbiemri = trim($_POST['mbiemri'] ?? '');
+        $nrtel = trim($_POST['nrtel'] ?? '');
+        $numri_personal = trim($_POST['numri_personal'] ?? '');
+        $klienti = trim($_POST['klienti'] ?? '');
+        $emailadd = trim($_POST['emailadd'] ?? '');
+        $emriartistik = trim($_POST['emriartistik'] ?? '');
+        $vepra = trim($_POST['vepra'] ?? '');
+        $data = trim($_POST['data'] ?? '');
+        $perqindja = floatval($_POST['perqindja'] ?? 0);
+        $perqindja_other = floatval($_POST['perqindja_other'] ?? 0);
+        $shenime = trim($_POST['shenime'] ?? '');
+        
+        if (isset($_FILES['pdf_file']) && $_FILES['pdf_file']['error'] !== UPLOAD_ERR_NO_FILE) {
+            $file = $_FILES['pdf_file'];
+            $fileName = preg_replace("/[^A-Za-z0-9.\-_]/", '', basename($file['name']));
+            $uploadDir = 'uploads/contracts/';
+            if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
+            $filePath = $uploadDir . time() . "_" . $fileName;
+            if (!move_uploaded_file($file['tmp_name'], $filePath)) {
+                $errors[] = "Failed to upload the contract file.";
+            }
+        } else {
+            $filePath = null;
+        }
+        
+        if (empty($errors)) {
+            try {
+                $stmt = $conn->prepare("INSERT INTO kontrata (emri, mbiemri, numri_i_telefonit, numri_personal, klienti, klient_email, emriartistik, vepra, data, pdf_file, perqindja, shenim) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                $stmt->bind_param(
+                    "sssssssssdss",
+                    $emri,
+                    $mbiemri,
+                    $nrtel,
+                    $numri_personal,
+                    $klienti,
+                    $emailadd,
+                    $emriartistik,
+                    $vepra,
+                    $data,
+                    $filePath,
+                    $perqindja,
+                    $shenime
+                );
+                $stmt->execute();
+                $success = true;
+                $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+            } catch (Exception $e) {
+                $errors[] = "Error saving contract: " . $e->getMessage();
+                error_log("Error inserting contract: " . $e->getMessage());
+            }
+        }
+    }
+}
 ?>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="ajax.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/selectr/dist/selectr.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/selectr/dist/selectr.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <div class="main-panel">
     <div class="content-wrapper">
         <div class="container-fluid">
-            <!-- Breadcrumb Navigation -->
-            <nav class="bg-white px-3 py-2 rounded-5 mb-4" aria-label="breadcrumb">
+            <nav class="bg-white px-3 py-2 rounded my-3" aria-label="breadcrumb">
                 <ol class="breadcrumb mb-0">
-                    <li class="breadcrumb-item"><a href="#" class="text-reset text-decoration-none">Kontratat</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">
-                        Kontrata e re (Këngë)
-                    </li>
+                    <li class="breadcrumb-item"><a href="#" class="text-decoration-none">Kontratat</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Kontrata e Re (Këngë)</li>
                 </ol>
             </nav>
-
-            <!-- Contract Form Card -->
-            <div class="card p-5 shadow-sm rounded-5">
-                <div class="row">
-                    <!-- Form Section -->
-                    <div class="col-lg-6 mb-4">
-                        <form id="contractForm" enctype="multipart/form-data">
-                            <?php
-                            $fields = [
-                                ["label" => "Emri", "name" => "emri", "type" => "text", "placeholder" => "Sheno emrin"],
-                                ["label" => "Mbiemri", "name" => "mbiemri", "type" => "text", "placeholder" => "Sheno mbiemrin"],
-                                ["label" => "Numri i telefonit", "name" => "numri_tel", "type" => "text", "placeholder" => "Sheno numrin e telefonit"],
-                                ["label" => "Numri personal", "name" => "numri_personal", "type" => "text", "placeholder" => "Sheno numrin personal"],
-                            ];
-                            foreach ($fields as $field) {
-                                // Escape output to prevent XSS
-                                $label = htmlspecialchars($field['label'], ENT_QUOTES, 'UTF-8');
-                                $name = htmlspecialchars($field['name'], ENT_QUOTES, 'UTF-8');
-                                $type = htmlspecialchars($field['type'], ENT_QUOTES, 'UTF-8');
-                                $placeholder = htmlspecialchars($field['placeholder'], ENT_QUOTES, 'UTF-8');
-                                echo "<div class='mb-3'>
-                                        <label class='form-label fw-semibold' for='{$name}'>{$label}</label>
-                                        <input type='{$type}' name='{$name}' id='{$name}' class='form-control rounded-4 border' placeholder='{$placeholder}'>
-                                      </div>";
-                            }
-                            ?>
-                            <!-- Klienti Select -->
-                            <div class="mb-3">
-                                <label class="form-label fw-semibold" for="klienti22">Klienti</label>
-                                <select name="klienti" id="klienti22" class="form-select rounded-4 border">
-                                    <option value="" disabled selected>Zgjidhni një klient</option>
-                                    <?php
-                                    foreach ($clients as $client) {
-                                        // Ensure the client data is properly escaped
-                                        $emri = htmlspecialchars($client['emri'], ENT_QUOTES, 'UTF-8');
-                                        $emailadd = htmlspecialchars($client['emailadd'], ENT_QUOTES, 'UTF-8');
-                                        $emriart = htmlspecialchars($client['emriart'], ENT_QUOTES, 'UTF-8');
-                                        // Use a delimiter that won't appear in the data or consider using JSON encoding
-                                        echo "<option value='{$emri}|{$emailadd}|{$emriart}'>{$emri}</option>";
-                                    }
-                                    ?>
-                                </select>
+            <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1100">
+                <?php if (isset($success) && $success): ?>
+                    <div id="successToast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                        <div class="d-flex">
+                            <div class="toast-body">
+                                Kontrata është ruajtur me sukses.
                             </div>
-                            <?php
-                            $additionalFields = [
-                                ["label" => "Adresa e email-it", "name" => "email", "type" => "email", "placeholder" => "Sheno adresen e email-it"],
-                                ["label" => "Emri artistik", "name" => "emriartistik", "type" => "text", "placeholder" => "Sheno emrin artistik"],
-                                ["label" => "Vepra", "name" => "vepra", "type" => "text", "placeholder" => "Sheno veprën"],
-                                ["label" => "Data", "name" => "data", "type" => "date"],
-                                ["label" => "Ngarko kontratën", "name" => "pdf_file", "type" => "file", "attributes" => "accept='.docx,.pdf' onchange='validateFile(this)'"],
-                                ["label" => "Përqindja (Baresha)", "name" => "perqindja", "type" => "number", "placeholder" => "Sheno përqindjen", "attributes" => "onchange='updatePerqindjaOther()'"],
-                                ["label" => "Përqindja (Klienti)", "name" => "perqindja_other", "type" => "number", "readonly" => true],
-                                ["label" => "Shënime", "name" => "shenime", "type" => "textarea", "rows" => 5, "placeholder" => "Shëno..."]
-                            ];
-                            foreach ($additionalFields as $field) {
-                                // Escape output
-                                $label = htmlspecialchars($field['label'], ENT_QUOTES, 'UTF-8');
-                                $name = htmlspecialchars($field['name'], ENT_QUOTES, 'UTF-8');
-                                $type = htmlspecialchars($field['type'], ENT_QUOTES, 'UTF-8');
-                                $placeholder = isset($field['placeholder']) ? htmlspecialchars($field['placeholder'], ENT_QUOTES, 'UTF-8') : '';
-                                $attributes = isset($field['attributes']) ? ' ' . $field['attributes'] : '';
-                                $readonly = isset($field['readonly']) && $field['readonly'] ? ' readonly' : '';
-                                // Removed the required attribute
-
-                                if ($type == 'textarea') {
-                                    $rows = isset($field['rows']) ? (int)$field['rows'] : 3;
-                                    echo "<div class='mb-3'>
-                                            <label class='form-label fw-semibold' for='{$name}'>{$label}</label>
-                                            <textarea name='{$name}' id='{$name}' class='form-control rounded-4 border' rows='{$rows}' placeholder='{$placeholder}'></textarea>
-                                          </div>";
-                                } else {
-                                    echo "<div class='mb-3'>
-                                            <label class='form-label fw-semibold' for='{$name}'>{$label}</label>
-                                            <input type='{$type}' name='{$name}' id='{$name}' class='form-control rounded-4 border' placeholder='{$placeholder}'{$attributes}{$readonly}>
-                                          </div>";
-                                }
-                            }
-                            ?>
-                            <button type="submit" class="btn btn-primary w-100 py-2 rounded-4">
-                                <i class="fi fi-rr-paper-plane me-2"></i>Dërgo
-                            </button>
-                        </form>
-                    </div>
-
-                    <!-- Preview Section -->
-                    <div class="col-lg-6">
-                        <h5 class="mb-3">Preview e Kontratës</h5>
-                        <div id="contractContent" class="p-3 border rounded-4 bg-light" style="min-height: 300px;">
-                            <!-- Live preview will be loaded here -->
+                            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
                         </div>
                     </div>
-                </div>
+                <?php endif; ?>
+                <?php if (!empty($errors)): ?>
+                    <div id="errorToast" class="toast align-items-center text-bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                        <div class="d-flex">
+                            <div class="toast-body">
+                                <?php echo implode("<br>", array_map("htmlspecialchars", $errors)); ?>
+                            </div>
+                            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                    </div>
+                <?php endif; ?>
             </div>
-        </div>
-    </div>
-
-    <!-- Modal for Viewing Documents -->
-    <div class="modal fade" id="documentModal" tabindex="-1" aria-labelledby="documentModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 id="documentModalLabel" class="modal-title">Dokumenti</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <iframe id="documentViewer" src="" frameborder="0" style="width: 100%; height: 500px;"></iframe>
-                </div>
+            <div class="card p-4 shadow-sm rounded">
+                <form id="contractForm" method="POST" enctype="multipart/form-data">
+                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="emri" class="form-label" data-bs-toggle="tooltip" data-bs-placement="top" title="Shkruani emrin tuaj të plotë">Emri</label>
+                            <input type="text" name="emri" id="emri" class="form-control rounded" placeholder="Sheno emrin tuaj" value="<?php echo htmlspecialchars($_POST['emri'] ?? ''); ?>">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="mbiemri" class="form-label" data-bs-toggle="tooltip" data-bs-placement="top" title="Shkruani mbiemrin tuaj të plotë">Mbiemri</label>
+                            <input type="text" name="mbiemri" id="mbiemri" class="form-control rounded" placeholder="Sheno mbiemrin tuaj" value="<?php echo htmlspecialchars($_POST['mbiemri'] ?? ''); ?>">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="nrtel" class="form-label" data-bs-toggle="tooltip" data-bs-placement="top" title="Shkruani numrin tuaj të telefonit personal ose profesional">Numri i Telefonit</label>
+                            <input type="tel" name="nrtel" id="nrtel" class="form-control rounded" placeholder="Sheno numrin e telefonit" value="<?php echo htmlspecialchars($_POST['nrtel'] ?? ''); ?>">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="numri_personal" class="form-label" data-bs-toggle="tooltip" data-bs-placement="top" title="Numri personal do të plotësohet automatikisht nga të dhënat e klientit">Numri Personal</label>
+                            <input type="text" name="numri_personal" id="numri_personal" class="form-control rounded" placeholder="Sheno numrin personal" value="<?php echo htmlspecialchars($_POST['numri_personal'] ?? ''); ?>">
+                        </div>
+                        <div class="col-12">
+                            <label for="klienti22" class="form-label" data-bs-toggle="tooltip" data-bs-placement="top" title="Zgjidhni një klient nga lista e disponueshme">Klienti</label>
+                            <select name="klienti" id="klienti22" class="form-select rounded" onchange="showClientDetails(this)">
+                                <option value="" disabled <?php echo !isset($_POST['klienti']) ? 'selected' : ''; ?>>Zgjidhni një klient</option>
+                                <?php foreach ($clients as $client): ?>
+                                    <option value="<?php echo htmlspecialchars($client['emri'] . "|" . $client['emailadd'] . "|" . $client['emriart'] . "|" . $client['nrtel'] . "|" . $client['np']); ?>" <?php echo (isset($_POST['klienti']) && $_POST['klienti'] === ($client['emri'] . "|" . $client['emailadd'] . "|" . $client['emriart'] . "|" . $client['nrtel'] . "|" . $client['np'])) ? 'selected' : ''; ?>>
+                                        <?php echo htmlspecialchars($client['emri']); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="emailadd" class="form-label" data-bs-toggle="tooltip" data-bs-placement="top" title="Adresa e Email-it do të plotësohet automatikisht nga të dhënat e klientit">Adresa e Email-it</label>
+                            <input type="email" name="emailadd" id="emailadd" class="form-control rounded" placeholder="Sheno adresen e emailit" value="<?php echo htmlspecialchars($_POST['emailadd'] ?? ''); ?>">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="emriartistik" class="form-label" data-bs-toggle="tooltip" data-bs-placement="top" title="Emri Artistik do të plotësohet automatikisht nga të dhënat e klientit">Emri Artistik</label>
+                            <input type="text" name="emriartistik" id="emriartistik" class="form-control rounded" placeholder="Sheno emrin artistik (nëse aplikohet)" value="<?php echo htmlspecialchars($_POST['emriartistik'] ?? ''); ?>">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="vepra" class="form-label" data-bs-toggle="tooltip" data-bs-placement="top" title="Shkruani emrin e veprës për të cilën po krijoni kontratën">Vepra</label>
+                            <input type="text" name="vepra" id="vepra" class="form-control rounded" placeholder="Sheno emrin e veprës" value="<?php echo htmlspecialchars($_POST['vepra'] ?? ''); ?>">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="data" class="form-label" data-bs-toggle="tooltip" data-bs-placement="top" title="Zgjidhni datën e nënshkrimit të kontratës">Data</label>
+                            <input type="text" name="data" id="data" class="form-control rounded" placeholder="Zgjidhni datën e kontratës" value="<?php echo htmlspecialchars($_POST['data'] ?? ''); ?>">
+                        </div>
+                        <div class="col-12">
+                            <label for="pdf_file" class="form-label" data-bs-toggle="tooltip" data-bs-placement="top" title="Ngarkoni një kopje të kontratës në format DOCX ose PDF">Ngarko Kontratën</label>
+                            <input type="file" name="pdf_file" id="pdf_file" class="form-control rounded" accept=".docx,.pdf" onchange="validateFile(this)">
+                            <small class="form-text text-muted">Formatet e lejuara: DOCX, PDF. Madhësia maksimale: 10MB.</small>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="perqindja" class="form-label" data-bs-toggle="tooltip" data-bs-placement="top" title="Shkruani përqindjen tuaj të përfitimit nga kontrata">Përqindja (Baresha)</label>
+                            <div class="input-group">
+                                <input type="number" name="perqindja" id="perqindja" class="form-control rounded" placeholder="Përqindja tuaj (%)" min="0" max="100" step="0.01" onchange="updatePerqindjaOther()" value="<?php echo htmlspecialchars($_POST['perqindja'] ?? ''); ?>">
+                                <span class="input-group-text">%</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="perqindja_other" class="form-label" data-bs-toggle="tooltip" data-bs-placement="top" title="Përqindja që do të përfitojë klienti bazuar në përqindjen tuaj">Përqindja (Klienti)</label>
+                            <div class="input-group">
+                                <input type="number" name="perqindja_other" id="perqindja_other" class="form-control rounded" placeholder="Përqindja e klientit (%)" readonly value="<?php echo htmlspecialchars($_POST['perqindja_other'] ?? ''); ?>">
+                                <span class="input-group-text">%</span>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <label for="shenime" class="form-label" data-bs-toggle="tooltip" data-bs-placement="top" title="Shkruani çdo informacion shtesë ose shënim të rëndësishëm për këtë kontratë">Shënime</label>
+                            <textarea name="shenime" id="shenime" class="form-control rounded" rows="3" placeholder="Shënime shtesë..."><?php echo htmlspecialchars($_POST['shenime'] ?? ''); ?></textarea>
+                        </div>
+                        <div class="col-12 text-end">
+                            <button type="submit" class="btn btn-primary rounded px-4" data-bs-toggle="tooltip" data-bs-placement="top" title="Klikoni për të dërguar kontratën">Dërgo</button>
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 </div>
-<?php require_once 'partials/footer.php'; ?>
+<?php include('partials/footer.php'); ?>
 <script>
-    $(document).ready(function() {
-        // Initialize Toastr options
-        toastr.options = {
-            "closeButton": true,
-            "progressBar": true,
-            "positionClass": "toast-top-right",
-            "timeOut": "5000",
-        };
+    new Selectr('#klienti22', {
+        searchable: true,
+        clearable: true,
+        placeholder: 'Zgjidhni një klient'
+    });
 
-        // Event listeners for form inputs to update preview
-        $('#contractForm').on('input change', 'input, select, textarea', updatePreview);
+    flatpickr("#data", {
+        dateFormat: "Y-m-d",
+        maxDate: "today",
+        allowInput: true
+    });
 
-        // Show email and artist name based on selected client
-        $('#klienti22').on('change', function() {
-            const [emri, email, emriartistik] = $(this).val().split("|") || [];
-            $(this).val()
-                ? (email && emriartistik
-                    ? (
-                        $('#email').val(email || "Klienti që keni zgjedhur nuk ka adresë te emailit"),
-                        $('#emriartistik').val(emriartistik || ""),
-                        updatePreview()
-                      )
-                    : (
-                        toastr.error('Të dhënat e klientit janë të pavlefshme.'),
-                        $('#email').val(""),
-                        $('#emriartistik').val("")
-                      )
-                  )
-                : toastr.warning('Ju lutem zgjidhni një klient.');
+    function showClientDetails(select) {
+        if (select.value) {
+            const [emri, emailadd, emriartistik, nrtel, np] = select.value.split("|");
+            document.getElementById("emailadd").value = emailadd || "";
+            document.getElementById("emriartistik").value = emriartistik || "";
+            document.getElementById("nrtel").value = nrtel || "";
+            document.getElementById("numri_personal").value = np || "";
+        } else {
+            document.getElementById("emailadd").value = "";
+            document.getElementById("emriartistik").value = "";
+            document.getElementById("nrtel").value = "";
+            document.getElementById("numri_personal").value = "";
+        }
+    }
+
+    function updatePerqindjaOther() {
+        const perqindja = parseFloat(document.getElementById('perqindja').value);
+        document.getElementById('perqindja_other').value = isNaN(perqindja) ? "" : (100 - perqindja).toFixed(2);
+    }
+
+    function validateFile(input) {
+        const file = input.files[0];
+        const maxSize = 10 * 1024 * 1024;
+        const allowedTypes = ['application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/pdf'];
+        if (file) {
+            if (!allowedTypes.includes(file.type)) {
+                showToast('errorToast', 'Lloj Skedari i Pavlefshëm', 'Vetëm DOCX dhe PDF lejohet.');
+                input.value = '';
+                return;
+            }
+            if (file.size > maxSize) {
+                showToast('errorToast', 'Skedar i Madh', 'Madhësia e skedarit tejkalon 10MB.');
+                input.value = '';
+                return;
+            }
+        }
+    }
+
+    function showToast(toastId, title, message) {
+        const toastElement = document.getElementById(toastId);
+        if (toastElement) {
+            const toast = new bootstrap.Toast(toastElement);
+            const toastBody = toastElement.querySelector('.toast-body');
+            toastBody.innerHTML = `<strong>${title}:</strong> ${message}`;
+            toast.show();
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
         });
 
-        // Update the 'perqindja_other' field based on 'perqindja'
-        $('#perqindja').on('change', function() {
-            const perqindja = parseFloat($(this).val());
-            const $perqindjaOther = $('#perqindja_other');
-            !$('#perqindja').length || !$perqindjaOther.length
-                ? toastr.error('Fusha përqindja nuk është gjetur.')
-                : isNaN(perqindja)
-                ? (
-                    $perqindjaOther.val(""),
-                    toastr.warning('Ju lutem shkruani një vlerë të vlefshme për përqindjen.')
-                  )
-                : (perqindja < 0 || perqindja > 100)
-                ? (
-                    $perqindjaOther.val(""),
-                    toastr.warning('Përqindja duhet të jetë midis 0 dhe 100.')
-                  )
-                : (
-                    $perqindjaOther.val((100 - perqindja).toFixed(2)),
-                    updatePreview()
-                  );
-        });
-
-        // Update the contract preview by fetching from the server
-        function updatePreview() {
-            const formData = new FormData($('#contractForm')[0]);
-            $.ajax({
-                url: 'preview-contract.php',
-                type: 'POST',
-                data: formData,
-                processData: false,
-                contentType: false,
-                success: function(data) {
-                    $('#contractContent').html(data);
-                },
-                error: function(jqXHR, textStatus, errorThrown) {
-                    console.error('Error fetching contract preview:', errorThrown);
-                    toastr.error('Dështoi për të ngarkuar preview-n e kontratës.');
+        <?php if (isset($success) && $success): ?>
+            var successToastEl = document.getElementById('successToast');
+            var successToast = new bootstrap.Toast(successToastEl);
+            successToast.show();
+            successToastEl.addEventListener('hidden.bs.toast', function () {
+                document.getElementById('contractForm').reset();
+                const selectrInstance = Selectr.instances.get(document.querySelector('#klienti22'));
+                if (selectrInstance) {
+                    selectrInstance.clear();
                 }
+                const fp = flatpickr("#data");
+                if (fp.length > 0) {
+                    fp[0].clear();
+                }
+                document.getElementById("emailadd").value = "";
+                document.getElementById("emriartistik").value = "";
+                document.getElementById("nrtel").value = "";
+                document.getElementById("numri_personal").value = "";
+                document.getElementById("perqindja_other").value = "";
             });
-        }
+        <?php endif; ?>
 
-        // Initialize Selectr for the klienti select element (Ensure Selectr library is loaded)
-        if (typeof Selectr !== 'undefined') {
-            new Selectr('#klienti22', { searchable: true });
-        } else {
-            console.warn('Selectr library is not loaded.');
-        }
-
-        // Initialize flatpickr for the date input (Ensure flatpickr library is loaded)
-        if (typeof flatpickr !== 'undefined') {
-            flatpickr("input[name='data']", {
-                dateFormat: "Y-m-d",
-                maxDate: "today",
-                onChange: updatePreview
-            });
-        } else {
-            console.warn('flatpickr library is not loaded.');
-        }
-
-        // Validate the uploaded file
-        window.validateFile = function(input) {
-            const file = input.files[0];
-            const maxSize = 10 * 1024 * 1024; // 10MB
-            const allowedTypes = [
-                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                'application/pdf'
-            ];
-
-            file
-                ? (
-                    allowedTypes.includes(file.type)
-                        ? (file.size <= maxSize
-                            ? updatePreview()
-                            : (
-                                toastr.error('Madhësia e skedarit tejkalon limitin (10MB).'),
-                                $(input).val('')
-                              )
-                          )
-                        : (
-                            toastr.error('Ju lutem zgjidhni një lloj skedari të vlefshëm (docx ose pdf).'),
-                            $(input).val('')
-                          )
-                  )
-                : toastr.warning('Ju lutem zgjidhni një skedar.');
-        };
-
-        // Function to view documents in the modal
-        $(document).on('click', '.view-document', function(e) {
-            e.preventDefault();
-            const file = decodeURIComponent($(this).data('file') || '');
-            const name = decodeURIComponent($(this).data('name') || '');
-
-            file && name
-                ? (
-                    $('#documentModalLabel').text(name),
-                    $('#documentViewer').attr('src', file),
-                    $('#documentModal').modal('show')
-                  )
-                : toastr.error('Dokumenti është i pavlefshëm.');
-        });
-
-        // Function to show the replace modal (Ensure you have a corresponding modal)
-        window.showReplaceModal = function(id) {
-            id
-                ? toastr.info('Replace modal functionality to be implemented.')
-                : toastr.error('Identifikimi i kontratës është i pavlefshëm.');
-        };
-
-        // Function to confirm deletion (Implement deletion logic)
-        window.confirmDelete = function(id) {
-            id
-                ? (
-                    confirm('A jeni të sigurtë që dëshironi të fshini këtë kontratë?')
-                        ? $.ajax({
-                            url: `delete-contract.php?id=${encodeURIComponent(id)}`,
-                            type: 'DELETE',
-                            contentType: 'application/json',
-                            success: function(data) {
-                                data.success
-                                    ? (
-                                        toastr.success('Kontrata u fshi me sukses.'),
-                                        location.reload()
-                                      )
-                                    : toastr.error(data.message || 'Dështoi fshirja e kontratës.')
-                            },
-                            error: function(jqXHR, textStatus, errorThrown) {
-                                console.error('Error deleting contract:', errorThrown);
-                                toastr.error('Dështoi fshirja e kontratës.');
-                            }
-                        })
-                        : null
-                  )
-                : toastr.error('Identifikimi i kontratës është i pavlefshëm.');
-        };
+        <?php if (!empty($errors)): ?>
+            var errorToastEl = document.getElementById('errorToast');
+            var errorToast = new bootstrap.Toast(errorToastEl);
+            errorToast.show();
+        <?php endif; ?>
     });
 </script>
-<?php require_once 'partials/footer.php'; ?>

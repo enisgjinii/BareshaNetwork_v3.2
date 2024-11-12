@@ -1,30 +1,14 @@
 <?php
-// Enable error reporting for debugging (disable in production)
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
-
-// Include the database connection
 include_once 'conn-d.php';
 
-/**
- * Sanitize user input
- *
- * @param string $data
- * @return string
- */
 function sanitizeInput($data)
 {
     return htmlspecialchars(strip_tags(trim($data)));
 }
 
-/**
- * Fetch the contract details by ID
- *
- * @param mysqli $conn
- * @param int $id
- * @return array|null
- */
 function fetchContract($conn, $id)
 {
     $stmt = $conn->prepare("SELECT * FROM kontrata_gjenerale WHERE id = ?");
@@ -41,34 +25,19 @@ function fetchContract($conn, $id)
     return $contract;
 }
 
-/**
- * Update the signature of the contract
- *
- * @param mysqli $conn
- * @param int $id
- * @param string $signatureData
- * @return bool
- */
 function updateSignature($conn, $id, $signatureData)
 {
-    // Ensure the signatures directory exists
     if (!file_exists('signatures/')) {
         mkdir('signatures/', 0755, true);
     }
-
-    // Decode the base64 signature data
     $decodedData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $signatureData));
     if ($decodedData === false) {
         throw new Exception("Invalid signature data.");
     }
-
-    // Generate a unique file name
     $fileName = 'signatures/signature_' . $id . '_' . time() . '.png';
     if (file_put_contents($fileName, $decodedData) === false) {
         throw new Exception("Failed to save signature image.");
     }
-
-    // Update the database with the signature path
     $stmt = $conn->prepare("UPDATE kontrata_gjenerale SET nenshkrimi = ? WHERE id = ?");
     if (!$stmt) {
         throw new Exception("Prepare statement failed: " . $conn->error);
@@ -81,29 +50,27 @@ function updateSignature($conn, $id, $signatureData)
     return true;
 }
 
-// Initialize variables
 $id = isset($_GET['id']) ? intval($_GET['id']) : null;
 $contract = null;
 $errors = [];
 $successMessage = "";
 
-// Fetch contract details
 try {
     if (!$id) {
         throw new Exception("ID nuk është caktuar!");
     }
-
     $contract = fetchContract($conn, $id);
     if (!$contract) {
         throw new Exception("Nuk u gjet asnjë rresht me këtë ID!");
     }
-
-    // Handle signature submission
+    $artisti = json_decode($contract['artisti'], true);
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['signatureData'])) {
         $signatureData = sanitizeInput($_POST['signatureData']);
         if ($signatureData) {
             updateSignature($conn, $id, $signatureData);
             $successMessage = "Nënshkrimi u azhurnua me sukses!";
+            $contract = fetchContract($conn, $id);
+            $artisti = json_decode($contract['artisti'], true);
         } else {
             throw new Exception("Nënshkrimi është bosh!");
         }
@@ -116,24 +83,16 @@ try {
 <html lang="en">
 
 <head>
-    <!-- Meta Tags and Title -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>BareshaNetwork - <?php echo date("Y"); ?></title>
-    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Montserrat&display=swap" rel="stylesheet">
-    <!-- MDB -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.3.0/mdb.min.css" rel="stylesheet" />
-    <!-- Toastify CSS (Optional) -->
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
-    <!-- Fav Icon -->
     <link rel="shortcut icon" href="images/favicon.png" />
-    <!-- Custom Styles -->
     <style>
         * {
             font-family: 'Montserrat', sans-serif;
@@ -207,13 +166,9 @@ try {
         }
 
         @media print {
-            body {
-                /* visibility: hidden; */
-                /* display: none !important; */
-            }
+            /* Prevent print shortcuts if needed */
         }
     </style>
-    <!-- Prevent Print Shortcut -->
     <script>
         window.addEventListener('keydown', function(event) {
             if (event.ctrlKey && event.key.toLowerCase() === 'p') {
@@ -225,14 +180,11 @@ try {
 </head>
 
 <body>
-    <!-- Success Message -->
     <?php if ($successMessage): ?>
         <div class="alert alert-success text-center m-3" role="alert">
             <?php echo $successMessage; ?>
         </div>
     <?php endif; ?>
-
-    <!-- Error Messages -->
     <?php if (!empty($errors)): ?>
         <div class="container my-3">
             <?php foreach ($errors as $error): ?>
@@ -242,17 +194,13 @@ try {
             <?php endforeach; ?>
         </div>
     <?php endif; ?>
-
-    <!-- Contract Content -->
     <?php if ($contract): ?>
         <div class="container my-5">
             <div class="contract-container">
-                <!-- Contract Header -->
                 <div class="contract-header">
                     <img src="images/brand-icon.png" alt="Brand Icon">
                     <div class="contract-title">CONTRACT ON COOPERATION / KONTRATË BASHKPUNIMI</div>
                 </div>
-                <!-- Contract Details -->
                 <div class="contract-section">
                     <div class="row mb-3">
                         <div class="col-md-6">
@@ -266,21 +214,18 @@ try {
                     <div class="row mb-3">
                         <div class="col">
                             <p><strong>Eng. :</strong></p>
-                            <p>This document specifies the terms and conditions of the agreement between <strong>Baresha Music SH.P.K</strong>, located at Rr. Brigada 123 nr. 23 in Suharekë, represented by <strong>AFRIM KOLGECI, CEO-FOUNDER of Baresha Music</strong>, and <strong>ARTIST: <?php echo htmlspecialchars(explode("|", $contract['artisti'])[0]); ?></strong>, a citizen of <strong><?php echo htmlspecialchars($contract['shteti']); ?></strong>, with personal identification number <strong><?php echo htmlspecialchars($contract['numri_personal']); ?></strong>. <?php echo htmlspecialchars(explode("|", $contract['artisti'])[0]); ?> will be representing themselves on the other side of this agreement through their YouTube channel identified by the YouTube ID - <strong><?php echo htmlspecialchars($contract['youtube_id']); ?></strong> and the Channel name - <strong><?php echo htmlspecialchars(explode("|", $contract['artisti'])[0]); ?></strong>.</p>
+                            <p>This document specifies the terms and conditions of the agreement between <strong>Baresha Music SH.P.K</strong>, located at Rr. Brigada 123 nr. 23 in Suharekë, represented by <strong>AFRIM KOLGECI, CEO-FOUNDER of Baresha Music</strong>, and <strong>ARTIST: <?php echo htmlspecialchars($artisti['emriart']); ?></strong>, a citizen of <strong><?php echo htmlspecialchars($contract['shteti']); ?></strong>, with personal identification number <strong><?php echo htmlspecialchars($contract['numri_personal']); ?></strong>. <?php echo htmlspecialchars($artisti['emriart']); ?> will be representing themselves on the other side of this agreement through their YouTube channel identified by the YouTube ID - <strong><?php echo htmlspecialchars($artisti['youtube']); ?></strong> and the Channel name - <strong><?php echo htmlspecialchars($artisti['emriart']); ?></strong>.</p>
                             <p>The terms and conditions outlined in this contract pertain to the contractual relationship as a whole between the two parties.</p>
                         </div>
                         <div class="col">
                             <p><strong>Shqip. :</strong></p>
-                            <p>Ky dokument specifikon kushtet dhe kushtëzimet e marrëveshjes midis <strong>Baresha Music SH.P.K</strong>, me adresë Rr. Brigada 123 nr. 23 në Suharekë, e përfaqësuar nga <strong>AFRIM KOLGECI, CEO-FOUNDER i Baresha Music</strong>, dhe <strong>ARTISTI: <?php echo htmlspecialchars($contract['artisti']); ?></strong>, qytetar i <strong><?php echo htmlspecialchars($contract['shteti']); ?></strong>, me numër personal identifikimi <strong><?php echo htmlspecialchars($contract['numri_personal']); ?></strong>. <?php echo htmlspecialchars($contract['artisti']); ?> do të përfaqësohet nga ana e tyre në këtë marrëveshje përmes kanalit të tyre në YouTube të identifikuar me YouTube ID - <strong><?php echo htmlspecialchars($contract['youtube_id']); ?></strong> dhe emrin e kanalit - <strong>Baresha Music.</strong></p>
+                            <p>Ky dokument specifikon kushtet dhe kushtëzimet e marrëveshjes midis <strong>Baresha Music SH.P.K</strong>, me adresë Rr. Brigada 123 nr. 23 në Suharekë, e përfaqësuar nga <strong>AFRIM KOLGECI, CEO-FOUNDER i Baresha Music</strong>, dhe <strong>ARTISTI: <?php echo htmlspecialchars($artisti['emriart']); ?></strong>, qytetar i <strong><?php echo htmlspecialchars($contract['shteti']); ?></strong>, me numër personal identifikimi <strong><?php echo htmlspecialchars($contract['numri_personal']); ?></strong>. <?php echo htmlspecialchars($artisti['emriart']); ?> do të përfaqësohet nga ana e tyre në këtë marrëveshje përmes kanalit të tyre në YouTube të identifikuar me YouTube ID - <strong><?php echo htmlspecialchars($artisti['youtube']); ?></strong> dhe emrin e kanalit - <strong>Baresha Music.</strong></p>
                             <p>Kushtet dhe kushtëzimet e përcaktuara në këtë kontratë lidhen me marrëdhënien kontraktuale në tërësi midis dy palëve.</p>
                         </div>
                     </div>
                 </div>
-
-                <!-- Contract Articles -->
                 <div class="contract-section">
                     <?php
-                    // Define contract articles content
                     $articles = [
                         [
                             'title_eng' => 'ARTICLE 1 – DEFINITIONS',
@@ -720,8 +665,6 @@ try {
                             ]
                         ],
                     ];
-
-                    // Iterate through articles and display them
                     foreach ($articles as $article) {
                         echo "<p class='fw-bold'>{$article['title_eng']}</p>";
                         echo "<p class='fw-bold'>{$article['title_alb']}</p>";
@@ -740,8 +683,6 @@ try {
                     }
                     ?>
                 </div>
-
-                <!-- Additional Contract Content -->
                 <div class="contract-section">
                     <div class="row">
                         <div class="col">
@@ -750,16 +691,12 @@ try {
                         </div>
                     </div>
                 </div>
-
-                <!-- Signature Section -->
                 <div class="signature-section row mt-5">
                     <div class="col-md-6 text-center">
                         <p><strong>Baresha Music SH.P.K.</strong></p>
                         <p><strong>Nënshkrimi:</strong></p>
                         <p class="border-bottom">
                             <?php
-                            // Display Baresha Music's signature (assuming it's a static image)
-                            // Ensure 'signatures/bm_signature.png' exists or replace with the correct path
                             $bm_signature = 'signatures/bm_signature.png';
                             if (file_exists($bm_signature)) {
                                 echo '<img src="' . htmlspecialchars($bm_signature) . '" alt="Baresha Signature" style="width: 200px; height: auto;">';
@@ -784,8 +721,6 @@ try {
                         </p>
                     </div>
                 </div>
-
-                <!-- Contract Date and Notes -->
                 <div class="contract-section mt-4">
                     <p><strong>Data e nënshkrimit të marrëveshjes / Date of Signing:</strong> <?php echo date('m/d/Y'); ?></p>
                     <?php if (!empty(trim($contract['shenim']))): ?>
@@ -795,8 +730,6 @@ try {
                         </div>
                     <?php endif; ?>
                 </div>
-
-                <!-- Signature Form (Only if not signed) -->
                 <?php if (empty($contract['nenshkrimi'])): ?>
                     <div class="form-section mt-4">
                         <h5>Vendosni Nënshkrimin / Add Your Signature</h5>
@@ -820,7 +753,6 @@ try {
                 <?php endif; ?>
             </div>
         <?php else: ?>
-            <!-- Contract Not Found -->
             <div class="container my-5">
                 <div class="card p-5 text-center">
                     <img src="images/icons8-query-94.png" alt="Error" width="120px">
@@ -829,23 +761,17 @@ try {
                 </div>
             </div>
         <?php endif; ?>
-
-        <!-- Signature Pad JS -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/signature_pad/1.5.3/signature_pad.min.js"></script>
         <script>
-            // Initialize Signature Pad
             const canvas = document.getElementById('signature');
             const signaturePad = new SignaturePad(canvas, {
                 backgroundColor: 'rgba(255, 255, 255, 0)',
                 penColor: 'rgba(0, 0, 0, 1)'
             });
 
-            // Clear Signature Pad
             function clearSignaturePad() {
                 signaturePad.clear();
             }
-
-            // Handle Signature Form Submission
             const signatureForm = document.querySelector('.contract-container form');
             if (signatureForm) {
                 signatureForm.addEventListener('submit', function(event) {
@@ -859,13 +785,9 @@ try {
                 });
             }
         </script>
-
-        <!-- Bootstrap JS Bundle -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
-        <!-- MDB JS -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.3.0/mdb.min.js"></script>
-        <!-- Toastify JS (Optional) -->
         <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
-    </body>
+</body>
 
 </html>

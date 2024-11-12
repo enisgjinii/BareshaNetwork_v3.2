@@ -1,24 +1,31 @@
 <?php
-ob_start();
 include 'partials/header.php';
 include 'conn-d.php';
 
-// Start session to access user information if needed
-session_start();
 $user_info = $_SESSION['user_info'] ?? [];
 
 // Get the ID from the URL and sanitize it to prevent SQL injection
 $id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 
+if ($id <= 0) {
+    die("Invalid contract ID.");
+}
+
 // Fetch the record from the database using prepared statements for security
 $stmt = $conn->prepare("SELECT * FROM kontrata_gjenerale WHERE id = ?");
+if ($stmt === false) {
+    die("Prepare failed: " . htmlspecialchars($conn->error));
+}
 $stmt->bind_param("i", $id);
 $stmt->execute();
-$row = $stmt->get_result()->fetch_assoc();
-$stmt->close();
+$result = $stmt->get_result();
 
-ob_flush();
-ob_end_clean();
+if ($result->num_rows === 0) {
+    die("No contract found with the provided ID.");
+}
+
+$row = $result->fetch_assoc();
+$stmt->close();
 
 // Ensure 'data_e_krijimit' is in 'Y-m-d' format
 $data_e_krijimit = date('Y-m-d', strtotime($row['data_e_krijimit']));
@@ -35,7 +42,7 @@ $data_e_krijimit = date('Y-m-d', strtotime($row['data_e_krijimit']));
                             <label for="emri" class="form-label">
                                 <i class="bi bi-person-fill me-1"></i> Emri
                             </label>
-                            <input type="text" class="form-control rounded-5" name="emri" id="emri" value="<?= htmlspecialchars($row['emri']) ?>" required
+                            <input type="text" class="form-control rounded-5" name="emri" id="emri" value="<?= htmlspecialchars($row['emri']) ?>"
                                 data-bs-toggle="tooltip" title="Shkruani emrin tuaj të plotë.">
                             <small class="form-text text-muted">Pa numra ose simbole.</small>
                             <div class="invalid-feedback">Ju lutemi, shkruani emrin tuaj.</div>
@@ -44,7 +51,7 @@ $data_e_krijimit = date('Y-m-d', strtotime($row['data_e_krijimit']));
                             <label for="mbiemri" class="form-label">
                                 <i class="bi bi-person-fill-add me-1"></i> Mbiemri
                             </label>
-                            <input type="text" class="form-control rounded-5" name="mbiemri" id="mbiemri" value="<?= htmlspecialchars($row['mbiemri']) ?>" required
+                            <input type="text" class="form-control rounded-5" name="mbiemri" id="mbiemri" value="<?= htmlspecialchars($row['mbiemri']) ?>"
                                 data-bs-toggle="tooltip" title="Shkruani mbiemrin tuaj të plotë.">
                             <small class="form-text text-muted">Sigurohuni që mbiemri juaj të jetë i saktë.</small>
                             <div class="invalid-feedback">Ju lutemi, shkruani mbiemrin tuaj.</div>
@@ -56,7 +63,7 @@ $data_e_krijimit = date('Y-m-d', strtotime($row['data_e_krijimit']));
                             <label for="tvsh" class="form-label">
                                 <i class="bi bi-percent me-1"></i> P&euml;rqindja
                             </label>
-                            <input type="number" step="0.01" class="form-control rounded-5" name="tvsh" id="tvsh" value="<?= htmlspecialchars($row['tvsh']) ?>" required
+                            <input type="number" step="0.01" class="form-control rounded-5" name="tvsh" id="tvsh" value="<?= htmlspecialchars($row['tvsh']) ?>"
                                 data-bs-toggle="tooltip" title="Përcaktoni p&euml;rqindjen e TVSH-së.">
                             <small class="form-text text-muted">Format: 20.00</small>
                             <div class="invalid-feedback">Shkruani një p&euml;rqindje të vlefshme.</div>
@@ -65,7 +72,7 @@ $data_e_krijimit = date('Y-m-d', strtotime($row['data_e_krijimit']));
                             <label for="numri_personal" class="form-label">
                                 <i class="bi bi-card-text me-1"></i> Numri personal
                             </label>
-                            <input type="text" pattern="\d{10}" class="form-control rounded-5" name="numri_personal" id="numri_personal" value="<?= htmlspecialchars($row['numri_personal']) ?>" required
+                            <input type="text" pattern="\d{10}" class="form-control rounded-5" name="numri_personal" id="numri_personal" value="<?= htmlspecialchars($row['numri_personal']) ?>"
                                 data-bs-toggle="tooltip" title="Shkruani numrin tuaj personal të identifikimit.">
                             <small class="form-text text-muted">10 shifra.</small>
                             <div class="invalid-feedback">Shkruani një numër personal të vlefshëm.</div>
@@ -77,7 +84,7 @@ $data_e_krijimit = date('Y-m-d', strtotime($row['data_e_krijimit']));
                             <label for="pronari_xhirollogarise" class="form-label">
                                 <i class="bi bi-bank2 me-1"></i> Pronari i xhirollogaris&euml; bankare
                             </label>
-                            <input type="text" class="form-control rounded-5" name="pronari_xhirollogarise" id="pronari_xhirollogarise" value="<?= htmlspecialchars($row['pronari_xhirollogarise']) ?>" required
+                            <input type="text" class="form-control rounded-5" name="pronari_xhirollogarise" id="pronari_xhirollogarise" value="<?= htmlspecialchars($row['pronari_xhirollogarise']) ?>"
                                 data-bs-toggle="tooltip" title="Shkruani emrin e pronarit të llogarisë bankare.">
                             <small class="form-text text-muted">Emri i plotë i pronarit të llogarisë.</small>
                             <div class="invalid-feedback">Shkruani emrin e pronarit të llogarisë.</div>
@@ -86,7 +93,7 @@ $data_e_krijimit = date('Y-m-d', strtotime($row['data_e_krijimit']));
                             <label for="numri_xhirollogarise" class="form-label">
                                 <i class="bi bi-credit-card me-1"></i> Numri i xhirollogaris&euml; bankare
                             </label>
-                            <input type="text" class="form-control rounded-5" name="numri_xhirollogarise" id="numri_xhirollogarise" value="<?= htmlspecialchars($row['numri_xhirollogarise']) ?>" required
+                            <input type="text" class="form-control rounded-5" name="numri_xhirollogarise" id="numri_xhirollogarise" value="<?= htmlspecialchars($row['numri_xhirollogarise']) ?>"
                                 data-bs-toggle="tooltip" title="Shkruani numrin e llogarisë bankare.">
                             <small class="form-text text-muted">Numri i llogarisë duhet të jetë korrekt.</small>
                             <div class="invalid-feedback">Shkruani numrin e llogarisë bankare.</div>
@@ -97,7 +104,7 @@ $data_e_krijimit = date('Y-m-d', strtotime($row['data_e_krijimit']));
                             <label for="kodi_swift" class="form-label">
                                 <i class="bi bi-globe2 me-1"></i> Kodi SWIFT
                             </label>
-                            <input type="text" class="form-control rounded-5" name="kodi_swift" id="kodi_swift" value="<?= htmlspecialchars($row['kodi_swift']) ?>" required
+                            <input type="text" class="form-control rounded-5" name="kodi_swift" id="kodi_swift" value="<?= htmlspecialchars($row['kodi_swift']) ?>"
                                 data-bs-toggle="tooltip" title="Shkruani kodin SWIFT të bankës.">
                             <small class="form-text text-muted">Kodi SWIFT për transaksione ndërkombëtare.</small>
                             <div class="invalid-feedback">Shkruani një kod SWIFT të vlefshëm.</div>
@@ -106,7 +113,7 @@ $data_e_krijimit = date('Y-m-d', strtotime($row['data_e_krijimit']));
                             <label for="iban" class="form-label">
                                 <i class="bi bi-credit-card-2-back me-1"></i> IBAN
                             </label>
-                            <input type="text" class="form-control rounded-5" name="iban" id="iban" value="<?= htmlspecialchars($row['iban']) ?>" required
+                            <input type="text" class="form-control rounded-5" name="iban" id="iban" value="<?= htmlspecialchars($row['iban']) ?>"
                                 data-bs-toggle="tooltip" title="Shkruani IBAN-in tuaj bankar.">
                             <small class="form-text text-muted">Formati standard ndërkombëtar i numrit bankar (IBAN).</small>
                             <div class="invalid-feedback">Shkruani një IBAN të vlefshëm.</div>
@@ -117,7 +124,7 @@ $data_e_krijimit = date('Y-m-d', strtotime($row['data_e_krijimit']));
                             <label for="emri_bankes" class="form-label">
                                 <i class="bi bi-building me-1"></i> Emri i bank&euml;s
                             </label>
-                            <input type="text" class="form-control rounded-5" name="emri_bankes" id="emri_bankes" value="<?= htmlspecialchars($row['emri_bankes']) ?>" required
+                            <input type="text" class="form-control rounded-5" name="emri_bankes" id="emri_bankes" value="<?= htmlspecialchars($row['emri_bankes']) ?>"
                                 data-bs-toggle="tooltip" title="Shkruani emrin e bankës.">
                             <small class="form-text text-muted">Emri i plotë i bankës ku është hapur llogaria.</small>
                             <div class="invalid-feedback">Shkruani emrin e bankës.</div>
@@ -126,7 +133,7 @@ $data_e_krijimit = date('Y-m-d', strtotime($row['data_e_krijimit']));
                             <label for="adresa_bankes" class="form-label">
                                 <i class="bi bi-geo-alt-fill me-1"></i> Adresa e bank&euml;s
                             </label>
-                            <input type="text" class="form-control rounded-5" name="adresa_bankes" id="adresa_bankes" value="<?= htmlspecialchars($row['adresa_bankes']) ?>" required
+                            <input type="text" class="form-control rounded-5" name="adresa_bankes" id="adresa_bankes" value="<?= htmlspecialchars($row['adresa_bankes']) ?>"
                                 data-bs-toggle="tooltip" title="Shkruani adresën e bankës.">
                             <small class="form-text text-muted">Adresa e plotë e bankës.</small>
                             <div class="invalid-feedback">Shkruani adresën e bankës.</div>
@@ -137,7 +144,7 @@ $data_e_krijimit = date('Y-m-d', strtotime($row['data_e_krijimit']));
                             <label for="kohezgjatja" class="form-label">
                                 <i class="bi bi-hourglass-split me-1"></i> Koh&euml;zgjatja në muaj
                             </label>
-                            <input type="number" min="1" class="form-control rounded-5" name="kohezgjatja" id="kohezgjatja" value="<?= htmlspecialchars($row['kohezgjatja']) ?>" required
+                            <input type="number" min="1" class="form-control rounded-5" name="kohezgjatja" id="kohezgjatja" value="<?= htmlspecialchars($row['kohezgjatja']) ?>"
                                 data-bs-toggle="tooltip" title="Shkruani kohëzgjatjen në muaj për kontratë.">
                             <small class="form-text text-muted">Numri i muajve të vlefshëm për këtë kontratë.</small>
                             <div class="invalid-feedback">Shkruani një kohëzgjatje të vlefshme.</div>
@@ -146,7 +153,7 @@ $data_e_krijimit = date('Y-m-d', strtotime($row['data_e_krijimit']));
                             <label for="shenim" class="form-label">
                                 <i class="bi bi-card-text me-1"></i> Shenime
                             </label>
-                            <input type="text" class="form-control rounded-5" name="shenim" id="shenim" value="<?= htmlspecialchars($row['shenim']) ?>" required
+                            <input type="text" class="form-control rounded-5" name="shenim" id="shenim" value="<?= htmlspecialchars($row['shenim']) ?>"
                                 data-bs-toggle="tooltip" title="Shkruani shenimet tuaja.">
                             <small class="form-text text-muted">Çdo shënim të rëndësishëm për këtë kontratë.</small>
                             <div class="invalid-feedback">Shkruani shënime të vlefshme.</div>
@@ -158,7 +165,7 @@ $data_e_krijimit = date('Y-m-d', strtotime($row['data_e_krijimit']));
                             <label for="data_e_krijimit" class="form-label">
                                 <i class="bi bi-calendar-fill me-1"></i> Data e Krijimit
                             </label>
-                            <input type="text" class="form-control rounded-5" name="data_e_krijimit" id="data_e_krijimit" value="<?= htmlspecialchars($data_e_krijimit) ?>" required
+                            <input type="text" class="form-control rounded-5" name="data_e_krijimit" id="data_e_krijimit" value="<?= htmlspecialchars($data_e_krijimit) ?>"
                                 data-bs-toggle="tooltip" title="Zgjidhni datën e krijimit të kontratës.">
                             <small class="form-text text-muted">Zgjidhni datën e krijimit të kontratës.</small>
                             <div class="invalid-feedback">Ju lutemi, zgjidhni një datë të vlefshme.</div>

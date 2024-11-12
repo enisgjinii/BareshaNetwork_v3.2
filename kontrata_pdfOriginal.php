@@ -1,220 +1,297 @@
+<?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+include 'conn-d.php';
+
+function fetchContract($conn, $id)
+{
+    $stmt = $conn->prepare("SELECT * FROM kontrata WHERE id = ?");
+    if (!$stmt) {
+        throw new Exception("Prepare statement failed: " . $conn->error);
+    }
+    $stmt->bind_param("i", $id);
+    if (!$stmt->execute()) {
+        throw new Exception("Execute failed: " . $stmt->error);
+    }
+    $result = $stmt->get_result();
+    $contract = $result->fetch_assoc();
+    $stmt->close();
+    return $contract;
+}
+
+$contract = null;
+$error = null;
+
+if (isset($_GET['id']) && is_numeric($_GET['id'])) {
+    $id = (int)$_GET['id'];
+    try {
+        $contract = fetchContract($conn, $id);
+        if (!$contract) {
+            $error = "Kontrata me ID të dhënë nuk u gjet.";
+        }
+    } catch (Exception $e) {
+        $error = "Një gabim ka ndodhur gjatë marrjes së kontratës.";
+        error_log("Error fetching contract: " . $e->getMessage());
+    }
+} else {
+    $error = "ID e kontratës është e pavlefshme ose mungon.";
+}
+?>
 <!doctype html>
 <html lang="en">
 
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>BareshaNetwork -
-        <?php echo date("Y"); ?>
-    </title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
-    <!-- Font Awesome -->
+    <title>Kontrata me Baresha Network</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet" />
-    <!-- MDB -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.3.0/mdb.min.css" rel="stylesheet" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat&display=swap" rel="stylesheet">
+    <link rel="shortcut icon" href="images/favicon.png" />
     <style>
+        /* Base Styles */
         * {
             font-family: 'Montserrat', sans-serif;
-            font-size: 13px;
+            font-size: 12px;
+            /* Further reduced font size */
+            line-height: 1.3;
+            /* Tighter line height */
         }
 
+        .contract-container {
+            background: #ffffff;
+            padding: 20px;
+            /* Further reduced padding */
+            border: 1px solid #ccc;
+            /* Simplified border */
+            margin-bottom: 10px;
+            /* Further reduced margin */
+        }
+
+        .contract-header {
+            text-align: center;
+            margin-bottom: 15px;
+            /* Further reduced margin */
+        }
+
+        .contract-header img {
+            width: 60px;
+            /* Smaller logo */
+            margin-bottom: 5px;
+        }
+
+        .contract-title {
+            font-size: 18px;
+            /* Further reduced title size */
+            font-weight: bold;
+            color: #2c3e50;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 3px;
+        }
+
+        .contract-section {
+            margin-bottom: 8px;
+            /* Further reduced spacing between sections */
+        }
+
+        .contract-section p {
+            color: #34495e;
+            margin-bottom: 4px;
+            /* Further reduced paragraph spacing */
+        }
+
+        .contract-section p strong {
+            color: #2c3e50;
+        }
+
+        .signature-section {
+            margin-top: 15px;
+            /* Further reduced margin */
+        }
+
+        .signature-section img {
+            width: 80px;
+            /* Further reduced signatures */
+            height: auto;
+        }
+
+        /* Hide non-essential elements on screen */
+        .no-print {
+            display: block;
+        }
+
+        /* Print Styles */
         @media print {
-            body {
-                background-image: url('/images/vula.png');
-                background-repeat: no-repeat;
-                background-size: cover;
-                background-position: center;
-                padding: 0;
+            @page {
                 margin: 0;
+                /* Remove default page margins */
             }
 
-            .page-break {
-                page-break-before: always;
+            body {
+                margin: 0;
+                /* Remove default body margins */
+                padding: 0;
+                font-size: 10px;
+                /* Further reduced font size */
+                color: #000;
+                background: none;
             }
-        }
 
-        header,
-        footer,
-        title {
-            display: none !important;
+            .contract-container {
+                padding: 15px;
+                /* Further reduced padding */
+                border: none;
+                box-shadow: none;
+                margin-bottom: 0;
+            }
+
+            .contract-title {
+                font-size: 16px;
+                /* Further reduced title size */
+            }
+
+            .contract-section {
+                margin-bottom: 6px;
+            }
+
+            .contract-section p {
+                margin-bottom: 3px;
+            }
+
+            .signature-section {
+                margin-top: 10px;
+            }
+
+            .signature-section img {
+                width: 60px;
+            }
+
+            /* Hide non-essential elements */
+            .no-print {
+                display: none;
+            }
+
+            /* Adjust page breaks */
+            .contract-container {
+                page-break-after: always;
+            }
+
+            /* Ensure images fit within the page */
+            img {
+                max-width: 100%;
+                height: auto;
+            }
         }
     </style>
+    <script>
+        window.addEventListener('keydown', function(event) {
+            if (event.ctrlKey && event.key.toLowerCase() === 'p') {
+                event.preventDefault();
+                window.print();
+            }
+        });
+    </script>
 </head>
 
 <body>
-    <div class="container my-5 py-3">
-        <div class="float-start"><a href="lista_kontratave.php" class='btn btn-light text-capitalize border border-1 shadow-2' id="backBtn" data-mdb-toggle="tooltip" title="Shko prapa"><i class="fas fa-arrow-left "></i> Back</a></div>
-        <div class="float-end">
-            <button class="btn btn-light text-capitalize border border-1 shadow-2" data-mdb-ripple-color="dark" id="printBtn" onClick="printData()"><i class="fas fa-print text-primary "></i> Print</button>
-        </div>
-        <script>
-            function printData() {
-                var printContent = document.getElementById('contractContent').innerHTML;
-                var originalContent = document.body.innerHTML;
-                document.body.innerHTML = printContent;
-                window.print();
-                document.body.innerHTML = originalContent;
-            }
-        </script>
-    </div>
-    <?php include 'conn-d.php';
-    $id = $_GET['id'];
-    $query = "SELECT * FROM kontrata WHERE id = $id";
-    $result = mysqli_query($conn, $query);
-    if (mysqli_num_rows($result) > 0) {
-        $row = mysqli_fetch_assoc($result); ?>
-        <div id="contractContent" class="container">
-            <div class="px-5">
-                <svg width="100%" height="100%" id="svg" viewBox="0 0 1440 390" xmlns="http://www.w3.org/2000/svg" class="transition duration-300 ease-in-out delay-150">
-                    <defs>
-                        <linearGradient id="gradient" x1="0%" y1="50%" x2="100%" y2="50%">
-                            <stop offset="5%" stop-color="#ff0000"></stop>
-                            <stop offset="95%" stop-color="#0693e3"></stop>
-                        </linearGradient>
-                    </defs>
-                    <path d="M 0,400 C 0,400 0,133 0,133 C 72.96666666666667,146.80769230769232 145.93333333333334,160.6153846153846 218,165 C 290.06666666666666,169.3846153846154 361.23333333333335,164.34615384615387 450,154 C 538.7666666666667,143.65384615384613 645.1333333333334,128 742,129 C 838.8666666666666,130 926.2333333333331,147.65384615384616 994,150 C 1061.7666666666669,152.34615384615384 1109.9333333333334,139.3846153846154 1181,134 C 1252.0666666666666,128.6153846153846 1346.0333333333333,130.80769230769232 1440,133 C 1440,133 1440,400 1440,400 Z" stroke="none" stroke-width="0" fill="url(#gradient)" fill-opacity="0.53" class="transition-all duration-300 ease-in-out delay-150 path-0" transform="rotate(-180 720 200)">
-                    </path>
-                    <defs>
-                        <linearGradient id="gradient" x1="0%" y1="50%" x2="100%" y2="50%">
-                            <stop offset="5%" stop-color="#ff0000"></stop>
-                            <stop offset="95%" stop-color="#0693e3"></stop>
-                        </linearGradient>
-                    </defs>
-                    <path d="M 0,400 C 0,400 0,266 0,266 C 106.63589743589745,259.44615384615383 213.2717948717949,252.89230769230772 284,263 C 354.7282051282051,273.1076923076923 389.5487179487179,299.87692307692305 468,288 C 546.4512820512821,276.12307692307695 668.5333333333333,225.60000000000005 759,219 C 849.4666666666667,212.39999999999995 908.3179487179486,249.72307692307692 977,254 C 1045.6820512820514,258.2769230769231 1124.194871794872,229.50769230769234 1203,226 C 1281.805128205128,222.49230769230766 1360.9025641025642,244.24615384615385 1440,266 C 1440,266 1440,400 1440,400 Z" stroke="none" stroke-width="0" fill="url(#gradient)" fill-opacity="1" class="transition-all duration-300 ease-in-out delay-150 path-1" transform="rotate(-180 720 200)">
-                    </path>
-                    <foreignObject x="0" y="0" width="100%" height="100%">
-                        <div class="text-center my-3">
-                            <img class="bg-light p-3 rounded-5" src="images/brand-icon.png" alt="" style="width:10%;">
-                            <div class="rounded-5 py-2 w-50 my-5 shadow-sm bg-light mx-auto">
-                                <h4 class='fw-bold text-center'>KONTRATË PËR TË DREJTËN E VEPRËS</h4>
-                            </div>
-                        </div>
-                    </foreignObject>
-                </svg>
-                <p class='fw-bold my-0'> Kjo kontrat&euml; u n&euml;nshkrua me dat&euml;
-                    <?php echo date('d/m/Y', strtotime($row['data'])); ?> midis
-                    <?php echo $row['emri'] ?>
-                    <?php echo $row['mbiemri'] ?>, ("
-                    <?php echo $row['emriartistik'] ?>") dhe Baresha Music ("Baresha Music SH.P.K.").
-                </p>
-                <p class="my-3">Numri personal : <b>
-                        <?php echo $row['numri_personal'] ?>
-                    </b> </p>
-                <p> Artisti &euml;sht&euml; autori dhe/apo pronari i regjistrimit t&euml; tingujve t&euml; kompozicionit muzikor t&euml;
-                    quajtur</p>
-                ( <b>
-                    <?php echo $row['vepra'] ?>
-                </b> ) </p>
-                <p> Baresha Music i takon e drejta ekskluzive e vepres (kenges), dhe kushtet e marrveshjes jane te
-                    percaktuara si ne vijim: </p>
-                <p class="fw-bold my-3">N&euml; k&euml;t&euml; kontrat dy pal&euml;t pajtohen me nenet e sh&euml;nuara m&euml; posht&euml;</p>
-                <p>1.1. DHËNIA E TË DREJTAVE. Me n&euml;nshkrimin e k&euml;saj kontrate artisti e jep te drejten e plote per
-                    perdorimin, botimin, riprodhimin, licesnimin, shperndarjen, performances, publikimin dhe shfaqejen e
-                    kenges, duke perfshire te gjitha rrjetet sociale, dhe platformat publikuese si Youtube, pa kufizuar
-                    shkarkimet digjitale,transmetimin dhe kopjet fizike p&euml;r periudhen (vitet ose e perhershme) q&euml; fillon nga
-                    data e n&euml;nshkrimit t&euml; k&euml;saj kontrate.</p>
-                <p> 2.1. LICENCA EKSKLUZIVE. Artisti pajtohet q&euml; Baresha Music SH.P.K ta ket&euml; t&euml; drejt&euml;n
-                    ekskluzive p&euml;r eksploatimin e k&euml;ng&euml;s s&euml; cekur n&euml; k&euml;t&euml; marr&euml;veshje. Artisti nuk do t'i jep&euml; asnj&euml; t&euml;
-                    drejt&euml; pal&euml;s s&euml; tret&euml; q&euml; konfliktojn&euml; me licenc&euml;n ekskluzive q&euml; i jepet Baresh&euml;s n&euml; k&euml;t&euml; marr&euml;veshje.
-                </p>
-                <p> 3.1. KUFIZIMI I KANALEVE. Artisti pajtohet q&euml; k&euml;nga do t&euml; ngarkohet dhe l&euml;shohet vet&euml;m n&euml;
-                    kanalin zyrtar 'Baresha Music' n&euml; platforma si YouTube, Spotify dhe platforma t&euml; tjera p&euml;r transmetim t&euml;
-                    muzik&euml;s. </p>
-                <p>4.1. PËRQINDJA. Pal&euml;t pajtohen n&euml; ndarjen e p&euml;rqindjes n&euml; vler&euml; prej <b>
-                        <?php echo $row['perqindja'] ?>%
-                    </b>prej t&euml; t&euml; gjitha t&euml; ardhurave t&euml; gjeneruara nga eksploatimi i k&euml;ng&euml;s pas n&euml;nshkrimit t&euml; k&euml;saj
-                    kontrate dhe publikimit te vepres/kenges. Te ardhurat neto do t&euml; p&euml;rcaktohen si t&euml; gjitha t&euml; ardhurat t&euml;
-                    marrura nga Baresha nga eksploatimi i k&euml;ng&euml;s, t&euml; zbritura nga kostot direkte q&euml; Baresha nd&euml;rhyn n&euml;
-                    lidhje me k&euml;t&euml; eksploatim. </p>
-                <p>5.1. PREZANTIMET DHE GARANCITË. Artisti prezanton dhe garanton se (i) Artisti &euml;sht&euml; pronari i
-                    vet&euml;m dhe ekskluziv i regjistrimit. t&euml; tingujve t&euml; Vepres/K&euml;ng&euml;s, (i) asnj&euml; pjes&euml; e K&euml;ng&euml;s nuk do t&euml;
-                    shkel&euml; t&euml; drejta t&euml; pal&euml;ve t&euml; treta qe nuk jane pjese e kesaj marrveshje dhe Artisti nuk ka b&euml;r&euml;
-                    marr&euml;veshje t&euml; tjera p&euml;r t&euml; drejta t&euml; K&euml;ng&euml;s q&euml; mund t&euml; pengojn&euml; k&euml;t&euml; Marr&euml;veshje. Baresha Music Sh.p.k.
-                    ka per obligim qe ne afat prej 24 ore nga data e nenshkrimit te kesaj marrveshje te bej publikimin e
-                    kenges ne platformat dixhitale. </p>
-                <p> 6.1. PËRMBUSHJA E KUSHTEVE. Artisti pranon q&euml; t&euml; respektoj&euml; rregullat dhe kushtet e k&euml;saj
-                    Marr&euml;veshjeje dhe t&euml; ndjek&euml; k&euml;rkesat dhe udh&euml;zimet e Baresha Music lidhur me eksploatimin e K&euml;ng&euml;s. N&euml;se
-                    Artisti shkel ndonj&euml; kusht t&euml; k&euml;saj Marr&euml;veshjeje, Baresha ka t&euml; drejt&euml; t&euml; ndaloj&euml; ose t&euml; nd&euml;rprej&euml;
-                    eksploatimin e K&euml;ng&euml;s dhe t&euml; k&euml;rkoj&euml; d&euml;mshp&euml;rblim. </p>
-                <!-- <div class="page-break"></div> -->
-                <p> 7.1. KOHEZGJATJA DHE NDËRPRERJA. Kega\Vepra behet prone e perhershme e Baresha Music Sh.p.k.
-                    nga momenti i nenshkrimit te kesaj marrveshje, pervec ne rastet kur mes paleve arrihet nje marrveshje e
-                    perbashket me kushte te tjera. Palet kane t&euml; drejt&euml; t&euml; nd&euml;rprej&euml; k&euml;t&euml; Marr&euml;veshje pa shkaqe t&euml; arsyeshme
-                    me njoftim paraprak 7 dite kalendarike nga data fillestare e nenshkrimit dhe publikimit te kesaj
-                    marrveshje. Njoftimi duhet te behet me shkrim permes mjeteve te komunikimit (email). N&euml; rast nd&euml;rprerjeje
-                    nga ana e Baresha, t&euml; gjitha t&euml; drejtat kthehen te Artisti dhe Baresha nuk &euml;sht&euml; e detyruar t&euml; paguaj&euml;
-                    asnj&euml; pages&euml; ose d&euml;mshp&euml;rblim p&euml;r artistin. Palet nuk kane te drejte te kerkoje te drejtat e prones pasi
-                    te kaloj periudha prej 7 dite e bashkepunimit, nga data e marrveshjes. </p>
-                <p> 8.1. LIGJI I ZBATUESHËM. Kjo Marr&euml;veshje dhe t&euml; gjitha t&euml; drejtat dhe detyrimet e pal&euml;ve n&euml;
-                    lidhje me k&euml;t&euml; Marr&euml;veshje do t&euml; n&euml;nshtrohen dhe do t&euml; interpretohen n&euml; p&euml;rputhje me ligjet dhe
-                    rregulloret e shtetit te Kosoves. </p>
-                <!-- <div class="page-break"></div> -->
-                <p> <b> Titulli i k&euml;ng&euml;s / vepr&euml;s </b> </p>
-                <p class="border-bottom w-25">
-                    <?php echo $row['vepra'] ?>
-                </p>
-                <div class="row">
-                    <div class="col-6">
-                        <p class="fw-bold"> Artisti/Pronar i kompozicionit t&euml; muzik&euml;s <br> <span>Emri dhe Mbiemri
-                            </span> </p>
-                        <p class="text-start">
-                            <?php echo $row['emri'] ?>
-                            <?php echo $row['mbiemri'] ?>
-                        </p>
-                    </div>
-                    <div class="col-6">
-                        <p class="fw-bold text-end"> Pronar i t&euml; drejtave ekskluzive t&euml; eksploatimit t&euml;
-                            kompozicionit t&euml; muzik&euml;s <br> <span>Emri dhe Mbiemri <br>
-                        </p>
-                        <p class="text-end"> Baresha Music Sh.p.k. </p>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-6">
-                        <p class="fw-bold text-start"> Nenshkrimi <br> </p>
-                    </div>
-                    <div class="col-6">
-                        <p class="fw-bold text-end"> Nenshkrimi <br> </p>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-4">
-                        <p class="border-bottom float-start w-50 text-start">
-                            <?php $file_path = $row['nenshkrimi'];
-                            echo '<img src="' . $file_path . '" style="width: 150px; height: auto;">'; ?>
-                        </p>
-                    </div>
-                    <div class="col-4 text-center">
-                        <img src="images/vula.png" style="width: 150px; height: auto;margin-top:-45px">
-                    </div>
-                    <div class="col-4">
-                        <p class="border-bottom float-end w-50 text-end"> <img src="signatures/34.png" style="width: 150px; height: auto;"></p>
-                    </div>
-                </div>
-                <hr>
-                <div class="row mt-5">
-                    <div class="col-12 float-end text-end">
-                        <p style="">Data e nenshkrimit te marrveshjes :
-                            <?php echo $row['data']; ?>
-                        </p>
-                    </div>
-                    <?php if (!($row['shenim'] == " ")) { ?>
-                        <div class="my-5 border rounded-5 py-3">
-                            <h6>Shenime</h6>
-                            <?php echo $row['shenim'] ?>
-                        </div>
-                    <?php } ?>
-                </div>
+    <?php if ($error): ?>
+        <div class="container my-3">
+            <div class="alert alert-danger text-center" role="alert">
+                <?php echo htmlspecialchars($error); ?>
             </div>
         </div>
-    <?php } ?>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script><!-- MDB -->
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.3.0/mdb.min.js"></script>
+    <?php elseif ($contract): ?>
+        <div class="container my-3">
+            <div class="contract-container">
+                <div class="contract-header">
+                    <img src="images/brand-icon.png" alt="Brand Icon">
+                    <div class="contract-title">Kontratë për të Drejtën e Vepres</div>
+                </div>
+                <div class="contract-section">
+                    <p>Kjo kontratë u nënshkrua me datë <strong><?php echo htmlspecialchars(date('d/m/Y', strtotime($contract['data']))); ?></strong> midis
+                        <strong><?php echo htmlspecialchars($contract['emri'] . ' ' . $contract['mbiemri']); ?>, ("<?php echo htmlspecialchars($contract['emriartistik']); ?>")</strong>
+                        dhe Baresha Music ("Baresha Music SH.P.K.").
+                    </p>
+                    <p>Numri personal: <strong><?php echo htmlspecialchars($contract['numri_personal']); ?></strong></p>
+                    <p>Artisti është autori dhe/apo pronari i regjistrimit të tingujve të kompozicionit muzikor të quajtur <strong><?php echo htmlspecialchars($contract['vepra']); ?></strong>.</p>
+                    <p>Baresha Music i takon e drejta ekskluzive e vepres (kenges), dhe kushtet e marrëveshjes janë të përcaktuara si në vijim:</p>
+                </div>
+                <div class="contract-section">
+                    <?php
+                    $laws = [
+                        "DHËNIA E TË DREJTAVE. Me nënshkrimin e kësaj kontrate artisti e jep të drejtën e plotë për përdorimin, botimin, riprodhimin, licesnimin, shpërndarjen, performancat, publikimin dhe shfaqjen e kenges, duke përfshirë të gjitha rrjetet sociale, dhe platformat publikuese si Youtube, pa kufizuar shkarkimet digjitale, transmetimin dhe kopjet fizike për periudhën (vitet ose e përhershme) që fillon nga data e nënshkrimit të kësaj kontrate.",
+                        "LICENCA EKSKLUZIVE. Artisti pajtohet që Baresha Music SH.P.K ta ketë të drejtën ekskluzive për eksploatimin e këngës së caktuar në këtë marrëveshje. Artisti nuk do të japë asnjë të drejtë palës së tretë që konfliktojnë me licencën ekskluzive që i jepet Bareshës në këtë marrëveshje.",
+                        "KUFIZIMI I KANALEVE. Artisti pajtohet që kënga do të ngarkohet dhe lëshohet vetëm në kanalin zyrtar 'Baresha Music' në platforma si YouTube, Spotify dhe platforma të tjera për transmetim të muzikës.",
+                        "PËRQINDJA. Palët pajtohen në ndarjen e përqindjes në vlerë prej <strong>" . htmlspecialchars($contract['perqindja']) . "%</strong> prej të gjitha të ardhurave të gjeneruara nga eksploatimi i këngës pas nënshkrimit të kësaj kontrate dhe publikimit të vepres/kenges. Të ardhurat neto do të përcaktohen si të gjitha të ardhurat e marra nga Baresha nga eksploatimi i këngës, të zbritura nga kostot direkte që Baresha ndërhyjnë në lidhje me këtë eksploatim.",
+                        "PREZANTIMET DHE GARANCITË. Artisti prezanton dhe garanton se (i) Artisti është pronari i vetëm dhe ekskluziv i regjistrimit të tingujve të Vepres/Këngës, (ii) asnjë pjesë e Këngës nuk do të shkelë të drejta të palëve të treta që nuk janë pjesë e kësaj marrëveshje dhe Artisti nuk ka bërë marrëveshje të tjera për të drejta të Këngës që mund të pengojnë këtë Marrëveshje. Baresha Music Sh.p.k. ka për obligim që në afat prej 24 ore nga data e nënshkrimit të kësaj marrëveshjeje të bëjë publikimin e këngës në platformat dixhitale.",
+                        "PËRMBUSHJA E KUSHTEVE. Artisti pranon që të respektojë rregullat dhe kushtet e kësaj Marrëveshjeje dhe të ndjekë kërkesat dhe udhëzimet e Baresha Music lidhur me eksploatimin e Këngës. Nëse Artisti shkel ndonjë kusht të kësaj Marrëveshjeje, Baresha ka të drejtë të ndalojë ose të ndërpretë eksploatimin e Këngës dhe të kërkojë dëmshpërblim.",
+                        "KOHEZGJATJA DHE NDËRPRERJA. Kënga/Vepra bëhet pronë e përhershme e Baresha Music Sh.p.k. nga momenti i nënshkrimit të kësaj marrëveshjeje, përveç në raste kur mes palëve arrin një marrëveshje e përbashkët me kushte të tjera. Palët kanë të drejtë të ndërpresin këtë Marrëveshje pa shkak të arsyeshëm me njoftim paraprak 7 ditë kalendarike nga data fillestare e nënshkrimit dhe publikimit të kësaj marrëveshjeje. Njoftimi duhet të bëhet me shkrim përmes mjeteve të komunikimit (email). Në rast ndërprerjeje nga ana e Baresha, të gjitha të drejtat kthehen te Artisti dhe Baresha nuk është e detyruar të paguajë asnjë pagesë ose dëmshpërblim për artistin. Palët nuk kanë të drejtë të kërkojnë të drejtat e pronës pasi të kalojë periudha prej 7 dite bashkëpunimi, nga data e marrëveshjes.",
+                        "LIGJI I ZBATUESHËM. Kjo Marrëveshje dhe të gjitha të drejtat dhe detyrimet e palëve në lidhje me këtë Marrëveshje do të nënshkrohen dhe do të interpretohen në përputhje me ligjet dhe rregulloret e shtetit të Kosovës."
+                    ];
+                    foreach ($laws as $index => $law) {
+                        echo "<p><strong>" . ($index + 1) . ".</strong> " . $law . "</p>";
+                    }
+                    ?>
+                </div>
+                <div class="contract-section">
+                    <p><strong>Titulli i këngës / veprës:</strong></p>
+                    <p class="border-bottom w-50"><?php echo htmlspecialchars($contract['vepra']); ?></p>
+                </div>
+                <div class="signature-section row">
+                    <div class="col-6 text-center">
+                        <p><strong>Artisti/Pronar i kompozicionit të muzikës</strong></p>
+                        <p><?php echo htmlspecialchars($contract['emri'] . ' ' . $contract['mbiemri']); ?></p>
+                        <p><strong>Nënshkrimi:</strong></p>
+                        <p class="border-bottom">
+                            <?php
+                            $file_path = $contract['nenshkrimi'];
+                            if ($file_path && file_exists($file_path)) {
+                                echo '<img src="' . htmlspecialchars($file_path) . '" alt="Nënshkrimi" style="width: 80px; height: auto;">';
+                            } else {
+                                echo 'Nënshkrimi nuk është caktuar.';
+                            }
+                            ?>
+                        </p>
+                    </div>
+                    <div class="col-6 text-center">
+                        <p><strong>Pronar i të drejtave ekskluzive të eksploatimit të kompozicionit të muzikës</strong></p>
+                        <p>Baresha Music Sh.p.k.</p>
+                        <p><strong>Nënshkrimi:</strong></p>
+                        <p class="border-bottom">
+                            <img src="signatures/34.png" alt="Baresha Signature" style="width: 80px; height: auto;">
+                        </p>
+                    </div>
+                </div>
+                <div class="contract-section mt-2">
+                    <p><strong>Data e nënshkrimit të marrëveshjes:</strong> <?php echo htmlspecialchars(date('d/m/Y', strtotime($contract['data']))); ?></p>
+                    <?php if (!empty(trim($contract['shenim']))): ?>
+                        <div class="border rounded p-2 mt-1 bg-light">
+                            <h6>Shënime</h6>
+                            <p><?php echo nl2br(htmlspecialchars($contract['shenim'])); ?></p>
+                        </div>
+                    <?php endif; ?>
+                </div>
+                <?php if ($contract['pdf_file']): ?>
+                    <div class="contract-section">
+                        <p><strong>Konkretizo PDF-në e Kontratës:</strong></p>
+                        <a href="<?php echo htmlspecialchars($contract['pdf_file']); ?>" target="_blank" class="btn btn-primary no-print" style="padding: 2px 8px; font-size: 10px;">Shkarko Kontratën (PDF)</a>
+                    </div>
+                <?php endif; ?>
+            </div>
+        </div>
+    <?php endif; ?>
+    <!-- Optional JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.3.0/mdb.min.js"></script>
 </body>
 
 </html>
+
+
+<!--  -->
