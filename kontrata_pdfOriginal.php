@@ -3,7 +3,6 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 include 'conn-d.php';
-
 function fetchContract($conn, $id)
 {
     $stmt = $conn->prepare("SELECT * FROM kontrata WHERE id = ?");
@@ -19,10 +18,8 @@ function fetchContract($conn, $id)
     $stmt->close();
     return $contract;
 }
-
 $contract = null;
 $error = null;
-
 if (isset($_GET['id']) && is_numeric($_GET['id'])) {
     $id = (int)$_GET['id'];
     try {
@@ -40,7 +37,6 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
 ?>
 <!doctype html>
 <html lang="en">
-
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -62,7 +58,6 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
             line-height: 1.3;
             /* Tighter line height */
         }
-
         .contract-container {
             background: #ffffff;
             padding: 20px;
@@ -72,19 +67,16 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
             margin-bottom: 10px;
             /* Further reduced margin */
         }
-
         .contract-header {
             text-align: center;
             margin-bottom: 15px;
             /* Further reduced margin */
         }
-
         .contract-header img {
             width: 60px;
             /* Smaller logo */
             margin-bottom: 5px;
         }
-
         .contract-title {
             font-size: 18px;
             /* Further reduced title size */
@@ -94,45 +86,37 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
             letter-spacing: 1px;
             margin-bottom: 3px;
         }
-
         .contract-section {
             margin-bottom: 8px;
             /* Further reduced spacing between sections */
         }
-
         .contract-section p {
             color: #34495e;
             margin-bottom: 4px;
             /* Further reduced paragraph spacing */
         }
-
         .contract-section p strong {
             color: #2c3e50;
         }
-
         .signature-section {
             margin-top: 15px;
             /* Further reduced margin */
         }
-
         .signature-section img {
             width: 80px;
             /* Further reduced signatures */
             height: auto;
         }
-
         /* Hide non-essential elements on screen */
         .no-print {
             display: block;
         }
-
         /* Print Styles */
         @media print {
             @page {
                 margin: 0;
                 /* Remove default page margins */
             }
-
             body {
                 margin: 0;
                 /* Remove default body margins */
@@ -142,7 +126,6 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
                 color: #000;
                 background: none;
             }
-
             .contract-container {
                 padding: 15px;
                 /* Further reduced padding */
@@ -150,38 +133,30 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
                 box-shadow: none;
                 margin-bottom: 0;
             }
-
             .contract-title {
                 font-size: 16px;
                 /* Further reduced title size */
             }
-
             .contract-section {
                 margin-bottom: 6px;
             }
-
             .contract-section p {
                 margin-bottom: 3px;
             }
-
             .signature-section {
                 margin-top: 10px;
             }
-
             .signature-section img {
                 width: 60px;
             }
-
             /* Hide non-essential elements */
             .no-print {
                 display: none;
             }
-
             /* Adjust page breaks */
             .contract-container {
                 page-break-after: always;
             }
-
             /* Ensure images fit within the page */
             img {
                 max-width: 100%;
@@ -198,7 +173,6 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
         });
     </script>
 </head>
-
 <body>
     <?php if ($error): ?>
         <div class="container my-3">
@@ -290,8 +264,4 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.3.0/mdb.min.js"></script>
 </body>
-
 </html>
-
-
-<!--  -->

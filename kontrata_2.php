@@ -33,23 +33,70 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $emriartistik = trim($_POST['emriartistik'] ?? '');
         $vepra = trim($_POST['vepra'] ?? '');
         $data = trim($_POST['data'] ?? '');
-        $perqindja = floatval($_POST['perqindja'] ?? 0);
-        $perqindja_other = floatval($_POST['perqindja_other'] ?? 0);
+        $perqindja = trim($_POST['perqindja'] ?? '');
+        $perqindja_other = trim($_POST['perqindja_other'] ?? '');
         $shenime = trim($_POST['shenime'] ?? '');
+
+        if ($emri === '') {
+            $errors[] = "Emri është i kërkuar.";
+        }
+        if ($mbiemri === '') {
+            $errors[] = "Mbiemri është i kërkuar.";
+        }
+        if ($nrtel === '') {
+            $errors[] = "Numri i telefonit është i kërkuar.";
+        }
+        if ($numri_personal === '') {
+            $errors[] = "Numri personal është i kërkuar.";
+        }
+        if ($klienti === '') {
+            $errors[] = "Klienti është i kërkuar.";
+        }
+        if ($emailadd === '') {
+            $errors[] = "Adresa e Email-it është e kërkuar.";
+        } elseif (!filter_var($emailadd, FILTER_VALIDATE_EMAIL)) {
+            $errors[] = "Adresa e Email-it është e pavlefshme.";
+        }
+        if ($emriartistik === '') {
+            $errors[] = "Emri Artistik është i kërkuar.";
+        }
+        if ($vepra === '') {
+            $errors[] = "Vepra është e kërkuar.";
+        }
+        if ($data === '') {
+            $errors[] = "Data është e kërkuar.";
+        } elseif (!DateTime::createFromFormat('Y-m-d', $data)) {
+            $errors[] = "Data duhet të jetë në formatin YYYY-MM-DD.";
+        }
+        if ($perqindja === '') {
+            $errors[] = "Përqindja është e kërkuar.";
+        } elseif (!is_numeric($perqindja) || $perqindja < 0 || $perqindja > 100) {
+            $errors[] = "Përqindja duhet të jetë një numër midis 0 dhe 100.";
+        }
         
+
         if (isset($_FILES['pdf_file']) && $_FILES['pdf_file']['error'] !== UPLOAD_ERR_NO_FILE) {
             $file = $_FILES['pdf_file'];
             $fileName = preg_replace("/[^A-Za-z0-9.\-_]/", '', basename($file['name']));
             $uploadDir = 'uploads/contracts/';
             if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
             $filePath = $uploadDir . time() . "_" . $fileName;
-            if (!move_uploaded_file($file['tmp_name'], $filePath)) {
-                $errors[] = "Failed to upload the contract file.";
+            $allowedMimeTypes = ['application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/pdf'];
+            if (!in_array($file['type'], $allowedMimeTypes)) {
+                $errors[] = "Vetëm DOCX dhe PDF janë të lejuara për ngarkim.";
+            }
+            if ($file['size'] > 10 * 1024 * 1024) {
+                $errors[] = "Madhësia e skedarit nuk duhet të tejkalojë 10MB.";
+            }
+            if (empty($errors)) {
+                if (!move_uploaded_file($file['tmp_name'], $filePath)) {
+                    $errors[] = "Dështoi ngarkimi i skedarit të kontratës.";
+                }
             }
         } else {
             $filePath = null;
         }
-        
+
         if (empty($errors)) {
             try {
                 $stmt = $conn->prepare("INSERT INTO kontrata (emri, mbiemri, numri_i_telefonit, numri_personal, klienti, klient_email, emriartistik, vepra, data, pdf_file, perqindja, shenim) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
@@ -118,28 +165,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <?php endif; ?>
             </div>
             <div class="card p-4 shadow-sm rounded">
-                <form id="contractForm" method="POST" enctype="multipart/form-data">
+                <form id="contractForm" class="needs-validation" method="POST" enctype="multipart/form-data" novalidate>
                     <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label for="emri" class="form-label" data-bs-toggle="tooltip" data-bs-placement="top" title="Shkruani emrin tuaj të plotë">Emri</label>
-                            <input type="text" name="emri" id="emri" class="form-control rounded" placeholder="Sheno emrin tuaj" value="<?php echo htmlspecialchars($_POST['emri'] ?? ''); ?>">
+                            <input type="text" name="emri" id="emri" class="form-control rounded" placeholder="Sheno emrin tuaj" value="<?php echo htmlspecialchars($_POST['emri'] ?? ''); ?>" required>
                         </div>
                         <div class="col-md-6">
                             <label for="mbiemri" class="form-label" data-bs-toggle="tooltip" data-bs-placement="top" title="Shkruani mbiemrin tuaj të plotë">Mbiemri</label>
-                            <input type="text" name="mbiemri" id="mbiemri" class="form-control rounded" placeholder="Sheno mbiemrin tuaj" value="<?php echo htmlspecialchars($_POST['mbiemri'] ?? ''); ?>">
+                            <input type="text" name="mbiemri" id="mbiemri" class="form-control rounded" placeholder="Sheno mbiemrin tuaj" value="<?php echo htmlspecialchars($_POST['mbiemri'] ?? ''); ?>" required>
                         </div>
                         <div class="col-md-6">
                             <label for="nrtel" class="form-label" data-bs-toggle="tooltip" data-bs-placement="top" title="Shkruani numrin tuaj të telefonit personal ose profesional">Numri i Telefonit</label>
-                            <input type="tel" name="nrtel" id="nrtel" class="form-control rounded" placeholder="Sheno numrin e telefonit" value="<?php echo htmlspecialchars($_POST['nrtel'] ?? ''); ?>">
+                            <input type="tel" name="nrtel" id="nrtel" class="form-control rounded" placeholder="Sheno numrin e telefonit" value="<?php echo htmlspecialchars($_POST['nrtel'] ?? ''); ?>" required>
                         </div>
                         <div class="col-md-6">
                             <label for="numri_personal" class="form-label" data-bs-toggle="tooltip" data-bs-placement="top" title="Numri personal do të plotësohet automatikisht nga të dhënat e klientit">Numri Personal</label>
-                            <input type="text" name="numri_personal" id="numri_personal" class="form-control rounded" placeholder="Sheno numrin personal" value="<?php echo htmlspecialchars($_POST['numri_personal'] ?? ''); ?>">
+                            <input type="text" name="numri_personal" id="numri_personal" class="form-control rounded" placeholder="Sheno numrin personal" value="<?php echo htmlspecialchars($_POST['numri_personal'] ?? ''); ?>" required>
                         </div>
                         <div class="col-12">
                             <label for="klienti22" class="form-label" data-bs-toggle="tooltip" data-bs-placement="top" title="Zgjidhni një klient nga lista e disponueshme">Klienti</label>
-                            <select name="klienti" id="klienti22" class="form-select rounded" onchange="showClientDetails(this)">
+                            <select name="klienti" id="klienti22" class="form-select rounded" onchange="showClientDetails(this)" required>
                                 <option value="" disabled <?php echo !isset($_POST['klienti']) ? 'selected' : ''; ?>>Zgjidhni një klient</option>
                                 <?php foreach ($clients as $client): ?>
                                     <option value="<?php echo htmlspecialchars($client['emri'] . "|" . $client['emailadd'] . "|" . $client['emriart'] . "|" . $client['nrtel'] . "|" . $client['np']); ?>" <?php echo (isset($_POST['klienti']) && $_POST['klienti'] === ($client['emri'] . "|" . $client['emailadd'] . "|" . $client['emriart'] . "|" . $client['nrtel'] . "|" . $client['np'])) ? 'selected' : ''; ?>>
@@ -150,19 +197,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
                         <div class="col-md-6">
                             <label for="emailadd" class="form-label" data-bs-toggle="tooltip" data-bs-placement="top" title="Adresa e Email-it do të plotësohet automatikisht nga të dhënat e klientit">Adresa e Email-it</label>
-                            <input type="email" name="emailadd" id="emailadd" class="form-control rounded" placeholder="Sheno adresen e emailit" value="<?php echo htmlspecialchars($_POST['emailadd'] ?? ''); ?>">
+                            <input type="email" name="emailadd" id="emailadd" class="form-control rounded" placeholder="Sheno adresen e emailit" value="<?php echo htmlspecialchars($_POST['emailadd'] ?? ''); ?>" required>
                         </div>
                         <div class="col-md-6">
                             <label for="emriartistik" class="form-label" data-bs-toggle="tooltip" data-bs-placement="top" title="Emri Artistik do të plotësohet automatikisht nga të dhënat e klientit">Emri Artistik</label>
-                            <input type="text" name="emriartistik" id="emriartistik" class="form-control rounded" placeholder="Sheno emrin artistik (nëse aplikohet)" value="<?php echo htmlspecialchars($_POST['emriartistik'] ?? ''); ?>">
+                            <input type="text" name="emriartistik" id="emriartistik" class="form-control rounded" placeholder="Sheno emrin artistik (nëse aplikohet)" value="<?php echo htmlspecialchars($_POST['emriartistik'] ?? ''); ?>" required>
                         </div>
                         <div class="col-md-6">
                             <label for="vepra" class="form-label" data-bs-toggle="tooltip" data-bs-placement="top" title="Shkruani emrin e veprës për të cilën po krijoni kontratën">Vepra</label>
-                            <input type="text" name="vepra" id="vepra" class="form-control rounded" placeholder="Sheno emrin e veprës" value="<?php echo htmlspecialchars($_POST['vepra'] ?? ''); ?>">
+                            <input type="text" name="vepra" id="vepra" class="form-control rounded" placeholder="Sheno emrin e veprës" value="<?php echo htmlspecialchars($_POST['vepra'] ?? ''); ?>" required>
                         </div>
                         <div class="col-md-6">
                             <label for="data" class="form-label" data-bs-toggle="tooltip" data-bs-placement="top" title="Zgjidhni datën e nënshkrimit të kontratës">Data</label>
-                            <input type="text" name="data" id="data" class="form-control rounded" placeholder="Zgjidhni datën e kontratës" value="<?php echo htmlspecialchars($_POST['data'] ?? ''); ?>">
+                            <input type="text" name="data" id="data" class="form-control rounded" placeholder="Zgjidhni datën e kontratës" value="<?php echo htmlspecialchars($_POST['data'] ?? ''); ?>" required>
                         </div>
                         <div class="col-12">
                             <label for="pdf_file" class="form-label" data-bs-toggle="tooltip" data-bs-placement="top" title="Ngarkoni një kopje të kontratës në format DOCX ose PDF">Ngarko Kontratën</label>
@@ -172,14 +219,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="col-md-6">
                             <label for="perqindja" class="form-label" data-bs-toggle="tooltip" data-bs-placement="top" title="Shkruani përqindjen tuaj të përfitimit nga kontrata">Përqindja (Baresha)</label>
                             <div class="input-group">
-                                <input type="number" name="perqindja" id="perqindja" class="form-control rounded" placeholder="Përqindja tuaj (%)" min="0" max="100" step="0.01" onchange="updatePerqindjaOther()" value="<?php echo htmlspecialchars($_POST['perqindja'] ?? ''); ?>">
+                                <input type="number" name="perqindja" id="perqindja" class="form-control rounded" placeholder="Përqindja tuaj (%)" min="0" max="100" step="0.01" onchange="updatePerqindjaOther()" value="<?php echo htmlspecialchars($_POST['perqindja'] ?? ''); ?>" required>
                                 <span class="input-group-text">%</span>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <label for="perqindja_other" class="form-label" data-bs-toggle="tooltip" data-bs-placement="top" title="Përqindja që do të përfitojë klienti bazuar në përqindjen tuaj">Përqindja (Klienti)</label>
                             <div class="input-group">
-                                <input type="number" name="perqindja_other" id="perqindja_other" class="form-control rounded" placeholder="Përqindja e klientit (%)" readonly value="<?php echo htmlspecialchars($_POST['perqindja_other'] ?? ''); ?>">
+                                <input type="number" name="perqindja_other" id="perqindja_other" class="form-control rounded" placeholder="Përqindja e klientit (%)" readonly value="<?php echo htmlspecialchars($_POST['perqindja_other'] ?? ''); ?>" required>
                                 <span class="input-group-text">%</span>
                             </div>
                         </div>
@@ -264,11 +311,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             return new bootstrap.Tooltip(tooltipTriggerEl);
         });
 
+        var form = document.getElementById('contractForm');
+        form.addEventListener('submit', function(event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        }, false);
+
         <?php if (isset($success) && $success): ?>
             var successToastEl = document.getElementById('successToast');
             var successToast = new bootstrap.Toast(successToastEl);
             successToast.show();
-            successToastEl.addEventListener('hidden.bs.toast', function () {
+            successToastEl.addEventListener('hidden.bs.toast', function() {
                 document.getElementById('contractForm').reset();
                 const selectrInstance = Selectr.instances.get(document.querySelector('#klienti22'));
                 if (selectrInstance) {

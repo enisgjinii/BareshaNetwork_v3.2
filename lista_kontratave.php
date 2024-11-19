@@ -189,7 +189,7 @@ include('partials/header.php');
                                                     <?php if ($k['nenshkrimi'] == !null) { ?>
                                                     <?php } else {
                                                     ?>
-                                                        <button type="button" class="btn btn-success rounded-5 text-white" data-bs-toggle="modal" data-bs-target="#exampleModal" data-id="<?php echo $k['id']; ?>" data-email="<?php echo $k['klient_email']; ?>" onclick="updateEmailInput(this)" data-link="http://localhost/bareshanetwork_v3.2/kontrataPerKlient.php?id=">
+                                                        <button type="button" class="btn btn-success rounded-5 text-white" data-bs-toggle="modal" data-bs-target="#exampleModal" data-id="<?php echo $k['id']; ?>" data-email="<?php echo $k['klient_email']; ?>" onclick="updateEmailInput(this)" data-link="https://panel.bareshaoffice.com/kontrataPerKlient.php?id=">
                                                             <i class="fi fi-rr-envelope"></i>
                                                         </button>
                                                     <?php } ?>

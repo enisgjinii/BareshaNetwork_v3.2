@@ -2,7 +2,7 @@
 include 'partials/header.php';
 include 'conn-d.php';
 
-$user_info = $_SESSION['user_info'] ?? [];
+// $user_info = $_SESSION['user_info'] ?? [];
 
 // Get the ID from the URL and sanitize it to prevent SQL injection
 $id = isset($_GET['id']) ? intval($_GET['id']) : 0;

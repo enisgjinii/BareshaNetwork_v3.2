@@ -58,7 +58,7 @@ if (empty($user_email)) {
     exit();
 }
 // Database connection (Assuming you have a connection script)
-include 'partials/db_connection.php';
+include 'conn-d.php';
 // Retrieve user details
 $stmt = $conn->prepare("SELECT id, firstName, last_name FROM googleauth WHERE email = ?");
 $stmt->bind_param("s", $user_email);

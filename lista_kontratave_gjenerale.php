@@ -2,19 +2,23 @@
 // Start session and include necessary files
 session_start();
 include('conn-d.php'); // Ensure this file establishes a secure database connection
+
 // Prevent caching
 header('Cache-Control: no-cache, no-store, must-revalidate');
 header('Pragma: no-cache');
 header('Expires: 0');
+
 // Function to sanitize output
 function sanitizeOutput($data)
 {
     return htmlspecialchars($data, ENT_QUOTES, 'UTF-8');
 }
-// CSRF Token Generation
-if (empty($_SESSION['csrf_token'])) {
-    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-}
+
+// Remove CSRF Token Generation
+// if (empty($_SESSION['csrf_token'])) {
+//     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+// }
+
 // Include header
 include('partials/header.php');
 ?>
@@ -25,9 +29,11 @@ include('partials/header.php');
         padding: 0.3rem;
         font-size: 0.9rem;
     }
+
     .input-custom-css {
         /* Add any additional custom styles here */
     }
+
     .btn-sm {
         padding: 0.25rem 0.5rem;
         font-size: 0.875rem;
@@ -64,8 +70,8 @@ include('partials/header.php');
                 <div class="card-body">
                     <!-- Bulk Deletion Form -->
                     <form method="POST" id="bulkDeleteForm" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>">
-                        <!-- CSRF Token -->
-                        <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+                        <!-- Remove CSRF Token -->
+                        <!-- <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>"> -->
                         <!-- Delete Button -->
                         <button type="submit" id="deleteButton" name="delete_selected" class=" input-custom-css px-3 py-2 mb-4 " disabled data-bs-toggle="tooltip" title="Fshij kontratat e zgjedhura">
                             <i class="fi fi-rr-trash me-1"></i> Fshij
@@ -87,6 +93,36 @@ include('partials/header.php');
                                 </thead>
                                 <tbody>
                                     <?php
+                                    // Handle Bulk Deletion without CSRF Token
+                                    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_selected'])) {
+                                        if (isset($_POST['selected_contracts']) && is_array($_POST['selected_contracts'])) {
+                                            $selected = array_map('intval', $_POST['selected_contracts']);
+                                            if (!empty($selected)) {
+                                                // Prepare the IN clause dynamically
+                                                $placeholders = implode(',', array_fill(0, count($selected), '?'));
+                                                $stmt_delete = $conn->prepare("DELETE FROM kontrata_gjenerale WHERE id IN ($placeholders)");
+                                                if ($stmt_delete) {
+                                                    $types = str_repeat('i', count($selected));
+                                                    $stmt_delete->bind_param($types, ...$selected);
+                                                    if ($stmt_delete->execute()) {
+                                                        $_SESSION['success'] = 'Kontratave të zgjedhura u fshijnë me sukses!';
+                                                    } else {
+                                                        $_SESSION['error'] = 'Gabim gjatë fshirjes së kontratave.';
+                                                    }
+                                                    $stmt_delete->close();
+                                                } else {
+                                                    $_SESSION['error'] = 'Gabim në përgatitjen e kërkesës SQL për fshirje.';
+                                                }
+                                            } else {
+                                                $_SESSION['error'] = 'Nuk u zgjedh asnjë kontratë për fshirje.';
+                                            }
+                                        } else {
+                                            $_SESSION['error'] = 'Nuk u zgjedh asnjë kontratë për fshirje.';
+                                        }
+                                        header("Location: " . $_SERVER['PHP_SELF']);
+                                        exit();
+                                    }
+
                                     // Fetch contracts using prepared statements
                                     $stmt = $conn->prepare("SELECT * FROM kontrata_gjenerale ORDER BY id DESC");
                                     if ($stmt) {
@@ -148,7 +184,7 @@ include('partials/header.php');
                                                     </a>
                                                     <!-- Send Email Button -->
                                                     <?php if (empty($k['nenshkrimi'])): ?>
-                                                        <button type="button" class="btn btn-success input-custom-css px-3 py-2  rounded-5 btn-sm" data-bs-toggle="modal" data-bs-target="#sendEmailModal" data-id="<?php echo sanitizeOutput($k['id']); ?>" data-email="<?php echo sanitizeOutput($k['email']); ?>" data-link="http://localhost/BareshaNetwork_v3.2/kontrataGjeneralePerKlient.php?id=" data-bs-toggle="tooltip" title="Dërgo kontratën via Email">
+                                                        <button type="button" class="btn btn-success input-custom-css px-3 py-2  rounded-5 btn-sm" data-bs-toggle="modal" data-bs-target="#sendEmailModal" data-id="<?php echo sanitizeOutput($k['id']); ?>" data-email="<?php echo sanitizeOutput($k['email']); ?>" data-link="https://panel.bareshaoffice.com/kontrataGjeneralePerKlient.php?id=" data-bs-toggle="tooltip" title="Dërgo kontratën via Email">
                                                             <i class="fi fi-rr-envelope"></i>
                                                         </button>
                                                     <?php endif; ?>
@@ -236,8 +272,8 @@ include('partials/header.php');
     <div class="modal-dialog">
         <div class="modal-content">
             <form method="POST" action="">
-                <!-- CSRF Token -->
-                <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+                <!-- Remove CSRF Token -->
+                <!-- <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>"> -->
                 <div class="modal-header">
                     <h5 class="modal-title" id="sendEmailModalLabel">Dërgo Kontraten via Email</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Mbyll"></button>
@@ -264,15 +300,19 @@ include('partials/header.php');
     </div>
 </div>
 <?php
-// Handle Email Sending
+// Handle Email Sending without CSRF Token
 require './vendor/autoload.php';
+
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
-    // Verify CSRF Token
+    // Remove CSRF Token Verification
+    /*
     if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
         die('Invalid CSRF token');
     }
+    */
     // Sanitize and validate inputs
     $email = filter_var(trim($_POST['email']), FILTER_VALIDATE_EMAIL);
     $linkuKontrates = filter_var(trim($_POST['linkuKontrates']), FILTER_SANITIZE_URL);
@@ -357,8 +397,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
                 return fetch(`api/delete_methods/delete_kontrata_gjenerale.php?id=${id}`, {
                         method: 'DELETE',
                         headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-Token': '<?php echo $_SESSION['csrf_token']; ?>'
+                            'Content-Type': 'application/json'
+                            // Removed CSRF Token Header
+                            // 'X-CSRF-Token': '<?php echo $_SESSION['csrf_token']; ?>'
                         }
                     })
                     .then(response => {
@@ -419,6 +460,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
         });
         toggleDeleteButton();
     });
+
     function toggleDeleteButton() {
         var checkboxes = document.querySelectorAll('.contract-checkbox:checked');
         var deleteButton = document.getElementById('deleteButton');
