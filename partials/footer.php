@@ -1,4 +1,8 @@
 <?php
+// config.php
+define('APP_VERSION', '3.2.0');
+?>
+<?php
 // Close content wrappers
 echo '</div></div>';
 // Footer section
@@ -10,7 +14,7 @@ echo '</div></div>';
       <a href="" target="_blank">BareshaNetwork</a>. All rights reserved.
     </span>
     <span>
-      <b>Version:</b> 3.2
+      <b>Version:</b> <?php echo APP_VERSION; ?>
     </span>
   </div>
 </footer>
