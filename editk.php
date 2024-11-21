@@ -57,6 +57,9 @@ if ($contractStartDateResult && $contractStartDateResult->num_rows > 0) {
     $expirationDateFormatted = '';
 }
 
+// Determine if a contract is uploaded
+$contractUploaded = !empty($editcl['kontrata']) && file_exists($editcl['kontrata']);
+
 // Check if the form has been submitted
 if (isset($_POST['ndrysho'])) {
     // Sanitize and retrieve data from the form
@@ -81,7 +84,13 @@ if (isset($_POST['ndrysho'])) {
     $nrllog = mysqli_real_escape_string($conn, $_POST['nrllog']);
     $bank_info = mysqli_real_escape_string($conn, $_POST['bank_info']);
     $perdoruesi = mysqli_real_escape_string($conn, $_POST['perdoruesi']);
-    $fjalekalimi = md5(mysqli_real_escape_string($conn, $_POST['fjalkalimi'])); // Consider using password_hash instead
+    $fjalkalimi_raw = mysqli_real_escape_string($conn, $_POST['fjalkalimi']);
+    // Update password only if a new one is provided
+    if (!empty($fjalkalimi_raw)) {
+        $fjalekalimi = password_hash($fjalkalimi_raw, PASSWORD_DEFAULT);
+    } else {
+        $fjalekalimi = $editcl['fjalkalimi']; // Keep existing password
+    }
     $shtetsia = mysqli_real_escape_string($conn, $_POST['shtetsia']);
     $shtetsiaKontabiliteti = mysqli_real_escape_string($conn, $_POST['shtetsiaKontabiliteti']);
 
@@ -101,26 +110,42 @@ if (isset($_POST['ndrysho'])) {
         $file_type = $_FILES['tipi']['type'];
         // Check if the file type is PDF
         if ($file_type == "application/pdf") {
-            // Generate a unique filename to prevent overwriting
-            $uniqueFileName = uniqid('contract_', true) . '.pdf';
-            $targetPath = $targetfolder . basename($uniqueFileName);
-            // Attempt to move the uploaded file to the target folder
-            if (move_uploaded_file($_FILES['tipi']['tmp_name'], $targetPath)) {
-                // Update the filename to store in the database
-                $uploadedFileName = $uniqueFileName;
-                echo '<script>
-                    Swal.fire({
-                      icon: "success",
-                      title: "Skedari u ngarkua me sukses.",
-                      showConfirmButton: false,
-                      timer: 1500
-                    });
-                  </script>';
+            // Check file size (limit to 10MB)
+            if ($_FILES['tipi']['size'] <= 10000000) {
+                // Generate a unique filename to prevent overwriting
+                $uniqueFileName = uniqid('contract_', true) . '.pdf';
+                $targetPath = $targetfolder . basename($uniqueFileName);
+                // Attempt to move the uploaded file to the target folder
+                if (move_uploaded_file($_FILES['tipi']['tmp_name'], $targetPath)) {
+                    // If replacing, delete the old contract
+                    if ($contractUploaded && file_exists($uploadedFileName)) {
+                        unlink($uploadedFileName);
+                    }
+                    // Update the filename to store in the database
+                    $uploadedFileName = "dokument/" . $uniqueFileName;
+                    echo '<script>
+                        Swal.fire({
+                          icon: "success",
+                          title: "Skedari u ngarkua me sukses.",
+                          showConfirmButton: false,
+                          timer: 1500
+                        });
+                      </script>';
+                } else {
+                    echo '<script>
+                        Swal.fire({
+                          icon: "error",
+                          title: "Na vjen keq, ka pasur një gabim gjatë ngarkimit të skedarit tuaj.",
+                          showConfirmButton: false,
+                          timer: 1500
+                        });
+                      </script>';
+                }
             } else {
                 echo '<script>
                     Swal.fire({
                       icon: "error",
-                      title: "Na vjen keq, ka pasur një gabim gjatë ngarkimit të skedarit tuaj.",
+                      title: "Na vjen keq, lejohen vetëm skedarët PDF me madhësi deri në 10MB.",
                       showConfirmButton: false,
                       timer: 1500
                     });
@@ -174,7 +199,8 @@ if (isset($_POST['ndrysho'])) {
         lloji_klientit='$type__of_client', 
         statusi_i_kontrates='$statusi_i_kontrates', 
         email_kontablist='$email_kontablist', 
-        shtetsiaKontabiliteti='$shtetsiaKontabiliteti'
+        shtetsiaKontabiliteti='$shtetsiaKontabiliteti',
+        kontrata='$uploadedFileName'
         WHERE id='$editid'";
 
     if ($conn->query($updateQuery)) {
@@ -272,8 +298,7 @@ if (isset($_POST['ndrysho'])) {
                                         </div>
                                         <div class="col mb-3">
                                             <label class="form-label" for="np">ID e Dokumentit Personal</label>
-                                            <input type="text" name="np"
-                                                class="form-control rounded-5 border border-2"
+                                            <input type="text" name="np" class="form-control rounded-5 border border-2"
                                                 placeholder="Shëno ID e dokumentit"
                                                 value="<?php echo htmlspecialchars($editcl['np']); ?>" required>
                                         </div>
@@ -292,7 +317,8 @@ if (isset($_POST['ndrysho'])) {
                                                 placeholder="Shëno emailin e klientit" required>
                                         </div>
                                         <div class="col mb-3">
-                                            <label class="form-label" for="email_kontablist">Adresa Elektronike e Kontablistit (Email)</label>
+                                            <label class="form-label" for="email_kontablist">Adresa Elektronike e
+                                                Kontablistit (Email)</label>
                                             <input type="email" name="email_kontablist"
                                                 class="form-control rounded-5 border border-2"
                                                 value="<?php echo htmlspecialchars($editcl['email_kontablist']); ?>"
@@ -310,15 +336,19 @@ if (isset($_POST['ndrysho'])) {
                                             <select id="bank_info" name="bank_info"
                                                 class="form-select rounded-5 border border-2 py-2" required>
                                                 <option value="custom">Shto emrin e personalizuar të bankës</option>
-                                                <option value="<?php echo htmlspecialchars($editcl['bank_name']); ?>" selected>
+                                                <option value="<?php echo htmlspecialchars($editcl['bank_name']); ?>"
+                                                    selected>
                                                     <?php echo htmlspecialchars($editcl['bank_name']); ?>
                                                 </option>
-                                                <option value="Banka Kombëtare Tregtare">Banka Kombëtare Tregtare (Albania)</option>
+                                                <option value="Banka Kombëtare Tregtare">Banka Kombëtare Tregtare
+                                                    (Albania)</option>
                                                 <option value="Banka për Biznes">Banka për Biznes (Kosovo)</option>
-                                                <option value="NLB Komercijalna Banka">NLB Komercijalna Banka (Slovenia)</option>
+                                                <option value="NLB Komercijalna Banka">NLB Komercijalna Banka (Slovenia)
+                                                </option>
                                                 <option value="NLB Banka">NLB Banka (Slovenia)</option>
                                                 <option value="ProCredit Bank">ProCredit Bank (Germany)</option>
-                                                <option value="Raiffeisen Bank Kosovo">Raiffeisen Bank Kosovo (Austria)</option>
+                                                <option value="Raiffeisen Bank Kosovo">Raiffeisen Bank Kosovo (Austria)
+                                                </option>
                                                 <option value="TEB SH.A.">TEB SH.A. (Turkey)</option>
                                                 <option value="Ziraat Bank">Ziraat Bank (Turkey)</option>
                                                 <option value="Turkiye Is Bank">Turkiye Is Bank (Turkey)</option>
@@ -328,40 +358,42 @@ if (isset($_POST['ndrysho'])) {
                                                 <option value="Western Union">Western Union</option>
                                             </select>
                                             <script>
-                                                new Selectr('#bank_info', {
-                                                    searchable: true,
-                                                    width: 300
-                                                });
+                                            new Selectr('#bank_info', {
+                                                searchable: true,
+                                                width: 300
+                                            });
 
-                                                document.getElementById('bank_info').addEventListener('change', function() {
-                                                    var selectedOption = this.value;
-                                                    if (selectedOption === 'custom') {
-                                                        Swal.fire({
-                                                            title: 'Shëno emrin e personalizuar të bankës:',
-                                                            input: 'text',
-                                                            showCancelButton: true,
-                                                            confirmButtonText: 'Shto',
-                                                            cancelButtonText: 'Anulo',
-                                                            inputValidator: (value) => {
-                                                                if (!value) {
-                                                                    return 'Ju duhet të shënoni diçka!';
-                                                                }
+                                            document.getElementById('bank_info').addEventListener('change', function() {
+                                                var selectedOption = this.value;
+                                                if (selectedOption === 'custom') {
+                                                    Swal.fire({
+                                                        title: 'Shëno emrin e personalizuar të bankës:',
+                                                        input: 'text',
+                                                        showCancelButton: true,
+                                                        confirmButtonText: 'Shto',
+                                                        cancelButtonText: 'Anulo',
+                                                        inputValidator: (value) => {
+                                                            if (!value) {
+                                                                return 'Ju duhet të shënoni diçka!';
                                                             }
-                                                        }).then((result) => {
-                                                            if (result.isConfirmed) {
-                                                                var customBankName = result.value;
-                                                                // Add the custom bank name as an option
-                                                                var selectElement = document.getElementById('bank_info');
-                                                                var customOption = document.createElement('option');
-                                                                customOption.value = customBankName;
-                                                                customOption.textContent = customBankName;
-                                                                selectElement.appendChild(customOption);
-                                                                // Select the newly added custom bank name
-                                                                selectElement.value = customBankName;
-                                                            }
-                                                        });
-                                                    }
-                                                });
+                                                        }
+                                                    }).then((result) => {
+                                                        if (result.isConfirmed) {
+                                                            var customBankName = result.value;
+                                                            // Add the custom bank name as an option
+                                                            var selectElement = document.getElementById(
+                                                                'bank_info');
+                                                            var customOption = document.createElement(
+                                                                'option');
+                                                            customOption.value = customBankName;
+                                                            customOption.textContent = customBankName;
+                                                            selectElement.appendChild(customOption);
+                                                            // Select the newly added custom bank name
+                                                            selectElement.value = customBankName;
+                                                        }
+                                                    });
+                                                }
+                                            });
                                             </script>
                                         </div>
                                         <div class="col mb-3">
@@ -375,23 +407,26 @@ if (isset($_POST['ndrysho'])) {
                                             <label class="form-label" for="type_of_client">Lloji i Klientit</label>
                                             <br>
                                             <span style="font-size: 12px;" class="text-muted mb-3">
-                                                Statusi aktual i llojit të klientit: <?php echo htmlspecialchars($editcl['lloji_klientit']); ?>
+                                                Statusi aktual i llojit të klientit:
+                                                <?php echo htmlspecialchars($editcl['lloji_klientit']); ?>
                                             </span>
                                             <hr>
                                             <select id="type_of_client" name="type_of_client"
                                                 class="form-select rounded-5 border border-2" required>
-                                                <option value="Personal" <?php if ($editcl['lloji_klientit'] == 'Personal') echo 'selected'; ?>>
+                                                <option value="Personal"
+                                                    <?php if ($editcl['lloji_klientit'] == 'Personal') echo 'selected'; ?>>
                                                     Personal
                                                 </option>
-                                                <option value="Biznes" <?php if ($editcl['lloji_klientit'] == 'Biznes') echo 'selected'; ?>>
+                                                <option value="Biznes"
+                                                    <?php if ($editcl['lloji_klientit'] == 'Biznes') echo 'selected'; ?>>
                                                     Biznes
                                                 </option>
                                             </select>
                                             <script>
-                                                new Selectr('#type_of_client', {
-                                                    searchable: true,
-                                                    width: 300
-                                                });
+                                            new Selectr('#type_of_client', {
+                                                searchable: true,
+                                                width: 300
+                                            });
                                             </script>
                                         </div>
                                     </div>
@@ -399,6 +434,7 @@ if (isset($_POST['ndrysho'])) {
                             </div>
                         </div>
                     </div>
+
                     <!-- YouTube Information Accordion -->
                     <div class="col-3">
                         <div class="accordion" id="client-infos-youtube-accordion">
@@ -410,13 +446,13 @@ if (isset($_POST['ndrysho'])) {
                                         <i class="fi fi-brands-youtube me-3"></i> Të dhënat e Klientit (YouTube)
                                     </button>
                                 </h2>
-                                <div id="collapseTwo" class="accordion-collapse collapse show" aria-labelledby="headingTwo"
-                                    data-bs-parent="#client-infos-youtube-accordion">
+                                <div id="collapseTwo" class="accordion-collapse collapse show"
+                                    aria-labelledby="headingTwo" data-bs-parent="#client-infos-youtube-accordion">
                                     <div class="accordion-body">
                                         <div class="col mb-3">
-                                            <label class="form-label" for="yt">ID e Kanalit në Platformën YouTube</label>
-                                            <input type="text" name="yt"
-                                                class="form-control rounded-5 border border-2"
+                                            <label class="form-label" for="yt">ID e Kanalit në Platformën
+                                                YouTube</label>
+                                            <input type="text" name="yt" class="form-control rounded-5 border border-2"
                                                 placeholder="Shëno ID e kanalit"
                                                 value="<?php echo htmlspecialchars($editcl['youtube']); ?>" required>
                                         </div>
@@ -432,138 +468,153 @@ if (isset($_POST['ndrysho'])) {
                                             <input type="date" name="dk" id="dk"
                                                 class="form-control rounded-5 border border-2"
                                                 placeholder="Shkruaj Daten e kontratës"
-                                                value="<?php echo htmlspecialchars($contractStartDate['data_e_krijimit'] ?? ''); ?>" required>
+                                                value="<?php echo htmlspecialchars($contractStartDate['data_e_krijimit'] ?? ''); ?>"
+                                                required>
                                         </div>
                                         <div class="col mb-3">
                                             <label class="form-label" for="dks">Data e Skadimit të Kontratës</label>
                                             <input type="date" name="dks" id="dks"
                                                 class="form-control rounded-5 border border-2"
                                                 placeholder="Shkruaj Daten e skadimit"
-                                                value="<?php echo htmlspecialchars($expirationDateFormatted); ?>" required>
+                                                value="<?php echo htmlspecialchars($expirationDateFormatted); ?>"
+                                                required>
                                         </div>
                                         <div class="col mb-3">
                                             <?php
-                                            $sql = "SELECT kg.youtube_id FROM kontrata_gjenerale kg 
-                                                        JOIN klientet k ON kg.youtube_id = k.youtube 
-                                                        WHERE k.youtube = '" . mysqli_real_escape_string($conn, $editcl['youtube']) . "'";
-                                            $result = $conn->query($sql);
-                                            if (!$result) {
-                                                echo "Query failed: " . htmlspecialchars($conn->error);
-                                            } else if ($result->num_rows == 0) {
-                                                // Handle no results found, display dropdown
-                                                echo '<div class="mb-3">
-                                                            <label class="form-label" for="statusi_i_kontrates">Statusi i Kontratës</label>
-                                                            <select class="form-select border border-2 rounded-5 w-100" name="statusi_i_kontrates" id="statusi_i_kontrates" required>
-                                                                <option value="Kontratë fizike">Kontratë fizike</option>
-                                                                <option value="S\'ka kontratë">S\'ka kontratë</option>
-                                                            </select>
-                                                        </div>';
-                                                // JS for initializing Selectr
-                                                echo "<script>
-                                                        new Selectr('#statusi_i_kontrates', { searchable: true, width: 300 });
-                                                      </script>";
-                                            }
-                                            ?>
-                                        </div>
-                                        <div class="col mb-3">
-                                            <?php
-                                            $id = isset($_GET['id']) ? intval($_GET['id']) : 0;
-                                            $userCategory = '';
-                                            if ($id > 0) {
-                                                $stmt = $conn->prepare("SELECT kategoria FROM klientet WHERE id = ?");
-                                                $stmt->bind_param("i", $id);
-                                                $stmt->execute();
-                                                $stmt->bind_result($userCategory);
-                                                $stmt->fetch();
-                                                $stmt->close();
-                                            }
-                                            $categories = [];
-                                            if ($userCategory) {
-                                                $categories[] = $userCategory;
-                                            }
-                                            $catQuery = $conn->query("SELECT kategorit FROM kategorit");
-                                            if ($catQuery && $catQuery->num_rows > 0) {
-                                                while ($row = $catQuery->fetch_assoc()) {
-                                                    $categories[] = $row['kategorit'];
+                                                $sql = "SELECT kg.youtube_id FROM kontrata_gjenerale kg 
+                                                            JOIN klientet k ON kg.youtube_id = k.youtube 
+                                                            WHERE k.youtube = '" . mysqli_real_escape_string($conn, $editcl['youtube']) . "'";
+                                                $result = $conn->query($sql);
+                                                if (!$result) {
+                                                    echo "Query failed: " . htmlspecialchars($conn->error);
+                                                } else if ($result->num_rows == 0) {
+                                                    // Handle no results found, display dropdown
+                                                    echo '<div class="mb-3">
+                                                                <label class="form-label" for="statusi_i_kontrates">Statusi i Kontratës</label>
+                                                                <select class="form-select border border-2 rounded-5 w-100" name="statusi_i_kontrates" id="statusi_i_kontrates" required>
+                                                                    <option value="Kontratë fizike">Kontratë fizike</option>
+                                                                    <option value="S\'ka kontratë">S\'ka kontratë</option>
+                                                                </select>
+                                                            </div>';
+                                                    // JS for initializing Selectr
+                                                    echo "<script>
+                                                            new Selectr('#statusi_i_kontrates', { searchable: true, width: 300 });
+                                                          </script>";
                                                 }
-                                            }
-                                            $categories = array_unique($categories);
-                                            ?>
+                                                ?>
+                                        </div>
+                                        <div class="col mb-3">
+                                            <?php
+                                                $id = isset($_GET['id']) ? intval($_GET['id']) : 0;
+                                                $userCategory = '';
+                                                if ($id > 0) {
+                                                    $stmt = $conn->prepare("SELECT kategoria FROM klientet WHERE id = ?");
+                                                    $stmt->bind_param("i", $id);
+                                                    $stmt->execute();
+                                                    $stmt->bind_result($userCategory);
+                                                    $stmt->fetch();
+                                                    $stmt->close();
+                                                }
+                                                $categories = [];
+                                                if ($userCategory) {
+                                                    $categories[] = $userCategory;
+                                                }
+                                                $catQuery = $conn->query("SELECT kategorit FROM kategorit");
+                                                if ($catQuery && $catQuery->num_rows > 0) {
+                                                    while ($row = $catQuery->fetch_assoc()) {
+                                                        $categories[] = $row['kategorit'];
+                                                    }
+                                                }
+                                                $categories = array_unique($categories);
+                                                ?>
                                             <label class="form-label" for="kategoria">Zgjidh Kategorinë</label>
-                                            <select class="form-select border border-2 rounded-5 w-100" name="kategoria" id="kategoria" required>
+                                            <select class="form-select border border-2 rounded-5 w-100" name="kategoria"
+                                                id="kategoria" required>
                                                 <?php foreach ($categories as $category): ?>
-                                                    <option value="<?= htmlspecialchars($category); ?>" <?= ($userCategory == $category) ? 'selected' : ''; ?>>
-                                                        <?= htmlspecialchars($category); ?>
-                                                    </option>
+                                                <option value="<?= htmlspecialchars($category); ?>"
+                                                    <?= ($userCategory == $category) ? 'selected' : ''; ?>>
+                                                    <?= htmlspecialchars($category); ?>
+                                                </option>
                                                 <?php endforeach; ?>
                                                 <?php if (!$userCategory && empty($categories)): ?>
-                                                    <option value="Këngëtar">Këngëtar</option>
+                                                <option value="Këngëtar">Këngëtar</option>
                                                 <?php endif; ?>
                                             </select>
                                             <script>
-                                                new Selectr('#kategoria', {
-                                                    searchable: true,
-                                                    width: 300
-                                                });
+                                            new Selectr('#kategoria', {
+                                                searchable: true,
+                                                width: 300
+                                            });
                                             </script>
                                         </div>
                                         <div class="col mb-3">
                                             <label class="form-label" for="min">Monetizuar?</label><br>
                                             <?php if ($editcl['monetizuar'] == "PO"): ?>
-                                                <div class="form-check form-check-inline">
-                                                    <input class="form-check-input" type="radio" name="min" id="po" value="PO" checked>
-                                                    <label class="form-check-label text-success" for="po">PO (aktive)</label>
-                                                </div>
-                                                <div class="form-check form-check-inline">
-                                                    <input class="form-check-input" type="radio" name="min" id="jo" value="JO">
-                                                    <label class="form-check-label text-muted" for="jo">JO</label>
-                                                </div>
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="radio" name="min" id="po"
+                                                    value="PO" checked>
+                                                <label class="form-check-label text-success" for="po">PO
+                                                    (aktive)</label>
+                                            </div>
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="radio" name="min" id="jo"
+                                                    value="JO">
+                                                <label class="form-check-label text-muted" for="jo">JO</label>
+                                            </div>
                                             <?php else: ?>
-                                                <div class="form-check form-check-inline">
-                                                    <input class="form-check-input" type="radio" name="min" id="po" value="PO">
-                                                    <label class="form-check-label text-muted" for="po">PO</label>
-                                                </div>
-                                                <div class="form-check form-check-inline">
-                                                    <input class="form-check-input" type="radio" name="min" id="jo" value="JO" checked>
-                                                    <label class="form-check-label text-success" for="jo">JO (aktive)</label>
-                                                </div>
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="radio" name="min" id="po"
+                                                    value="PO">
+                                                <label class="form-check-label text-muted" for="po">PO</label>
+                                            </div>
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="radio" name="min" id="jo"
+                                                    value="JO" checked>
+                                                <label class="form-check-label text-success" for="jo">JO
+                                                    (aktive)</label>
+                                            </div>
                                             <?php endif; ?>
                                         </div>
                                         <div class="col mb-3">
                                             <label class="form-label" for="ads">Edito Llogarinë e ADS:</label>
-                                            <select class="form-select w-100" name="ads" id="exampleFormControlSelect2" required>
+                                            <select class="form-select w-100" name="ads" id="exampleFormControlSelect2"
+                                                required>
                                                 <?php
-                                                $mads = $conn->query("SELECT * FROM ads");
-                                                $ads_found = false;
-                                                while ($ads = mysqli_fetch_assoc($mads)) {
-                                                    if ($ads['id'] == $editcl['ads']) {
-                                                        $ads_found = true;
-                                                    }
-                                                ?>
-                                                    <option value="<?php echo htmlspecialchars($ads['id']); ?>" <?php if ($ads['id'] == $editcl['ads']) echo "selected"; ?>>
-                                                        <?php echo htmlspecialchars($ads['email']); ?> |
-                                                        <?php echo htmlspecialchars($ads['adsid']); ?> (<?php echo htmlspecialchars($ads['shteti']); ?>)
-                                                    </option>
+                                                    $mads = $conn->query("SELECT * FROM ads");
+                                                    $ads_found = false;
+                                                    while ($ads = mysqli_fetch_assoc($mads)) {
+                                                        if ($ads['id'] == $editcl['ads']) {
+                                                            $ads_found = true;
+                                                        }
+                                                    ?>
+                                                <option value="<?php echo htmlspecialchars($ads['id']); ?>"
+                                                    <?php if ($ads['id'] == $editcl['ads']) echo "selected"; ?>>
+                                                    <?php echo htmlspecialchars($ads['email']); ?> |
+                                                    <?php echo htmlspecialchars($ads['adsid']); ?>
+                                                    (<?php echo htmlspecialchars($ads['shteti']); ?>)
+                                                </option>
                                                 <?php } ?>
                                                 <?php if (!$ads_found && !empty($editcl['emri'])):
-                                                    $guse = $conn->query("SELECT * FROM klientet WHERE emri='" . mysqli_real_escape_string($conn, $editcl['emri']) . "'");
-                                                    $guse2 = mysqli_fetch_assoc($guse);
-                                                    $adsid = $guse2['ads'];
-                                                    $mads = $conn->query("SELECT * FROM ads WHERE id='" . mysqli_real_escape_string($conn, $adsid) . "'");
-                                                    $ads = mysqli_fetch_assoc($mads);
-                                                    if ($ads):
-                                                ?>
-                                                        <option value="<?php echo htmlspecialchars($ads['id']); ?>" selected>
-                                                            <?php echo htmlspecialchars($ads['email']); ?> | <?php echo htmlspecialchars($ads['adsid']); ?> (<?php echo htmlspecialchars($ads['shteti']); ?>)
-                                                        </option>
+                                                        $guse = $conn->query("SELECT * FROM klientet WHERE emri='" . mysqli_real_escape_string($conn, $editcl['emri']) . "'");
+                                                        $guse2 = mysqli_fetch_assoc($guse);
+                                                        $adsid = $guse2['ads'];
+                                                        $mads = $conn->query("SELECT * FROM ads WHERE id='" . mysqli_real_escape_string($conn, $adsid) . "'");
+                                                        $ads = mysqli_fetch_assoc($mads);
+                                                        if ($ads):
+                                                    ?>
+                                                <option value="<?php echo htmlspecialchars($ads['id']); ?>" selected>
+                                                    <?php echo htmlspecialchars($ads['email']); ?> |
+                                                    <?php echo htmlspecialchars($ads['adsid']); ?>
+                                                    (<?php echo htmlspecialchars($ads['shteti']); ?>)
+                                                </option>
                                                 <?php endif;
-                                                endif; ?>
+                                                    endif; ?>
                                             </select>
                                             <script>
-                                                new Selectr('#exampleFormControlSelect2', {
-                                                    searchable: true,
-                                                    width: 300
-                                                });
+                                            new Selectr('#exampleFormControlSelect2', {
+                                                searchable: true,
+                                                width: 300
+                                            });
                                             </script>
                                         </div>
                                     </div>
@@ -583,11 +634,12 @@ if (isset($_POST['ndrysho'])) {
                                         <i class="fi fi-rr-world me-3"></i> Përqindja dhe Platformat
                                     </button>
                                 </h2>
-                                <div id="collapseThree" class="accordion-collapse collapse show" aria-labelledby="headingThree"
-                                    data-bs-parent="#perqindja-accordion">
+                                <div id="collapseThree" class="accordion-collapse collapse show"
+                                    aria-labelledby="headingThree" data-bs-parent="#perqindja-accordion">
                                     <div class="accordion-body">
                                         <div class="col mb-3">
-                                            <label class="form-label" for="emailp">Adresa Elektronike (Email) për Platforma</label>
+                                            <label class="form-label" for="emailp">Adresa Elektronike (Email) për
+                                                Platforma</label>
                                             <input type="email" name="emailp"
                                                 class="form-control rounded-5 border border-2"
                                                 value="<?php echo htmlspecialchars($editcl['emailp']); ?>"
@@ -601,7 +653,8 @@ if (isset($_POST['ndrysho'])) {
                                                 placeholder="0.00%" required>
                                         </div>
                                         <div class="col mb-3">
-                                            <label for="perqindja2" class="form-label">Përqindja për Platforma të Tjera (Baresha)</label>
+                                            <label for="perqindja2" class="form-label">Përqindja për Platforma të Tjera
+                                                (Baresha)</label>
                                             <input type="number" step="0.01" name="perqindja2"
                                                 class="form-control rounded-5 border border-2"
                                                 value="<?php echo htmlspecialchars($editcl['perqindja2']); ?>"
@@ -611,71 +664,74 @@ if (isset($_POST['ndrysho'])) {
                                             <label for="perqindja_check" class="form-label">Përqindja e Klientit</label>
                                             <div class="input-group flex-nowrap">
                                                 <div class="input-group-text bg-transparent border-0">
-                                                    <input type="checkbox" name="perqindja_check" id="perqindja_check" <?php if ($editcl['perqindja_check'] === "1") echo "checked"; ?>>
+                                                    <input type="checkbox" name="perqindja_check" id="perqindja_check"
+                                                        <?php if ($editcl['perqindja_check'] === "1") echo "checked"; ?>>
                                                 </div>
                                                 <?php
-                                                if (isset($editcl['perqindja']) && is_numeric($editcl['perqindja'])) {
-                                                    $perqindja_value = 100 - $editcl['perqindja'];
-                                                } else {
-                                                    $perqindja_value = 'Error: Invalid or missing Perqindja value.';
-                                                }
-                                                ?>
+                                                    if (isset($editcl['perqindja']) && is_numeric($editcl['perqindja'])) {
+                                                        $perqindja_value = 100 - $editcl['perqindja'];
+                                                    } else {
+                                                        $perqindja_value = 'Error: Invalid or missing Perqindja value.';
+                                                    }
+                                                    ?>
                                                 <input type="text" class="form-control rounded-5 border border-2"
                                                     id="perqindja_platformave_output" name="perqindja_e_klientit"
                                                     disabled value="<?php echo htmlspecialchars($perqindja_value); ?>">
                                             </div>
                                             <br>
                                             <?php
-                                            if ($editcl['perqindja_check'] === "1") {
-                                                echo '<div id="perqindja_platformave_message" style="color: green;">Statusi i kësaj përqindjeje në sistemin e klientit është e vrajtueshme.</div>';
-                                            } else {
-                                                echo '<div id="perqindja_platformave_message" style="color: red;">JO.</div>';
-                                            }
-                                            ?>
+                                                if ($editcl['perqindja_check'] === "1") {
+                                                    echo '<div id="perqindja_platformave_message" style="color: green;">Statusi i kësaj përqindjeje në sistemin e klientit është e vrajtueshme.</div>';
+                                                } else {
+                                                    echo '<div id="perqindja_platformave_message" style="color: red;">JO.</div>';
+                                                }
+                                                ?>
                                         </div>
                                         <div class="col mb-3">
-                                            <label for="perqindja_platformave_check" class="form-label">Përqindja e Platformave për Klientin</label>
+                                            <label for="perqindja_platformave_check" class="form-label">Përqindja e
+                                                Platformave për Klientin</label>
                                             <div class="input-group mb-3">
                                                 <div class="input-group-text bg-transparent border-0">
                                                     <input type="checkbox" name="perqindja_platformave_check"
-                                                        id="perqindja_platformave_check" <?php if ($editcl['perqindja_platformave_check'] === "1") echo "checked"; ?>>
+                                                        id="perqindja_platformave_check"
+                                                        <?php if ($editcl['perqindja_platformave_check'] === "1") echo "checked"; ?>>
                                                 </div>
                                                 <?php
-                                                if (isset($editcl['perqindja2']) && is_numeric($editcl['perqindja2'])) {
-                                                    $perqindja2_value = 100 - $editcl['perqindja2'];
-                                                } else {
-                                                    $perqindja2_value = 'Error: Invalid or missing Perqindja2 value.';
-                                                }
-                                                ?>
+                                                    if (isset($editcl['perqindja2']) && is_numeric($editcl['perqindja2'])) {
+                                                        $perqindja2_value = 100 - $editcl['perqindja2'];
+                                                    } else {
+                                                        $perqindja2_value = 'Error: Invalid or missing Perqindja2 value.';
+                                                    }
+                                                    ?>
                                                 <input type="text" class="form-control rounded-5 border border-2"
-                                                    id="perqindja_platformave_output" name="perqindja_e_platformave_klientit"
-                                                    disabled value="<?php echo htmlspecialchars($perqindja2_value); ?>">
+                                                    id="perqindja_platformave_output"
+                                                    name="perqindja_e_platformave_klientit" disabled
+                                                    value="<?php echo htmlspecialchars($perqindja2_value); ?>">
                                             </div>
                                             <?php
-                                            if ($editcl['perqindja_platformave_check'] === "1") {
-                                                echo '<div id="perqindja_platformave_message" style="color: green;">Statusi i kësaj përqindjeje në sistemin e klientit është e vrajtueshme.</div>';
-                                            } else {
-                                                echo '<div id="perqindja_platformave_message" style="color: red;">JO.</div>';
-                                            }
-                                            ?>
+                                                if ($editcl['perqindja_platformave_check'] === "1") {
+                                                    echo '<div id="perqindja_platformave_message" style="color: green;">Statusi i kësaj përqindjeje në sistemin e klientit është e vrajtueshme.</div>';
+                                                } else {
+                                                    echo '<div id="perqindja_platformave_message" style="color: red;">JO.</div>';
+                                                }
+                                                ?>
                                         </div>
                                         <div class="col mb-3">
                                             <label class="form-label" for="fb">Facebook URL:</label>
-                                            <input type="url" name="fb"
-                                                class="form-control rounded-5 border border-2"
+                                            <input type="url" name="fb" class="form-control rounded-5 border border-2"
                                                 placeholder="https://facebook.com/...."
                                                 value="<?php echo htmlspecialchars($editcl['fb']); ?>">
                                         </div>
                                         <div class="col mb-3">
                                             <label class="form-label" for="ig">Instagram URL:</label>
-                                            <input type="url" name="ig"
-                                                class="form-control rounded-5 border border-2"
+                                            <input type="url" name="ig" class="form-control rounded-5 border border-2"
                                                 placeholder="https://instagram.com/...."
                                                 value="<?php echo htmlspecialchars($editcl['ig']); ?>">
                                         </div>
                                         <div class="col mb-3">
                                             <a href="perqindjet_klient.php?id=<?php echo htmlspecialchars($editcl['id']); ?>"
-                                                class="input-custom-css px-3 py-2 " style="text-decoration: none;">Ndrysho Përqindjet</a>
+                                                class="input-custom-css px-3 py-2 "
+                                                style="text-decoration: none;">Ndrysho Përqindjet</a>
                                         </div>
                                     </div>
                                 </div>
@@ -683,7 +739,7 @@ if (isset($_POST['ndrysho'])) {
                         </div>
                     </div>
 
-                    <!-- Internal Information Accordion with Offcanvas PDF Preview -->
+                    <!-- Internal Information Accordion with Offcanvas PDF Preview and Delete Option -->
                     <div class="col-3">
                         <div class="accordion" id="information-accordion">
                             <div class="accordion-item border-1 rounded-5">
@@ -694,42 +750,95 @@ if (isset($_POST['ndrysho'])) {
                                         <i class="fi fi-rr-info me-3"></i> Informacion i Brendshëm
                                     </button>
                                 </h2>
-                                <div id="collapseFour" class="accordion-collapse collapse show" aria-labelledby="headingFour"
-                                    data-bs-parent="#information-accordion">
+                                <div id="collapseFour" class="accordion-collapse collapse show"
+                                    aria-labelledby="headingFour" data-bs-parent="#information-accordion">
                                     <div class="accordion-body">
+                                        <!-- Display PDF Upload Section Only If No Contract Exists -->
+                                        <?php if (!$contractUploaded): ?>
                                         <!-- PDF Upload Section -->
                                         <div class="col mb-3">
                                             <label class="form-label" for="tipi">Ngarko Kontratën:</label>
                                             <input type="file" name="tipi" id="tipi" accept="application/pdf"
-                                                class="form-control rounded-5 border border-2">
+                                                class="form-control rounded-5 border border-2" required>
                                         </div>
                                         <!-- Button to Open Offcanvas for PDF Preview -->
                                         <div class="col mb-3">
-                                            <button type="button" class="input-custom-css px-3 py-2" data-bs-toggle="offcanvas"
-                                                data-bs-target="#pdfPreviewOffcanvas" aria-controls="pdfPreviewOffcanvas">
+                                            <button type="button" class="input-custom-css px-3 py-2"
+                                                data-bs-toggle="offcanvas" data-bs-target="#pdfPreviewOffcanvas"
+                                                aria-controls="pdfPreviewOffcanvas">
                                                 Preview PDF
                                             </button>
                                         </div>
+                                        <?php endif; ?>
+
+                                        <!-- Display Existing Contract Options If Contract Exists -->
+                                        <?php if ($contractUploaded): ?>
+                                        <!-- Existing PDF Preview Button -->
+                                        <div class="col mb-3">
+                                            <button type="button" class="btn btn-secondary" data-bs-toggle="offcanvas"
+                                                data-bs-target="#pdfPreviewOffcanvas"
+                                                aria-controls="pdfPreviewOffcanvas">
+                                                
+                                            </button>
+                                        </div>
+                                        <!-- Button to Open Modal for Deleting Contract -->
+                                        <div class="col mb-3">
+                                            <button type="button" class="btn btn-danger" data-bs-toggle="modal"
+                                                data-bs-target="#deleteContractModal">
+                                                Fshi Kontratën
+                                            </button>
+                                        </div>
+                                        <?php endif; ?>
+
                                         <!-- Bootstrap Offcanvas for PDF Preview -->
-                                        <div class="offcanvas offcanvas-end" style="width: 50%;" tabindex="-1" id="pdfPreviewOffcanvas"
-                                            aria-labelledby="pdfPreviewOffcanvasLabel">
+                                        <div class="offcanvas offcanvas-end" style="width: 50%;" tabindex="-1"
+                                            id="pdfPreviewOffcanvas" aria-labelledby="pdfPreviewOffcanvasLabel">
                                             <div class="offcanvas-header">
-                                                <h5 class="offcanvas-title" id="pdfPreviewOffcanvasLabel">Preview Kontratë</h5>
-                                                <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas"
-                                                    aria-label="Close"></button>
+                                                <h5 class="offcanvas-title" id="pdfPreviewOffcanvasLabel">Preview
+                                                    Kontratë</h5>
+                                                <button type="button" class="btn-close text-reset"
+                                                    data-bs-dismiss="offcanvas" aria-label="Close"></button>
                                             </div>
                                             <div class="offcanvas-body">
-                                                <iframe id="contractPreview" style="width: 100%; height: 500px; border: none;"></iframe>
+                                                <?php if ($contractUploaded): ?>
+                                                <iframe id="contractPreview"
+                                                    style="width: 100%; height: 500px; border: none;"
+                                                    src="<?php echo htmlspecialchars($editcl['kontrata']); ?>"></iframe>
+                                                <?php else: ?>
+                                                <iframe id="contractPreview"
+                                                    style="width: 100%; height: 500px; border: none;"></iframe>
+                                                <?php endif; ?>
                                             </div>
                                         </div>
-                                        <!-- Existing PDF Preview Button (Optional) -->
-                                        <?php if (!empty($editcl['tipi']) && file_exists("dokument/" . $editcl['tipi'])): ?>
-                                            <div class="col mb-3">
-                                                <button type="button" class="btn btn-secondary" data-bs-toggle="offcanvas"
-                                                    data-bs-target="#pdfPreviewOffcanvas" aria-controls="pdfPreviewOffcanvas">
-                                                    Shiko Kontraten Ekzistuese
-                                                </button>
+
+                                        <!-- Delete Contract Confirmation Modal -->
+                                        <?php if ($contractUploaded): ?>
+                                        <div class="modal fade" id="deleteContractModal" tabindex="-1"
+                                            aria-labelledby="deleteContractModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <form method="POST" action="delete_contract.php">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title" id="deleteContractModalLabel">Fshi
+                                                                Kontratën Ekzistuese</h5>
+                                                            <button type="button" class="btn-close"
+                                                                data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            A jeni i sigurt që dëshironi të fshini kontratën ekzistuese?
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <input type="hidden" name="client_id"
+                                                                value="<?php echo htmlspecialchars($editid); ?>">
+                                                            <button type="button" class="btn btn-secondary"
+                                                                data-bs-dismiss="modal">Anulo</button>
+                                                            <button type="submit" class="btn btn-danger"
+                                                                name="fshi_kontraten">Fshi</button>
+                                                        </div>
+                                                    </div>
+                                                </form>
                                             </div>
+                                        </div>
                                         <?php endif; ?>
 
                                         <!-- Emails Selection -->
@@ -738,59 +847,61 @@ if (isset($_POST['ndrysho'])) {
                                             <select multiple class="form-control border border-2 rounded-5"
                                                 name="emails[]" id="exampleFormControlSelect3" required>
                                                 <?php
-                                                // Fetch all distinct emails from both klientet and ads tables
-                                                $getemails_klientet = $conn->query("SELECT emails FROM klientet WHERE id = '$editid'");
-                                                $emails_with_access = [];
-                                                if ($maillist = mysqli_fetch_assoc($getemails_klientet)) {
-                                                    // Split the emails string into an array of individual email addresses
-                                                    $emails_with_access = explode(',', $maillist['emails']);
-                                                    $emails_with_access = array_map('trim', $emails_with_access); // Remove leading/trailing whitespace
-                                                }
-                                                $getemails_ads = $conn->query("SELECT DISTINCT email FROM ads");
-                                                while ($row = $getemails_ads->fetch_assoc()) {
-                                                    $email_ads = $row['email']; // Retrieve the email from the fetched row
-                                                    // Check if this email is not in the list of emails with access
-                                                    if (!in_array($email_ads, $emails_with_access)) {
-                                                        // Email without access
-                                                ?>
-                                                        <option value="<?php echo htmlspecialchars($email_ads); ?>">
-                                                            <?php echo htmlspecialchars($email_ads); ?> (nuk ka akses)
-                                                        </option>
-                                                    <?php } else {
-                                                        // Email with access
-                                                    ?>
-                                                        <option value="<?php echo htmlspecialchars($email_ads); ?>" selected>
-                                                            <?php echo htmlspecialchars($email_ads); ?> (ka akses)
-                                                        </option>
-                                                <?php
+                                                    // Fetch all distinct emails from both klientet and ads tables
+                                                    $getemails_klientet = $conn->query("SELECT emails FROM klientet WHERE id = '$editid'");
+                                                    $emails_with_access = [];
+                                                    if ($maillist = mysqli_fetch_assoc($getemails_klientet)) {
+                                                        // Split the emails string into an array of individual email addresses
+                                                        $emails_with_access = explode(',', $maillist['emails']);
+                                                        $emails_with_access = array_map('trim', $emails_with_access); // Remove leading/trailing whitespace
                                                     }
-                                                }
-                                                ?>
+                                                    $getemails_ads = $conn->query("SELECT DISTINCT email FROM ads");
+                                                    while ($row = $getemails_ads->fetch_assoc()) {
+                                                        $email_ads = $row['email']; // Retrieve the email from the fetched row
+                                                        // Check if this email is not in the list of emails with access
+                                                        if (!in_array($email_ads, $emails_with_access)) {
+                                                            // Email without access
+                                                    ?>
+                                                <option value="<?php echo htmlspecialchars($email_ads); ?>">
+                                                    <?php echo htmlspecialchars($email_ads); ?> (nuk ka akses)
+                                                </option>
+                                                <?php } else {
+                                                                // Email with access
+                                                            ?>
+                                                <option value="<?php echo htmlspecialchars($email_ads); ?>" selected>
+                                                    <?php echo htmlspecialchars($email_ads); ?> (ka akses)
+                                                </option>
+                                                <?php
+                                                        }
+                                                    }
+                                                    ?>
                                             </select>
                                         </div>
                                         <script>
-                                            new Selectr('#exampleFormControlSelect3', {
-                                                multiple: true,
-                                                searchable: true,
-                                                width: 300
-                                            });
+                                        new Selectr('#exampleFormControlSelect3', {
+                                            multiple: true,
+                                            searchable: true,
+                                            width: 300
+                                        });
                                         </script>
 
                                         <!-- System User Information -->
                                         <div class="col mb-3">
-                                            <label class="form-label" for="perdoruesi">Përdoruesi <small>(Sistemit)</small>:</label>
+                                            <label class="form-label" for="perdoruesi">Përdoruesi
+                                                <small>(Sistemit)</small>:</label>
                                             <input type="text" name="perdoruesi"
                                                 class="form-control border border-2 rounded-5"
                                                 placeholder="Përdoruesi i sistemit"
                                                 value="<?php echo htmlspecialchars($editcl['perdoruesi']); ?>" required>
                                         </div>
                                         <div class="col mb-3">
-                                            <label class="form-label" for="fjalkalimi">Fjalëkalimi <small>(Sistemit)</small>:</label>
+                                            <label class="form-label" for="fjalkalimi">Fjalëkalimi
+                                                <small>(Sistemit)</small>:</label>
                                             <input type="password" name="fjalkalimi"
                                                 class="form-control border border-2 rounded-5"
-                                                placeholder="Fjalëkalimi i sistemit"
-                                                value="<?php echo htmlspecialchars($editcl['fjalkalimi']); ?>" required>
-                                            <button type="button" class="input-custom-css px-3 py-2" data-bs-toggle="modal" data-bs-target="#passwordInfoModal">Info</button>
+                                                placeholder="Fjalëkalimi i sistemit" value="">
+                                            <button type="button" class="input-custom-css px-3 py-2"
+                                                data-bs-toggle="modal" data-bs-target="#passwordInfoModal">Info</button>
                                             <!-- Modal for Password Information -->
                                             <div class="modal fade" id="passwordInfoModal" tabindex="-1" role="dialog"
                                                 aria-labelledby="passwordInfoModalLabel" aria-hidden="true">
@@ -805,16 +916,9 @@ if (isset($_POST['ndrysho'])) {
                                                         </div>
                                                         <div class="modal-body">
                                                             <p>
-                                                                Ky është fjalëkalimi i enkriptuar për klientin:
-                                                                <?php echo htmlspecialchars($editcl['emri']); ?>
-                                                            </p>
-                                                            <p>
-                                                                Fjalëkalimi:
-                                                                <strong><?php echo htmlspecialchars($editcl['fjalkalimi']); ?> </strong>
-                                                            </p>
-                                                            <p>
-                                                                Fjalëkalimi është enkriptuar me MD5, një funksion hash me një drejtim.
-                                                                Kjo do të thotë se nuk mund të deshifrohet drejtpërdrejt sepse është projektuar të jetë i pakthyeshëm.
+                                                                Nëse dëshironi të ndryshoni fjalëkalimin e sistemit, ju
+                                                                lutem shkruani një fjalëkalim të ri në fushën e lartme
+                                                                dhe klikoni butonin "Përditëso".
                                                             </p>
                                                         </div>
                                                         <div class="modal-footer">
@@ -827,67 +931,73 @@ if (isset($_POST['ndrysho'])) {
                                         </div>
                                         <div class="col mb-3">
                                             <label class="form-label" for="shtetsia">Shtetësia</label>
-                                            <select class="form-select border border-2 rounded-5" name="shtetsia" id="shtetsia" required>
+                                            <select class="form-select border border-2 rounded-5" name="shtetsia"
+                                                id="shtetsia" required>
                                                 <?php
-                                                // Static options
-                                                $staticOptions = [
-                                                    "Shqipëri",
-                                                    "Kosovë",
-                                                    "Gjermania",
-                                                    "Italia",
-                                                    "Zvicër",
-                                                    "Maqedonia",
-                                                    "Mali i Zi"
-                                                ];
-                                                // Fetch distinct shtetsia values from the database
-                                                $query = "SELECT DISTINCT shtetsia FROM klientet WHERE id = '$editid'";
-                                                $result = $conn->query($query);
-                                                // Merge static and dynamic options
-                                                $options = array_unique(array_merge($staticOptions, $result ? array_column($result->fetch_all(MYSQLI_ASSOC), 'shtetsia') : []));
-                                                // Output options
-                                                foreach ($options as $shtetsiaOption): ?>
-                                                    <option value="<?php echo htmlspecialchars($shtetsiaOption); ?>" <?php echo (isset($editcl['shtetsia']) && $editcl['shtetsia'] == $shtetsiaOption) ? 'selected' : ''; ?>>
-                                                        <?php echo htmlspecialchars($shtetsiaOption); ?>
-                                                    </option>
+                                                    // Static options
+                                                    $staticOptions = [
+                                                        "Shqipëri",
+                                                        "Kosovë",
+                                                        "Gjermania",
+                                                        "Italia",
+                                                        "Zvicër",
+                                                        "Maqedonia",
+                                                        "Mali i Zi"
+                                                    ];
+                                                    // Fetch distinct shtetsia values from the database
+                                                    $query = "SELECT DISTINCT shtetsia FROM klientet WHERE id = '$editid'";
+                                                    $result = $conn->query($query);
+                                                    // Merge static and dynamic options
+                                                    $options = array_unique(array_merge($staticOptions, $result ? array_column($result->fetch_all(MYSQLI_ASSOC), 'shtetsia') : []));
+                                                    // Output options
+                                                    foreach ($options as $shtetsiaOption): ?>
+                                                <option value="<?php echo htmlspecialchars($shtetsiaOption); ?>"
+                                                    <?php echo (isset($editcl['shtetsia']) && $editcl['shtetsia'] == $shtetsiaOption) ? 'selected' : ''; ?>>
+                                                    <?php echo htmlspecialchars($shtetsiaOption); ?>
+                                                </option>
                                                 <?php endforeach; ?>
                                             </select>
                                             <script>
-                                                new Selectr('#shtetsia', {})
+                                            new Selectr('#shtetsia', {})
                                             </script>
                                         </div>
                                         <div class="col mb-3">
                                             <label class="form-label" for="shtetsiaKontabiliteti">Kontabiliteti</label>
-                                            <select class="form-select border border-2 rounded-5" name="shtetsiaKontabiliteti" id="shtetsiaKontabiliteti" required>
+                                            <select class="form-select border border-2 rounded-5"
+                                                name="shtetsiaKontabiliteti" id="shtetsiaKontabiliteti" required>
                                                 <?php
-                                                // Static options
-                                                $staticOptions = [
-                                                    "Kosova",
-                                                    "Shqipëri",
-                                                    "Gjermania",
-                                                    "Francë",
-                                                    "Slloveni"
-                                                ];
-                                                // Fetch distinct shtetsiaKontabiliteti values from the database
-                                                $query = "SELECT DISTINCT shtetsiaKontabiliteti FROM klientet WHERE id = '$editid'";
-                                                $result = $conn->query($query);
-                                                // Merge static and dynamic options
-                                                $dbOptions = $result ? array_column($result->fetch_all(MYSQLI_ASSOC), 'shtetsiaKontabiliteti') : [];
-                                                $options = array_unique(array_merge($staticOptions, $dbOptions));
-                                                // Output options
-                                                foreach ($options as $shtetsiaKontabilitetiOption): ?>
-                                                    <option value="<?php echo htmlspecialchars($shtetsiaKontabilitetiOption); ?>" <?php echo (isset($editcl['shtetsiaKontabiliteti']) && $editcl['shtetsiaKontabiliteti'] == $shtetsiaKontabilitetiOption) ? 'selected' : ''; ?>>
-                                                        <?php echo htmlspecialchars($shtetsiaKontabilitetiOption); ?>
-                                                    </option>
+                                                    // Static options
+                                                    $staticOptions = [
+                                                        "Kosova",
+                                                        "Shqipëri",
+                                                        "Gjermania",
+                                                        "Francë",
+                                                        "Slloveni"
+                                                    ];
+                                                    // Fetch distinct shtetsiaKontabiliteti values from the database
+                                                    $query = "SELECT DISTINCT shtetsiaKontabiliteti FROM klientet WHERE id = '$editid'";
+                                                    $result = $conn->query($query);
+                                                    // Merge static and dynamic options
+                                                    $dbOptions = $result ? array_column($result->fetch_all(MYSQLI_ASSOC), 'shtetsiaKontabiliteti') : [];
+                                                    $options = array_unique(array_merge($staticOptions, $dbOptions));
+                                                    // Output options
+                                                    foreach ($options as $shtetsiaKontabilitetiOption): ?>
+                                                <option
+                                                    value="<?php echo htmlspecialchars($shtetsiaKontabilitetiOption); ?>"
+                                                    <?php echo (isset($editcl['shtetsiaKontabiliteti']) && $editcl['shtetsiaKontabiliteti'] == $shtetsiaKontabilitetiOption) ? 'selected' : ''; ?>>
+                                                    <?php echo htmlspecialchars($shtetsiaKontabilitetiOption); ?>
+                                                </option>
                                                 <?php endforeach; ?>
                                             </select>
                                             <script>
-                                                new Selectr('#shtetsiaKontabiliteti', {})
+                                            new Selectr('#shtetsiaKontabiliteti', {})
                                             </script>
                                         </div>
                                         <div class="col mb-3">
                                             <label class="form-label" for="info">Info Shtesë</label>
                                             <textarea class="form-control rounded-5 border border-2" id="simpleMde"
-                                                name="info" placeholder="Info Shtesë" required><?php echo htmlspecialchars($editcl['info']); ?></textarea>
+                                                name="info" placeholder="Info Shtesë"
+                                                required><?php echo htmlspecialchars($editcl['info']); ?></textarea>
                                         </div>
                                         <hr>
                                         <div class="col d-flex justify-content-center align-items-center">
@@ -919,64 +1029,67 @@ if (isset($_POST['ndrysho'])) {
 </div>
 <?php include 'partials/footer.php'; ?>
 
-<!-- JavaScript for Offcanvas PDF Preview -->
+<!-- JavaScript for Offcanvas PDF Preview and Modal Handling -->
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const tipiInput = document.getElementById('tipi');
-        const contractPreview = document.getElementById('contractPreview');
+document.addEventListener('DOMContentLoaded', function() {
+    const tipiInput = document.getElementById('tipi');
+    const contractPreview = document.getElementById('contractPreview');
+    const pdfPreviewOffcanvas = new bootstrap.Offcanvas(document.getElementById('pdfPreviewOffcanvas'));
 
-        tipiInput.addEventListener('change', function(event) {
-            const file = event.target.files[0];
-            if (file) {
-                if (file.type === 'application/pdf') {
-                    const fileUrl = URL.createObjectURL(file);
-                    contractPreview.src = fileUrl;
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Gabim',
-                        text: 'Ju lutem ngarkoni vetëm skedarë PDF.',
-                        timer: 2000,
-                        showConfirmButton: false
-                    });
-                    tipiInput.value = '';
-                    contractPreview.src = '';
-                }
-                // do not let file more than 10 mb to upload
-                if (file.size > 10000000) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Gabim',
-                        text: 'Ju lutem ngarkoni skedarë PDF me mbi 10MB.',
-                        timer: 2000,
-                        showConfirmButton: false
-                    });
-                    tipiInput.value = '';
-                    contractPreview.src = '';
-                }
+    tipiInput.addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        if (file) {
+            if (file.type === 'application/pdf') {
+                const fileUrl = URL.createObjectURL(file);
+                contractPreview.src = fileUrl;
+                // Open the preview automatically after selecting a file
+                pdfPreviewOffcanvas.show();
             } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gabim',
+                    text: 'Ju lutem ngarkoni vetëm skedarë PDF.',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+                tipiInput.value = '';
                 contractPreview.src = '';
             }
-        });
-
-        // If there's an existing PDF, set it in the Offcanvas preview
-        <?php if (!empty($editcl['tipi']) && file_exists("dokument/" . $editcl['tipi'])): ?>
-            contractPreview.src = 'dokument/<?php echo htmlspecialchars($editcl['tipi']); ?>';
-        <?php endif; ?>
+            // Limit file size to 10 MB
+            if (file.size > 10000000) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gabim',
+                    text: 'Ju lutem ngarkoni skedarë PDF me madhësi deri në 10MB.',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+                tipiInput.value = '';
+                contractPreview.src = '';
+            }
+        } else {
+            contractPreview.src = '';
+        }
     });
+
+    // If there's an existing PDF, set it in the Offcanvas preview
+    <?php if ($contractUploaded): ?>
+    contractPreview.src = '<?php echo htmlspecialchars($editcl['kontrata']); ?>';
+    <?php endif; ?>
+});
 </script>
 
 <!-- Initialize Flatpickr for Date Inputs -->
 <script>
-    const flatpickrOptions = {
-        dateFormat: "Y-m-d"
-    };
-    flatpickr("#dk", {
-        ...flatpickrOptions,
-        maxDate: "today"
-    });
-    flatpickr("#dks", {
-        ...flatpickrOptions,
-        minDate: "today"
-    });
+const flatpickrOptions = {
+    dateFormat: "Y-m-d"
+};
+flatpickr("#dk", {
+    ...flatpickrOptions,
+    maxDate: "today"
+});
+flatpickr("#dks", {
+    ...flatpickrOptions,
+    minDate: "today"
+});
 </script>
