@@ -154,17 +154,9 @@ include('partials/header.php');
                                                 </td>
                                                 <td style="font-size: 12px;" class="wrap-text">
                                                     <div class="dropdown">
-                                                        <button class="btn py-2 btn-primary dropdown-toggle shadow-sm rounded-5" type="button" id="kontrataDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                                            <i class="fi fi-rr-box-open text-white"></i>
-                                                        </button>
-                                                        <ul class="dropdown-menu rounded-5 " style="border:1px solid lightgrey;" aria-labelledby="kontrataDropdown">
-                                                            <li><a style="width:95%;" class="dropdown-item rounded-5 mx-auto px-1 my-1 border" href="kontrata_pdf.php?id=<?php echo $k['id']; ?>">Web
-                                                                    <i class="fi fi-rr-browser"></i></a>
-                                                            </li>
-                                                            <li><a style="width:95%;" class="dropdown-item rounded-5 mx-auto px-1 my-1 border" href="kontrata_pdfOriginal.php?id=<?php echo $k['id']; ?>">PDF
-                                                                    <i class="fi fi-rr-file-pdf"></i></a>
-                                                            </li>
-                                                        </ul>
+                                                        <a style="width:95%;text-decoration: none;" class="input-custom-css px-3 py-2" href="kontrata_pdfOriginal.php?id=<?php echo $k['id']; ?>">PDF
+                                                            <i class="fi fi-rr-file-pdf"></i>
+                                                        </a>
                                                     </div>
                                                 </td>
                                                 <td style="font-size: 12px;" class="wrap-text">
@@ -211,8 +203,10 @@ include('partials/header.php');
 </div>
 <?php
 require './vendor/autoload.php';
+
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
+
 $dateComponent = date('Ymd');
 $nameComponent = 'BAR';
 $token = $dateComponent . $nameComponent;
@@ -346,6 +340,7 @@ ob_flush();
 ?>
 <script>
     var token = "<?php echo isset($token) ? $token : ''; ?>";
+
     function updateEmailInput(button) {
         var id = button.getAttribute("data-id");
         var tableRow = button.closest("tr");
