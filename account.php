@@ -1,16 +1,20 @@
 <?php
 include 'partials/header.php';
+
 // Start the session if not already started
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
+
 // Include the Google API Client Library
 require_once 'vendor/autoload.php'; // Ensure this path is correct
+
 // Initialize the Google Client
 $client = new Google_Client();
 $client->setAuthConfig('client.json'); // Path to your client.json
 $client->addScope('https://www.googleapis.com/auth/userinfo.profile');
 $client->addScope('https://www.googleapis.com/auth/userinfo.email');
+
 // Retrieve the refresh token from the session or cookie
 if (isset($_SESSION['refresh_token'])) {
     $refreshToken = $_SESSION['refresh_token'];
@@ -24,8 +28,10 @@ if (isset($_SESSION['refresh_token'])) {
     echo "<p>Refresh token not found in session or cookie.</p>";
     exit;
 }
+
 // Set the refresh token to the client
 $client->refreshToken($refreshToken);
+
 // Get the new access token
 $accessToken = $client->getAccessToken();
 if ($accessToken) {
@@ -52,8 +58,10 @@ if ($accessToken) {
     echo "<p>Failed to refresh access token.</p>";
     exit;
 }
+
 // Fetch user's roles and permissions from the database
 require_once 'conn-d.php'; // Ensure this path is correct
+
 // Fetch user ID from session or database
 if (isset($_SESSION['id'])) {
     $userId = $_SESSION['id'];
@@ -76,6 +84,7 @@ if (isset($_SESSION['id'])) {
         exit;
     }
 }
+
 // Fetch user roles
 $roles = [];
 $stmt = $conn->prepare("
@@ -95,6 +104,7 @@ if ($stmt) {
 } else {
     echo "<p>Failed to fetch user roles.</p>";
 }
+
 // Fetch accessible pages
 $accessiblePages = [];
 $stmt = $conn->prepare("
@@ -114,11 +124,13 @@ if ($stmt) {
 } else {
     echo "<p>Failed to fetch accessible pages.</p>";
 }
+
 // Fetch Notifications (For Display Only)
 $notifications = [
     ['title' => 'Mirësevini!', 'message' => 'Faleminderit që u bashkuat me ne.'],
     ['title' => 'Event i ardhshëm', 'message' => 'Mos harroni eventin tonë të ardhshëm të biznesit.']
 ];
+
 // Fetch Linked Accounts (For Display Only)
 $linkedAccounts = [
     ['platform' => 'Facebook', 'status' => 'E lidhur'],
@@ -132,8 +144,7 @@ $linkedAccounts = [
             <div class="card shadow-none border border-2 p-4 mb-3 rounded-5">
                 <h3 class="mb-4">Profili</h3>
                 <div class="d-flex flex-column align-items-center">
-                    <img src="<?= htmlspecialchars($profilePic) ?>" alt="Profile Picture" class="img-fluid rounded-circle mb-3" style="width:150px; height:150px; object-fit:cover;">
-                    <!-- Profile picture upload form -->
+                    <img src="<?= htmlspecialchars($profilePic ?? '') ?>" alt="Profile Picture" class="img-fluid rounded-circle mb-3" style="width:150px; height:150px; object-fit:cover;">
                     <form id="profilePicForm" enctype="multipart/form-data" class="w-100">
                         <div class="mb-3">
                             <input type="file" name="profile_pic" id="profile_pic" class="form-control" accept="image/*" required>
@@ -144,16 +155,14 @@ $linkedAccounts = [
                     </form>
                 </div>
                 <div class="mt-4 w-100">
-                    <p><strong>Emri i plotë:</strong> <?= htmlspecialchars($fullName) ?></p>
-                    <p><strong>Email:</strong> <?= htmlspecialchars($email) ?></p>
-                    <p><strong>Gjinia:</strong> <?= htmlspecialchars($gender) ?></p>
-                    <p><strong>Gjuha:</strong> <?= htmlspecialchars($locale) ?></p>
+                    <p><strong>Emri i plotë:</strong> <?= htmlspecialchars($fullName ?? 'I panjohur') ?></p>
+                    <p><strong>Email:</strong> <?= htmlspecialchars($email ?? 'I panjohur') ?></p>
+                    <p><strong>Gjinia:</strong> <?= htmlspecialchars($gender ?? 'I panjohur') ?></p>
+                    <p><strong>Gjuha:</strong> <?= htmlspecialchars($locale ?? 'E panjohur') ?></p>
                     <p><strong>Roli:</strong> <?= !empty($roles) ? htmlspecialchars(implode(', ', $roles)) : 'Asnjë Roli' ?></p>
                 </div>
             </div>
-            <!-- Accordion for Additional Sections -->
             <div class="accordion" id="accountAccordion">
-                <!-- Accessible Pages Section -->
                 <div class="accordion-item">
                     <h2 class="accordion-header" id="headingAccessiblePages">
                         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAccessiblePages" aria-expanded="false" aria-controls="collapseAccessiblePages">
@@ -166,7 +175,7 @@ $linkedAccounts = [
                                 <ul class="list-group">
                                     <?php foreach ($accessiblePages as $page): ?>
                                         <li class="list-group-item">
-                                            <a href="<?= htmlspecialchars($page) ?>" class="text-decoration-none"><?= htmlspecialchars(ucwords(str_replace('_', ' ', basename($page, '.php')))) ?></a>
+                                            <a href="<?= htmlspecialchars($page ?? '') ?>" class="text-decoration-none"><?= htmlspecialchars(ucwords(str_replace('_', ' ', basename($page, '.php')))) ?></a>
                                         </li>
                                     <?php endforeach; ?>
                                 </ul>
@@ -176,7 +185,6 @@ $linkedAccounts = [
                         </div>
                     </div>
                 </div>
-                <!-- Roles Section -->
                 <div class="accordion-item">
                     <h2 class="accordion-header" id="headingRoles">
                         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseRoles" aria-expanded="false" aria-controls="collapseRoles">
@@ -188,7 +196,7 @@ $linkedAccounts = [
                             <?php if (!empty($roles)): ?>
                                 <ul class="list-group">
                                     <?php foreach ($roles as $role): ?>
-                                        <li class="list-group-item"><?= htmlspecialchars($role) ?></li>
+                                        <li class="list-group-item"><?= htmlspecialchars($role ?? '') ?></li>
                                     <?php endforeach; ?>
                                 </ul>
                             <?php else: ?>
@@ -197,7 +205,6 @@ $linkedAccounts = [
                         </div>
                     </div>
                 </div>
-                <!-- Notifications Section -->
                 <div class="accordion-item">
                     <h2 class="accordion-header" id="headingNotifications">
                         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseNotifications" aria-expanded="false" aria-controls="collapseNotifications">
@@ -210,8 +217,8 @@ $linkedAccounts = [
                                 <ul class="list-group">
                                     <?php foreach ($notifications as $notification): ?>
                                         <li class="list-group-item">
-                                            <strong><?= htmlspecialchars($notification['title']) ?></strong>
-                                            <p class="mb-0"><?= htmlspecialchars($notification['message']) ?></p>
+                                            <strong><?= htmlspecialchars($notification['title'] ?? '') ?></strong>
+                                            <p class="mb-0"><?= htmlspecialchars($notification['message'] ?? '') ?></p>
                                         </li>
                                     <?php endforeach; ?>
                                 </ul>
@@ -228,7 +235,6 @@ $linkedAccounts = [
 <?php include 'partials/footer.php'; ?>
 <script>
     $(document).ready(function() {
-        // Handle profile picture upload via AJAX
         $('#profilePicForm').on('submit', function(e) {
             e.preventDefault();
             var formData = new FormData(this);
@@ -238,7 +244,7 @@ $linkedAccounts = [
                 data: formData,
                 contentType: false,
                 processData: false,
-                dataType: 'json', // Ensure jQuery parses the response as JSON
+                dataType: 'json',
                 beforeSend: function() {
                     Swal.fire({
                         title: 'Duke ngarkuar...',
@@ -258,7 +264,6 @@ $linkedAccounts = [
                             showConfirmButton: false,
                             timer: 2000
                         }).then(() => {
-                            // Update the profile picture on the page
                             $('img[alt="Profile Picture"]').attr('src', res.profile_pic + '?t=' + new Date().getTime());
                         });
                     } else {
@@ -275,7 +280,6 @@ $linkedAccounts = [
                         title: 'Gabim',
                         text: 'Ka ndodhur një gabim gjatë ngarkimit të foton.'
                     });
-                    // Optionally, log the error details for debugging
                     console.error('AJAX Error:', textStatus, errorThrown);
                 }
             });
