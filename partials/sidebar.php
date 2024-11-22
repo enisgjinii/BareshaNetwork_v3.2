@@ -208,7 +208,7 @@
       ],
       [
         "title" => "Facebook",
-        "icon" => "fa-brands fa-facebook menu-icon pe-3",
+        "icon" => "fi fi-brands-facebook menu-icon pe-3",
         "collapseId" => "facebook",
         "menuItems" => [
           "vegla_facebook.php" => ["title" => "Vegla Facebook"],
