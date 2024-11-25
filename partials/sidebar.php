@@ -174,7 +174,6 @@
         "icon" => "fi fi-rr-calculator-money menu-icon pe-3",
         "collapseId" => "kontabiliteti",
         "menuItems" => [
-          "pasqyrat.php" => ["title" => "Pasqyrat"],
           "pagesat_punetor.php" => ["title" => "Pagesat e punëtorëve"],
           "shpenzimet_objekt.php" => ["title" => "Shpenzimet e objektit"],
           "ttatimi.php" => ["title" => "Tatimet"],
@@ -188,9 +187,6 @@
         "collapseId" => "quicklyTool",
         "menuItems" => [
           "filet.php" => ["title" => "Dokumente tjera"],
-          "notes.php" => ["title" => "Shenime"],
-          "takimet.php" => ["title" => "Takimet"],
-          "klient_CSV.php" => ["title" => "Klient CSV"],
           "logs.php" => ["title" => "Logs"],
         ],
       ],

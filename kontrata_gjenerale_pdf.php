@@ -3,12 +3,10 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 include_once 'conn-d.php';
-
 function sanitizeInput($data)
 {
     return htmlspecialchars(strip_tags(trim($data)));
 }
-
 function fetchContract($conn, $id)
 {
     $stmt = $conn->prepare("SELECT * FROM kontrata_gjenerale WHERE id = ?");
@@ -24,7 +22,6 @@ function fetchContract($conn, $id)
     $stmt->close();
     return $contract;
 }
-
 function updateSignature($conn, $id, $signatureData)
 {
     if (!file_exists('signatures/')) {
@@ -49,12 +46,10 @@ function updateSignature($conn, $id, $signatureData)
     $stmt->close();
     return true;
 }
-
 $id = isset($_GET['id']) ? intval($_GET['id']) : null;
 $contract = null;
 $errors = [];
 $successMessage = "";
-
 try {
     if (!$id) {
         throw new Exception("ID nuk është caktuar!");
@@ -81,7 +76,6 @@ try {
 ?>
 <!doctype html>
 <html lang="en">
-
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -99,7 +93,6 @@ try {
             font-size: 13px;
             /* Reduced font size for compactness */
         }
-
         .contract-container {
             background: #ffffff;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -115,20 +108,17 @@ try {
             margin: auto;
             /* Center the container */
         }
-
         .contract-header {
             text-align: center;
             margin-bottom: 15px;
             /* Reduced bottom margin */
         }
-
         .contract-header img {
             width: 80px;
             /* Reduced image width */
             margin-bottom: 5px;
             /* Reduced bottom margin */
         }
-
         .contract-title {
             font-size: 20px;
             /* Reduced font size */
@@ -140,12 +130,10 @@ try {
             margin-bottom: 5px;
             /* Reduced bottom margin */
         }
-
         .contract-section {
             margin-bottom: 15px;
             /* Reduced bottom margin */
         }
-
         .contract-section p {
             line-height: 1.5;
             /* Slightly reduced line height */
@@ -153,17 +141,14 @@ try {
             margin-bottom: 8px;
             /* Added bottom margin for spacing */
         }
-
         .contract-section p strong {
             color: #2c3e50;
         }
-
         .signature-section img {
             width: 150px;
             /* Reduced image width */
             height: auto;
         }
-
         .form-section {
             background: #f9f9f9;
             padding: 15px;
@@ -175,7 +160,6 @@ try {
             margin-top: 15px;
             /* Added top margin */
         }
-
         .form-section h5 {
             margin-bottom: 15px;
             /* Reduced bottom margin */
@@ -184,7 +168,6 @@ try {
             font-size: 16px;
             /* Reduced font size */
         }
-
         .alert-success,
         .alert-danger,
         .alert-info {
@@ -195,22 +178,18 @@ try {
             font-size: 13px;
             /* Reduced font size */
         }
-
         .signature-section.row {
             margin-top: 20px;
             /* Adjusted top margin */
         }
-
         .signature-section .col-md-6 {
             margin-bottom: 15px;
             /* Added bottom margin for spacing on smaller screens */
         }
-
         .signature-section .border-bottom {
             border-bottom: 1px solid #ccc;
             padding-bottom: 3px;
         }
-
         .btn-download {
             display: inline-block;
             padding: 6px 12px;
@@ -223,78 +202,66 @@ try {
             color: #ffffff;
             text-decoration: none;
         }
-
         .btn-download:hover {
             background-color: #1a252f;
         }
-
         .no-print {
             /* Elements with this class will be hidden in print */
         }
-
+        .print-overlay {
+            display: none;
+        }
+        /* Print-specific Styles */
         @media print {
-            body {
-                background: #ffffff;
+            /* Hide non-print elements */
+            .no-print {
+                display: none !important;
             }
-
+            /* Print Overlay */
+            .print-overlay {
+                display: block;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                z-index: -1;
+            }
+            .print-overlay img {
+                width: 100%;
+                height: 40%;
+                object-fit: cover;
+                opacity: 0.1;
+                /* Adjust for readability */
+                /* Center the image on the page */
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%) rotate(45deg);
+                /* Center and rotate */
+                /* Ensure it doesn't interfere with other elements */
+                z-index: -1;
+            }
+            /* Adjust contract container */
             .contract-container {
                 box-shadow: none;
                 border: none;
                 padding: 15px;
-                /* Further reduced padding for print */
                 max-width: 100%;
+                background: transparent;
             }
-
-            .no-print {
-                display: none !important;
-                /* Hide non-essential elements */
-            }
-
-            .contract-header img {
-                width: 60px;
-                /* Further reduced image size */
-            }
-
-            .contract-title {
-                font-size: 18px;
-                /* Further reduced font size */
-            }
-
-            .contract-section p {
-                font-size: 12px;
-                /* Further reduced font size */
-            }
-
-            .signature-section img {
-                width: 120px;
-                /* Further reduced image size */
-            }
-
-            .form-section {
-                display: none;
-                /* Hide the signature form in print */
-            }
-
-            .alert-success,
-            .alert-danger,
-            .alert-info {
-                display: none;
-                /* Hide alerts in print */
+            /* Optional: Adjust font sizes for print */
+            body {
+                font-size: 14px;
             }
         }
     </style>
-    <script>
-        // Prevent default print dialog on Ctrl+P and trigger print via JS
-        window.addEventListener('keydown', function(event) {
-            if (event.ctrlKey && event.key.toLowerCase() === 'p') {
-                event.preventDefault();
-                window.print();
-            }
-        });
-    </script>
 </head>
-
 <body>
+    <!-- Print Overlay -->
+    <div class="print-overlay">
+        <img src="background-overlay.png" alt="Background Overlay">
+    </div>
     <?php if ($successMessage): ?>
         <div class="alert alert-success text-center no-print" role="alert">
             <?php echo $successMessage; ?>
@@ -324,11 +291,17 @@ try {
                         <p class="fw-bold">Date – Datë: <?php echo htmlspecialchars($contract['data_e_krijimit']); ?></p>
                     </div>
                 </div>
-                <hr>
+                <hr style="border-top: 1px solid red;">
                 <div class="row mb-2">
                     <div class="col">
                         <p>This document specifies the terms and conditions of the agreement between <strong>Baresha Music SH.P.K</strong>, located at Rr. Brigada 123 nr. 23 in Suharekë, represented by <strong>AFRIM KOLGECI, CEO-FOUNDER of Baresha Music</strong>, and <strong>ARTIST: <?php echo htmlspecialchars($artisti['emriart']); ?></strong>, a citizen of <strong><?php echo htmlspecialchars($contract['shteti']); ?></strong>, with personal identification number <strong><?php echo htmlspecialchars($contract['numri_personal']); ?></strong>. <?php echo htmlspecialchars($artisti['emriart']); ?> will be representing themselves on the other side of this agreement through their YouTube channel identified by the YouTube ID - <strong><?php echo htmlspecialchars($artisti['youtube']); ?></strong> and the Channel name - <strong><?php echo htmlspecialchars($artisti['emriart']); ?></strong>.</p>
                         <p>The terms and conditions outlined in this contract pertain to the contractual relationship as a whole between the two parties.</p>
+                    </div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col">
+                        <p>Ky dokument përcakton termat dhe kushtet e marrëveshjes midis <strong>Baresha Music SH.P.K</strong>, e vendosur në Rr. Brigada 123 nr. 23 në Suharekë, e përfaqësuar nga <strong>AFRIM KOLGECI, CEO-THEMELUES i Baresha Music</strong>, dhe <strong>ARTISTI: <?php echo htmlspecialchars($artisti['emriart']); ?></strong>, shtetas i <strong><?php echo htmlspecialchars($contract['shteti']); ?></strong>, me numër personal identifikimi <strong><?php echo htmlspecialchars($contract['numri_personal']); ?></strong>. <?php echo htmlspecialchars($artisti['emriart']); ?> do të përfaqësojë veten në anën tjetër të kësaj marrëveshjeje përmes kanalit të tyre në YouTube të identifikuar nga ID-ja e YouTube - <strong><?php echo htmlspecialchars($artisti['youtube']); ?></strong> dhe emri i Kanalit - <strong><?php echo htmlspecialchars($artisti['emriart']); ?></strong>.</p>
+                        <p>Termat dhe kushtet e përfshira në këtë kontratë kanë të bëjnë me marrëdhënien kontraktuale në tërësi midis dy palëve.</p>
                     </div>
                 </div>
             </div>
@@ -774,7 +747,7 @@ try {
                     ],
                 ];
                 foreach ($articles as $article) {
-                    echo "<p class='fw-bold'>{$article['title_eng']}</p>";
+                    echo "<p class='fw-bold'>{$article['title_eng']} / {$article['title_alb']}</p>";
                     foreach ($article['content'] as $content) {
                         echo "<p>{$content['text']}</p>";
                         if (isset($content['list']) && is_array($content['list'])) {
@@ -785,35 +758,51 @@ try {
                             echo "</ul>";
                         }
                     }
-                    echo "<hr>";
+                    echo "<hr style='border: 1px solid red;'>";
                 }
                 ?>
             </div>
-            <div class="signature-section row mt-4">
-                <div class="col-md-6 text-center">
+            <div class="signature-section row mt-5">
+                <!-- Baresha Music Signature -->
+                <div class="col-md-4 text-center">
                     <p><strong>Baresha Music SH.P.K.</strong></p>
                     <p><strong>Nënshkrimi:</strong></p>
                     <p class="border-bottom">
                         <?php
                         $bm_signature = 'signatures/bm_signature.png';
                         if (file_exists($bm_signature)) {
-                            echo '<img src="' . htmlspecialchars($bm_signature) . '" alt="Baresha Signature" style="width: 150px; height: auto;">';
+                            echo '<img src="' . sanitizeInput($bm_signature) . '" alt="Baresha Signature" class="img-fluid" style="max-width: 200px; height: auto;">';
                         } else {
-                            echo 'Nënshkrimi nuk është caktuar.';
+                            echo '<br>';
                         }
                         ?>
                     </p>
                 </div>
-                <div class="col-md-6 text-center">
+                <!-- Company Stamp -->
+                <div class="col-md-4 text-center d-flex flex-column justify-content-center align-items-center">
+                    <p><strong></strong></p>
+                    <p>
+                        <?php
+                        $company_stamp = 'images/vula.png';
+                        if (file_exists($company_stamp)) {
+                            echo '<img src="' . sanitizeInput($company_stamp) . '" alt="Company Stamp" class="img-fluid" style="max-width: 150px; height: auto;">';
+                        } else {
+                            echo '<br>';
+                        }
+                        ?>
+                    </p>
+                </div>
+                <!-- Artist Signature -->
+                <div class="col-md-4 text-center">
                     <p><strong>ARTISTI/Artisti</strong></p>
                     <p><strong>Nënshkrimi:</strong></p>
                     <p class="border-bottom">
                         <?php
-                        $artistSignature = $contract['nenshkrimi'];
+                        $artistSignature = sanitizeInput($contract['nenshkrimi']);
                         if ($artistSignature && file_exists($artistSignature)) {
-                            echo '<img src="' . htmlspecialchars($artistSignature) . '" alt="Artisti Signature" style="width: 150px; height: auto;">';
+                            echo '<img src="' . $artistSignature . '" alt="Artisti Signature" class="img-fluid" style="max-width: 200px; height: auto;">';
                         } else {
-                            echo 'Nënshkrimi nuk është caktuar.';
+                            echo '<br>';
                         }
                         ?>
                     </p>
@@ -866,11 +855,9 @@ try {
             backgroundColor: 'rgba(255, 255, 255, 0)',
             penColor: 'rgba(0, 0, 0, 1)'
         });
-
         function clearSignaturePad() {
             signaturePad.clear();
         }
-
         const signatureForm = document.querySelector('.contract-container form');
         if (signatureForm) {
             signatureForm.addEventListener('submit', function(event) {
@@ -888,5 +875,4 @@ try {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.3.0/mdb.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 </body>
-
 </html>
