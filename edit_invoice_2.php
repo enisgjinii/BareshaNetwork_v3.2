@@ -3,12 +3,14 @@ session_start();
 include('partials/header.php');
 include 'Invoice_2.php';
 $invoice = new Invoice();
+
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['companyName']) && !empty($_POST['invoiceId'])) {
 	$invoice->updateInvoice($_POST);
 	header("Location: invoice_list_2.php");
 	exit();
 }
+
 // Fetch invoice data if updating
 if (!empty($_GET['update_id'])) {
 	$invoiceValues = $invoice->getInvoice($_GET['update_id']);
@@ -17,12 +19,14 @@ if (!empty($_GET['update_id'])) {
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 	<meta charset="UTF-8">
 	<title>Update Invoice</title>
 	<link href="css/style.css" rel="stylesheet">
 	<script src="invoice.js" defer></script>
 </head>
+
 <body>
 	<div class="main-panel">
 		<div class="content-wrapper">
@@ -202,8 +206,9 @@ if (!empty($_GET['update_id'])) {
 						</div>
 						<!-- Invoice Totals Section -->
 						<div class="col-lg-4">
+							<!-- Qmimi pa TVSH (Subtotal) -->
 							<div class="form-group mb-2">
-								<label for="subTotal">Nëntotali:</label>
+								<label for="subTotal">Qmimi pa TVSH:</label>
 								<div class="input-group input-group-sm">
 									<span class="input-group-text">$</span>
 									<input
@@ -217,23 +222,10 @@ if (!empty($_GET['update_id'])) {
 										required>
 								</div>
 							</div>
+
+							<!-- TVSH-ja (Tax Amount) -->
 							<div class="form-group mb-2">
-								<label for="taxRate">Norma e tatimit:</label>
-								<div class="input-group input-group-sm">
-									<input
-										type="number"
-										class="form-control rounded-5"
-										name="taxRate"
-										id="taxRate"
-										value="<?= htmlspecialchars($invoiceValues['order_tax_per'] ?? '') ?>"
-										step="0.01"
-										min="0"
-										required>
-									<span class="input-group-text">%</span>
-								</div>
-							</div>
-							<div class="form-group mb-2">
-								<label for="taxAmount">Shuma e tatimit:</label>
+								<label for="taxAmount">TVSH-ja:</label>
 								<div class="input-group input-group-sm">
 									<span class="input-group-text">$</span>
 									<input
@@ -247,8 +239,10 @@ if (!empty($_GET['update_id'])) {
 										required>
 								</div>
 							</div>
+
+							<!-- Totali (Total after Tax) -->
 							<div class="form-group mb-2">
-								<label for="totalAftertax">Total:</label>
+								<label for="totalAftertax">Totali:</label>
 								<div class="input-group input-group-sm">
 									<span class="input-group-text">$</span>
 									<input
@@ -262,6 +256,8 @@ if (!empty($_GET['update_id'])) {
 										required>
 								</div>
 							</div>
+
+							<!-- Existing Totals Fields -->
 							<div class="form-group mb-2">
 								<label for="amountPaid">Shuma e paguar:</label>
 								<div class="input-group input-group-sm">
@@ -300,4 +296,5 @@ if (!empty($_GET['update_id'])) {
 	</div>
 	<?php include 'partials/footer.php'; ?>
 </body>
+
 </html>

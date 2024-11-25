@@ -46,7 +46,7 @@ function generateInvoiceNumber()
           </ul>
         </div>
       </div>
-      <div>  
+      <div>
         <?php
         $buttons = [
           ['icon' => 'fi fi-rr-add-document fa-lg', 'text' => 'Fatur&euml; e re', 'target' => '#newInvoice']
@@ -329,7 +329,6 @@ function generateInvoiceNumber()
 </div>
 <script src="pro_invoice.js"></script>
 <script src="percentage_calculations.js"></script>
-<!-- <script src="create_manual_invoice.js"></script> -->
 <script>
   // Flatpickr date picker initialization options
   const flatpickrOptions = {
@@ -782,7 +781,9 @@ function generateInvoiceNumber()
         {
           data: null,
           render: function(data, type, row) {
-            const amounts = [{
+            const amounts = [
+              /*
+              {
                 amount: row.total_amount,
                 currency: row.total_amount_currency || '$'
               },
@@ -794,7 +795,7 @@ function generateInvoiceNumber()
                 amount: row.total_amount_in_eur,
                 currency: '€',
                 condition: row.total_amount_in_eur
-              },
+              },*/
               {
                 amount: row.total_amount_in_eur_after_percentage,
                 currency: '€',
@@ -1098,4 +1099,4 @@ function generateInvoiceNumber()
 <?php include 'partials/footer.php' ?>
 </body>
 
-</html> 
+</html>
