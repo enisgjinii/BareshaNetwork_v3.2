@@ -77,13 +77,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ruaj'])) {
         exit;
       }
     }
-
-    // Prepare SQL insert statement
-    // Ensure that 'cover' and 'channelID' columns exist in your 'ngarkimi' table
     $insertQuery = "INSERT INTO ngarkimi 
-            (kengetari, emri, teksti, muzika, orkestra, co, cover, facebook, instagram, veper, klienti, platforma, platformat, linku, data, gjuha, infosh, nga, linkuplat, channelID) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-    $types = str_repeat('s', 20);
+            (kengetari, emri, teksti, muzika, orkestra, co, facebook, instagram, veper, klienti, platforma, platformat, linku, data, gjuha, infosh, nga, linkuplat) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    $types = str_repeat('s', 18);
     $data  = [
       $kengetari,
       $emri,
@@ -91,7 +88,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ruaj'])) {
       $muzika,
       $orkestra,
       $co,
-      $cover,
       $facebook,
       $instagram,
       $veper,
@@ -103,8 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ruaj'])) {
       $gjuha,
       $infosh,
       $nga,
-      $linkuplat,
-      $channelID
+      $linkuplat
     ];
     $stmt = $conn->prepare($insertQuery);
     if ($stmt) {
