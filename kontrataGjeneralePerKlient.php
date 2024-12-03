@@ -99,6 +99,20 @@ try {
             font-size: 13px;
             /* Reduced font size for compactness */
         }
+        /* Custom modal backdrop with blur effect */
+        .modal-backdrop.show {
+            background-color: rgba(0, 0, 0, 0.5);
+            /* Semi-transparent background */
+            -webkit-backdrop-filter: blur(25px);
+            backdrop-filter: blur(25px);
+        }
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
         .contract-container {
             background: #ffffff;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -261,9 +275,23 @@ try {
                 font-size: 14px;
             }
         }
+        #blurOverlay {
+            display: none;
+            /* Hidden by default */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1040;
+            /* Below the modal (1050) but above other content */
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
     </style>
 </head>
 <body>
+    <div id="blurOverlay"></div>
     <!-- Print Overlay -->
     <div class="print-overlay">
         <img src="background-overlay.png" alt="Background Overlay">
@@ -304,6 +332,29 @@ try {
                         <p><strong>Shqip. :</strong></p>
                         <p>Ky dokument specifikon kushtet dhe kushtëzimet e marrëveshjes midis <strong>Baresha Music SH.P.K</strong>, me adresë Rr. Brigada 123 nr. 23 në Suharekë, e përfaqësuar nga <strong>AFRIM KOLGECI, CEO-FOUNDER i Baresha Music</strong>, dhe <strong>ARTISTI: <?php echo sanitizeInput($artisti['emriart'] ?? ''); ?></strong>, qytetar i <strong><?php echo sanitizeInput($contract['shteti'] ?? ''); ?></strong>, me numër personal identifikimi <strong><?php echo sanitizeInput($contract['numri_personal'] ?? ''); ?></strong>. <?php echo sanitizeInput($artisti['emriart'] ?? ''); ?> do të përfaqësohet nga ana e tyre në këtë marrëveshje përmes kanalit të tyre në YouTube të identifikuar me YouTube ID - <strong><?php echo sanitizeInput($contract['youtube_id'] ?? ''); ?></strong> dhe emrin e kanalit - <strong><?php echo sanitizeInput($artisti['emriart'] ?? ''); ?></strong>.</p>
                         <p>Kushtet dhe kushtëzimet e përcaktuara në këtë kontratë lidhen me marrëdhënien kontraktuale në tërësi midis dy palëve.</p>
+                    </div>
+                </div>
+            </div>
+            <?php
+            $showModal = empty($contract['nenshkrimi']) ? 'true' : 'false';
+            ?>
+            <!-- Bootstrap Modal -->
+            <div class="modal fade" id="verifyModal" tabindex="-1" aria-labelledby="verifyModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="verifyModalLabel">Kërkohet verifikimi</h5>
+                        </div>
+                        <div class="modal-body">
+                            <form id="verificationForm">
+                                <div class="mb-3">
+                                    <label for="numriPersonalInput" class="form-label">Shënoni numrin tuaj personal</label>
+                                    <input type="text" class="form-control" id="numriPersonalInput" required>
+                                    <div id="errorMessage" class="text-danger mt-2" style="display:none;">Numri Personal nuk përputhet!</div>
+                                </div>
+                                <button type="button" class="btn btn-primary" id="verifyButton">Verifiko</button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -773,15 +824,16 @@ try {
                     </div>
                 <?php endif; ?>
             </div>
+            <!-- Signature Form -->
             <?php if (empty($contract['nenshkrimi'])): ?>
                 <div class="form-section mt-4 no-print">
                     <h5>Vendosni Nënshkrimin / Add Your Signature</h5>
-                    <form method="POST" enctype="multipart/form-data">
+                    <form method="POST" enctype="multipart/form-data" id="signatureForm">
                         <div class="mb-3">
                             <canvas id="signature" width="400" height="200" class="border rounded"></canvas>
                             <input type="hidden" name="signatureData" id="signatureData">
                         </div>
-                        <button type="submit" class="btn btn-primary me-2">
+                        <button type="submit" class="btn btn-primary me-2" id="submitSignature" disabled>
                             <i class="fas fa-paper-plane"></i> Dërgo / Submit
                         </button>
                         <button type="button" class="btn btn-secondary" onclick="clearSignaturePad()">
@@ -805,17 +857,76 @@ try {
         </div>
     <?php endif; ?>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/signature_pad/1.5.3/signature_pad.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/signature_pad/1.5.3/signature_pad.min.js"></script>
     <script>
-        const canvas = document.getElementById('signature');
-        const signaturePad = new SignaturePad(canvas, {
-            backgroundColor: 'rgba(255, 255, 255, 0)',
-            penColor: 'rgba(0, 0, 0, 1)'
-        });
-        function clearSignaturePad() {
-            signaturePad.clear();
-        }
-        const signatureForm = document.querySelector('.contract-container form');
-        if (signatureForm) {
+        document.addEventListener("DOMContentLoaded", function() {
+            // Existing variables...
+            const verifyButton = document.getElementById('verifyButton');
+            const numriPersonalInput = document.getElementById('numriPersonalInput');
+            const errorMessage = document.getElementById('errorMessage');
+            const signatureForm = document.getElementById('signatureForm');
+            const submitSignature = document.getElementById('submitSignature');
+            const numriPersonal = "<?php echo sanitizeInput($contract['numri_personal'] ?? ''); ?>";
+            const showModal = <?php echo empty($contract['nenshkrimi']) ? 'true' : 'false'; ?>;
+            // Initialize Bootstrap Modal
+            const verifyModal = new bootstrap.Modal(document.getElementById('verifyModal'), {
+                backdrop: 'static',
+                keyboard: false
+            });
+            // Get the overlay element
+            const blurOverlay = document.getElementById('blurOverlay');
+            const modalElement = document.getElementById('verifyModal');
+            // Show the overlay when modal is shown
+            modalElement.addEventListener('show.bs.modal', function() {
+                blurOverlay.style.display = 'block';
+            });
+            // Hide the overlay when modal is hidden
+            modalElement.addEventListener('hide.bs.modal', function() {
+                blurOverlay.style.display = 'none';
+            });
+            // Function to check if user is verified within the last hour
+            function isUserVerified() {
+                const verificationTimestamp = localStorage.getItem('verificationTimestamp');
+                if (verificationTimestamp) {
+                    const currentTime = new Date().getTime();
+                    const timeDifference = currentTime - verificationTimestamp;
+                    // Check if the time difference is less than 1 hour (3600000 milliseconds)
+                    if (timeDifference < 3600000) {
+                        return true;
+                    } else {
+                        // Remove outdated timestamp
+                        localStorage.removeItem('verificationTimestamp');
+                        return false;
+                    }
+                }
+                return false;
+            }
+            // Automatically show modal if nenshkrimi is empty and user is not verified
+            if (showModal && !isUserVerified()) {
+                verifyModal.show();
+            } else {
+                // User is verified, enable the submit button
+                submitSignature.disabled = false;
+            }
+            // Handle verification logic
+            verifyButton.addEventListener('click', function() {
+                const enteredNumri = numriPersonalInput.value.trim();
+                if (enteredNumri === numriPersonal) {
+                    errorMessage.style.display = 'none';
+                    verifyModal.hide();
+                    // Enable the submit button
+                    submitSignature.disabled = false;
+                    // Disable the verification form
+                    document.getElementById('verificationForm').querySelectorAll('input, button').forEach(elem => {
+                        elem.disabled = true;
+                    });
+                    // Store verification timestamp in localStorage
+                    localStorage.setItem('verificationTimestamp', new Date().getTime());
+                } else {
+                    errorMessage.style.display = 'block';
+                }
+            });
+            // Prevent form submission without signature
             signatureForm.addEventListener('submit', function(event) {
                 if (signaturePad.isEmpty()) {
                     alert("Ju lutem nënshkruani kontratën para se ta dërgoni / Please add your signature before submitting.");
@@ -825,7 +936,7 @@ try {
                     document.getElementById('signatureData').value = signatureData;
                 }
             });
-        }
+        });
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.3.0/mdb.min.js"></script>
