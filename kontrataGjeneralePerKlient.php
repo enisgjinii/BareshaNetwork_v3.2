@@ -5,6 +5,9 @@ error_reporting(E_ALL);
 include_once 'conn-d.php';
 function sanitizeInput($data)
 {
+    if ($data === null) {
+        return '';
+    }
     return htmlspecialchars(strip_tags(trim($data)), ENT_QUOTES, 'UTF-8');
 }
 function fetchContract($conn, $id)
