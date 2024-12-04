@@ -180,14 +180,14 @@ GROUP BY y.kanali";
                                                         mysqli_stmt_execute($salesHistoryStmt);
                                                         $salesHistoryResult = mysqli_stmt_get_result($salesHistoryStmt);
 
-                                                        $rowIndex = 0; // Variable to track the row index
-                                                        $totalSumUSD = 0; // Total Sum in USD
-                                                        $totalSumAfterPercentageUSD = 0; // Total Sum After Percentage in USD
-                                                        $totalSumEUR = 0; // Total Sum in EUR
-                                                        $totalSumAfterPercentageEUR = 0; // Total Sum After Percentage in EUR
+                                                        $rowIndex = 0; 
+                                                        $totalSumUSD = 0; 
+                                                        $totalSumAfterPercentageUSD = 0;
+                                                        $totalSumEUR = 0;
+                                                        $totalSumAfterPercentageEUR = 0; 
 
                                                         while ($sales = mysqli_fetch_assoc($salesHistoryResult)) {
-                                                            // Fetch customer details
+                                                            
                                                             $sql_user = "SELECT * FROM klientet WHERE id = ?";
                                                             $result_user_stmt = mysqli_prepare($conn, $sql_user);
                                                             mysqli_stmt_bind_param($result_user_stmt, "i", $sales["customer_id"]);
@@ -195,13 +195,12 @@ GROUP BY y.kanali";
                                                             $result_user = mysqli_stmt_get_result($result_user_stmt);
                                                             $row_user = mysqli_fetch_assoc($result_user);
 
-                                                            // Accumulate totals
                                                             $totalSumUSD += $sales["total_amount"];
                                                             $totalSumAfterPercentageUSD += $sales["total_amount_after_percentage"];
                                                             $totalSumEUR += $sales["total_amount_in_eur"];
                                                             $totalSumAfterPercentageEUR += $sales["total_amount_in_eur_after_percentage"];
 
-                                                            // Format amounts
+                                                            
                                                             $formattedTotalUSD = number_format($sales["total_amount"], 2) . " USD";
                                                             $formattedTotalAfterPercentageUSD = number_format($sales["total_amount_after_percentage"], 2) . " USD";
                                                             $formattedTotalEUR = number_format($sales["total_amount_in_eur"], 2) . " EUR";
@@ -395,6 +394,7 @@ GROUP BY y.kanali";
                         },
                     });
                     $('#salesHistory').DataTable({
+                        responsive:true,
                         initComplete: function() {
                             var btns = $(".dt-buttons");
                             btns.addClass("").removeClass("dt-buttons btn-group");
