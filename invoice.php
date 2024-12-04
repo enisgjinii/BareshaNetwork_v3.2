@@ -68,6 +68,7 @@ function generateInvoiceNumber()
                 <div class="modal-body text-dark">
                   <form action="api/post_methods/post_create_invoice.php" method="POST" enctype="multipart/form-data">
                     <input type="hidden" id="invoice_number" name="invoice_number" value="<?php echo generateInvoiceNumber(); ?>" readonly required>
+
                     <div class="mb-3">
                       <label for="customer_id" class="form-label">Emri i klientit:</label>
                       <select class="form-control rounded-5 shadow-sm py-3" id="customer_id" name="customer_id" required>
@@ -79,31 +80,39 @@ function generateInvoiceNumber()
                         ?>
                       </select>
                     </div>
+
                     <?php
                     function renderFormGroup($label, $input)
                     {
                       echo "<div class='mb-3'><label class='form-label'>{$label}</label>{$input}</div>";
                     }
+
                     function renderAmountInput($label, $prefix, $id, $name)
                     {
                       echo "<div class='col'><label for='{$id}' class='form-label'>{$label}</label><div class='input-group'><span class='input-group-text bg-white border-1 me-2 rounded-5'>{$prefix}</span><input type='number' step='0.01' class='form-control rounded-end shadow-none py-3' id='{$id}' name='{$name}' required></div></div>";
                     }
+
                     renderFormGroup('Përshkrimi:', '<textarea class="form-control rounded-5 shadow-sm py-3" id="item" name="item" required></textarea>');
                     renderFormGroup('Lloji:', '<select class="form-control rounded-5 shadow-sm py-3" name="type" id="type"><option value="individual">Individual</option><option value="grupor">Grupor</option></select>');
                     renderFormGroup('Përqindja:', '<input type="number" min="0" max="100" class="form-control rounded-5 shadow-none py-3" id="percentage" name="percentage" required>');
                     ?>
-                    <div class="row mb-3">
-                      <?php
-                      renderAmountInput('Shuma e përgjithshme:', '$', 'total_amount', 'total_amount');
-                      renderAmountInput('Shuma e përgjithshme pas përqindjes:', '$', 'total_amount_after_percentage', 'total_amount_after_percentage');
-                      ?>
-                    </div>
+
+                    <!-- EUR Amount Inputs First -->
                     <div class="row mb-3">
                       <?php
                       renderAmountInput('Shuma e përgjithshme - EUR:', '€', 'total_amount_in_eur', 'total_amount_in_eur');
                       renderAmountInput('Shuma e përgjithshme pas përqindjes - EUR:', '€', 'total_amount_after_percentage_in_eur', 'total_amount_after_percentage_in_eur');
                       ?>
                     </div>
+
+                    <!-- USD Amount Inputs Below -->
+                    <div class="row mb-3">
+                      <?php
+                      renderAmountInput('Shuma e përgjithshme:', '$', 'total_amount', 'total_amount');
+                      renderAmountInput('Shuma e përgjithshme pas përqindjes:', '$', 'total_amount_after_percentage', 'total_amount_after_percentage');
+                      ?>
+                    </div>
+
                     <div class="row mb-3">
                       <div class="col">
                         <div class="mb-3">
@@ -121,61 +130,80 @@ function generateInvoiceNumber()
                         </div>
                       </div>
                     </div>
+
                     <button type="submit" class="btn btn-primary btn-sm text-white rounded-5 shadow">Krijo faturë</button>
                   </form>
                 </div>
               </div>
             </div>
           </div>
+
           <script>
             document.addEventListener('DOMContentLoaded', () => {
-              const convertToEUR = async (a, o) => {
-                  if (isNaN(a) || a <= 0) {
-                    document.getElementById(o).value = '';
-                    return;
-                  }
-                  try {
-                    const r = await fetch(`https://api.exconvert.com/convert?from=USD&to=EUR&amount=${a}&access_key=7ac9d0d8-2c2a1729-0a51382b-b85cd112`),
-                      d = await r.json();
-                    document.getElementById(o).value = d.result?.EUR ? d.result.EUR.toFixed(2) : 'N/A';
-                  } catch {
-                    document.getElementById(o).value = 'Error';
-                  }
-                },
-                calculate = () => {
-                  const t = parseFloat(total_amount.value) || 0,
-                    p = parseFloat(percentage.value) || 0,
-                    a = t - (p * t / 100);
-                  total_amount_after_percentage.value = a.toFixed(2);
-                  convertToEUR(t, 'total_amount_in_eur');
-                  convertToEUR(a, 'total_amount_after_percentage_in_eur');
-                },
-                fetchClient = async (id) => {
-                    if (!id) return;
-                    try {
-                      const r = await fetch('api/get_methods/get_check_client_type.php', {
-                          method: 'POST',
-                          headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded'
-                          },
-                          body: new URLSearchParams({
-                            customer_id: id
-                          })
-                        }),
-                        d = await r.json();
-                      type.value = d.status === 'success' ? d.type : 'individual';
-                    } catch {
-                      type.value = 'individual';
-                    }
-                  },
-                  customer_id = document.getElementById('customer_id'),
-                  percentage = document.getElementById('percentage'),
-                  total_amount = document.getElementById('total_amount'),
-                  total_amount_after_percentage = document.getElementById('total_amount_after_percentage'),
-                  type = document.getElementById('type');
-              total_amount.addEventListener('input', calculate);
+              // Function to convert EUR to USD
+              const convertToUSD = async (amount, outputId) => {
+                if (isNaN(amount) || amount <= 0) {
+                  document.getElementById(outputId).value = '';
+                  return;
+                }
+                try {
+                  const response = await fetch(`https://api.exconvert.com/convert?from=EUR&to=USD&amount=${amount}&access_key=7ac9d0d8-2c2a1729-0a51382b-b85cd112`);
+                  const data = await response.json();
+                  document.getElementById(outputId).value = data.result?.USD ? data.result.USD.toFixed(2) : 'N/A';
+                } catch {
+                  document.getElementById(outputId).value = 'Error';
+                }
+              };
+
+              // Calculation Function
+              const calculate = () => {
+                const totalEUR = parseFloat(total_amount_in_eur.value) || 0;
+                const percentageValue = parseFloat(percentage.value) || 0;
+                const afterPercentageEUR = totalEUR - (percentageValue * totalEUR / 100);
+
+                // Update EUR after percentage
+                total_amount_after_percentage_in_eur.value = afterPercentageEUR.toFixed(2);
+
+                // Convert EUR amounts to USD
+                convertToUSD(totalEUR, 'total_amount');
+                convertToUSD(afterPercentageEUR, 'total_amount_after_percentage');
+              };
+
+              // Fetch Client Type
+              const fetchClient = async (id) => {
+                if (!id) return;
+                try {
+                  const response = await fetch('api/get_methods/get_check_client_type.php', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: new URLSearchParams({
+                      customer_id: id
+                    })
+                  });
+                  const data = await response.json();
+                  type.value = data.status === 'success' ? data.type : 'individual';
+                } catch {
+                  type.value = 'individual';
+                }
+              };
+
+              // Element References
+              const customer_id = document.getElementById('customer_id');
+              const percentage = document.getElementById('percentage');
+              const total_amount_in_eur = document.getElementById('total_amount_in_eur');
+              const total_amount_after_percentage_in_eur = document.getElementById('total_amount_after_percentage_in_eur');
+              const total_amount = document.getElementById('total_amount');
+              const total_amount_after_percentage = document.getElementById('total_amount_after_percentage');
+              const type = document.getElementById('type');
+
+              // Event Listeners
+              total_amount_in_eur.addEventListener('input', calculate);
               percentage.addEventListener('input', calculate);
-              customer_id.addEventListener('change', e => fetchClient(e.target.value));
+              customer_id.addEventListener('change', (e) => fetchClient(e.target.value));
+
+              // Initialize Select Components
               new Selectr('#customer_id', {
                 searchable: true,
                 width: 300
@@ -184,12 +212,15 @@ function generateInvoiceNumber()
                 searchable: true,
                 width: 300
               });
+
+              // Initialize Date Picker
               flatpickr("#created_date", {
                 dateFormat: "Y-m-d",
                 maxDate: "today"
               });
             });
           </script>
+
           <div class="tab-content text-dark" id="pills-tabContent">
             <div class="tab-pane fade show active" id="pills-lista_e_faturave" role="tabpanel" aria-labelledby="pills-lista_e_faturave-tab">
               <div class="table-responsive">
@@ -782,25 +813,24 @@ function generateInvoiceNumber()
           data: null,
           render: function(data, type, row) {
             const amounts = [
-              /*
-              {
-                amount: row.total_amount,
-                currency: row.total_amount_currency || '$'
-              },
-              {
-                amount: row.total_amount_after_percentage,
-                currency: row.total_amount_after_percentage_currency || '$'
-              },
+              // {
+              //   amount: row.total_amount,
+              //   currency: row.total_amount_currency || '$'
+              // },
+              // {
+              //   amount: row.total_amount_after_percentage,
+              //   currency: row.total_amount_after_percentage_currency || '$'
+              // },
               {
                 amount: row.total_amount_in_eur,
                 currency: '€',
                 condition: row.total_amount_in_eur
-              },*/
-              {
-                amount: row.total_amount_in_eur_after_percentage,
-                currency: '€',
-                condition: row.total_amount_in_eur_after_percentage
               },
+              // {
+              //   amount: row.total_amount_in_eur_after_percentage,
+              //   currency: '€',
+              //   condition: row.total_amount_in_eur_after_percentage
+              // },
             ];
             const details = amounts.filter(item => item.condition !== false).map(item => `<div class="col-12">${formatRoundedNumber(item.amount, item.currency)}</div>`).join('');
             return `<div class="row g-2">${details}</div>`;
