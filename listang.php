@@ -27,12 +27,13 @@ $tableHeaders = ['Id', 'Këngëtari', 'Informacioni', 'Rrjete sociale', 'Klienti
                 </ol>
             </nav>
             <button type="button" class="input-custom-css px-3 py-2 mb-2" data-bs-toggle="modal" data-bs-target="#deletedNgarkimiModal">Lista e këngëve të fshira</button>
+            <!-- Deleted Records Modal -->
             <div class="modal fade" id="deletedNgarkimiModal" tabindex="-1" aria-labelledby="deletedNgarkimiModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-xl">
                     <div class="modal-content">
                         <div class="modal-header">
                             <h1 class="modal-title fs-5" id="deletedNgarkimiModalLabel">Lista e këngëve të fshira</h1>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Mbyll"></button>
                         </div>
                         <div class="modal-body">
                             <table id="deletedRecordsTable" class="table table-bordered table-sm" style="width:100%">
@@ -49,6 +50,56 @@ $tableHeaders = ['Id', 'Këngëtari', 'Informacioni', 'Rrjete sociale', 'Klienti
                     </div>
                 </div>
             </div>
+
+            <!-- Edit Modal -->
+            <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <form id="editForm">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Ndrysho Regjistrin</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Mbyll"></button>
+                            </div>
+                            <div class="modal-body">
+                                <!-- Form fields -->
+                                <input type="hidden" name="id" id="edit-id">
+                                <div class="mb-3">
+                                    <label for="edit-kengetari" class="form-label">Këngëtari</label>
+                                    <input type="text" class="form-control" id="edit-kengetari" name="kengetari" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="edit-emri" class="form-label">Emri</label>
+                                    <input type="text" class="form-control" id="edit-emri" name="emri">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="edit-teksti" class="form-label">Teksti</label>
+                                    <input type="text" class="form-control" id="edit-teksti" name="teksti">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="edit-muzika" class="form-label">Muzika</label>
+                                    <input type="text" class="form-control" id="edit-muzika" name="muzika">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="edit-orkestra" class="form-label">Orkestra</label>
+                                    <input type="text" class="form-control" id="edit-orkestra" name="orkestra">
+                                </div>
+                                <!-- Add other fields as needed -->
+                                <div class="mb-3">
+                                    <label for="edit-data" class="form-label">Data</label>
+                                    <input type="date" class="form-control" id="edit-data" name="data">
+                                </div>
+                                <!-- Continue adding form fields for other data columns -->
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anulo</button>
+                                <button type="submit" class="btn btn-primary">Ruaj Ndryshimet</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Main Table -->
             <div class="card rounded-5 shadow-sm">
                 <div class="card-body">
                     <div class="table-responsive">
@@ -63,17 +114,19 @@ $tableHeaders = ['Id', 'Këngëtari', 'Informacioni', 'Rrjete sociale', 'Klienti
         </div>
     </div>
 </div>
-<?php include 'partials/footer.php'; ?>
 <style>
     .expandable-content {
         max-height: 120px;
         overflow: hidden;
         transition: max-height 0.3s ease-out;
     }
+
     .expandable-content.expanded {
         max-height: none;
     }
 </style>
+
+<?php include 'partials/footer.php'; ?>
 <script>
     $(document).ready(function() {
         const commonButtonClass = "btn btn-light btn-sm bg-light border me-2 rounded-5";
@@ -145,7 +198,19 @@ $tableHeaders = ['Id', 'Këngëtari', 'Informacioni', 'Rrjete sociale', 'Klienti
                 },
                 {
                     data: 'kengetari',
-                    render: (data, type, row) => type === 'display' ? `<p>${data}</p><button class="btn btn-danger text-white px-2 py-1 rounded-5 delete-btn" data-id="${row.id}"><i class="fi fi-rr-trash"></i></button>` : data
+                    render: (data, type, row) => {
+                        if (type === 'display') {
+                            return `
+                                <p>${data}</p>
+                                <button class="btn btn-primary text-white px-2 py-1 rounded-5 edit-btn" data-id="${row.id}">
+                                    <i class="fi fi-rr-edit"></i>
+                                </button>
+                                <button class="btn btn-danger text-white px-2 py-1 rounded-5 delete-btn" data-id="${row.id}">
+                                    <i class="fi fi-rr-trash"></i>
+                                </button>`;
+                        }
+                        return data;
+                    }
                 },
                 {
                     data: null,
@@ -172,16 +237,16 @@ $tableHeaders = ['Id', 'Këngëtari', 'Informacioni', 'Rrjete sociale', 'Klienti
                             'Pandora': 'fab fa-pandora',
                             'AudioMack': 'fas fa-music'
                         };
-                        const platformIconsHTML = row.platformat.split(', ')
-                            .map(name => `<i class="${icons[name] || 'fas fa-question'} fa-lg"></i>`).join(' ');
+                        const platformIconsHTML = row.platformat ? row.platformat.split(', ')
+                            .map(name => `<i class="${icons[name] || 'fas fa-question'} fa-lg"></i>`).join(' ') : '';
                         return `
-                    <p><strong>Facebook:</strong> ${row.facebook}</p>
-                    <p><strong>Instagram:</strong> ${row.instagram}</p>
-                    <p><strong>Linku Youtube:</strong> ${row.linku}</p>
-                    <p><strong>Linku Platform:</strong> ${row.linkuplat}</p>
-                    <br>
-                    <p style='white-space: normal;'>${platformIconsHTML}</p>
-                `;
+                            <p><strong>Facebook:</strong> ${row.facebook}</p>
+                            <p><strong>Instagram:</strong> ${row.instagram}</p>
+                            <p><strong>Linku Youtube:</strong> ${row.linku}</p>
+                            <p><strong>Linku Platform:</strong> ${row.linkuplat}</p>
+                            <br>
+                            <p style='white-space: normal;'>${platformIconsHTML}</p>
+                        `;
                     }
                 },
                 {
@@ -196,12 +261,17 @@ $tableHeaders = ['Id', 'Këngëtari', 'Informacioni', 'Rrjete sociale', 'Klienti
                 render: (data, type, row) => type === 'display' && data !== null ? '<div style="white-space: normal;">' + data + '</div>' : data
             }]
         });
+
+        // Handle expand button click
         $('#example').on('click', '.expand-btn', function() {
             const $content = $(this).prev('.expandable-content');
             const isExpanded = $content.hasClass('expanded');
             $content.toggleClass('expanded').css('max-height', isExpanded ? '100px' : 'none');
             $(this).text(isExpanded ? 'Shfaq më shumë' : 'Mbyll');
-        }).on('click', '.delete-btn', function() {
+        });
+
+        // Handle delete button click
+        $('#example').on('click', '.delete-btn', function() {
             const id = $(this).data('id');
             Swal.fire({
                 title: 'A jeni i sigurt që dëshironi ta fshini?',
@@ -242,6 +312,56 @@ $tableHeaders = ['Id', 'Këngëtari', 'Informacioni', 'Rrjete sociale', 'Klienti
                 }
             });
         });
+
+        // Handle edit button click
+        $('#example').on('click', '.edit-btn', function() {
+            const id = $(this).data('id');
+            const rowData = table.row($(this).parents('tr')).data();
+            // Populate the form fields with rowData
+            $('#edit-id').val(rowData.id);
+            $('#edit-kengetari').val(rowData.kengetari);
+            $('#edit-emri').val(rowData.emri);
+            $('#edit-teksti').val(rowData.teksti);
+            $('#edit-muzika').val(rowData.muzika);
+            $('#edit-orkestra').val(rowData.orkestra);
+            $('#edit-data').val(rowData.data);
+            // Continue for other fields
+            // ...
+            // Open the modal
+            $('#editModal').modal('show');
+        });
+
+        // Handle form submission
+        $('#editForm').on('submit', function(e) {
+            e.preventDefault();
+            const formData = $(this).serialize();
+            $.ajax({
+                url: 'api/edit_methods/update_ngarkimi.php',
+                method: 'POST',
+                data: formData,
+                success: function(response) {
+                    $('#editModal').modal('hide');
+                    Swal.fire({
+                        title: 'Përditësimi është kryer me sukses!',
+                        icon: 'success',
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                    table.ajax.reload(null, false);
+                },
+                error: function(xhr, status, error) {
+                    console.error(xhr.responseText);
+                    Swal.fire({
+                        title: 'Gabim!',
+                        text: 'Ka ndodhur një problem gjatë përditësimit të regjistrit.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            });
+        });
+
+        // Initialize deleted records table
         $('#deletedRecordsTable').DataTable({
             ...commonDTSettings,
             processing: true,
