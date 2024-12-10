@@ -75,6 +75,7 @@ function format_page_name($page)
         'pasqyrat.php' => 'Pasqyrat',
         'aktiviteti.php' => 'Aktivitetet',
         'kontabiliteti_pagesat.php' => 'Pagesat e kryera',
+        'waiting_clients.php' => 'Lista e klienteve ne pritje per bashkpunim',
         // Add more pages as needed
     ];
     return isset($pageNames[$page]) ? $pageNames[$page] : 'N/A';
@@ -92,6 +93,7 @@ $pages = [
         'klient.php' => format_page_name('klient.php'),
         'kategorit.php' => format_page_name('kategorit.php'),
         'klient-avanc.php' => format_page_name('klient-avanc.php'),
+        'waiting_clients.php' => format_page_name('waiting_clients.php'),
     ],
     'Finance' => [
         'rrogat.php' => format_page_name('rrogat.php'),

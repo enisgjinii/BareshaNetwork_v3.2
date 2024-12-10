@@ -133,6 +133,7 @@
             "badge" => $count > 0 ? "<span class='badge bg-success rounded ms-2'><i class='fi fi-rr-eye me-2'></i>{$count}</span>" : ""
           ],
           "rating_list.php" => ["title" => "Lista e vlersimeve"],
+          "waiting_clients.php" => ["title" => "Lista e klienteve ne pritje per bashkpunim"],
         ],
       ],
       [
