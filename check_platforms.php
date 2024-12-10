@@ -55,6 +55,29 @@ function fetchYouTubeVideoDetails($videoId, $youtubeApiKey)
     return $youtubeData['items'][0]['snippet'];
 }
 
+// Function to parse the provided text and extract fields
+function parse_song_details($text)
+{
+    $details = [
+        'teksti' => 'N/A',
+        'orkestrimi' => 'N/A'
+    ];
+
+    // Regular expressions to match the desired fields
+    $teksti_pattern = '/✍️\s*Teksti\s*:\s*([^\n\r]+)/i';
+    $orkestrimi_pattern = '/Orkestrimi\s*:\s*([^\n\r]+)/i';
+
+    if (preg_match($teksti_pattern, $text, $matches)) {
+        $details['teksti'] = trim($matches[1]);
+    }
+
+    if (preg_match($orkestrimi_pattern, $text, $matches)) {
+        $details['orkestrimi'] = trim($matches[1]);
+    }
+
+    return $details;
+}
+
 // Function to search Spotify
 function searchSpotify($artist, $title)
 {
@@ -238,7 +261,7 @@ if (strpos($host, 'youtube.com') !== false || strpos($host, 'youtu.be') !== fals
     }
 
     // Replace with your actual YouTube API Key
-    $youtubeApiKey = 'AIzaSyCRFtIfiEyeYmCrCZ8Bvy8Z4IPBy1v2iwo';
+    $youtubeApiKey = 'AIzaSyC2RzEBt31omOZ4-faG6Jk_RbvT0TXPIZo';
 
     $videoSnippet = fetchYouTubeVideoDetails($videoId, $youtubeApiKey);
     if (!$videoSnippet) {
@@ -279,6 +302,9 @@ if (strpos($host, 'youtube.com') !== false || strpos($host, 'youtu.be') !== fals
     sendResponse(false, [], 'Unsupported platform. Please provide a YouTube link.');
 }
 
+// Parse Teksti and Orkestrimi from video description
+$parsedDetails = parse_song_details($videoDescription);
+
 // Search all platforms
 $platformDetails = searchAllPlatforms($artistName, $songTitle);
 
@@ -291,7 +317,9 @@ $responseData = [
     'publishedDate' => $publishDate,
     'thumbnail' => $thumbnail,
     'description' => $videoDescription,
-    'platforms' => $platformDetails
+    'platforms' => $platformDetails,
+    'teksti' => $parsedDetails['teksti'],
+    'orkestrimi' => $parsedDetails['orkestrimi']
 ];
 
 // Fetch client information based on YouTube channel ID
@@ -313,4 +341,3 @@ if (!empty($channelID)) {
 
 // Send JSON response
 sendResponse(true, $responseData);
-?>

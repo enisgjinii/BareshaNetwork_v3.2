@@ -1,28 +1,17 @@
 <?php
-// Start session and include necessary files
 session_start();
-include('conn-d.php'); // Ensure this file establishes a secure database connection
-
-// Prevent caching
+include('conn-d.php');
 header('Cache-Control: no-cache, no-store, must-revalidate');
 header('Pragma: no-cache');
 header('Expires: 0');
 
-// Function to sanitize output
 function sanitizeOutput($data)
 {
     return htmlspecialchars($data, ENT_QUOTES, 'UTF-8');
 }
 
-// Remove CSRF Token Generation
-// if (empty($_SESSION['csrf_token'])) {
-//     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-// }
-
-// Include header
 include('partials/header.php');
 ?>
-<!-- Custom CSS for Compact Table -->
 <style>
     .table-sm td,
     .table-sm th {
@@ -30,15 +19,53 @@ include('partials/header.php');
         font-size: 0.9rem;
     }
 
-    .input-custom-css {
-        /* Add any additional custom styles here */
-    }
+    .input-custom-css {}
 
     .btn-sm {
         padding: 0.25rem 0.5rem;
         font-size: 0.875rem;
         line-height: 1.5;
         border-radius: 0.2rem;
+    }
+
+    .document-dot {
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        margin-right: 8px;
+        cursor: pointer;
+    }
+
+    .document-patente_shoferi {
+        background-color: #007bff;
+    }
+
+    .document-leternjoftim {
+        background-color: #28a745;
+    }
+
+    .document-pasaporte {
+        background-color: #ffc107;
+    }
+
+    .document-default {
+        background-color: #6c757d;
+    }
+
+    /* Offcanvas Content Styling */
+    .offcanvas-header {
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .offcanvas-body {
+        padding: 0;
+    }
+
+    .document-viewer {
+        width: 100%;
+        height: 100%;
+        border: none;
     }
 </style>
 <div class="main-panel">
@@ -50,7 +77,6 @@ include('partials/header.php');
                     <li class="breadcrumb-item active" aria-current="page"><a href="<?php echo __FILE__; ?>" class="text-reset" style="text-decoration: none;">Lista e kontratatave (Gjenerale)</a></li>
                 </ol>
             </nav>
-            <!-- Display Success and Error Messages -->
             <?php if (isset($_SESSION['success'])): ?>
                 <div class="alert alert-success alert-dismissible fade show" role="alert">
                     <?php echo sanitizeOutput($_SESSION['success']); ?>
@@ -65,18 +91,12 @@ include('partials/header.php');
                 </div>
                 <?php unset($_SESSION['error']); ?>
             <?php endif; ?>
-            <!-- Contracts Table Card -->
             <div class="card shadow-sm rounded-5">
                 <div class="card-body">
-                    <!-- Bulk Deletion Form -->
                     <form method="POST" id="bulkDeleteForm" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>">
-                        <!-- Remove CSRF Token -->
-                        <!-- <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>"> -->
-                        <!-- Delete Button -->
-                        <button type="submit" id="deleteButton" name="delete_selected" class=" input-custom-css px-3 py-2 mb-4 " disabled data-bs-toggle="tooltip" title="Fshij kontratat e zgjedhura">
+                        <button type="submit" id="deleteButton" name="delete_selected" class="input-custom-css px-3 py-2 mb-4" disabled data-bs-toggle="tooltip" title="Fshij kontratat e zgjedhura">
                             <i class="fi fi-rr-trash me-1"></i> Fshij
                         </button>
-                        <!-- Contracts Table -->
                         <div class="table-responsive">
                             <table id="contractsTable" class="table table-bordered table-hover table-sm">
                                 <thead class="bg-light">
@@ -93,12 +113,10 @@ include('partials/header.php');
                                 </thead>
                                 <tbody>
                                     <?php
-                                    // Handle Bulk Deletion without CSRF Token
                                     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_selected'])) {
                                         if (isset($_POST['selected_contracts']) && is_array($_POST['selected_contracts'])) {
                                             $selected = array_map('intval', $_POST['selected_contracts']);
                                             if (!empty($selected)) {
-                                                // Prepare the IN clause dynamically
                                                 $placeholders = implode(',', array_fill(0, count($selected), '?'));
                                                 $stmt_delete = $conn->prepare("DELETE FROM kontrata_gjenerale WHERE id IN ($placeholders)");
                                                 if ($stmt_delete) {
@@ -122,49 +140,55 @@ include('partials/header.php');
                                         header("Location: " . $_SERVER['PHP_SELF']);
                                         exit();
                                     }
-
-                                    // Fetch contracts using prepared statements
                                     $stmt = $conn->prepare("SELECT * FROM kontrata_gjenerale ORDER BY id DESC");
                                     if ($stmt) {
                                         $stmt->execute();
                                         $result = $stmt->get_result();
                                         while ($k = $result->fetch_assoc()) {
-                                            // Calculate expiration date
                                             $data_e_krijimit = $k['data_e_krijimit'];
-                                            $kohezgjatja = $k['kohezgjatja']; // Assuming this is in months
+                                            $kohezgjatja = $k['kohezgjatja'];
                                             $expiration_date = date('Y-m-d', strtotime($data_e_krijimit . ' + ' . $kohezgjatja . ' months'));
+                                            $documentTypes = [
+                                                'patente_shoferi' => 'Patentë shoferi',
+                                                'leternjoftim'    => 'Letërnjoftim',
+                                                'pasaporte'       => 'Pasaporte',
+                                            ];
+                                            $documentColorClasses = [
+                                                'patente_shoferi' => 'document-patente_shoferi',
+                                                'leternjoftim'    => 'document-leternjoftim',
+                                                'pasaporte'       => 'document-pasaporte',
+                                            ];
+                                            $currentDocumentType = isset($k['lloji_dokumentit']) ? $k['lloji_dokumentit'] : '';
+                                            $documentLabel = array_key_exists($currentDocumentType, $documentTypes) ? $documentTypes[$currentDocumentType] : 'I Panjohur';
+                                            $documentColorClass = isset($documentColorClasses[$currentDocumentType]) ? $documentColorClasses[$currentDocumentType] : 'document-default';
+                                            // Assuming 'document_path' contains the URL or path to the document
+                                            $documentPath = isset($k['document_path']) ? sanitizeOutput($k['document_path']) : '';
                                     ?>
                                             <tr data-id="<?php echo sanitizeOutput($k['id']); ?>">
-                                                <!-- Select Checkbox -->
                                                 <td>
                                                     <input type="checkbox" name="selected_contracts[]" value="<?php echo sanitizeOutput($k['id']); ?>" class="form-check-input contract-checkbox" data-bs-toggle="tooltip" title="Zgjidh kontratën">
                                                 </td>
-                                                <!-- Name and Actions -->
                                                 <td>
                                                     <?php echo sanitizeOutput($k['emri'] . ' ' . $k['mbiemri']); ?>
                                                     <br><br>
-                                                    <!-- View Details Button -->
-                                                    <button type="button" class=" input-custom-css px-3 py-2  show-modal-button" data-bs-toggle="modal" data-bs-target="#nenshkrimiModal<?php echo sanitizeOutput($k['id']); ?>" data-bs-toggle="tooltip" title="Shiko detajet e kontratës">
+                                                    <button type="button" class="input-custom-css px-3 py-2 show-modal-button" data-bs-toggle="modal" data-bs-target="#nenshkrimiModal<?php echo sanitizeOutput($k['id']); ?>" data-bs-toggle="tooltip" title="Shiko detajet e kontratës">
                                                         <i class="fi fi-rr-user"></i>
                                                     </button>
+                                                    <span class="document-dot <?php echo sanitizeOutput($documentColorClass); ?>" data-bs-toggle="tooltip" title="<?php echo sanitizeOutput($documentLabel); ?>"></span>
                                                 </td>
-                                                <!-- Data e Krijimit -->
                                                 <td>
                                                     <?php echo sanitizeOutput($k['data_e_krijimit']); ?>
                                                 </td>
-                                                <!-- Data e Skadimit -->
                                                 <td>
                                                     <?php echo sanitizeOutput($expiration_date); ?>
                                                 </td>
-                                                <!-- Përqindja -->
                                                 <td>
                                                     <?php echo sanitizeOutput($k['tvsh']); ?>%
                                                 </td>
-                                                <!-- Actions Dropdown -->
                                                 <td>
                                                     <div class="dropdown d-inline-block me-2">
                                                         <button class="btn btn-primary dropdown-toggle input-custom-css px-3 py-2 shadow-sm rounded-5 btn-sm" type="button" id="kontrataDropdown<?php echo sanitizeOutput($k['id']); ?>" data-bs-toggle="dropdown" aria-expanded="false" data-bs-toggle="tooltip" title="Vepro me kontratën">
-                                                            <i class="fi fi-rr-box-open "></i>
+                                                            <i class="fi fi-rr-box-open"></i>
                                                         </button>
                                                         <ul class="dropdown-menu rounded-5 border" aria-labelledby="kontrataDropdown<?php echo sanitizeOutput($k['id']); ?>">
                                                             <li>
@@ -174,36 +198,32 @@ include('partials/header.php');
                                                             </li>
                                                         </ul>
                                                     </div>
-                                                    <!-- Edit Button -->
-                                                    <a href="modifiko-kontraten-gjenerale.php?id=<?php echo sanitizeOutput($k['id']); ?>" class="btn btn-primary input-custom-css px-3 py-2  rounded-5 me-2 btn-sm" data-bs-toggle="tooltip" title="Modifiko kontratën">
+                                                    <a href="modifiko-kontraten-gjenerale.php?id=<?php echo sanitizeOutput($k['id']); ?>" class="btn btn-primary input-custom-css px-3 py-2 rounded-5 me-2 btn-sm" data-bs-toggle="tooltip" title="Modifiko kontratën">
                                                         <i class="fi fi-rr-edit"></i>
                                                     </a>
-                                                    <!-- Delete Button -->
-                                                    <a href="#" class="btn btn-danger input-custom-css px-3 py-2  rounded-5 me-2 btn-sm" onclick="confirmDelete(event, '<?php echo sanitizeOutput($k['id']); ?>')" data-bs-toggle="tooltip" title="Fshij kontratën">
+                                                    <a href="#" class="btn btn-danger input-custom-css px-3 py-2 rounded-5 me-2 btn-sm" onclick="confirmDelete(event, '<?php echo sanitizeOutput($k['id']); ?>')" data-bs-toggle="tooltip" title="Fshij kontratën">
                                                         <i class="fi fi-rr-trash"></i>
                                                     </a>
-                                                    <!-- Send Email Button -->
+                                                    <a href="#" class="btn btn-secondary input-custom-css px-3 py-2 rounded-5 me-2 btn-sm open-doc-button" data-document="<?php echo $documentPath; ?>" data-bs-toggle="tooltip" title="Hap Dokumentin">
+                                                        <i class="fi fi-rr-file"></i>
+                                                    </a>
                                                     <?php if (empty($k['nenshkrimi'])): ?>
-                                                        <button type="button" class="btn btn-success input-custom-css px-3 py-2  rounded-5 btn-sm" data-bs-toggle="modal" data-bs-target="#sendEmailModal" data-id="<?php echo sanitizeOutput($k['id']); ?>" data-email="<?php echo sanitizeOutput($k['email']); ?>" data-link="https://panel.bareshaoffice.com/kontrataGjeneralePerKlient.php?id=" data-bs-toggle="tooltip" title="Dërgo kontratën via Email">
+                                                        <button type="button" class="btn btn-success input-custom-css px-3 py-2 rounded-5 btn-sm" data-bs-toggle="modal" data-bs-target="#sendEmailModal" data-id="<?php echo sanitizeOutput($k['id']); ?>" data-email="<?php echo sanitizeOutput($k['email']); ?>" data-link="https://panel.bareshaoffice.com/kontrataGjeneralePerKlient.php?id=" data-bs-toggle="tooltip" title="Dërgo kontratën via Email">
                                                             <i class="fi fi-rr-envelope"></i>
                                                         </button>
                                                     <?php endif; ?>
                                                 </td>
                                             </tr>
-                                            <!-- Modal for Contract Details -->
                                             <div class="modal fade" id="nenshkrimiModal<?php echo sanitizeOutput($k['id']); ?>" tabindex="-1" aria-labelledby="nenshkrimiModalLabel<?php echo sanitizeOutput($k['id']); ?>" aria-hidden="true">
                                                 <div class="modal-dialog modal-lg">
                                                     <div class="modal-content">
                                                         <div class="modal-header">
-                                                            <h5 class="modal-title" id="nenshkrimiModalLabel<?php echo sanitizeOutput($k['id']); ?>">
-                                                                Detajet e Kontratës - <?php echo sanitizeOutput($k['emri'] . ' ' . $k['mbiemri']); ?>
-                                                            </h5>
+                                                            <h5 class="modal-title" id="nenshkrimiModalLabel<?php echo sanitizeOutput($k['id']); ?>">Detajet e Kontratës - <?php echo sanitizeOutput($k['emri'] . ' ' . $k['mbiemri']); ?></h5>
                                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                         </div>
                                                         <div class="modal-body">
                                                             <div class="container">
                                                                 <div class="row">
-                                                                    <!-- Informacioni i Kontratës -->
                                                                     <div class="col-md-6">
                                                                         <h5 class="mb-4">Informacioni i Kontratës</h5>
                                                                         <ul class="list-group">
@@ -222,10 +242,8 @@ include('partials/header.php');
                                                                                     <strong>Artisti:</strong> <?php echo sanitizeOutput($k['artisti']); ?>
                                                                                 </li>
                                                                             <?php endif; ?>
-                                                                            <!-- Add similar checks for other fields as needed -->
                                                                         </ul>
                                                                     </div>
-                                                                    <!-- Informacioni i Bankës -->
                                                                     <div class="col-md-6">
                                                                         <h5 class="mb-4">Informacioni i Bankës</h5>
                                                                         <ul class="list-group">
@@ -239,7 +257,6 @@ include('partials/header.php');
                                                                                     <strong>IBAN:</strong> <?php echo sanitizeOutput($k['iban']); ?>
                                                                                 </li>
                                                                             <?php endif; ?>
-                                                                            <!-- Add similar checks for other fields as needed -->
                                                                         </ul>
                                                                     </div>
                                                                 </div>
@@ -267,13 +284,23 @@ include('partials/header.php');
         </div>
     </div>
 </div>
+
+<!-- Offcanvas Component for Document Viewing -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="documentOffcanvas" aria-labelledby="documentOffcanvasLabel">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="documentOffcanvasLabel">Shiko Dokumentin</h5>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Mbyll"></button>
+    </div>
+    <div class="offcanvas-body p-0">
+        <iframe src="" class="document-viewer" id="documentViewer"></iframe>
+    </div>
+</div>
+
 <!-- Send Email Modal -->
 <div class="modal fade" id="sendEmailModal" tabindex="-1" aria-labelledby="sendEmailModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <form method="POST" action="">
-                <!-- Remove CSRF Token -->
-                <!-- <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>"> -->
                 <div class="modal-header">
                     <h5 class="modal-title" id="sendEmailModalLabel">Dërgo Kontraten via Email</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Mbyll"></button>
@@ -299,42 +326,30 @@ include('partials/header.php');
         </div>
     </div>
 </div>
+
 <?php
-// Handle Email Sending without CSRF Token
 require './vendor/autoload.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
-    // Remove CSRF Token Verification
-    /*
-    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
-        die('Invalid CSRF token');
-    }
-    */
-    // Sanitize and validate inputs
     $email = filter_var(trim($_POST['email']), FILTER_VALIDATE_EMAIL);
     $linkuKontrates = filter_var(trim($_POST['linkuKontrates']), FILTER_SANITIZE_URL);
     $contract_id = intval($_POST['contract_id']);
     if ($email && $linkuKontrates && $contract_id > 0) {
-        // Initialize PHPMailer
         $mail = new PHPMailer(true);
         try {
-            // Server settings
             $mail->isSMTP();
-            $mail->Host       = 'smtp.gmail.com'; // SMTP server
+            $mail->Host       = 'smtp.gmail.com';
             $mail->SMTPAuth   = true;
-            $mail->Username   = 'bareshakontrata@gmail.com'; // SMTP username
-            $mail->Password   = 'ygxcwgkqyzmlmbcj'; // SMTP password (Consider using environment variables)
+            $mail->Username   = 'bareshakontrata@gmail.com';
+            $mail->Password   = 'ygxcwgkqyzmlmbcj';
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
             $mail->Port       = 587;
-            // Recipients
             $mail->setFrom('bareshakontrata@gmail.com', 'Baresha Kontratë');
             $mail->addAddress($email);
-            // Attachments (if any)
             $mail->addStringEmbeddedImage(file_get_contents('images/brand-icon.png'), 'brand-icon', 'brand-icon.png');
-            // Content
             $mail->isHTML(true);
             $mail->Subject = 'Kontrata Gjenerale';
             $mail->Body    = '
@@ -362,13 +377,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
                 </html>
             ';
             $mail->CharSet = 'UTF-8';
-            // Send Email
             $mail->send();
             $_SESSION['success'] = 'Emaili u dërgua me sukses!';
         } catch (Exception $e) {
             $_SESSION['error'] = "Emaili nuk mund të dërgohet. Gabimi i Mailer: {$mail->ErrorInfo}";
         }
-        // Redirect to prevent form resubmission
         header("Location: " . $_SERVER['PHP_SELF']);
         exit();
     } else {
@@ -378,9 +391,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
     }
 }
 ?>
-<!-- Footer Include -->
 <?php include('partials/footer.php'); ?>
-<!-- Delete Confirmation Script -->
+
 <script>
     function confirmDelete(event, id) {
         event.preventDefault();
@@ -398,8 +410,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
                         method: 'DELETE',
                         headers: {
                             'Content-Type': 'application/json'
-                            // Removed CSRF Token Header
-                            // 'X-CSRF-Token': '<?php echo $_SESSION['csrf_token']; ?>'
                         }
                     })
                     .then(response => {
@@ -421,7 +431,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
                     timer: 2000,
                     showConfirmButton: false
                 }).then(() => {
-                    // Remove the row from DataTable
                     var table = $('#contractsTable').DataTable();
                     var row = $('tr[data-id="' + id + '"]');
                     table.row(row).remove().draw();
@@ -435,62 +444,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
             }
         });
     }
-</script>
-<!-- Send Email Modal Script -->
-<script>
-    var sendEmailModal = document.getElementById('sendEmailModal');
-    sendEmailModal.addEventListener('show.bs.modal', function(event) {
-        var button = event.relatedTarget;
-        var contractId = button.getAttribute('data-id');
-        var email = button.getAttribute('data-email');
-        var linkBase = button.getAttribute('data-link');
-        // Update the modal's form fields
-        var modal = this;
-        modal.querySelector('#contract_id').value = contractId;
-        modal.querySelector('#email').value = email;
-        modal.querySelector('#linkuKontrates').value = linkBase + contractId;
-    });
-</script>
-<!-- Toggle Select All Checkboxes -->
-<script>
-    document.getElementById('selectAll').addEventListener('change', function(event) {
-        var checkboxes = document.querySelectorAll('.contract-checkbox');
-        checkboxes.forEach(function(checkbox) {
-            checkbox.checked = event.target.checked;
-        });
-        toggleDeleteButton();
-    });
 
-    function toggleDeleteButton() {
-        var checkboxes = document.querySelectorAll('.contract-checkbox:checked');
-        var deleteButton = document.getElementById('deleteButton');
-        if (checkboxes.length >= 1) {
-            deleteButton.disabled = false;
-        } else {
-            deleteButton.disabled = true;
-        }
-    }
-    var individualCheckboxes = document.querySelectorAll('.contract-checkbox');
-    individualCheckboxes.forEach(function(checkbox) {
-        checkbox.addEventListener('change', toggleDeleteButton);
-    });
-</script>
-<!-- Initialize Bootstrap Tooltips and DataTables -->
-<script>
+    // Offcanvas Document Viewer
     document.addEventListener('DOMContentLoaded', function() {
-        // Initialize Bootstrap Tooltips
         var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
         tooltipTriggerList.forEach(function(tooltipTriggerEl) {
             new bootstrap.Tooltip(tooltipTriggerEl)
         });
-        // Initialize DataTables
+
         var table = $('#contractsTable').DataTable({
             responsive: true,
             searching: true,
             ordering: true,
             order: [
                 [2, 'desc']
-            ], // Order by creation date descending
+            ],
             dom: "<'row'<'col-md-3'l><'col-md-6'B><'col-md-3'f>>" +
                 "<'row'<'col-md-12'tr>>" +
                 "<'row'<'col-md-6'i><'col-md-6'p>>",
@@ -546,5 +514,55 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
             },
             stripeClasses: ['stripe-color']
         });
+
+        // Open Document Button Click Handler
+        $('.open-doc-button').on('click', function(e) {
+            e.preventDefault();
+            var documentPath = $(this).data('document');
+            if (documentPath) {
+                $('#documentViewer').attr('src', documentPath);
+                var documentOffcanvas = new bootstrap.Offcanvas(document.getElementById('documentOffcanvas'));
+                documentOffcanvas.show();
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gabim',
+                    text: 'Dokumenti nuk u gjet.',
+                });
+            }
+        });
+    });
+
+    // Send Email Modal Script
+    var sendEmailModal = document.getElementById('sendEmailModal');
+    sendEmailModal.addEventListener('show.bs.modal', function(event) {
+        var button = event.relatedTarget;
+        var contractId = button.getAttribute('data-id');
+        var email = button.getAttribute('data-email');
+        var linkBase = button.getAttribute('data-link');
+        var modal = this;
+        modal.querySelector('#contract_id').value = contractId;
+        modal.querySelector('#email').value = email;
+        modal.querySelector('#linkuKontrates').value = linkBase + contractId;
+    });
+
+    // Toggle Select All Checkboxes
+    document.getElementById('selectAll').addEventListener('change', function(event) {
+        var checkboxes = document.querySelectorAll('.contract-checkbox');
+        checkboxes.forEach(function(checkbox) {
+            checkbox.checked = event.target.checked;
+        });
+        toggleDeleteButton();
+    });
+
+    function toggleDeleteButton() {
+        var checkboxes = document.querySelectorAll('.contract-checkbox:checked');
+        var deleteButton = document.getElementById('deleteButton');
+        deleteButton.disabled = checkboxes.length < 1;
+    }
+
+    var individualCheckboxes = document.querySelectorAll('.contract-checkbox');
+    individualCheckboxes.forEach(function(checkbox) {
+        checkbox.addEventListener('change', toggleDeleteButton);
     });
 </script>

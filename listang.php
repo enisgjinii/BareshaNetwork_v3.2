@@ -1,32 +1,56 @@
 <?php
 include 'partials/header.php';
+
+// Function to sanitize input data
+function sanitize($data)
+{
+    return htmlspecialchars(strip_tags($data));
+}
+
 if (isset($_GET['import'])) {
+    // Sanitize the 'import' parameter to prevent URL manipulation
+    $importParam = sanitize($_GET['import']);
     $url = 'https://bareshamusic.sourceaudio.com/api/import/upload?' . http_build_query([
         'token' => '6636-66f549fbe813b2087a8748f2b8243dbc',
-        'url' => "http://panel.bareshaoffice.com/{$_GET['import']}"
+        'url' => "http://panel.bareshaoffice.com/{$importParam}"
     ]);
-    $cdata = json_decode(file_get_contents($url), true);
-    echo "<script>alert('" . ($cdata['error'] ?? $cdata['status']) . "');</script>";
+
+    // Handle potential errors during the API request
+    $response = @file_get_contents($url);
+    if ($response === FALSE) {
+        echo "<script>alert('Gabim gjatë importimit të të dhënave. Ju lutem provoni më vonë.');</script>";
+    } else {
+        $cdata = json_decode($response, true);
+        echo "<script>alert('" . (isset($cdata['error']) ? sanitize($cdata['error']) : sanitize($cdata['status'])) . "');</script>";
+    }
 }
+
 $breadcrumbItems = [
     ['text' => 'Videot & Ngarkimi', 'link' => '#'],
     ['text' => 'Lista e këngëve', 'link' => __FILE__, 'active' => true]
 ];
+
 $tableHeaders = ['Id', 'Këngëtari', 'Informacioni', 'Rrjete sociale', 'Klienti', 'Info Shtes'];
 ?>
 <div class="main-panel">
     <div class="content-wrapper">
         <div class="container-fluid">
-            <nav class="bg-white px-2 rounded-5" style="width:fit-content;" aria-label="breadcrumb">
+            <!-- Breadcrumb Navigation -->
+            <nav class="bg-white px-2 rounded-5 mb-3" aria-label="breadcrumb">
                 <ol class="breadcrumb">
                     <?php foreach ($breadcrumbItems as $item) : ?>
-                        <li class="breadcrumb-item <?= $item['active'] ?? false ? 'active' : '' ?>" <?= $item['active'] ?? false ? 'aria-current="page"' : '' ?>>
+                        <li class="breadcrumb-item <?= isset($item['active']) && $item['active'] ? 'active' : '' ?>" <?= isset($item['active']) && $item['active'] ? 'aria-current="page"' : '' ?>>
                             <a href="<?= $item['link'] ?>" class="text-reset" style="text-decoration: none;"><?= $item['text'] ?></a>
                         </li>
                     <?php endforeach; ?>
                 </ol>
             </nav>
-            <button type="button" class="input-custom-css px-3 py-2 mb-2" data-bs-toggle="modal" data-bs-target="#deletedNgarkimiModal">Lista e këngëve të fshira</button>
+
+            <!-- Button to Open Deleted Records Modal -->
+            <button type="button" class="input-custom-css px-3 py-2 mb-3" data-bs-toggle="modal" data-bs-target="#deletedNgarkimiModal">
+                Lista e këngëve të fshira
+            </button>
+
             <!-- Deleted Records Modal -->
             <div class="modal fade" id="deletedNgarkimiModal" tabindex="-1" aria-labelledby="deletedNgarkimiModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-xl">
@@ -44,7 +68,12 @@ $tableHeaders = ['Id', 'Këngëtari', 'Informacioni', 'Rrjete sociale', 'Klienti
                                         <th class="text-dark">Koha e fshirjes</th>
                                     </tr>
                                 </thead>
-                                <tbody></tbody>
+                                <tbody>
+                                    <!-- Empty state message -->
+                                    <tr id="deletedRecordsEmpty" style="display: none;">
+                                        <td colspan="3" class="text-center">Nuk ka rekorde të fshira për të shfaqur.</td>
+                                    </tr>
+                                </tbody>
                             </table>
                         </div>
                     </div>
@@ -61,34 +90,33 @@ $tableHeaders = ['Id', 'Këngëtari', 'Informacioni', 'Rrjete sociale', 'Klienti
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Mbyll"></button>
                             </div>
                             <div class="modal-body">
-                                <!-- Form fields -->
+                                <!-- Form fields with placeholders -->
                                 <input type="hidden" name="id" id="edit-id">
                                 <div class="mb-3">
                                     <label for="edit-kengetari" class="form-label">Këngëtari</label>
-                                    <input type="text" class="form-control" id="edit-kengetari" name="kengetari" required>
+                                    <input type="text" class="form-control" id="edit-kengetari" name="kengetari" placeholder="Shkruani emrin e këngëtarit" required>
                                 </div>
                                 <div class="mb-3">
                                     <label for="edit-emri" class="form-label">Emri</label>
-                                    <input type="text" class="form-control" id="edit-emri" name="emri">
+                                    <input type="text" class="form-control" id="edit-emri" name="emri" placeholder="Shkruani emrin" required>
                                 </div>
                                 <div class="mb-3">
                                     <label for="edit-teksti" class="form-label">Teksti</label>
-                                    <input type="text" class="form-control" id="edit-teksti" name="teksti">
+                                    <input type="text" class="form-control" id="edit-teksti" name="teksti" placeholder="Shkruani tekstin">
                                 </div>
                                 <div class="mb-3">
                                     <label for="edit-muzika" class="form-label">Muzika</label>
-                                    <input type="text" class="form-control" id="edit-muzika" name="muzika">
+                                    <input type="text" class="form-control" id="edit-muzika" name="muzika" placeholder="Shkruani muzikën">
                                 </div>
                                 <div class="mb-3">
                                     <label for="edit-orkestra" class="form-label">Orkestra</label>
-                                    <input type="text" class="form-control" id="edit-orkestra" name="orkestra">
+                                    <input type="text" class="form-control" id="edit-orkestra" name="orkestra" placeholder="Shkruani orkestra">
                                 </div>
-                                <!-- Add other fields as needed -->
                                 <div class="mb-3">
                                     <label for="edit-data" class="form-label">Data</label>
-                                    <input type="date" class="form-control" id="edit-data" name="data">
+                                    <input type="date" class="form-control" id="edit-data" name="data" required>
                                 </div>
-                                <!-- Continue adding form fields for other data columns -->
+                                <!-- Add other fields as needed with appropriate placeholders -->
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anulo</button>
@@ -99,21 +127,67 @@ $tableHeaders = ['Id', 'Këngëtari', 'Informacioni', 'Rrjete sociale', 'Klienti
                 </div>
             </div>
 
-            <!-- Main Table -->
+            <!-- Collapsible Filter Section -->
+            <div class="card mb-3">
+                <div class="card-header" id="filterHeader" data-bs-toggle="collapse" data-bs-target="#filterSection" aria-expanded="false" aria-controls="filterSection" style="cursor: pointer;">
+                    <h5 class="mb-0">Filtër</h5>
+                </div>
+                <div id="filterSection" class="collapse">
+                    <div class="card-body">
+                        <form id="filterForm" class="row g-3">
+                            <div class="col-md-3">
+                                <label for="startDate" class="form-label">Data e Fillimit:</label>
+                                <input type="date" id="startDate" class="form-control" />
+                            </div>
+                            <div class="col-md-3">
+                                <label for="endDate" class="form-label">Data e Mbarimit:</label>
+                                <input type="date" id="endDate" class="form-control" />
+                            </div>
+                            <div class="col-md-3">
+                                <label for="artistFilter" class="form-label">Këngëtari:</label>
+                                <input type="text" id="artistFilter" class="form-control" placeholder="Kërko këngëtarin" />
+                            </div>
+                            <div class="col-md-3">
+                                <label for="clientFilter" class="form-label">Klienti:</label>
+                                <input type="text" id="clientFilter" class="form-control" placeholder="Kërko klientin" />
+                            </div>
+                            <div class="col-12">
+                                <button id="filterButton" class="btn btn-primary">Filtro</button>
+                                <button id="resetButton" type="button" class="btn btn-secondary">Rifillo</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Table with Empty State -->
             <div class="card rounded-5 shadow-sm">
                 <div class="card-body">
                     <div class="table-responsive">
                         <table id="example" class="table w-100">
                             <thead class="bg-light">
-                                <tr><?php foreach ($tableHeaders as $header) : ?><th class="text-dark"><?= $header ?></th><?php endforeach; ?></tr>
+                                <tr>
+                                    <?php foreach ($tableHeaders as $header) : ?>
+                                        <th class="text-dark"><?= $header ?></th>
+                                    <?php endforeach; ?>
+                                </tr>
                             </thead>
+                            <tbody>
+                                <!-- Empty state message -->
+                                <tr id="mainTableEmpty" style="display: none;">
+                                    <td colspan="<?= count($tableHeaders) ?>" class="text-center">Nuk ka rekorde për të shfaqur.</td>
+                                </tr>
+                            </tbody>
                         </table>
                     </div>
                 </div>
             </div>
+
         </div>
     </div>
 </div>
+
+<!-- Styles for Expandable Content -->
 <style>
     .expandable-content {
         max-height: 120px;
@@ -127,6 +201,8 @@ $tableHeaders = ['Id', 'Këngëtari', 'Informacioni', 'Rrjete sociale', 'Klienti
 </style>
 
 <?php include 'partials/footer.php'; ?>
+
+<!-- JavaScript Enhancements -->
 <script>
     $(document).ready(function() {
         const commonButtonClass = "btn btn-light btn-sm bg-light border me-2 rounded-5";
@@ -159,7 +235,7 @@ $tableHeaders = ['Id', 'Këngëtari', 'Informacioni', 'Rrjete sociale', 'Klienti
                         modifier: {
                             search: "applied",
                             order: "applied",
-                            page: "all"
+                            page: "all" // Ensure all pages are exported when exporting to Excel
                         }
                     }
                 } : {})
@@ -179,8 +255,17 @@ $tableHeaders = ['Id', 'Këngëtari', 'Informacioni', 'Rrjete sociale', 'Klienti
             language: {
                 url: "https://cdn.datatables.net/plug-ins/1.13.1/i18n/sq.json"
             },
-            stripeClasses: ['stripe-color']
+            stripeClasses: ['stripe-color'],
+            // Add responsive design
+            responsive: true,
+            // Set initial page length (optional)
+            lengthMenu: [
+                [10, 25, 50, -1],
+                [10, 25, 50, "Të gjitha"]
+            ]
         };
+
+        // Initialize Main DataTable
         const table = $('#example').DataTable({
             ...commonDTSettings,
             order: [
@@ -191,7 +276,29 @@ $tableHeaders = ['Id', 'Këngëtari', 'Informacioni', 'Rrjete sociale', 'Klienti
                 url: 'api/get_methods/get_music.php',
                 type: 'POST',
                 dataType: 'json',
-                dataSrc: 'data'
+                dataSrc: function(json) {
+                    if (!json.data || json.data.length === 0) {
+                        $('#mainTableEmpty').show();
+                    } else {
+                        $('#mainTableEmpty').hide();
+                    }
+                    return json.data || [];
+                },
+                data: function(d) {
+                    d.startDate = $('#startDate').val();
+                    d.endDate = $('#endDate').val();
+                    d.artist = $('#artistFilter').val();
+                    d.client = $('#clientFilter').val();
+                },
+                error: function(xhr, status, error) {
+                    console.error('AJAX Error:', status, error);
+                    Swal.fire({
+                        title: 'Gabim!',
+                        text: 'Ka ndodhur një gabim gjatë ngarkimit të të dhënave. Ju lutem provoni më vonë.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                }
             },
             columns: [{
                     data: "id"
@@ -202,10 +309,10 @@ $tableHeaders = ['Id', 'Këngëtari', 'Informacioni', 'Rrjete sociale', 'Klienti
                         if (type === 'display') {
                             return `
                                 <p>${data}</p>
-                                <button class="btn btn-primary text-white px-2 py-1 rounded-5 edit-btn" data-id="${row.id}">
+                                <button class="btn btn-primary text-white px-2 py-1 rounded-5 edit-btn" data-id="${row.id}" title="Ndrysho">
                                     <i class="fi fi-rr-edit"></i>
                                 </button>
-                                <button class="btn btn-danger text-white px-2 py-1 rounded-5 delete-btn" data-id="${row.id}">
+                                <button class="btn btn-danger text-white px-2 py-1 rounded-5 delete-btn" data-id="${row.id}" title="Fshije">
                                     <i class="fi fi-rr-trash"></i>
                                 </button>`;
                         }
@@ -217,14 +324,14 @@ $tableHeaders = ['Id', 'Këngëtari', 'Informacioni', 'Rrjete sociale', 'Klienti
                     render: (data, type, row) => {
                         if (type !== 'display') return Object.values(row).join(' - ');
                         const info = ['emri', 'teksti', 'muzika', 'orkestra', 'co', 'veper', 'data', 'gjuha', 'postuar_nga']
-                            .map(key => `<p><strong>${key.charAt(0).toUpperCase() + key.slice(1)}:</strong> ${row[key]}</p>`).join('');
+                            .map(key => `<p><strong>${capitalizeFirstLetter(key)}:</strong> ${row[key] || 'N/A'}</p>`).join('');
                         return `<div class="expandable-content">${info}</div><button class="input-custom-css px-3 py-2 expand-btn">Shfaq më shumë</button>`;
                     }
                 },
                 {
                     data: null,
                     render: (data, type, row) => {
-                        if (type !== 'display') return `${row.facebook} - ${row.instagram} - ${row.linku} - ${row.linkuplat} - ${row.platformat}`;
+                        if (type !== 'display') return `${row.facebook || 'N/A'} - ${row.instagram || 'N/A'} - ${row.linku || 'N/A'} - ${row.linkuplat || 'N/A'} - ${row.platformat || 'N/A'}`;
                         const icons = {
                             'Spotify': 'fab fa-spotify',
                             'Youtube Music': 'fab fa-youtube',
@@ -238,22 +345,24 @@ $tableHeaders = ['Id', 'Këngëtari', 'Informacioni', 'Rrjete sociale', 'Klienti
                             'AudioMack': 'fas fa-music'
                         };
                         const platformIconsHTML = row.platformat ? row.platformat.split(', ')
-                            .map(name => `<i class="${icons[name] || 'fas fa-question'} fa-lg"></i>`).join(' ') : '';
+                            .map(name => `<i class="${icons[name] || 'fas fa-question'} fa-lg" title="${name}"></i>`).join(' ') : 'N/A';
                         return `
-                            <p><strong>Facebook:</strong> ${row.facebook}</p>
-                            <p><strong>Instagram:</strong> ${row.instagram}</p>
-                            <p><strong>Linku Youtube:</strong> ${row.linku}</p>
-                            <p><strong>Linku Platform:</strong> ${row.linkuplat}</p>
+                            <p><strong>Facebook:</strong> ${row.facebook || 'N/A'}</p>
+                            <p><strong>Instagram:</strong> ${row.instagram || 'N/A'}</p>
+                            <p><strong>Linku Youtube:</strong> ${row.linku || 'N/A'}</p>
+                            <p><strong>Linku Platform:</strong> ${row.linkuplat || 'N/A'}</p>
                             <br>
                             <p style='white-space: normal;'>${platformIconsHTML}</p>
                         `;
                     }
                 },
                 {
-                    data: 'klienti_emri'
+                    data: 'klienti_emri',
+                    render: (data, type, row) => data || 'N/A'
                 },
                 {
-                    data: 'infosh'
+                    data: 'infosh',
+                    render: (data, type, row) => data || 'N/A'
                 }
             ],
             columnDefs: [{
@@ -262,11 +371,28 @@ $tableHeaders = ['Id', 'Këngëtari', 'Informacioni', 'Rrjete sociale', 'Klienti
             }]
         });
 
+        // Function to capitalize first letter
+        function capitalizeFirstLetter(string) {
+            return string.charAt(0).toUpperCase() + string.slice(1);
+        }
+
+        // Event listener for the filter button
+        $('#filterButton').on('click', function(e) {
+            e.preventDefault();
+            table.ajax.reload();
+        });
+
+        // Event listener for the reset button
+        $('#resetButton').on('click', function() {
+            $('#filterForm')[0].reset();
+            table.ajax.reload();
+        });
+
         // Handle expand button click
         $('#example').on('click', '.expand-btn', function() {
             const $content = $(this).prev('.expandable-content');
             const isExpanded = $content.hasClass('expanded');
-            $content.toggleClass('expanded').css('max-height', isExpanded ? '100px' : 'none');
+            $content.toggleClass('expanded').css('max-height', isExpanded ? '120px' : 'none');
             $(this).text(isExpanded ? 'Shfaq më shumë' : 'Mbyll');
         });
 
@@ -290,17 +416,37 @@ $tableHeaders = ['Id', 'Këngëtari', 'Informacioni', 'Rrjete sociale', 'Klienti
                             id: id
                         },
                         success: function(response) {
-                            const currentPage = table.page.info().page;
-                            table.ajax.reload(() => table.page(currentPage).draw('page'));
-                            Swal.fire({
-                                title: 'Fshirja është kryer me sukses!',
-                                icon: 'success',
-                                showConfirmButton: false,
-                                timer: 1500
-                            });
+                            try {
+                                const res = JSON.parse(response);
+                                if (res.success) {
+                                    const currentPage = table.page.info().page;
+                                    table.ajax.reload(() => table.page(currentPage).draw('page'));
+                                    Swal.fire({
+                                        title: 'Fshirja është kryer me sukses!',
+                                        icon: 'success',
+                                        showConfirmButton: false,
+                                        timer: 1500
+                                    });
+                                } else {
+                                    Swal.fire({
+                                        title: 'Gabim!',
+                                        text: res.message || 'Ka ndodhur një problem gjatë fshirjes së regjistrit.',
+                                        icon: 'error',
+                                        confirmButtonText: 'OK'
+                                    });
+                                }
+                            } catch (e) {
+                                console.error('Response parsing error:', e);
+                                Swal.fire({
+                                    title: 'Gabim!',
+                                    text: 'Ka ndodhur një problem gjatë përpunimit të përgjigjes së serverit.',
+                                    icon: 'error',
+                                    confirmButtonText: 'OK'
+                                });
+                            }
                         },
                         error: function(xhr, status, error) {
-                            console.error(xhr.responseText);
+                            console.error('AJAX Error:', status, error);
                             Swal.fire({
                                 title: 'Gabim!',
                                 text: 'Ka ndodhur një problem gjatë fshirjes së regjistrit.',
@@ -317,6 +463,17 @@ $tableHeaders = ['Id', 'Këngëtari', 'Informacioni', 'Rrjete sociale', 'Klienti
         $('#example').on('click', '.edit-btn', function() {
             const id = $(this).data('id');
             const rowData = table.row($(this).parents('tr')).data();
+
+            if (!rowData) {
+                Swal.fire({
+                    title: 'Gabim!',
+                    text: 'Të dhënat për këtë regjistër nuk janë të disponueshme.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+                return;
+            }
+
             // Populate the form fields with rowData
             $('#edit-id').val(rowData.id);
             $('#edit-kengetari').val(rowData.kengetari);
@@ -325,8 +482,8 @@ $tableHeaders = ['Id', 'Këngëtari', 'Informacioni', 'Rrjete sociale', 'Klienti
             $('#edit-muzika').val(rowData.muzika);
             $('#edit-orkestra').val(rowData.orkestra);
             $('#edit-data').val(rowData.data);
-            // Continue for other fields
-            // ...
+            // Continue for other fields as needed
+
             // Open the modal
             $('#editModal').modal('show');
         });
@@ -335,22 +492,54 @@ $tableHeaders = ['Id', 'Këngëtari', 'Informacioni', 'Rrjete sociale', 'Klienti
         $('#editForm').on('submit', function(e) {
             e.preventDefault();
             const formData = $(this).serialize();
+
+            // Validate required fields before submission
+            if (!$('#edit-kengetari').val() || !$('#edit-emri').val() || !$('#edit-data').val()) {
+                Swal.fire({
+                    title: 'Gabim!',
+                    text: 'Ju lutem plotësoni të gjitha fushat e kërkuara.',
+                    icon: 'warning',
+                    confirmButtonText: 'OK'
+                });
+                return;
+            }
+
             $.ajax({
                 url: 'api/edit_methods/update_ngarkimi.php',
                 method: 'POST',
                 data: formData,
                 success: function(response) {
-                    $('#editModal').modal('hide');
-                    Swal.fire({
-                        title: 'Përditësimi është kryer me sukses!',
-                        icon: 'success',
-                        showConfirmButton: false,
-                        timer: 1500
-                    });
-                    table.ajax.reload(null, false);
+                    try {
+                        const res = JSON.parse(response);
+                        if (res.success) {
+                            $('#editModal').modal('hide');
+                            Swal.fire({
+                                title: 'Përditësimi është kryer me sukses!',
+                                icon: 'success',
+                                showConfirmButton: false,
+                                timer: 1500
+                            });
+                            table.ajax.reload(null, false);
+                        } else {
+                            Swal.fire({
+                                title: 'Gabim!',
+                                text: res.message || 'Ka ndodhur një problem gjatë përditësimit të regjistrit.',
+                                icon: 'error',
+                                confirmButtonText: 'OK'
+                            });
+                        }
+                    } catch (e) {
+                        console.error('Response parsing error:', e);
+                        Swal.fire({
+                            title: 'Gabim!',
+                            text: 'Ka ndodhur një problem gjatë përpunimit të përgjigjes së serverit.',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                    }
                 },
                 error: function(xhr, status, error) {
-                    console.error(xhr.responseText);
+                    console.error('AJAX Error:', status, error);
                     Swal.fire({
                         title: 'Gabim!',
                         text: 'Ka ndodhur një problem gjatë përditësimit të regjistrit.',
@@ -361,38 +550,70 @@ $tableHeaders = ['Id', 'Këngëtari', 'Informacioni', 'Rrjete sociale', 'Klienti
             });
         });
 
-        // Initialize deleted records table
+        // Initialize Deleted Records DataTable
         $('#deletedRecordsTable').DataTable({
             ...commonDTSettings,
             processing: true,
             serverSide: true,
             lengthMenu: [
                 [10, 25, 50, -1],
-                [10, 25, 50, "All"]
+                [10, 25, 50, "Të gjitha"]
             ],
             paging: true,
             ajax: {
                 url: "fetch_deleted_records.php",
-                type: "POST"
+                type: "POST",
+                dataSrc: function(json) {
+                    if (!json.data || json.data.length === 0) {
+                        $('#deletedRecordsEmpty').show();
+                    } else {
+                        $('#deletedRecordsEmpty').hide();
+                    }
+                    return json.data || [];
+                },
+                error: function(xhr, status, error) {
+                    console.error('AJAX Error:', status, error);
+                    Swal.fire({
+                        title: 'Gabim!',
+                        text: 'Ka ndodhur një gabim gjatë ngarkimit të të dhënave të fshira. Ju lutem provoni më vonë.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                }
             },
             columns: [{
-                data: 0
-            }, {
-                data: 1
-            }, {
-                data: 2
-            }],
+                    data: 0
+                },
+                {
+                    data: 1,
+                    render: (data, type, row) => {
+                        if (type === 'display' && data !== null) {
+                            try {
+                                const parsedData = JSON.parse(data);
+                                return Object.entries(parsedData)
+                                    .map(([key, value]) => `<p><strong>${capitalizeFirstLetter(key)}:</strong> ${value}</p>`)
+                                    .join('');
+                            } catch (e) {
+                                console.error('JSON Parsing Error:', e);
+                                return 'N/A';
+                            }
+                        }
+                        return data;
+                    }
+                },
+                {
+                    data: 2
+                }
+            ],
             columnDefs: [{
                 targets: 1,
-                render: (data, type, row) => {
-                    if (type === 'display' && data !== null) {
-                        return Object.entries(JSON.parse(data))
-                            .map(([key, value]) => `<p><strong>${key.charAt(0).toUpperCase() + key.slice(1)}:</strong> ${value}</p>`)
-                            .join('');
-                    }
-                    return data;
-                }
+                render: (data, type, row) => type === 'display' && data !== null ? '<div style="white-space: normal;">' + data + '</div>' : data
             }]
+        });
+
+        // Handle modal hidden event to reset forms and states
+        $('#editModal').on('hidden.bs.modal', function() {
+            $('#editForm')[0].reset();
         });
     });
 </script>

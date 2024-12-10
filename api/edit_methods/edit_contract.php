@@ -16,7 +16,7 @@ $adresa_bankes = $_POST['adresa_bankes'];
 $kohezgjatja = $_POST['kohezgjatja'];
 $shenim = $_POST['shenim'];
 $data_e_krijimit = $_POST['data_e_krijimit'];
-
+$lloji_dokumentit = $_POST['lloji_dokumentit'];
 // Prepare the SQL query without prepared statements
 $query = "UPDATE kontrata_gjenerale 
           SET emri = '$emri', 
@@ -31,7 +31,8 @@ $query = "UPDATE kontrata_gjenerale
               adresa_bankes = '$adresa_bankes', 
               kohezgjatja = '$kohezgjatja', 
               shenim = '$shenim', 
-              data_e_krijimit = '$data_e_krijimit' 
+              data_e_krijimit = '$data_e_krijimit',
+              lloji_dokumentit = '$lloji_dokumentit'
           WHERE id = '$id'";
 
 // Execute the query

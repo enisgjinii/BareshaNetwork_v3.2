@@ -40,6 +40,7 @@ function format_page_name($page)
         'takimet.php' => 'Takimet',
         'todo_list.php' => 'To Do',
         'kontrata_2.php' => 'Kontrata e re',
+        'checking.php' => 'Kontrollim i këngëve',
         'lista_kontratave.php' => 'Lista e kontratave',
         'csvFiles.php' => 'Inserto CSV',
         'filtroCSV.php' => 'Filtro CSV',
@@ -124,6 +125,7 @@ $pages = [
         'notes.php' => format_page_name('notes.php'),
         'takimet.php' => format_page_name('takimet.php'),
         'aktiviteti.php' => format_page_name('aktiviteti.php'),
+        'checking.php' => format_page_name('checking.php'),
     ],
     'Tools' => [
         'vegla_facebook.php' => format_page_name('vegla_facebook.php'),

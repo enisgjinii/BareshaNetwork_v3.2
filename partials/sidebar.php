@@ -142,6 +142,7 @@
         "menuItems" => [
           "shtoy.php" => ["title" => "Regjistro një këngë"],
           "listang.php" => ["title" => "Lista e këngëve"],
+          "checking.php" => ["title" => "Kontrollim i këngëve"],
         ],
       ],
       [

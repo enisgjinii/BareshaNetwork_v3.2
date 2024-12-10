@@ -13,7 +13,8 @@
         "geoip2/geoip2": "^3.0",
         "guzzlehttp/guzzle": "^7.9",
         "thiagoalessio/tesseract_ocr": "^2.13",
-        "google/apiclient-services": "^0.383.0"
+        "google/apiclient-services": "^0.383.0",
+        "twilio/sdk": "^8.3"
     },
     "require-dev": {
         "phpstan/phpstan": "^1.12"

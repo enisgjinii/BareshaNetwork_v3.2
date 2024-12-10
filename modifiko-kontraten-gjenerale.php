@@ -2,8 +2,6 @@
 include 'partials/header.php';
 include 'conn-d.php';
 
-// $user_info = $_SESSION['user_info'] ?? [];
-
 // Get the ID from the URL and sanitize it to prevent SQL injection
 $id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 
@@ -35,7 +33,7 @@ $data_e_krijimit = date('Y-m-d', strtotime($row['data_e_krijimit']));
         <div class="container-fluid">
             <div class="p-5 mb-4 card shadow-sm rounded-5">
                 <h2 class="mb-4 text-center">Përditëso Kontratën Gjenerale</h2>
-                <form id="updateForm" novalidate>
+                <form id="updateForm" method="post" action="api/edit_methods/edit_contract.php" novalidate>
                     <div class="row g-3">
                         <!-- Emri & Mbiemri -->
                         <div class="col-md-6">
@@ -61,12 +59,12 @@ $data_e_krijimit = date('Y-m-d', strtotime($row['data_e_krijimit']));
                         <!-- TVSH & Numri Personal -->
                         <div class="col-md-6">
                             <label for="tvsh" class="form-label">
-                                <i class="bi bi-percent me-1"></i> P&euml;rqindja
+                                <i class="bi bi-percent me-1"></i> Përqindja
                             </label>
                             <input type="number" step="0.01" class="form-control rounded-5" name="tvsh" id="tvsh" value="<?= htmlspecialchars($row['tvsh']) ?>"
-                                data-bs-toggle="tooltip" title="Përcaktoni p&euml;rqindjen e TVSH-së.">
+                                data-bs-toggle="tooltip" title="Përcaktoni përqindjen e TVSH-së.">
                             <small class="form-text text-muted">Format: 20.00</small>
-                            <div class="invalid-feedback">Shkruani një p&euml;rqindje të vlefshme.</div>
+                            <div class="invalid-feedback">Shkruani një përqindje të vlefshme.</div>
                         </div>
                         <div class="col-md-6">
                             <label for="numri_personal" class="form-label">
@@ -82,7 +80,7 @@ $data_e_krijimit = date('Y-m-d', strtotime($row['data_e_krijimit']));
                         <!-- Bank Information -->
                         <div class="col-md-6">
                             <label for="pronari_xhirollogarise" class="form-label">
-                                <i class="bi bi-bank2 me-1"></i> Pronari i xhirollogaris&euml; bankare
+                                <i class="bi bi-bank2 me-1"></i> Pronari i xhirollogarisë bankare
                             </label>
                             <input type="text" class="form-control rounded-5" name="pronari_xhirollogarise" id="pronari_xhirollogarise" value="<?= htmlspecialchars($row['pronari_xhirollogarise']) ?>"
                                 data-bs-toggle="tooltip" title="Shkruani emrin e pronarit të llogarisë bankare.">
@@ -91,7 +89,7 @@ $data_e_krijimit = date('Y-m-d', strtotime($row['data_e_krijimit']));
                         </div>
                         <div class="col-md-6">
                             <label for="numri_xhirollogarise" class="form-label">
-                                <i class="bi bi-credit-card me-1"></i> Numri i xhirollogaris&euml; bankare
+                                <i class="bi bi-credit-card me-1"></i> Numri i xhirollogarisë bankare
                             </label>
                             <input type="text" class="form-control rounded-5" name="numri_xhirollogarise" id="numri_xhirollogarise" value="<?= htmlspecialchars($row['numri_xhirollogarise']) ?>"
                                 data-bs-toggle="tooltip" title="Shkruani numrin e llogarisë bankare.">
@@ -122,7 +120,7 @@ $data_e_krijimit = date('Y-m-d', strtotime($row['data_e_krijimit']));
                     <div class="row g-3 mt-3">
                         <div class="col-md-6">
                             <label for="emri_bankes" class="form-label">
-                                <i class="bi bi-building me-1"></i> Emri i bank&euml;s
+                                <i class="bi bi-building me-1"></i> Emri i bankës
                             </label>
                             <input type="text" class="form-control rounded-5" name="emri_bankes" id="emri_bankes" value="<?= htmlspecialchars($row['emri_bankes']) ?>"
                                 data-bs-toggle="tooltip" title="Shkruani emrin e bankës.">
@@ -131,7 +129,7 @@ $data_e_krijimit = date('Y-m-d', strtotime($row['data_e_krijimit']));
                         </div>
                         <div class="col-md-6">
                             <label for="adresa_bankes" class="form-label">
-                                <i class="bi bi-geo-alt-fill me-1"></i> Adresa e bank&euml;s
+                                <i class="bi bi-geo-alt-fill me-1"></i> Adresa e bankës
                             </label>
                             <input type="text" class="form-control rounded-5" name="adresa_bankes" id="adresa_bankes" value="<?= htmlspecialchars($row['adresa_bankes']) ?>"
                                 data-bs-toggle="tooltip" title="Shkruani adresën e bankës.">
@@ -142,7 +140,7 @@ $data_e_krijimit = date('Y-m-d', strtotime($row['data_e_krijimit']));
                     <div class="row g-3 mt-3">
                         <div class="col-md-6">
                             <label for="kohezgjatja" class="form-label">
-                                <i class="bi bi-hourglass-split me-1"></i> Koh&euml;zgjatja në muaj
+                                <i class="bi bi-hourglass-split me-1"></i> Kohëzgjatja në muaj
                             </label>
                             <input type="number" min="1" class="form-control rounded-5" name="kohezgjatja" id="kohezgjatja" value="<?= htmlspecialchars($row['kohezgjatja']) ?>"
                                 data-bs-toggle="tooltip" title="Shkruani kohëzgjatjen në muaj për kontratë.">
@@ -151,11 +149,11 @@ $data_e_krijimit = date('Y-m-d', strtotime($row['data_e_krijimit']));
                         </div>
                         <div class="col-md-6">
                             <label for="shenim" class="form-label">
-                                <i class="bi bi-card-text me-1"></i> Shenime
+                                <i class="bi bi-card-text me-1"></i> Shënime
                             </label>
                             <input type="text" class="form-control rounded-5" name="shenim" id="shenim" value="<?= htmlspecialchars($row['shenim']) ?>"
-                                data-bs-toggle="tooltip" title="Shkruani shenimet tuaja.">
-                            <small class="form-text text-muted">Çdo shënim të rëndësishëm për këtë kontratë.</small>
+                                data-bs-toggle="tooltip" title="Shkruani shënimet tuaja.">
+                            <small class="form-text text-muted">Çdo shënim i rëndësishëm për këtë kontratë.</small>
                             <div class="invalid-feedback">Shkruani shënime të vlefshme.</div>
                         </div>
                     </div>
@@ -169,6 +167,19 @@ $data_e_krijimit = date('Y-m-d', strtotime($row['data_e_krijimit']));
                                 data-bs-toggle="tooltip" title="Zgjidhni datën e krijimit të kontratës.">
                             <small class="form-text text-muted">Zgjidhni datën e krijimit të kontratës.</small>
                             <div class="invalid-feedback">Ju lutemi, zgjidhni një datë të vlefshme.</div>
+                        </div>
+                        <!-- Document Type Selection -->
+                        <div class="col-md-6">
+                            <label for="lloji_dokumentit" class="form-label">Lloji i Dokumentit</label>
+                            <select name="lloji_dokumentit" id="lloji_dokumentit" class="form-select rounded-5" required>
+                                <option value="" disabled <?= ($row['lloji_dokumentit'] == '') ? 'selected' : '' ?>>Zgjidhni llojin e dokumentit</option>
+                                <option value="patente_shoferi" <?= ($row['lloji_dokumentit'] == 'patente_shoferi') ? 'selected' : '' ?>>Patentë shoferi</option>
+                                <option value="leternjoftim" <?= ($row['lloji_dokumentit'] == 'leternjoftim') ? 'selected' : '' ?>>Letërnjoftim</option>
+                                <option value="pasaporte" <?= ($row['lloji_dokumentit'] == 'pasaporte') ? 'selected' : '' ?>>Pasaportë</option>
+                            </select>
+                            <div class="invalid-feedback">
+                                Ju lutem zgjidhni llojin e dokumentit.
+                            </div>
                         </div>
                     </div>
                     <hr class="my-4">
@@ -184,7 +195,7 @@ $data_e_krijimit = date('Y-m-d', strtotime($row['data_e_krijimit']));
                     <!-- Submit Button -->
                     <div class="mt-4 text-center">
                         <button type="submit" class="btn btn-primary rounded-5 px-4 py-2" data-bs-toggle="tooltip" title="Klikoni për të përditësuar kontratën.">
-                            P&euml;rditso
+                            Përditëso
                         </button>
                     </div>
                 </form>
@@ -207,150 +218,126 @@ $data_e_krijimit = date('Y-m-d', strtotime($row['data_e_krijimit']));
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        // Initialize Bootstrap tooltips
-        [...document.querySelectorAll('[data-bs-toggle="tooltip"]')].forEach(el => new bootstrap.Tooltip(el));
+document.addEventListener('DOMContentLoaded', () => {
+    // Initialize Bootstrap tooltips
+    [...document.querySelectorAll('[data-bs-toggle="tooltip"]')].forEach(el => new bootstrap.Tooltip(el));
 
-        // Initialize Flatpickr on 'data_e_krijimit'
-        const flatpickrInstance = flatpickr("#data_e_krijimit", {
-            dateFormat: "Y-m-d",
-            defaultDate: "<?= htmlspecialchars($data_e_krijimit) ?>",
-            onChange: updateExpirationDate
-        });
+    // Initialize Flatpickr on 'data_e_krijimit'
+    const flatpickrInstance = flatpickr("#data_e_krijimit", {
+        dateFormat: "Y-m-d",
+        defaultDate: "<?= htmlspecialchars($data_e_krijimit) ?>",
+        onChange: updateExpirationDate
+    });
 
-        // Real-time expiration date update
-        const kohezgjatjaInput = document.getElementById('kohezgjatja');
-        const expirationDisplay = document.getElementById('expiration_date_display');
-        const dataE_KrijimitInput = document.getElementById('data_e_krijimit');
+    // Real-time expiration date update
+    const kohezgjatjaInput = document.getElementById('kohezgjatja');
+    const expirationDisplay = document.getElementById('expiration_date_display');
+    const dataE_KrijimitInput = document.getElementById('data_e_krijimit');
 
-        function updateExpirationDate(selectedDates, dateStr, instance) {
-            const creationDate = selectedDates[0];
-            let months = parseInt(kohezgjatjaInput.value);
+    function updateExpirationDate(selectedDates, dateStr, instance) {
+        const creationDate = selectedDates[0] || new Date(dataE_KrijimitInput.value);
+        let months = parseInt(kohezgjatjaInput.value);
 
-            if (isNaN(months) || months < 1) {
-                // Invalid input, do not update
-                return;
-            }
-
-            // Calculate new expiration date
-            let newExpiration = new Date(creationDate);
-            newExpiration.setMonth(newExpiration.getMonth() + months);
-
-            // Handle month overflow (e.g., adding 1 month to January 31 should give February 28/29)
-            if (newExpiration.getDate() !== creationDate.getDate()) {
-                newExpiration.setDate(0); // Last day of previous month
-            }
-
-            // Format date as 'd F Y' (e.g., 15 October 2024)
-            const options = {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            };
-            const formattedDate = newExpiration.toLocaleDateString('en-GB', options);
-
-            // Update the expiration date display
-            expirationDisplay.innerHTML = `<i class="bi bi-calendar-check-fill me-2"></i> ${formattedDate}`;
+        if (isNaN(months) || months < 1) {
+            // Invalid input, do not update
+            return;
         }
 
-        // Listen for changes in 'kohezgjatja'
-        kohezgjatjaInput.addEventListener('input', () => {
-            const creationDate = flatpickrInstance.selectedDates[0];
-            let months = parseInt(kohezgjatjaInput.value);
+        // Calculate new expiration date
+        let newExpiration = new Date(creationDate);
+        newExpiration.setMonth(newExpiration.getMonth() + months);
 
-            if (isNaN(months) || months < 1) {
-                // Invalid input, do not update
-                return;
+        // Handle month overflow
+        if (newExpiration.getDate() !== creationDate.getDate()) {
+            newExpiration.setDate(0); // Last day of previous month
+        }
+
+        // Format date as 'd F Y' (e.g., 15 October 2024)
+        const options = {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        };
+        const formattedDate = newExpiration.toLocaleDateString('sq-AL', options);
+
+        // Update the expiration date display
+        expirationDisplay.innerHTML = `<i class="bi bi-calendar-check-fill me-2"></i> ${formattedDate}`;
+    }
+
+    // Listen for changes in 'kohezgjatja'
+    kohezgjatjaInput.addEventListener('input', () => {
+        updateExpirationDate(flatpickrInstance.selectedDates);
+    });
+
+    // Initial calculation of expiration date
+    updateExpirationDate(flatpickrInstance.selectedDates);
+
+    // Form validation and submission
+    const form = document.getElementById('updateForm');
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        if (!form.checkValidity()) {
+            e.stopPropagation();
+            form.classList.add('was-validated');
+            Swal.fire({
+                title: 'Gabim!',
+                text: 'Ju lutemi, plotësoni të gjitha fushat e kërkuara siç duhet.',
+                icon: 'warning',
+                confirmButtonText: 'Rivizo'
+            });
+            return;
+        }
+
+        const formData = new FormData(form);
+        formData.append('id', '<?= intval($id) ?>');
+
+        fetch('api/edit_methods/edit_contract.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === 'success') {
+                Swal.fire('Sukses!', 'Kontrata është përditësuar me sukses!', 'success')
+                    .then(() => window.location.reload());
+            } else {
+                Swal.fire('Gabim!', data.message || 'Diçka shkoi keq!', 'error');
             }
-
-            // Calculate new expiration date
-            let newExpiration = new Date(creationDate);
-            newExpiration.setMonth(newExpiration.getMonth() + months);
-
-            // Handle month overflow
-            if (newExpiration.getDate() !== creationDate.getDate()) {
-                newExpiration.setDate(0); // Last day of previous month
-            }
-
-            // Format date as 'd F Y' (e.g., 15 October 2024)
-            const options = {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            };
-            const formattedDate = newExpiration.toLocaleDateString('en-GB', options);
-
-            // Update the expiration date display
-            expirationDisplay.innerHTML = `<i class="bi bi-calendar-check-fill me-2"></i> ${formattedDate}`;
-        });
-
-        // Form validation and submission
-        const form = document.getElementById('updateForm');
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            if (!form.checkValidity()) {
-                e.stopPropagation();
-                form.classList.add('was-validated');
-                Swal.fire({
-                    title: 'Gabim!',
-                    text: 'Ju lutemi, plotësoni të gjitha fushat e kërkuara siç duhet.',
-                    icon: 'warning',
-                    confirmButtonText: 'Rivizo'
-                });
-                return;
-            }
-
-            const formData = new FormData(form);
-            formData.append('id', '<?= intval($id) ?>');
-
-            fetch('api/edit_methods/edit_contract.php', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        Swal.fire('Sukses!', 'Kontrata është përditësuar me sukses!', 'success')
-                            .then(() => window.location.reload());
-                    } else {
-                        Swal.fire('Gabim!', data.message || 'Diçka shkoi keq!', 'error');
-                    }
-                })
-                .catch(() => {
-                    Swal.fire('Gabim!', 'Diçka shkoi keq gjatë përpunimit të kërkesës.', 'error');
-                });
+        })
+        .catch(() => {
+            Swal.fire('Gabim!', 'Diçka shkoi keq gjatë përpunimit të kërkesës.', 'error');
         });
     });
+});
 </script>
 <style>
-    /* Removed .blurred-input class since it's no longer needed */
-    .form-label {
-        font-weight: 600;
-    }
+.form-label {
+    font-weight: 600;
+}
 
-    .btn-outline-secondary:hover,
-    .btn-primary:hover {
-        opacity: 0.85;
-    }
+.btn-outline-secondary:hover,
+.btn-primary:hover {
+    opacity: 0.85;
+}
 
-    @media (max-width: 576px) {
-        .input-group .btn {
-            width: 100%;
-            margin-top: 10px;
-        }
+@media (max-width: 576px) {
+    .input-group .btn {
+        width: 100%;
+        margin-top: 10px;
     }
+}
 
-    .form-control {
-        transition: border-color 0.3s, box-shadow 0.3s;
-    }
+.form-control {
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
 
-    .form-control:focus {
-        border-color: #86b7fe;
-        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
-    }
+.form-control:focus {
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
 
-    .swal2-popup {
-        font-size: 1.1rem !important;
-    }
+.swal2-popup {
+    font-size: 1.1rem !important;
+}
 </style>
 <?php include('partials/footer.php') ?>

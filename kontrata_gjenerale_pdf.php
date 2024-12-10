@@ -3,10 +3,12 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 include_once 'conn-d.php';
+
 function sanitizeInput($data)
 {
     return htmlspecialchars(strip_tags(trim($data)));
 }
+
 function fetchContract($conn, $id)
 {
     $stmt = $conn->prepare("SELECT * FROM kontrata_gjenerale WHERE id = ?");
@@ -22,6 +24,7 @@ function fetchContract($conn, $id)
     $stmt->close();
     return $contract;
 }
+
 function updateSignature($conn, $id, $signatureData)
 {
     if (!file_exists('signatures/')) {
@@ -46,10 +49,12 @@ function updateSignature($conn, $id, $signatureData)
     $stmt->close();
     return true;
 }
+
 $id = isset($_GET['id']) ? intval($_GET['id']) : null;
 $contract = null;
 $errors = [];
 $successMessage = "";
+
 try {
     if (!$id) {
         throw new Exception("ID nuk është caktuar!");
@@ -58,14 +63,34 @@ try {
     if (!$contract) {
         throw new Exception("Nuk u gjet asnjë rresht me këtë ID!");
     }
-    $artisti = json_decode($contract['artisti'], true);
+
+    // Parse the 'artisti' field
+    $artistiData = explode('|', $contract['artisti']);
+    $artisti = [
+        'artist_name' => $artistiData[0] ?? '',
+        'channel_name' => $artistiData[2] ?? '',
+        'youtube_id' => $artistiData[3] ?? '',
+        'some_number' => $artistiData[5] ?? '',
+        'personal_id' => $artistiData[6] ?? '',
+        'phone_number' => $artistiData[7] ?? '',
+    ];
+
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['signatureData'])) {
         $signatureData = sanitizeInput($_POST['signatureData']);
         if ($signatureData) {
             updateSignature($conn, $id, $signatureData);
             $successMessage = "Nënshkrimi u azhurnua me sukses!";
             $contract = fetchContract($conn, $id);
-            $artisti = json_decode($contract['artisti'], true);
+            // Re-parse the 'artisti' field after updating
+            $artistiData = explode('|', $contract['artisti']);
+            $artisti = [
+                'artist_name' => $artistiData[0] ?? '',
+                'channel_name' => $artistiData[2] ?? '',
+                'youtube_id' => $artistiData[3] ?? '',
+                'some_number' => $artistiData[5] ?? '',
+                'personal_id' => $artistiData[6] ?? '',
+                'phone_number' => $artistiData[7] ?? '',
+            ];
         } else {
             throw new Exception("Nënshkrimi është bosh!");
         }
@@ -74,10 +99,12 @@ try {
     $errors[] = $e->getMessage();
 }
 ?>
+
 <!doctype html>
 <html lang="en">
+
 <head>
-    <meta charset="utf-8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>BareshaNetwork - <?php echo date("Y"); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -93,6 +120,7 @@ try {
             font-size: 13px;
             /* Reduced font size for compactness */
         }
+
         .contract-container {
             background: #ffffff;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -108,17 +136,20 @@ try {
             margin: auto;
             /* Center the container */
         }
+
         .contract-header {
             text-align: center;
             margin-bottom: 15px;
             /* Reduced bottom margin */
         }
+
         .contract-header img {
             width: 80px;
             /* Reduced image width */
             margin-bottom: 5px;
             /* Reduced bottom margin */
         }
+
         .contract-title {
             font-size: 20px;
             /* Reduced font size */
@@ -130,10 +161,12 @@ try {
             margin-bottom: 5px;
             /* Reduced bottom margin */
         }
+
         .contract-section {
             margin-bottom: 15px;
             /* Reduced bottom margin */
         }
+
         .contract-section p {
             line-height: 1.5;
             /* Slightly reduced line height */
@@ -141,14 +174,17 @@ try {
             margin-bottom: 8px;
             /* Added bottom margin for spacing */
         }
+
         .contract-section p strong {
             color: #2c3e50;
         }
+
         .signature-section img {
             width: 150px;
             /* Reduced image width */
             height: auto;
         }
+
         .form-section {
             background: #f9f9f9;
             padding: 15px;
@@ -160,6 +196,7 @@ try {
             margin-top: 15px;
             /* Added top margin */
         }
+
         .form-section h5 {
             margin-bottom: 15px;
             /* Reduced bottom margin */
@@ -168,6 +205,7 @@ try {
             font-size: 16px;
             /* Reduced font size */
         }
+
         .alert-success,
         .alert-danger,
         .alert-info {
@@ -178,18 +216,22 @@ try {
             font-size: 13px;
             /* Reduced font size */
         }
+
         .signature-section.row {
             margin-top: 20px;
             /* Adjusted top margin */
         }
+
         .signature-section .col-md-6 {
             margin-bottom: 15px;
             /* Added bottom margin for spacing on smaller screens */
         }
+
         .signature-section .border-bottom {
             border-bottom: 1px solid #ccc;
             padding-bottom: 3px;
         }
+
         .btn-download {
             display: inline-block;
             padding: 6px 12px;
@@ -202,21 +244,27 @@ try {
             color: #ffffff;
             text-decoration: none;
         }
+
         .btn-download:hover {
             background-color: #1a252f;
         }
+
         .no-print {
             /* Elements with this class will be hidden in print */
         }
+
         .print-overlay {
             display: none;
         }
+
         /* Print-specific Styles */
         @media print {
+
             /* Hide non-print elements */
             .no-print {
                 display: none !important;
             }
+
             /* Print Overlay */
             .print-overlay {
                 display: block;
@@ -227,6 +275,7 @@ try {
                 height: 100%;
                 z-index: -1;
             }
+
             .print-overlay img {
                 width: 100%;
                 height: 40%;
@@ -242,6 +291,7 @@ try {
                 /* Ensure it doesn't interfere with other elements */
                 z-index: -1;
             }
+
             /* Adjust contract container */
             .contract-container {
                 box-shadow: none;
@@ -250,13 +300,38 @@ try {
                 max-width: 100%;
                 background: transparent;
             }
+
             /* Optional: Adjust font sizes for print */
             body {
                 font-size: 14px;
             }
+
+            /* Ensure the signature section stays on one line */
+            .signature-section.row {
+                display: flex;
+                flex-wrap: nowrap;
+            }
+
+            .signature-section.row .col-md-4 {
+                flex: 1;
+                max-width: 33.3333%;
+                /* Ensures each column takes up one-third of the row */
+            }
+
+            /* Adjust image sizes if necessary */
+            .signature-section img {
+                max-width: 150px;
+                height: auto;
+            }
+
+            /* Prevent page breaks inside the signature section */
+            .signature-section {
+                page-break-inside: avoid;
+            }
         }
     </style>
 </head>
+
 <body>
     <!-- Print Overlay -->
     <div class="print-overlay">
@@ -285,7 +360,10 @@ try {
             <div class="contract-section">
                 <div class="row mb-2">
                     <div class="col-md-6">
-                        <p class="fw-bold">No. Nr. : <?php echo htmlspecialchars($contract['id_kontrates']); ?></p>
+                        <p class="fw-bold">
+                            No. Nr. : <?php echo str_replace('â€“', '–', htmlspecialchars($contract['id_kontrates'], ENT_QUOTES, 'UTF-8')); ?>
+                        </p>
+
                     </div>
                     <div class="col-md-6 text-end">
                         <p class="fw-bold">Date – Datë: <?php echo htmlspecialchars($contract['data_e_krijimit']); ?></p>
@@ -294,13 +372,14 @@ try {
                 <hr style="border-top: 1px solid red;">
                 <div class="row mb-2">
                     <div class="col">
-                        <p>This document specifies the terms and conditions of the agreement between <strong>Baresha Music SH.P.K</strong>, located at Rr. Brigada 123 nr. 23 in Suharekë, represented by <strong>AFRIM KOLGECI, CEO-FOUNDER of Baresha Music</strong>, and <strong>ARTIST: <?php echo htmlspecialchars($artisti['emriart']); ?></strong>, a citizen of <strong><?php echo htmlspecialchars($contract['shteti']); ?></strong>, with personal identification number <strong><?php echo htmlspecialchars($contract['numri_personal']); ?></strong>. <?php echo htmlspecialchars($artisti['emriart']); ?> will be representing themselves on the other side of this agreement through their YouTube channel identified by the YouTube ID - <strong><?php echo htmlspecialchars($artisti['youtube']); ?></strong> and the Channel name - <strong><?php echo htmlspecialchars($artisti['emriart']); ?></strong>.</p>
+                        <p>This document specifies the terms and conditions of the agreement between <strong>Baresha Music SH.P.K</strong>, located at Rr. Brigada 123 nr. 23 in Suharekë, represented by <strong>AFRIM KOLGECI, CEO-FOUNDER of Baresha Music</strong>, and <strong>ARTIST: <?php echo htmlspecialchars($artisti['artist_name'] ?? ''); ?></strong>, a citizen of <strong><?php echo htmlspecialchars($contract['shteti'] ?? ''); ?></strong>, with personal identification number <strong><?php echo htmlspecialchars($contract['numri_personal'] ?? ''); ?></strong>. <?php echo htmlspecialchars($artisti['artist_name'] ?? ''); ?> will be representing themselves on the other side of this agreement through their YouTube channel identified by the YouTube ID - <strong><?php echo htmlspecialchars($artisti['youtube_id'] ?? ''); ?></strong> and the Channel name - <strong><?php echo htmlspecialchars($artisti['channel_name'] ?? ''); ?></strong>.</p>
+
                         <p>The terms and conditions outlined in this contract pertain to the contractual relationship as a whole between the two parties.</p>
                     </div>
                 </div>
                 <div class="row mb-2">
                     <div class="col">
-                        <p>Ky dokument përcakton termat dhe kushtet e marrëveshjes midis <strong>Baresha Music SH.P.K</strong>, e vendosur në Rr. Brigada 123 nr. 23 në Suharekë, e përfaqësuar nga <strong>AFRIM KOLGECI, CEO-THEMELUES i Baresha Music</strong>, dhe <strong>ARTISTI: <?php echo htmlspecialchars($artisti['emriart']); ?></strong>, shtetas i <strong><?php echo htmlspecialchars($contract['shteti']); ?></strong>, me numër personal identifikimi <strong><?php echo htmlspecialchars($contract['numri_personal']); ?></strong>. <?php echo htmlspecialchars($artisti['emriart']); ?> do të përfaqësojë veten në anën tjetër të kësaj marrëveshjeje përmes kanalit të tyre në YouTube të identifikuar nga ID-ja e YouTube - <strong><?php echo htmlspecialchars($artisti['youtube']); ?></strong> dhe emri i Kanalit - <strong><?php echo htmlspecialchars($artisti['emriart']); ?></strong>.</p>
+                        <p>Ky dokument përcakton termat dhe kushtet e marrëveshjes midis <strong>Baresha Music SH.P.K</strong>, e vendosur në Rr. Brigada 123 nr. 23 në Suharekë, e përfaqësuar nga <strong>AFRIM KOLGECI, CEO-THEMELUES i Baresha Music</strong>, dhe <strong>ARTISTI: <?php echo htmlspecialchars($artisti['artist_name'] ?? ''); ?></strong>, shtetas i <strong><?php echo htmlspecialchars($contract['shteti'] ?? ''); ?></strong>, me numër personal identifikimi <strong><?php echo htmlspecialchars($contract['numri_personal'] ?? ''); ?></strong>. <?php echo htmlspecialchars($artisti['artist_name'] ?? ''); ?> do të përfaqësojë veten në anën tjetër të kësaj marrëveshjeje përmes kanalit të tyre në YouTube të identifikuar nga ID-ja e YouTube - <strong><?php echo htmlspecialchars($artisti['youtube_id'] ?? ''); ?></strong> dhe emri i Kanalit - <strong><?php echo htmlspecialchars($artisti['channel_name'] ?? ''); ?></strong>.</p>
                         <p>Termat dhe kushtet e përfshira në këtë kontratë kanë të bëjnë me marrëdhënien kontraktuale në tërësi midis dy palëve.</p>
                     </div>
                 </div>
@@ -810,12 +889,13 @@ try {
             </div>
             <div class="contract-section mt-3">
                 <p><strong>Data e nënshkrimit të marrëveshjes / Date of Signing:</strong> <?php echo date('m/d/Y'); ?></p>
-                <?php if (!empty(trim($contract['shenim']))): ?>
+                <?php if (!empty(trim($contract['shenim'] ?? ''))): ?>
                     <div class="my-4 border rounded py-2 bg-light">
                         <h5>Shënime / Notes</h5>
-                        <p><?php echo nl2br(htmlspecialchars($contract['shenim'])); ?></p>
+                        <p><?php echo nl2br(htmlspecialchars($contract['shenim'] ?? '')); ?></p>
                     </div>
                 <?php endif; ?>
+
             </div>
             <?php if (empty($contract['nenshkrimi'])): ?>
                 <div class="form-section">
@@ -855,6 +935,7 @@ try {
             backgroundColor: 'rgba(255, 255, 255, 0)',
             penColor: 'rgba(0, 0, 0, 1)'
         });
+
         function clearSignaturePad() {
             signaturePad.clear();
         }
@@ -875,4 +956,5 @@ try {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.3.0/mdb.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 </body>
+
 </html>

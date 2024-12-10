@@ -13,7 +13,7 @@ if (isset($_POST['id']) && filter_var($_POST['id'], FILTER_VALIDATE_INT)) {
 
     if (mysqli_num_rows($result) == 1) {
         $row = mysqli_fetch_assoc($result);
-        $deleted_record = json_encode($row);
+        $deleted_record = mysqli_real_escape_string($conn, json_encode($row));
 
         // Construct the delete query
         $delete_query = "DELETE FROM ngarkimi WHERE id = $id";
