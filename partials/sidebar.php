@@ -235,10 +235,6 @@
         "icon" => "fi fi-rr-copyright",
         "title" => "Autor"
       ],
-      "ascap.php" => [
-        "icon" => "fi fi-rr-copyright",
-        "title" => "ASCAP"
-      ],
       "invoice_list_2.php" => [
         "icon" => "fi fi-rr-document",
         "title" => "Faturë e shpejtë"

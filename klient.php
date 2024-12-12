@@ -4,8 +4,7 @@
     <div class="container-fluid">
       <nav class="bg-white px-2 rounded-5" style="width:fit-content;" aria-label="breadcrumb">
         <ol class="breadcrumb">
-          <li class="breadcrumb-item "><a class="text-reset" style="text-decoration: none;">Klientët</a>
-          </li>
+          <li class="breadcrumb-item"><a class="text-reset" style="text-decoration: none;">Klientët</a></li>
           <li class="breadcrumb-item active" aria-current="page">
             <a href="<?php echo __FILE__; ?>" class="text-reset" style="text-decoration: none;">
               Lista e klientëve
@@ -15,9 +14,8 @@
       </nav>
       <div class="row mb-3 d-none d-md-none d-lg-block">
         <div>
-          <a style="text-transform: none;text-decoration:none;" class="input-custom-css px-3 py-2" href="shtok.php"><i class="fi fi-rr-add"></i>
-            &nbsp;
-            Shto klientë
+          <a style="text-transform: none; text-decoration:none;" class="input-custom-css px-3 py-2" href="shtok.php">
+            <i class="fi fi-rr-add"></i>&nbsp; Shto klientë
           </a>
         </div>
       </div>
@@ -236,7 +234,7 @@
           </div>
         </div>
         <div class="tab-pane fade" id="pills-listaEKlienteveMeK" role="tabpanel" aria-labelledby="pills-listaEKlienteveMeK-tab" tabindex="0">
-          <div class="card rounded-5 shadow-none d-none d-md-block d-lg-block"> <!-- Modified visibility classes -->
+          <div class="card rounded-5 shadow-none d-none d-md-block d-lg-block">
             <div class="card-body">
               <div class="row">
                 <div class="table-responsive">
@@ -251,20 +249,18 @@
                     <tbody>
                       <?php
                       $sql = "SELECT 
-                    k.emri, 
-                    k.emriart,
-                    IF(kg.youtube_id IS NOT NULL, '✔️ Digjitale', NULL) AS digital_contract,
-                    k.statusi_i_kontrates
-                FROM klientet k
-                LEFT JOIN kontrata_gjenerale kg ON k.youtube = kg.youtube_id
-                WHERE k.aktiv IS NULL AND 
-                      (k.statusi_i_kontrates = 'Kontratë fizike' OR kg.youtube_id IS NOT NULL)
-                GROUP BY k.id, k.emri, k.emriart, k.statusi_i_kontrates";
-                      // Execute the query
+                        k.emri, 
+                        k.emriart,
+                        IF(kg.youtube_id IS NOT NULL, '✔️ Digjitale', NULL) AS digital_contract,
+                        k.statusi_i_kontrates
+                      FROM klientet k
+                      LEFT JOIN kontrata_gjenerale kg ON k.youtube = kg.youtube_id
+                      WHERE k.aktiv IS NULL AND 
+                            (k.statusi_i_kontrates = 'Kontratë fizike' OR kg.youtube_id IS NOT NULL)
+                      GROUP BY k.id, k.emri, k.emriart, k.statusi_i_kontrates";
                       $result = mysqli_query($conn, $sql);
                       if (mysqli_num_rows($result) > 0) {
                         while ($row = mysqli_fetch_assoc($result)) {
-                          // Decide what to display as contract status
                           $contract_status = $row['digital_contract'] ?: $row['statusi_i_kontrates'];
                           echo "<tr>";
                           echo "<td>" . htmlspecialchars($row['emri']) . "</td>";
@@ -284,7 +280,7 @@
           </div>
         </div>
         <div class="tab-pane fade" id="pills-listaEKlientevePaK" role="tabpanel" aria-labelledby="pills-listaEKlientevePaK-tab" tabindex="0">
-          <div class="card rounded-5 shadow-none d-none d-md-block d-lg-block"> <!-- Modified visibility classes -->
+          <div class="card rounded-5 shadow-none d-none d-md-block d-lg-block">
             <div class="card-body">
               <div class="row">
                 <div class="table-responsive">
@@ -299,15 +295,14 @@
                     <tbody>
                       <?php
                       $sql = "SELECT 
-                    k.emri, 
-                    k.emriart,
-                    COALESCE(NULLIF(k.statusi_i_kontrates, ''), 'S\'ka kontrate') AS statusi_i_kontrates
-                FROM klientet k
-                LEFT JOIN kontrata_gjenerale kg ON k.youtube = kg.youtube_id
-                WHERE k.aktiv IS NULL AND 
-                      (k.statusi_i_kontrates = 'S\'ka kontrate' OR k.statusi_i_kontrates = '' OR k.statusi_i_kontrates IS NULL)
-                GROUP BY k.id, k.emri, k.emriart, k.statusi_i_kontrates";
-                      // Execute the query
+                        k.emri, 
+                        k.emriart,
+                        COALESCE(NULLIF(k.statusi_i_kontrates, ''), 'S\'ka kontrate') AS statusi_i_kontrates
+                      FROM klientet k
+                      LEFT JOIN kontrata_gjenerale kg ON k.youtube = kg.youtube_id
+                      WHERE k.aktiv IS NULL AND 
+                            (k.statusi_i_kontrates = 'S\'ka kontrate' OR k.statusi_i_kontrates = '' OR k.statusi_i_kontrates IS NULL)
+                      GROUP BY k.id, k.emri, k.emriart, k.statusi_i_kontrates";
                       $result = mysqli_query($conn, $sql);
                       if (mysqli_num_rows($result) > 0) {
                         while ($row = mysqli_fetch_assoc($result)) {
@@ -398,9 +393,8 @@
                     <span class="text-muted">ID-ja e kanalit të pavlefshme</span>
                     ${editButtonHTML}
                 </div>
-            `;
+              `;
               }
-              // Asynchronously fetch YouTube data
               setTimeout(() => {
                 fetch(`https://www.googleapis.com/youtube/v3/channels?part=snippet,statistics&id=${data}&key=${apiKey}`)
                   .then(response => response.json())
@@ -437,7 +431,6 @@
                     `;
                   });
               }, 200);
-              // Initial HTML with placeholder and buttons
               return `
             <div id="${containerId}">
                 <div class="d-flex flex-column align-items-center">
@@ -445,36 +438,34 @@
                     ${editButtonHTML}
                 </div>
             </div>
-        `;
+          `;
             }
           },
           {
             data: 'emri',
             render: (data, type, row) => {
               try {
-                // Determine the icon and its color based on the statusi_i_kontrates value
                 let contractIcon;
                 if (row.statusi_i_kontrates === 'Kontratë fizike') {
                   contractIcon = '<i class="fi fi-rr-document-signed text-success" style="font-size: 1.5rem;"></i>';
                 } else if (row.statusi_i_kontrates === "S'ka kontratë" || row.has_contract === 'JO') {
                   contractIcon = '<i class="fi fi-rr-document-signed text-danger" style="font-size: 1.5rem;"></i>';
                 } else {
-                  contractIcon = ''; // Empty string if there's no relevant status or contract
+                  contractIcon = '';
                 }
-                // Generate the output HTML for monetization status and contract icon with improved layout
                 return `
-        <div class="d-flex flex-column align-items-start">
-          <div class="d-flex justify-content-between w-100">
-            <strong>${data}</strong>
-            ${contractIcon}
+          <div class="d-flex flex-column align-items-start">
+            <div class="d-flex justify-content-between w-100">
+              <strong>${data}</strong>
+              ${contractIcon}
+            </div>
+            <div class="mt-1">
+              <span class="badge rounded-pill ${row.monetizuar === 'PO' ? 'bg-success' : 'bg-danger'}">
+                ${row.monetizuar === 'PO' ? 'Klient i Monetizuar' : 'Klient i Pa-Monetizuar'}
+              </span>
+            </div>
           </div>
-          <div class="mt-1">
-            <span class="badge rounded-pill ${row.monetizuar === 'PO' ? 'bg-success' : 'bg-danger'}">
-              ${row.monetizuar === 'PO' ? 'Klient i Monetizuar' : 'Klient i Pa-Monetizuar'}
-            </span>
-          </div>
-        </div>
-      `;
+        `;
               } catch (error) {
                 console.error('Gabim gjatë renderimit të rreshtit:', error);
                 return `<p>Gabim gjatë renderimit të të dhënave</p>`;
@@ -493,7 +484,6 @@
           render: (data, type) => (type === 'display' && data) ? `<div style="white-space: normal;">${data}</div>` : data
         }]
       });
-      // Ensure columns are adjusted and responsiveness recalculated when the window is resized
       $(window).on('resize', () => {
         mainTable.columns.adjust().responsive.recalc();
       });
@@ -578,8 +568,7 @@
             .then(result => {
               if (result.success) {
                 Swal.fire('Fshirë!', 'Klienti është fshirë me sukses.', 'success');
-                // Reload the DataTable without refreshing the whole page
-                $('#listaKlientave').DataTable().ajax.reload(null, false); // false = keep current page
+                $('#listaKlientave').DataTable().ajax.reload(null, false);
               } else {
                 Swal.fire('Gabim!', 'Diçka shkoi keq.', 'error');
               }
