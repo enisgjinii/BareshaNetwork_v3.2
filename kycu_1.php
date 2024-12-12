@@ -1,32 +1,114 @@
-<!DOCTYPE html>
-
-<head>
-    <meta name="google-site-verification" content="65Q9V_d_6p9mOYD05AFLNYLveEnM01AOs5cW2-qKrB0" />
-</head>
 <?php
 session_start();
 header("X-Frame-Options: DENY");
-include('./config.php');
 
-// Ensure the Google Client is properly initialized in config.php
+// Include Composer's autoloader
+require_once 'vendor/autoload.php';
+
 use Google\Client;
 use Google\Service\PeopleService;
 
+// ==========================
+// Configuration
+// ==========================
+
+// **Warning:** Storing sensitive information directly in code is not recommended.
+// Consider using environment variables or secure configuration files instead.
+$clientConfig = [
+    "web" => [
+        "client_id" => "650026602310-8g611qsm0a5ftolpd5flgq0nncm6be2p.apps.googleusercontent.com",
+        "project_id" => "kinetic-horizon-357319",
+        "auth_uri" => "https://accounts.google.com/o/oauth2/auth",
+        "token_uri" => "https://oauth2.googleapis.com/token",
+        "auth_provider_x509_cert_url" => "https://www.googleapis.com/oauth2/v1/certs",
+        "client_secret" => "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",
+        "redirect_uris" => [
+            "http://localhost/BareshaNetwork_v3.2/kycu_1.php",
+            "https://panel.bareshaoffice.com/kycu_1.php",
+            "http://panel.bareshaoffice.com/kycu_1.php"
+        ]
+    ]
+];
+
+// Define constants for redirect URIs
+define('LOCALHOST_URI', "http://localhost/BareshaNetwork_v3.2/kycu_1.php");
+define('ONLINE_URI', "https://panel.bareshaoffice.com/kycu_1.php");
+
+// Initialize Google Client
+$client = new Client();
+$client->setClientId($clientConfig['web']['client_id']);
+$client->setClientSecret($clientConfig['web']['client_secret']);
+$client->setAccessType('offline'); // Request offline access
+$client->setApprovalPrompt('force'); // Force re-authorization
+
+// Determine the environment and set redirect URI accordingly
+$isLocal = ($_SERVER['SERVER_NAME'] === 'localhost');
+$redirectUri = $isLocal ? LOCALHOST_URI : ONLINE_URI;
+$client->setRedirectUri($redirectUri);
+
+// Set scopes
+$client->setScopes(["email", "profile"]);
+
+// ==========================
+// CSRF Protection - State Parameter
+// ==========================
+if (!isset($_SESSION['oauth2_state'])) {
+    $_SESSION['oauth2_state'] = bin2hex(random_bytes(16));
+}
+$client->setState($_SESSION['oauth2_state']);
+
+// Set prompt to ensure refresh_token is received
+$client->setPrompt('select_account consent');
+
+// Generate the OAuth 2.0 authorization URL
 $login_url = $client->createAuthUrl();
+
+// Set default timezone
 date_default_timezone_set('Europe/Tirane');
 
-if (isset($_GET['code'])) {
-    $token = $client->fetchAccessTokenWithAuthCode($_GET['code']);
-    if (isset($token['error'])) {
-        header('Location: kycu_1.php');
+// ==========================
+// Handle OAuth Callback
+// ==========================
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['code'])) {
+    // Validate state parameter to prevent CSRF
+    if (empty($_GET['state']) || ($_GET['state'] !== $_SESSION['oauth2_state'])) {
+        error_log('Invalid OAuth state');
+        header('Location: kycu_1.php?error=invalid_state');
         exit;
     }
 
-    // Store access and refresh tokens in secure cookies
+    // Exchange authorization code for access token
+    $token = $client->fetchAccessTokenWithAuthCode($_GET['code']);
+
+    if (isset($token['error'])) {
+        error_log('OAuth Error: ' . $token['error_description']);
+        header('Location: kycu_1.php?error=oauth_error');
+        exit;
+    }
+
+    // Store tokens in secure cookies
     $accessToken = $token['access_token'];
     $refreshToken = isset($token['refresh_token']) ? $token['refresh_token'] : null;
-    setcookie('accessToken', $accessToken, time() + 3600, '/', '', true, true);
-    setcookie('refreshToken', $refreshToken, time() + 86400 * 30, '/', '', true, true);
+
+    $cookieOptions = [
+        'expires' => time() + 3600, // 1 hour
+        'path' => '/',
+        'domain' => '', // Set to your domain if needed
+        'secure' => true, // Ensure cookies are sent over HTTPS
+        'httponly' => true, // Prevent JavaScript access to cookies
+        'samesite' => 'Lax' // CSRF protection
+    ];
+    setcookie('accessToken', $accessToken, $cookieOptions);
+    if ($refreshToken) {
+        setcookie('refreshToken', $refreshToken, [
+            'expires' => time() + (86400 * 30), // 30 days
+            'path' => '/',
+            'domain' => '',
+            'secure' => true,
+            'httponly' => true,
+            'samesite' => 'Lax'
+        ]);
+    }
 
     // Set the access token for the client
     $client->setAccessToken($token);
@@ -44,30 +126,76 @@ if (isset($_GET['code'])) {
     $picture = $user_info->getPhotos()[0]->getUrl();
 
     // Store user information in secure cookies
-    setcookie('email', $email, time() + 86400, '/', '', true, true);
-    setcookie('google_id', $google_id, time() + 86400, '/', '', true, true);
-    setcookie('f_name', $f_name, time() + 86400, '/', '', true, true);
-    setcookie('l_name', $l_name, time() + 86400, '/', '', true, true);
-    setcookie('gender', $gender, time() + 86400, '/', '', true, true);
-    setcookie('picture', $picture, time() + 86400, '/', '', true, true);
+    setcookie('email', $email, $cookieOptions);
+    setcookie('google_id', $google_id, $cookieOptions);
+    setcookie('f_name', $f_name, $cookieOptions);
+    setcookie('l_name', $l_name, $cookieOptions);
+    setcookie('gender', $gender, $cookieOptions);
+    setcookie('picture', $picture, $cookieOptions);
 
-    // Optional: Database operations to store user info
-    include('conn-d.php');
-    $check_email = $conn->prepare("SELECT `email` FROM `googleauth` WHERE `email`=?");
+    // ==========================
+    // Database Operations
+    // ==========================
+    // **Note:** Replace 'conn-d.php' contents with your actual database connection code.
+    // Ensure that 'conn-d.php' is secure and not accessible publicly.
+    include('conn-d.php'); // This should establish a $conn variable for the database connection
+
+    // Prepare and execute a statement to check if the email exists
+    $check_email = $conn->prepare("SELECT `email` FROM `googleauth` WHERE `email` = ?");
+    if ($check_email === false) {
+        error_log('Prepare failed: ' . $conn->error);
+        header('Location: kycu_1.php?error=database_error');
+        exit;
+    }
     $check_email->bind_param("s", $email);
     $check_email->execute();
     $check_email->store_result();
 
     if ($check_email->num_rows === 0) {
+        // Prepare and execute an insert statement
         $query_template = "INSERT INTO `googleauth` (`oauth_uid`, `firstName`, `last_name`, `email`, `profile_pic`, `gender`, `local`) VALUES (?, ?, ?, ?, ?, ?, ?)";
         $insert_stmt = $conn->prepare($query_template);
+        if ($insert_stmt === false) {
+            error_log('Prepare failed: ' . $conn->error);
+            header('Location: kycu_1.php?error=database_error');
+            exit;
+        }
         $local = ''; // Define $local as needed
         $insert_stmt->bind_param("sssssss", $google_id, $f_name, $l_name, $email, $picture, $gender, $local);
         $insert_stmt->execute();
+        $insert_stmt->close();
     }
+    $check_email->close();
+    $conn->close();
+
+    // Regenerate session ID to prevent session fixation
+    session_regenerate_id(true);
 
     // Redirect to the main page after successful login
     header('Location: index.php');
+    exit;
+}
+
+// ==========================
+// Handle Login Form Submission with reCAPTCHA
+// ==========================
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Verify reCAPTCHA
+    $recaptchaSecret = '6LfDuM8pAAAAAFIdDn0EuoAQ_qh8FIMppgJOQts_'; // Replace with your actual secret key
+    $recaptchaResponse = $_POST['g-recaptcha-response'];
+
+    // Make and decode POST request:
+    $recaptcha = file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret={$recaptchaSecret}&response={$recaptchaResponse}");
+    $recaptcha = json_decode($recaptcha, true);
+
+    // Take action based on the score returned:
+    if ($recaptcha["success"] !== true) {
+        // reCAPTCHA failed
+        die('reCAPTCHA verification failed. Please try again.');
+    }
+
+    // If reCAPTCHA is successful, redirect to Google's OAuth 2.0 server
+    header('Location: ' . filter_var($login_url, FILTER_SANITIZE_URL));
     exit;
 }
 ?>
@@ -175,10 +303,12 @@ if (isset($_GET['code'])) {
         </div>
         <h1>Mirë se vini në Baresha Panel</h1>
         <p>Identifikohu me llogarinë tënde të Google për të aksesuar panelin e administrimit.</p>
-        <div class="g-recaptcha" data-sitekey="6LfDuM8pAAAAAMkJTeKSVg0BBgqBw9LH8NBmeF4-" data-callback="enableLoginButton"></div>
-        <a id="loginButton" href="<?= htmlspecialchars($login_url . '&session_id=' . session_id()) ?>">
-            <i class="fab fa-google"></i> Identifikohu me Google
-        </a>
+        <form method="POST" action="kycu_1.php">
+            <div class="g-recaptcha" data-sitekey="6LfDuM8pAAAAAMkJTeKSVg0BBgqBw9LH8NBmeF4-" data-callback="enableLoginButton"></div>
+            <button id="loginButton" type="submit" disabled>
+                <i class="fab fa-google"></i> Identifikohu me Google
+            </button>
+        </form>
         <div class="footer">
             <p>© 2024 Baresha Panel. Të gjitha të drejtat e rezervuara.</p>
             <p>Për ndihmë, kontaktoni info@bareshamusic.com</p>
@@ -186,6 +316,7 @@ if (isset($_GET['code'])) {
     </div>
     <script>
         function enableLoginButton() {
+            document.getElementById('loginButton').disabled = false;
             document.getElementById('loginButton').style.display = 'block';
         }
     </script>
