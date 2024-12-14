@@ -1,7 +1,4 @@
-
-
 <?php
-
 
 $env = getenv('DB_ENV') ?: 'local';
 
@@ -10,15 +7,17 @@ if ($env == "local") {
   $db_user = getenv('DB_USER') ?: 'root';
   $db_pass = getenv('DB_PASS') ?: '';
   $db_name = getenv('DB_NAME') ?: 'bareshao_f';
+  $db_port = getenv('DB_PORT') ?: 3307; // Specify port 3307 for localhost
 } else {
   $db_host = getenv('DB_HOST') ?: '192.250.231.19';
   $db_user = getenv('DB_USER') ?: 'bareshao_f';
   $db_pass = getenv('DB_PASS') ?: 'pg07#cN40';
   $db_name = getenv('DB_NAME') ?: 'bareshao_f';
+  $db_port = getenv('DB_PORT') ?: 3306; // Default MySQL port
 }
 
 // Create database connection
-$conn = new mysqli($db_host, $db_user, $db_pass, $db_name);
+$conn = new mysqli($db_host, $db_user, $db_pass, $db_name, $db_port);
 
 // Check connection
 if ($conn->connect_errno) {

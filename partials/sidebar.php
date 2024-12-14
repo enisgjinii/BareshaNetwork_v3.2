@@ -1,5 +1,5 @@
-<nav class="sidebar sidebar-offcanvas ">
-  <ul class="nav">
+<nav class="sidebar sidebar-offcanvas m-2 border rounded-5" style="height:fit-content">
+  <ul class="nav" style="height:fit-content">
     <?php
     // Enable error reporting for debugging (disable in production)
     error_reporting(E_ALL);
@@ -110,16 +110,6 @@
         ],
       ],
       [
-        "title" => "Objekti",
-        "icon" => "fi fi-rr-chair-office menu-icon pe-3",
-        "collapseId" => "objekti",
-        "menuItems" => [
-          "office_investments.php" => ["title" => "Investimet e objektit"],
-          "office_damages.php" => ["title" => "Prishjet"],
-          "office_requirements.php" => ["title" => "Kerkesat"],
-        ],
-      ],
-      [
         "title" => "Klientët",
         "icon" => "fi fi-rr-handshake menu-icon pe-3",
         "collapseId" => "klienti",
@@ -133,7 +123,7 @@
             "badge" => $count > 0 ? "<span class='badge bg-success rounded ms-2'><i class='fi fi-rr-eye me-2'></i>{$count}</span>" : ""
           ],
           "rating_list.php" => ["title" => "Lista e vlersimeve"],
-          "waiting_clients.php" => ["title" => "Lista e klienteve ne pritje per bashkpunim"],
+          "waiting_clients.php" => ["title" => "Klientet ne pritje"],
         ],
       ],
       [
@@ -142,8 +132,7 @@
         "collapseId" => "video",
         "menuItems" => [
           "shtoy.php" => ["title" => "Regjistro një këngë"],
-          "listang.php" => ["title" => "Lista e këngëve"],
-          "checking.php" => ["title" => "Kontrollim i këngëve"],
+          "listang.php" => ["title" => "Lista e këngëve"]
         ],
       ],
       [
@@ -166,7 +155,6 @@
           ],
           "faturat.php" => ["title" => "Pagesat YouTube"],
           "pagesat.php" => ["title" => "Pagesat e kryera"],
-          "tatimi.php" => ["title" => "Tatimi"],
           "yinc.php" => ["title" => "Borxhi"],
           "shpenzimep.php" => ["title" => "Borxhet personale"],
         ],
@@ -214,19 +202,19 @@
           "lista_faturave_facebook.php" => ["title" => "Lista e faturave (Facebook)"],
         ],
       ],
-      [
-        "title" => "Platformat",
-        "icon" => "fi fi-rr-share menu-icon pe-3",
-        "collapseId" => "platformat2",
-        "menuItems" => [
-          "csvFiles.php" => ["title" => "Inserto CSV"],
-          "filtroCSV.php" => ["title" => "Filtro CSV"],
-          "listaEFaturaveTePlatformave.php" => ["title" => "Lista e faturave"],
-          "pagesatEKryera.php" => ["title" => "Pagesat e perfunduara"],
-          "platform_invoices.php" => ["title" => "Raporte te platformave"],
-          "currency.php" => ["title" => "Valutimi"],
-        ],
-      ],
+      // [
+      //   "title" => "Platformat",
+      //   "icon" => "fi fi-rr-share menu-icon pe-3",
+      //   "collapseId" => "platformat2",
+      //   "menuItems" => [
+      //     "csvFiles.php" => ["title" => "Inserto CSV"],
+      //     "filtroCSV.php" => ["title" => "Filtro CSV"],
+      //     "listaEFaturaveTePlatformave.php" => ["title" => "Lista e faturave"],
+      //     "pagesatEKryera.php" => ["title" => "Pagesat e perfunduara"],
+      //     "platform_invoices.php" => ["title" => "Raporte te platformave"],
+      //     "currency.php" => ["title" => "Valutimi"],
+      //   ],
+      // ],
     ];
 
     // Define additional standalone menu items
@@ -243,11 +231,7 @@
 
     // Define specific pages
     $specificPages = [
-      "index.php" => ["icon" => "fi fi-rr-home", "title" => "Shtëpia"],
-      "lista_kopjeve_rezerve.php" => ["icon" => "fi fi-rr-database", "title" => "Lista e kopjeve rezerve"],
-      "strike-platform.php" => ["icon" => "fi fi-rr-megaphone", "title" => "Strikes"],
-      "investime.php" => ["icon" => "fi fi-rr-money-check-edit", "title" => "Investime"],
-      // Add more specific pages as needed...
+      "index.php" => ["icon" => "fi fi-rr-home", "title" => "Shtëpia"]
     ];
 
     /**
@@ -328,9 +312,7 @@
     ?>
     <hr class="mx-auto" style="width:80%;display:block;color:white">
     <div class="text-center">
-      <a class="input-custom-css px-3 py-2 m-2" style="text-transform:none;text-decoration:none;width:fit-content" href="account.php">
-        <i class="fi fi-rr-user"></i>
-      </a>
+
       <!-- <a class="input-custom-css-disabled px-3 py-2 m-2" style="text-transform:none;text-decoration:none;width:fit-content" href="link2.php">
         <i class="fi fi-rr-settings"></i>
       </a> -->

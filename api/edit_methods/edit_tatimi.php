@@ -1,11 +1,11 @@
 <?php
-// update_tatimi.php
+// edit_tatimi.php
 
 // Set the response header to JSON
 header('Content-Type: application/json');
 
 // Include the database connection file
-include 'conn-d.php';
+include '../../conn-d.php';
 
 // Initialize the response array
 $response = [

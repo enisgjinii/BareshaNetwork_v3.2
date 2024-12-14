@@ -61,9 +61,6 @@ function format_page_name($page)
     if ($page == 'shpenzimep.php') {
         return 'Shpenzimet personale';
     }
-    if ($page == 'tatimi.php') {
-        return 'Tatimi';
-    }
     if ($page == 'yinc.php') {
         return 'Shpenzimet';
     }
@@ -172,7 +169,6 @@ $pages = array(
     'claim.php',
     'whitelist.php',
     'rrogat.php',
-    'tatimi.php',
     'yinc.php',
     'shpenzimep.php',
     'faturat.php',

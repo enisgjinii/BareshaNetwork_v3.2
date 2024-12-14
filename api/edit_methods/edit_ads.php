@@ -14,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // Lidhuni me bazën e të dhënave dhe përgatitni pyetjen SQL
-    include 'conn-d.php';
+    include '../../conn-d.php';
 
     $sql = "UPDATE facebook_ads SET email = ?, ads_id = ?, shteti = ? WHERE id = ?";
     $stmt = mysqli_prepare($conn, $sql);

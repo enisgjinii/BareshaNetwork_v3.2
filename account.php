@@ -1,4 +1,5 @@
 <?php
+ob_start();
 include 'partials/header.php';
 
 // Start the session if not already started

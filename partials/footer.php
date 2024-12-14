@@ -1,72 +1,37 @@
 <?php
-// config.php
+// Definoni versionin e aplikacionit
 define('APP_VERSION', '3.2.0');
-?>
-<?php
-// Close content wrappers
+
+// Mbyllni elementet div
 echo '</div></div>';
-// Footer section
 ?>
+
+<!-- Footer i faqes -->
 <footer class="footer">
   <div class="d-sm-flex justify-content-between justify-content-sm-between">
-    <span class="text-muted">
-      &copy; <?php echo date("Y"); ?>
-      <a href="" target="_blank">BareshaNetwork</a>. All rights reserved.
-    </span>
-    <span>
-      <b>Version:</b> <?php echo APP_VERSION; ?>
-    </span>
+    <!-- Tregoni të drejtat e rezervuara dhe linkun për "BareshaNetwork" -->
+    <span class="text-muted">&copy; <?php echo date("Y"); ?><a href="" target="_blank">BareshaNetwork</a>. Të gjitha të drejtat janë të rezervuara.</span>
+    <!-- Tregoni versionin aktual të aplikacionit -->
+    <span><b>Version:</b> <?php echo APP_VERSION; ?></span>
   </div>
 </footer>
+
 <?php
-// Array of script URLs
+// Definoni skedarët JavaScript që duhen ngarkuar
 $scripts = [
-  // JavaScript libraries and custom scripts
-  'https://code.jquery.com/jquery-3.6.3.js' => [
-    'defer' => true,
-    'integrity' => 'sha256-nQLuAZGRRcILA+6dMBOvcRh5Pe310sBpanc6+QBmyVM=',
-    'crossorigin' => 'anonymous'
-  ],
+  'https://code.jquery.com/jquery-3.6.3.js' => ['defer' => true, 'integrity' => 'sha256-nQLuAZGRRcILA+6dMBOvcRh5Pe310sBpanc6+QBmyVM=', 'crossorigin' => 'anonymous'],
   'vendors/chart.js/Chart.min.js',
   'js/off-canvas.js',
   'js/hoverable-collapse.js',
   'js/template.js',
   'js/dashboard.js',
-  'js/data-table.js',
   'js/jquery.cookie.js',
-  // DataTables and related plugins
-  'https://cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js',
-  'https://cdn.datatables.net/1.13.1/js/dataTables.bootstrap5.min.js',
-  'https://cdn.datatables.net/plug-ins/1.13.1/i18n/sq.json',
-  // DataTables extensions
-  'https://cdn.datatables.net/autofill/2.5.1/js/dataTables.autoFill.min.js',
-  'https://cdn.datatables.net/autofill/2.5.1/js/autoFill.bootstrap5.min.js',
-  'https://cdn.datatables.net/buttons/2.3.3/js/dataTables.buttons.min.js',
-  'https://cdn.datatables.net/buttons/2.3.3/js/buttons.bootstrap5.min.js',
-  'https://cdn.datatables.net/buttons/3.1.2/js/buttons.colVis.min.js',
-  'https://cdn.datatables.net/buttons/2.3.3/js/buttons.html5.min.js',
-  'https://cdn.datatables.net/buttons/2.3.3/js/buttons.print.min.js',
-  'https://cdn.datatables.net/colreorder/1.6.1/js/dataTables.colReorder.min.js',
-  'https://cdn.datatables.net/datetime/1.2.0/js/dataTables.dateTime.min.js',
-  'https://cdn.datatables.net/fixedcolumns/4.2.1/js/dataTables.fixedColumns.min.js',
-  'https://cdn.datatables.net/fixedheader/3.3.1/js/dataTables.fixedHeader.min.js',
-  'https://cdn.datatables.net/keytable/2.8.0/js/dataTables.keyTable.min.js',
-  'https://cdn.datatables.net/responsive/2.4.0/js/dataTables.responsive.min.js',
-  'https://cdn.datatables.net/responsive/2.4.0/js/responsive.bootstrap5.min.js',
-  'https://cdn.datatables.net/rowgroup/1.3.0/js/dataTables.rowGroup.min.js',
-  'https://cdn.datatables.net/rowreorder/1.3.1/js/dataTables.rowReorder.min.js',
-  'https://cdn.datatables.net/scroller/2.0.7/js/dataTables.scroller.min.js',
-  'https://cdn.datatables.net/searchbuilder/1.4.0/js/dataTables.searchBuilder.min.js',
-  'https://cdn.datatables.net/searchbuilder/1.4.0/js/searchBuilder.bootstrap5.min.js',
-  'https://cdn.datatables.net/searchpanes/2.1.0/js/dataTables.searchPanes.min.js',
-  'https://cdn.datatables.net/searchpanes/2.1.0/js/searchPanes.bootstrap5.min.js',
-  'https://cdn.datatables.net/select/1.5.0/js/dataTables.select.min.js',
-  // Additional libraries
-  'https://cdn.jsdelivr.net/npm/pdfmake@0.1.36/build/pdfmake.min.js',
-  'https://cdn.jsdelivr.net/npm/pdfmake@0.1.36/build/vfs_fonts.js',
-  'https://cdn.jsdelivr.net/npm/moment/moment.min.js',
+  'https://cdn.datatables.net/2.1.8/js/dataTables.min.js',
+  'https://cdn.datatables.net/2.1.8/js/dataTables.bootstrap5.min.js',
+  'https://cdn.jsdelivr.net/npm/moment/moment.min.js'
 ];
-// Function to generate script tags
+
+// Ngarkoni çdo skedar me atribute përkatëse
 foreach ($scripts as $key => $value) {
   if (is_array($value)) {
     $src = $key;
@@ -81,8 +46,9 @@ foreach ($scripts as $key => $value) {
   echo "<script src=\"$src\"$attributes></script>\n";
 }
 ?>
+
 <script>
-  // Function to enable dark mode
+  // Funksion për të aktivizuar modalitetin e errët
   function enableDarkMode() {
     DarkReader.enable({
       brightness: 100,
@@ -94,13 +60,15 @@ foreach ($scripts as $key => $value) {
     document.getElementById('modeIcon').className = 'fi fi-rr-brightness';
     localStorage.setItem('darkMode', 'dark');
   }
-  // Function to disable dark mode
+
+  // Funksion për të çaktivizuar modalitetin e errët
   function disableDarkMode() {
     DarkReader.disable();
     document.getElementById('modeIcon').className = 'fi fi-rr-moon';
     localStorage.setItem('darkMode', 'light');
   }
-  // Function to toggle dark mode
+
+  // Funksion për të ndërruar mes modalitetit të errët dhe të ndritshëm
   function toggleDarkMode() {
     const isDarkMode = localStorage.getItem('darkMode') !== 'dark';
     if (isDarkMode) {
@@ -109,6 +77,8 @@ foreach ($scripts as $key => $value) {
       disableDarkMode();
     }
   }
+
+  // Kontrolloni preferencat e përdoruesit për modalitetin e errët
   function checkDarkModePreference() {
     const userPreference = localStorage.getItem('darkMode');
     if (userPreference === 'dark') {
@@ -117,14 +87,18 @@ foreach ($scripts as $key => $value) {
       disableDarkMode();
     }
   }
-  // Initialize dark mode based on preference
+
+  // Kur faqja të ngarkohet, kontrolloni preferencat e modalitetit
   window.addEventListener('load', checkDarkModePreference);
-  // Toggle dark mode on button click
+
+  // Lidheni butonin për ndërrimin e modalitetit me funksionin përkatës
   document.getElementById('darkModeButton').addEventListener('click', toggleDarkMode);
 </script>
+
 <script>
+  // Funksion për të konfirmuar daljen nga llogaria
   function confirmLogout(event) {
-    event.preventDefault(); // Prevent the default action
+    event.preventDefault();
     Swal.fire({
       title: 'Jeni të sigurt që doni të dilni?',
       text: 'Ju do të dilni nga llogaria juaj pas 10 sekondash.',
@@ -140,15 +114,8 @@ foreach ($scripts as $key => $value) {
         Swal.showLoading();
       }
     }).then((result) => {
-      if (result.isConfirmed) {
-        // User confirmed logout
+      if (result.isConfirmed || result.dismiss === Swal.DismissReason.timer) {
         window.location.href = 'logout.php';
-      } else if (result.dismiss === Swal.DismissReason.timer) {
-        // Timer ran out
-        window.location.href = 'logout.php';
-      } else {
-        // User canceled logout
-        // Do nothing
       }
     });
   }

@@ -187,7 +187,6 @@ include('partials/header.php');
                                                     <?php } ?>
                                                     <!-- Add a button with a Google Drive icon and to go redirect to file called add_manual_conttract.php -->
                                                     <!-- <br> -->
-                                                    <a href="add_manual_contract.php?id=<?php echo $k['id']; ?>" class="btn btn-light rounded-5 border- border-2"><img style="width: 24px; height: 24px;" src="https://img.icons8.com/color/256/google-drive--v2.png" alt="google-drive--v2" /></a>
                                                 </td>
                                             </tr>
                                         <?php } ?>
@@ -203,10 +202,8 @@ include('partials/header.php');
 </div>
 <?php
 require './vendor/autoload.php';
-
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
-
 $dateComponent = date('Ymd');
 $nameComponent = 'BAR';
 $token = $dateComponent . $nameComponent;
@@ -340,7 +337,6 @@ ob_flush();
 ?>
 <script>
     var token = "<?php echo isset($token) ? $token : ''; ?>";
-
     function updateEmailInput(button) {
         var id = button.getAttribute("data-id");
         var tableRow = button.closest("tr");

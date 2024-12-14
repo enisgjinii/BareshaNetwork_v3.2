@@ -3,6 +3,36 @@ session_start(); // Start the session to handle messages
 include('conn-d.php');
 ob_start(); // Start output buffering
 
+// Load Composer's autoloader
+require 'vendor/autoload.php';
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+// Initialize PHPMailer
+$mail = new PHPMailer(true);
+
+// SMTP Configuration
+try {
+    //Server settings
+    $mail->isSMTP();
+    $mail->Host       = 'smtp.gmail.com';
+    $mail->SMTPAuth   = true;
+    $mail->Username   = 'egjini@bareshamusic.com';
+    $mail->Password   = 'lcgglivhzwmpuyui';
+    $mail->SMTPSecure = 'tls'; // Enable TLS encryption, `ssl` also accepted
+    $mail->Port = 587; // TCP port to connect to     // TCP port to connect to
+    $mail->CharSet    = 'UTF-8';                                // Set email encoding
+} catch (Exception $e) {
+    // Log SMTP connection errors
+    error_log("PHPMailer SMTP Connection Error: " . $mail->ErrorInfo);
+    // Optionally, you can handle this error differently
+}
+
+// Define the recipient for error notifications
+define('ADMIN_EMAIL', 'egjini17@gmail.com'); // Replace with your admin email
+define('ADMIN_NAME', 'Admin');
+
 // Sanitize and retrieve form inputs
 $emri = isset($_POST['emri']) ? mysqli_real_escape_string($conn, trim($_POST['emri'])) : '';
 $mbiemri = isset($_POST['mbiemri']) ? mysqli_real_escape_string($conn, trim($_POST['mbiemri'])) : '';
@@ -48,7 +78,9 @@ do {
     $sql_check = "SELECT COUNT(*) AS count FROM kontrata_gjenerale WHERE id_kontrates = ?";
     $stmt_check = $conn->prepare($sql_check);
     if (!$stmt_check) {
-        $_SESSION['error'] = "Gabim në përgatitjen e pyetjes: " . $conn->error;
+        $errorMessage = "Gabim në përgatitjen e pyetjes: " . $conn->error;
+        $_SESSION['error'] = $errorMessage;
+        sendErrorEmail($emri, $mbiemri, $errorMessage);
         header("Location: kontrata_gjenerale_2.php");
         exit();
     }
@@ -68,7 +100,13 @@ $uploadedFilePaths = [];
 $uploadDirectory = 'uploads/documents/'; // Ensure this directory exists and is writable
 
 if (!is_dir($uploadDirectory)) {
-    mkdir($uploadDirectory, 0755, true);
+    if (!mkdir($uploadDirectory, 0755, true)) {
+        $errorMessage = "Gabim në krijimin e dosjes së ngarkimit.";
+        $_SESSION['error'] = $errorMessage;
+        sendErrorEmail($emri, $mbiemri, $errorMessage);
+        header("Location: kontrata_gjenerale_2.php");
+        exit();
+    }
 }
 
 if (isset($_FILES['documents']) && $_FILES['documents']['error'][0] != UPLOAD_ERR_NO_FILE) {
@@ -85,18 +123,22 @@ if (isset($_FILES['documents']) && $_FILES['documents']['error'][0] != UPLOAD_ER
         $fileName = basename($_FILES['documents']['name'][$key]);
         $fileSize = $_FILES['documents']['size'][$key];
         $fileType = mime_content_type($tmpName);
-        $fileExt = pathinfo($fileName, PATHINFO_EXTENSION);
+        $fileExt = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
 
         // Validate file type
         if (!in_array($fileType, $allowedTypes)) {
-            $_SESSION['error'] = "Lloji i skedarit '$fileName' nuk është i lejuar.";
+            $errorMessage = "Lloji i skedarit '$fileName' nuk është i lejuar.";
+            $_SESSION['error'] = $errorMessage;
+            sendErrorEmail($emri, $mbiemri, $errorMessage);
             header("Location: kontrata_gjenerale_2.php");
             exit();
         }
 
         // Validate file size
         if ($fileSize > $maxSize) {
-            $_SESSION['error'] = "Skedari '$fileName' tejkalon madhësinë maksimale prej 5MB.";
+            $errorMessage = "Skedari '$fileName' tejkalon madhësinë maksimale prej 5MB.";
+            $_SESSION['error'] = $errorMessage;
+            sendErrorEmail($emri, $mbiemri, $errorMessage);
             header("Location: kontrata_gjenerale_2.php");
             exit();
         }
@@ -109,7 +151,9 @@ if (isset($_FILES['documents']) && $_FILES['documents']['error'][0] != UPLOAD_ER
         if (move_uploaded_file($tmpName, $targetFilePath)) {
             $uploadedFilePaths[] = $targetFilePath;
         } else {
-            $_SESSION['error'] = "Gabim gjatë ngarkimit të skedarit '$fileName'.";
+            $errorMessage = "Gabim gjatë ngarkimit të skedarit '$fileName'.";
+            $_SESSION['error'] = $errorMessage;
+            sendErrorEmail($emri, $mbiemri, $errorMessage);
             header("Location: kontrata_gjenerale_2.php");
             exit();
         }
@@ -142,15 +186,16 @@ $sql_insert = "INSERT INTO kontrata_gjenerale (
     shteti,
     kohezgjatja,
     shenim,
-    lloji_dokumentit,
-    document_path
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    lloji_dokumentit
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
 $stmt_insert = $conn->prepare($sql_insert);
 if ($stmt_insert) {
-    // Corrected type string: 21 characters
-    $typeString = "ssssssissssssssisssss"; // 21 characters
-    $variables = [
+    // Define the types for bind_param
+    // s = string, i = integer, etc.
+    // Adjust the types based on your database schema
+    $stmt_insert->bind_param(
+        "ssssssissssssssissss",
         $emri,
         $mbiemri,
         $invoiceNumber,
@@ -170,29 +215,106 @@ if ($stmt_insert) {
         $shteti,
         $kohezgjatja,
         $shenim,
-        $lloji_dokumentit,
-        $documentPathsJson
-    ];
-
-    // Bind parameters
-    $stmt_insert->bind_param($typeString, ...$variables);
+        $lloji_dokumentit
+    );
 
     if ($stmt_insert->execute()) {
+        // Success Message
         $_SESSION['success'] = 'Kontrata u krijua me sukses!';
+
+        // Send Success Email
+        sendSuccessEmail($emri, $mbiemri, $invoiceNumber, $email);
+
         header("Location: lista_kontratave_gjenerale.php");
         exit();
     } else {
-        $_SESSION['error'] = "Gabim gjatë krijimit të kontratës: " . $stmt_insert->error;
+        // Error during execution
+        $errorMessage = "Gabim gjatë krijimit të kontratës: " . $stmt_insert->error;
+        $_SESSION['error'] = $errorMessage;
+
+        // Send Error Email
+        sendErrorEmail($emri, $mbiemri, $errorMessage);
+
         header("Location: kontrata_gjenerale_2.php");
         exit();
     }
 
     $stmt_insert->close();
 } else {
-    $_SESSION['error'] = "Gabim në përgatitjen e pyetjes: " . $conn->error;
+    // Error preparing statement
+    $errorMessage = "Gabim në përgatitjen e pyetjes: " . $conn->error;
+    $_SESSION['error'] = $errorMessage;
+
+    // Send Error Email
+    sendErrorEmail($emri, $mbiemri, $errorMessage);
+
     header("Location: kontrata_gjenerale_2.php");
     exit();
 }
 
 $conn->close();
 ob_end_flush(); // Flush the output buffer and turn off output buffering
+
+/**
+ * Function to send success email
+ */
+function sendSuccessEmail($emri, $mbiemri, $invoiceNumber, $clientEmail)
+{
+    global $mail;
+
+    try {
+        //Recipients
+        $mail->setFrom('egjini17@gmail.com', 'Your Company Name'); // Replace with your sender info
+        $mail->addAddress(ADMIN_EMAIL, ADMIN_NAME);
+
+        // Content
+        $mail->isHTML(true);                                        // Set email format to HTML
+        $mail->Subject = 'Kontrata Juaj u Krijua me Sukses';
+        $mail->Body    = "
+            <h2>Përshëndetje, $emri $mbiemri!</h2>
+            <p>Kontrata juaj me numër <strong>$invoiceNumber</strong> u krijua me sukses në sistemin tonë.</p>
+            <p>Ju lutemi kontrolloni detajet në seksionin tuaj të klientit.</p>
+            <p>Faleminderit për besimin tuaj!</p>
+            <hr>
+            <p>Me respekt,<br>Your Company Name</p>
+        ";
+        $mail->AltBody = "Përshëndetje, $emri $mbiemri!\n\nKontrata juaj me numër $invoiceNumber u krijua me sukses në sistemin tonë.\n\nJu lutemi kontrolloni detajet në seksionin tuaj të klientit.\n\nFaleminderit për besimin tuaj!\n\nMe respekt,\nYour Company Name";
+
+        $mail->send();
+    } catch (Exception $e) {
+        // Log email sending errors
+        error_log("PHPMailer Error (Success Email): " . $mail->ErrorInfo);
+    }
+}
+
+/**
+ * Function to send error email
+ */
+function sendErrorEmail($emri, $mbiemri, $errorMessage)
+{
+    global $mail;
+
+    try {
+        //Recipients
+        $mail->setFrom('egjini17@gmail.com', 'Your Company Name'); // Replace with your sender info
+        $mail->addAddress(ADMIN_EMAIL, ADMIN_NAME);                  // Admin recipient
+
+        // Content
+        $mail->isHTML(true);                                        // Set email format to HTML
+        $mail->Subject = 'Gabim gjatë Krijimit të Kontratës';
+        $mail->Body    = "
+            <h2>Gabim Gjatë Krijimit të Kontratës</h2>
+            <p><strong>Klienti:</strong> $emri $mbiemri</p>
+            <p><strong>Gabimi:</strong> $errorMessage</p>
+            <p>Ju lutemi kontrolloni sistemin tuaj për detaje të mëtejshme.</p>
+            <hr>
+            <p>Me respekt,<br>Your System</p>
+        ";
+        $mail->AltBody = "Gabim Gjatë Krijimit të Kontratës\n\nKlienti: $emri $mbiemri\nGabimi: $errorMessage\n\nJu lutemi kontrolloni sistemin tuaj për detaje të mëtejshme.\n\nMe respekt,\nYour System";
+
+        $mail->send();
+    } catch (Exception $e) {
+        // Log email sending errors
+        error_log("PHPMailer Error (Error Email): " . $mail->ErrorInfo);
+    }
+}

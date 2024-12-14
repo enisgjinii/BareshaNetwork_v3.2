@@ -3,8 +3,8 @@
 session_start();
 
 // Include database connection and Invoice class
-include('conn-d.php');
-include('Invoice_2.php');
+include('../../conn-d.php');
+include('../../Invoice_2.php');
 
 // Check if form is submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {

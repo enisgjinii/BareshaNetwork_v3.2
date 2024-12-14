@@ -87,6 +87,7 @@ try {
 ?>
 <!doctype html>
 <html lang="en">
+
 <head>
     <title>Kontrata Gjenerale për Klient</title>
     <meta charset="UTF-8">
@@ -102,6 +103,7 @@ try {
             font-size: 13px;
             /* Reduced font size for compactness */
         }
+
         /* Custom modal backdrop with blur effect */
         .modal-backdrop.show {
             background-color: rgba(0, 0, 0, 0.5);
@@ -109,6 +111,7 @@ try {
             -webkit-backdrop-filter: blur(25px);
             backdrop-filter: blur(25px);
         }
+
         .modal-backdrop {
             position: fixed;
             top: 0;
@@ -116,6 +119,7 @@ try {
             width: 100%;
             height: 100%;
         }
+
         .contract-container {
             background: #ffffff;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -131,17 +135,20 @@ try {
             margin: auto;
             /* Center the container */
         }
+
         .contract-header {
             text-align: center;
             margin-bottom: 15px;
             /* Reduced bottom margin */
         }
+
         .contract-header img {
             width: 80px;
             /* Reduced image width */
             margin-bottom: 5px;
             /* Reduced bottom margin */
         }
+
         .contract-title {
             font-size: 20px;
             /* Reduced font size */
@@ -153,10 +160,12 @@ try {
             margin-bottom: 5px;
             /* Reduced bottom margin */
         }
+
         .contract-section {
             margin-bottom: 15px;
             /* Reduced bottom margin */
         }
+
         .contract-section p {
             line-height: 1.5;
             /* Slightly reduced line height */
@@ -164,14 +173,17 @@ try {
             margin-bottom: 8px;
             /* Added bottom margin for spacing */
         }
+
         .contract-section p strong {
             color: #2c3e50;
         }
+
         .signature-section img {
             width: 150px;
             /* Reduced image width */
             height: auto;
         }
+
         .form-section {
             background: #f9f9f9;
             padding: 15px;
@@ -183,6 +195,7 @@ try {
             margin-top: 15px;
             /* Added top margin */
         }
+
         .form-section h5 {
             margin-bottom: 15px;
             /* Reduced bottom margin */
@@ -191,6 +204,7 @@ try {
             font-size: 16px;
             /* Reduced font size */
         }
+
         .alert-success,
         .alert-danger,
         .alert-info {
@@ -201,18 +215,22 @@ try {
             font-size: 13px;
             /* Reduced font size */
         }
+
         .signature-section.row {
             margin-top: 20px;
             /* Adjusted top margin */
         }
+
         .signature-section .col-md-6 {
             margin-bottom: 15px;
             /* Added bottom margin for spacing on smaller screens */
         }
+
         .signature-section .border-bottom {
             border-bottom: 1px solid #ccc;
             padding-bottom: 3px;
         }
+
         .btn-download {
             display: inline-block;
             padding: 6px 12px;
@@ -225,21 +243,27 @@ try {
             color: #ffffff;
             text-decoration: none;
         }
+
         .btn-download:hover {
             background-color: #1a252f;
         }
+
         .no-print {
             /* Elements with this class will be hidden in print */
         }
+
         .print-overlay {
             display: none;
         }
+
         /* Print-specific Styles */
         @media print {
+
             /* Hide non-print elements */
             .no-print {
                 display: none !important;
             }
+
             /* Print Overlay */
             .print-overlay {
                 display: block;
@@ -250,6 +274,7 @@ try {
                 height: 100%;
                 z-index: -1;
             }
+
             .print-overlay img {
                 width: 100%;
                 height: 40%;
@@ -265,6 +290,7 @@ try {
                 /* Ensure it doesn't interfere with other elements */
                 z-index: -1;
             }
+
             /* Adjust contract container */
             .contract-container {
                 box-shadow: none;
@@ -273,11 +299,13 @@ try {
                 max-width: 100%;
                 background: transparent;
             }
+
             /* Optional: Adjust font sizes for print */
             body {
                 font-size: 14px;
             }
         }
+
         #blurOverlay {
             display: none;
             /* Hidden by default */
@@ -293,6 +321,7 @@ try {
         }
     </style>
 </head>
+
 <body>
     <div id="blurOverlay"></div>
     <!-- Print Overlay -->
@@ -871,14 +900,17 @@ try {
             const submitSignature = document.getElementById('submitSignature');
             const numriPersonal = "<?php echo sanitizeInput($contract['numri_personal'] ?? ''); ?>";
             const showModal = <?php echo empty($contract['nenshkrimi']) ? 'true' : 'false'; ?>;
-            // Initialize Bootstrap Modal
+
+            // Bootstrap Modal
             const verifyModal = new bootstrap.Modal(document.getElementById('verifyModal'), {
                 backdrop: 'static',
                 keyboard: false
             });
+
             // Get the overlay element
             const blurOverlay = document.getElementById('blurOverlay');
             const modalElement = document.getElementById('verifyModal');
+
             // Show the overlay when modal is shown
             modalElement.addEventListener('show.bs.modal', function() {
                 blurOverlay.style.display = 'block';
@@ -887,30 +919,49 @@ try {
             modalElement.addEventListener('hide.bs.modal', function() {
                 blurOverlay.style.display = 'none';
             });
-            // Function to check if user is verified within the last hour
+
+            // Extract contract id from URL
+            function getContractIdFromUrl() {
+                const urlParams = new URLSearchParams(window.location.search);
+                return urlParams.get('id');
+            }
+
+            const currentContractId = getContractIdFromUrl();
+
+            // Check if user is verified within the last hour
             function isUserVerified() {
                 const verificationTimestamp = localStorage.getItem('verificationTimestamp');
+                const verifiedContractId = localStorage.getItem('verifiedContractId');
+
+                if (!verifiedContractId || verifiedContractId !== currentContractId) {
+                    // Different contract or not verified at all
+                    return false;
+                }
+
                 if (verificationTimestamp) {
-                    const currentTime = new Date().getTime();
+                    const currentTime = Date.now();
                     const timeDifference = currentTime - verificationTimestamp;
                     // Check if the time difference is less than 1 hour (3600000 milliseconds)
                     if (timeDifference < 3600000) {
                         return true;
                     } else {
-                        // Remove outdated timestamp
+                        // Remove outdated timestamp and contract ID since it expired
                         localStorage.removeItem('verificationTimestamp');
+                        localStorage.removeItem('verifiedContractId');
                         return false;
                     }
                 }
                 return false;
             }
-            // Automatically show modal if nenshkrimi is empty and user is not verified
+
+            // Automatically show modal if contract not signed and user not verified
             if (showModal && !isUserVerified()) {
                 verifyModal.show();
             } else {
-                // User is verified, enable the submit button
+                // User is verified and contract matches, enable the submit button
                 submitSignature.disabled = false;
             }
+
             // Handle verification logic
             verifyButton.addEventListener('click', function() {
                 const enteredNumri = numriPersonalInput.value.trim();
@@ -923,12 +974,14 @@ try {
                     document.getElementById('verificationForm').querySelectorAll('input, button').forEach(elem => {
                         elem.disabled = true;
                     });
-                    // Store verification timestamp in localStorage
-                    localStorage.setItem('verificationTimestamp', new Date().getTime());
+                    // Store verification timestamp and contract ID in localStorage
+                    localStorage.setItem('verificationTimestamp', Date.now());
+                    localStorage.setItem('verifiedContractId', currentContractId);
                 } else {
                     errorMessage.style.display = 'block';
                 }
             });
+
             // Prevent form submission without signature
             signatureForm.addEventListener('submit', function(event) {
                 if (signaturePad.isEmpty()) {
@@ -941,8 +994,10 @@ try {
             });
         });
     </script>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.3.0/mdb.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 </body>
+
 </html>

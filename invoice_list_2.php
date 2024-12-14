@@ -100,7 +100,7 @@ if (!empty($_POST['companyName']) && $_POST['companyName']) {
 
         <!-- Create Invoice Tab -->
         <div class="tab-pane fade" id="pills-krijo_fature" role="tabpanel" aria-labelledby="pills-krijo_fature-tab">
-          <form action="save_invoice.php" id="invoice-form" method="post" class="invoice-form card p-2" role="form" novalidate="">
+          <form action="api/post_methods/post_save_invoice.php" id="invoice-form" method="post" class="invoice-form card p-2" role="form" novalidate="">
             <div class="load-animate animated fadeInUp">
               <input id="currency" type="hidden" value="$">
               <div class="row g-2">

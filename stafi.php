@@ -66,43 +66,6 @@
                                                             <button class="btn btn-sm btn-success rounded-5 shadow-0 px-2 py-2 text-white" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasActivities_<?php echo $k['id']; ?>" aria-controls="offcanvasActivities_<?php echo $k['id']; ?>">
                                                                 <i class="fi fi-rr-search-alt"></i>
                                                             </button>
-                                                            <button type="button" class="btn btn-sm btn-info rounded-5 shadow-0 px-2 py-2 text-white" data-bs-toggle="modal" data-bs-target="#dergoEmailModal<?php echo $k['id']; ?>">
-                                                                <i class="fi fi-rr-info"></i>
-                                                            </button>
-                                                            <div class="modal fade" id="dergoEmailModal<?php echo $k['id']; ?>" tabindex="-1" aria-labelledby="dergoEmailModalLabel" aria-hidden="true">
-                                                                <div class="modal-dialog">
-                                                                    <div class="modal-content">
-                                                                        <div class="modal-header">
-                                                                            <h1 class="modal-title fs-5" id="dergoEmailModalLabel">Dërgoni një email te stafi : <?php echo $k['firstName'] . " " . $k['last_name']; ?></h1>
-                                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                                        </div>
-                                                                        <div class="modal-body">
-                                                                            <form method="post" action="send_email_stafi.php" enctype="multipart/form-data">
-                                                                                <!-- Subject -->
-                                                                                <div class="mb-3">
-                                                                                    <label for="subject" class="form-label">Subjekti</label>
-                                                                                    <input type="text" class="form-control border border-2 rounded-5" id="subject" name="subject" required>
-                                                                                </div>
-                                                                                <div class="mb-3">
-                                                                                    <label for="email" class="form-label">Email</label>
-                                                                                    <input type="email" class="form-control border border-2 rounded-5" id="email" name="email" required value="<?php echo $k['email']; ?>">
-                                                                                </div>
-                                                                                <div class="mb-3">
-                                                                                    <label for="message" class="form-label">Message</label>
-                                                                                    <textarea class="form-control border border-2 rounded-5" id="message" name="message" rows="3" required></textarea>
-                                                                                </div>
-                                                                                <div class="mb-3">
-                                                                                    <label for="attachment" class="form-label">Attachment</label>
-                                                                                    <input type="file" class="form-control border border-2 rounded-5" id="attachment" name="attachment">
-                                                                                </div>
-                                                                        </div>
-                                                                        <div class="modal-footer">
-                                                                            <button type="submit" class="input-custom-css px-3 py-2">Dërgo</button>
-                                                                            </form>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
                                                             <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasActivities_<?php echo $k['id']; ?>" aria-labelledby="offcanvasActivities_<?php echo $k['id']; ?>">
                                                                 <div class="offcanvas-header border-bottom">
                                                                     <h5 id="offcanvasRightEditLabel_<?php echo $k['id']; ?>">Aktiviteti ne sistem i puntorit <?php echo $eme; ?></h5>
@@ -495,7 +458,6 @@
         // Send the request with the employee ID and salary
         xhr.send('id=' + employeeId + '&salary=' + newSalary);
     }
-
     function editEmployee(employeeId, currentSalary) {
         // Set the dynamic ID for the offcanvas and form
         const offcanvasId = `offcanvasRightEdit_${employeeId}`;

@@ -853,7 +853,7 @@ include 'conn-d.php';
                     e.preventDefault();
                     const formData = new FormData(this);
                     $.ajax({
-                        url: 'update_tatimi.php',
+                        url: 'api/edit_methods/edit_tatimi.php',
                         type: 'POST',
                         data: formData,
                         contentType: false,

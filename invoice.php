@@ -1125,7 +1125,7 @@ function generateInvoiceNumber()
     }
   });
 </script>
-<script src="states.js"></script>
+<script src="js/states.js"></script>
 <?php include 'partials/footer.php' ?>
 </body>
 
