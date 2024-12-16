@@ -5,7 +5,7 @@
         "google/recaptcha": "^1.3",
         "google/auth": "^1.26",
         "dompdf/dompdf": "^3.0",
-        "phpoffice/phpspreadsheet": "^2.1",
+        "phpoffice/phpspreadsheet": "^3.6",
         "tecnickcom/tcpdf": "^6.7",
         "mpdf/mpdf": "^8.2",
         "symfony/cache": "^6.4",

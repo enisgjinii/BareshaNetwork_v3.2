@@ -1,0 +1,15 @@
+{
+    "web": {
+        "client_id": "650026602310-8g611qsm0a5ftolpd5flgq0nncm6be2p.apps.googleusercontent.com",
+        "project_id": "kinetic-horizon-357319",
+        "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+        "token_uri": "https://oauth2.googleapis.com/token",
+        "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+        "client_secret": "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",
+        "redirect_uris": [
+            "http://localhost/BareshaNetwork_v3.2/kycu_1.php",
+            "https://paneli.bareshaoffice.com/kycu_1.php",
+            "https://panel.bareshaoffice.com/kycu_1.php"
+        ]
+    }
+}
