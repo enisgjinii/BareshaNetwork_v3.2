@@ -9,7 +9,7 @@ define('GITHUB_REPO', 'enisgjinii/BareshaNetwork_v3.2'); // Your GitHub repo in 
 define('GITHUB_BRANCH', 'main'); // Target branch
 
 // Retrieve GitHub PAT from Environment Variables for security
-$githubPat = ''; // Ensure GITHUB_PAT is set in your server environment
+$githubPat = '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'; // Ensure GITHUB_PAT is set in your server environment
 
 /**
  * Fetches the latest commit ID and date from GitHub.
