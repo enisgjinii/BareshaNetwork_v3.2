@@ -358,8 +358,16 @@
       }
     };
     $(document).ready(() => {
-      const tables = ['#listaKlientaveTeMonetizuar', '#listaKlientaveTePaMonetizuar', '#listaKlientaveTePasiv', "#listaKlientaveMeKontrata", "#listaKlientavePaKontrata"];
+      const tables = [
+        '#listaKlientaveTeMonetizuar',
+        '#listaKlientaveTePaMonetizuar',
+        '#listaKlientaveTePasiv',
+        "#listaKlientaveMeKontrata",
+        "#listaKlientavePaKontrata"
+      ];
+
       tables.forEach(table => $(table).DataTable(commonConfig));
+
       $('#listaKlientave').DataTable({
         ...commonConfig,
         searching: true,
@@ -374,27 +382,44 @@
             data: 'youtube',
             render: (data, type, row, meta) => {
               const containerId = `youtube-pic-${meta.row}`;
-              const apiKey = 'AIzaSyBQD3hhckJv5uxPcbRk3b8nlNogG9781Lk';
+              const apiKey = 'AIzaSyBQD3hhckJv5uxPcbRk3b8nlNogG9781Lk'; // Replace with your actual API key
               const youtubeLink = `https://www.youtube.com/channel/${data}`;
+
               const deleteButtonHTML = `
-                <a style="text-decoration: none;" class="input-custom-css px-3 py-2 mx-1" onclick="confirmDelete(${row.id})"><i class="fi fi-rr-trash"></i></a>
-              `;
+            <a style="text-decoration: none;" class="input-custom-css px-3 py-2 mx-1" onclick="confirmDelete(${row.id})">
+              <i class="fi fi-rr-trash"></i>
+            </a>
+          `;
+
+              const flagIconHTML = getFlagIcon(row.agent);
+
               const editButtonHTML = `
-                <div class="mt-3">
-                  <a style="text-decoration: none;" class="input-custom-css px-3 py-2 mx-1" href="editk.php?id=${row.id}"><i class="fi fi-rr-edit"></i></a>
-                  <a style="text-decoration: none;" class="input-custom-css px-3 py-2 mx-1" onclick="konfirmoDeaktivizimin(${row.id})"><i class="fi fi-rr-user-slash"></i></a>
-                  <a style="text-decoration: none;" class="input-custom-css px-3 py-2 mx-1" href="${youtubeLink}" target="_blank"><i class="fi fi-brands-youtube"></i></a>
-                  ${deleteButtonHTML}
-                </div>
-              `;
+            <div class="mt-3">
+              <a style="text-decoration: none;" class="input-custom-css px-3 py-2 mx-1" href="editk.php?id=${row.id}">
+                <i class="fi fi-rr-edit"></i>
+              </a>
+              <a style="text-decoration: none;" class="input-custom-css px-3 py-2 mx-1" onclick="konfirmoDeaktivizimin(${row.id})">
+                <i class="fi fi-rr-user-slash"></i>
+              </a>
+              <a style="text-decoration: none;" class="input-custom-css px-3 py-2 mx-1" href="${youtubeLink}" target="_blank">
+                <i class="fi fi-brands-youtube"></i>
+              </a>
+              ${deleteButtonHTML}
+              <span>
+                ${flagIconHTML}
+              </span>
+            </div>
+          `;
+
               if (!/^[a-zA-Z0-9_-]{24}$/.test(data)) {
                 return `
-                <div id="${containerId}">
-                    <span class="text-muted">ID-ja e kanalit të pavlefshme</span>
-                    ${editButtonHTML}
-                </div>
-              `;
+              <div id="${containerId}">
+                <span class="text-muted">ID-ja e kanalit të pavlefshme</span>
+                ${editButtonHTML}
+              </div>
+            `;
               }
+
               setTimeout(() => {
                 fetch(`https://www.googleapis.com/youtube/v3/channels?part=snippet,statistics&id=${data}&key=${apiKey}`)
                   .then(response => response.json())
@@ -410,33 +435,35 @@
                         subscriberCount = 'N/A', videoCount = 'N/A'
                       } = channel.statistics;
                       const profilePicUrl = thumbnails?.high?.url;
+
                       document.getElementById(containerId).innerHTML = `
-                            <div class="d-flex flex-column align-items-center">
-                                <img src="${profilePicUrl}" class="rounded-circle" style="width: 50px; height: 50px;" />
-                                ${editButtonHTML}
-                            </div>
-                        `;
+                    <div class="d-flex flex-column align-items-center">
+                      <img src="${profilePicUrl}" class="rounded-circle" style="width: 50px; height: 50px;" />
+                      ${editButtonHTML}
+                    </div>
+                  `;
                     } else {
                       document.getElementById(containerId).innerHTML = `
-                            <span class="text-warning">Channel data not available</span>
-                            ${editButtonHTML}
-                        `;
+                    <span class="text-warning">Channel data not available</span>
+                    ${editButtonHTML}
+                  `;
                     }
                   })
                   .catch(error => {
                     console.error(`YouTube API Error: ${error}`);
                     document.getElementById(containerId).innerHTML = `
-                        <span class="text-danger">Failed to load channel data</span>
-                        ${editButtonHTML}
-                    `;
+                  <span class="text-danger">Failed to load channel data</span>
+                  ${editButtonHTML}
+                `;
                   });
               }, 200);
+
               return `
             <div id="${containerId}">
-                <div class="d-flex flex-column align-items-center">
-                    <div class="placeholder" style="width: 50px; height: 50px; border-radius: 50%; background: #f0f0f0;"></div>
-                    ${editButtonHTML}
-                </div>
+              <div class="d-flex flex-column align-items-center">
+                <div class="placeholder" style="width: 50px; height: 50px; border-radius: 50%; background: #f0f0f0;"></div>
+                ${editButtonHTML}
+              </div>
             </div>
           `;
             }
@@ -445,27 +472,26 @@
             data: 'emri',
             render: (data, type, row) => {
               try {
-                let contractIcon;
+                let contractIcon = '';
                 if (row.statusi_i_kontrates === 'Kontratë fizike') {
                   contractIcon = '<i class="fi fi-rr-document-signed text-success" style="font-size: 1.5rem;"></i>';
                 } else if (row.statusi_i_kontrates === "S'ka kontratë" || row.has_contract === 'JO') {
                   contractIcon = '<i class="fi fi-rr-document-signed text-danger" style="font-size: 1.5rem;"></i>';
-                } else {
-                  contractIcon = '';
                 }
+
                 return `
-          <div class="d-flex flex-column align-items-start">
-            <div class="d-flex justify-content-between w-100">
-              <strong>${data}</strong>
-              ${contractIcon}
-            </div>
-            <div class="mt-1">
-              <span class="badge rounded-pill ${row.monetizuar === 'PO' ? 'bg-success' : 'bg-danger'}">
-                ${row.monetizuar === 'PO' ? 'Klient i Monetizuar' : 'Klient i Pa-Monetizuar'}
-              </span>
-            </div>
-          </div>
-        `;
+              <div class="d-flex flex-column align-items-start">
+                <div class="d-flex justify-content-between w-100">
+                  <strong>${data}</strong>
+                  ${contractIcon}
+                </div>
+                <div class="mt-1">
+                  <span class="badge rounded-pill ${row.monetizuar === 'PO' ? 'bg-success' : 'bg-danger'}">
+                    ${row.monetizuar === 'PO' ? 'Klient i Monetizuar' : 'Klient i Pa-Monetizuar'}
+                  </span>
+                </div>
+              </div>
+            `;
               } catch (error) {
                 console.error('Gabim gjatë renderimit të rreshtit:', error);
                 return `<p>Gabim gjatë renderimit të të dhënave</p>`;
@@ -484,10 +510,35 @@
           render: (data, type) => (type === 'display' && data) ? `<div style="white-space: normal;">${data}</div>` : data
         }]
       });
+
       $(window).on('resize', () => {
         mainTable.columns.adjust().responsive.recalc();
       });
     });
+
+    /**
+     * Returns the HTML string for the flag icon based on the agent's value.
+     * @param {string} agent - The agent's name.
+     * @returns {string} - HTML string with the flag icon.
+     */
+    function getFlagIcon(agent) {
+      if (!agent || agent.trim() === '') {
+        return '';
+      }
+
+      const flagUrls = {
+        'Gjermani': 'https://img.icons8.com/color/256/000000/germany.png',
+        'Itali': 'https://img.icons8.com/color/256/000000/italy.png',
+        'Francë': 'https://img.icons8.com/color/256/000000/france.png',
+        'Zvicer': 'https://img.icons8.com/color/256/000000/switzerland.png',
+        // Add more agent-to-flag mappings as needed
+      };
+
+      const flagUrl = flagUrls[agent] || 'https://img.icons8.com/color/256/000000/flag.png'; // Default flag
+
+      return `<img src="${flagUrl}" alt="${agent} Flag" style="vertical-align: middle; margin-left: 5px;" />`;
+    }
+
 
     function confirmActivation(clientId) {
       Swal.fire({

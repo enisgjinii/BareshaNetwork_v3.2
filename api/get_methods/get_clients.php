@@ -17,7 +17,7 @@ function processDataTablesRequest($conn)
     $sortDirection = isset($request['order'][0]['dir']) ? $request['order'][0]['dir'] : 'desc';
 
     // Prepare base SQL query with LEFT JOIN and GROUP BY
-    $sql = "SELECT k.emri, k.emriart, k.emailadd, k.dk, k.dks, k.monetizuar, k.id, k.youtube, 
+    $sql = "SELECT k.emri, k.emriart, k.emailadd,k.agent, k.dk, k.dks, k.monetizuar, k.id, k.youtube, 
                    IF(MAX(kg.youtube_id) IS NOT NULL, 'PO', 'JO') AS has_contract,
                    MAX(kg.kohezgjatja) AS kohezgjatja,
                    MAX(kg.data_e_krijimit) AS data_e_krijimit,

@@ -102,7 +102,7 @@ GROUP BY y.kanali";
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link" id="pills-historiku_i_pagesave-tab" data-bs-toggle="pill" data-bs-target="#pills-historiku_i_pagesave" type="button" role="tab" aria-controls="pills-historiku_i_pagesave" aria-selected="false">
                                     <i class="fi fi-rr-document fa-lg"></i> &nbsp; Historiku i pagesave
-                                </button>
+                            </button>
                             </li>
                         </ul>
                         <p id="percentage" name="percentage" hidden>

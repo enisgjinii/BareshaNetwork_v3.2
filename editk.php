@@ -1,6 +1,11 @@
 <?php
 ob_start();
 include 'partials/header.php';
+
+// Initialize agents array
+$agents = ["Gjermani", "Itali", "Francë", "Zvicer"];
+
+// Fetch client details
 $editid = isset($_GET['id']) ? intval($_GET['id']) : 0;
 $editQuery = "SELECT * FROM klientet WHERE id='$editid'";
 $editResult = $conn->query($editQuery);
@@ -19,6 +24,8 @@ if ($editResult && $editResult->num_rows > 0) {
           </script>';
     exit();
 }
+
+// Fetch contract details
 $contractStartDate = [];
 $contractQuery = "SELECT * FROM kontrata_gjenerale WHERE youtube_id='{$editcl['youtube']}'";
 $contractResult = $conn->query($contractQuery);
@@ -34,7 +41,9 @@ if ($contractResult && $contractResult->num_rows > 0) {
 } else {
     $expirationDateFormatted = '';
 }
+
 $contractUploaded = !empty($editcl['kontrata']) && file_exists($editcl['kontrata']);
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['fshi_kontraten'])) {
         if ($contractUploaded) {
@@ -65,7 +74,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
     }
+
     if (isset($_POST['ndrysho'])) {
+        // Define fields to be updated
         $fields = [
             'emri',
             'min',
@@ -93,16 +104,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'shtetsia',
             'shtetsiaKontabiliteti',
             'type_of_client',
-            'statusi_i_kontrates'
+            'statusi_i_kontrates',
+            'agent' // Added 'agent' field
         ];
+
+        // Sanitize and assign POST data
         foreach ($fields as $field) {
             $$field = mysqli_real_escape_string($conn, $_POST[$field] ?? '');
         }
+
+        // Handle 'monetizuar' field
         $mon = empty($_POST['min']) ? "JO" : mysqli_real_escape_string($conn, $_POST['min']);
+
+        // Handle password
         $fjalekalimi = !empty($fjalkalimi) ? password_hash($fjalkalimi, PASSWORD_DEFAULT) : $editcl['fjalkalimi'];
+
+        // Handle emails
         $emails = isset($_POST['emails']) ? implode(',', array_map('trim', $_POST['emails'])) : '';
+
+        // Handle checkboxes
         $perqindja_check = isset($_POST['perqindja_check']) ? '1' : '0';
         $perqindja_e_platformave_check = isset($_POST['perqindja_platformave_check']) ? '1' : '0';
+
+        // Handle file upload
         if (!$contractUploaded && isset($_FILES['tipi']) && $_FILES['tipi']['error'] == UPLOAD_ERR_OK) {
             $file_type = $_FILES['tipi']['type'];
             if ($file_type == "application/pdf" && $_FILES['tipi']['size'] <= 10000000) {
@@ -141,6 +165,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                   </script>';
             }
         }
+
+        // Prepare and execute the UPDATE query
         $updateQuery = "UPDATE klientet SET 
             emri='$emri', 
             np='$np', 
@@ -171,8 +197,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             lloji_klientit='$type_of_client', 
             statusi_i_kontrates='$statusi_i_kontrates', 
             email_kontablist='$email_kontablist', 
-            shtetsiaKontabiliteti='$shtetsiaKontabiliteti'
+            shtetsiaKontabiliteti='$shtetsiaKontabiliteti',
+            agent='$agent'  /* Update the agent field */
             WHERE id='$editid'";
+
         if ($conn->query($updateQuery)) {
             echo '<script>
                 Swal.fire({
@@ -220,21 +248,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="card shadow-sm h-100">
                             <div class="card-header bg-secondary text-white">Të dhënat e klientit</div>
                             <div class="card-body">
+                                <!-- Existing Fields -->
                                 <div class="mb-3">
                                     <label for="emri" class="form-label" data-bs-toggle="tooltip" title="Emri dhe Mbiemri i klientit">Emri dhe Mbiemri</label>
-                                    <input type="text" name="emri" class="form-control" value="<?php echo htmlspecialchars($editcl['emri']); ?>" >
+                                    <input type="text" name="emri" class="form-control" value="<?php echo htmlspecialchars($editcl['emri']); ?>">
                                 </div>
                                 <div class="mb-3">
                                     <label for="np" class="form-label" data-bs-toggle="tooltip" title="ID e Dokumentit Personal">ID e Dokumentit Personal</label>
-                                    <input type="text" name="np" class="form-control" value="<?php echo htmlspecialchars($editcl['np']); ?>" >
+                                    <input type="text" name="np" class="form-control" value="<?php echo htmlspecialchars($editcl['np']); ?>">
                                 </div>
                                 <div class="mb-3">
                                     <label for="adresa" class="form-label" data-bs-toggle="tooltip" title="Adresa e klientit">Adresa</label>
-                                    <input type="text" name="adresa" class="form-control" value="<?php echo htmlspecialchars($editcl['adresa']); ?>" >
+                                    <input type="text" name="adresa" class="form-control" value="<?php echo htmlspecialchars($editcl['adresa']); ?>">
                                 </div>
                                 <div class="mb-3">
                                     <label for="emailadd" class="form-label" data-bs-toggle="tooltip" title="Adresa Elektronike e klientit">Adresa Elektronike (Email)</label>
-                                    <input type="email" name="emailadd" class="form-control" value="<?php echo htmlspecialchars($editcl['emailadd']); ?>" >
+                                    <input type="email" name="emailadd" class="form-control" value="<?php echo htmlspecialchars($editcl['emailadd']); ?>">
                                 </div>
                                 <div class="mb-3">
                                     <label for="email_kontablist" class="form-label" data-bs-toggle="tooltip" title="Adresa Elektronike e Kontablistit">Adresa Elektronike e Kontablistit</label>
@@ -242,11 +271,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 </div>
                                 <div class="mb-3">
                                     <label for="nrtel" class="form-label" data-bs-toggle="tooltip" title="Numri i Telefonit të klientit">Numri i Telefonit</label>
-                                    <input type="tel" name="nrtel" class="form-control" value="<?php echo htmlspecialchars($editcl['nrtel']); ?>" >
+                                    <input type="tel" name="nrtel" class="form-control" value="<?php echo htmlspecialchars($editcl['nrtel']); ?>">
                                 </div>
                                 <div class="mb-3">
                                     <label for="bank_info" class="form-label" data-bs-toggle="tooltip" title="Emri i Bankës së klientit">Emri i Bankës</label>
-                                    <select id="bank_info" name="bank_info" class="form-select" >
+                                    <select id="bank_info" name="bank_info" class="form-select">
                                         <option value="custom">Shto emrin e personalizuar të bankës</option>
                                         <option value="<?php echo htmlspecialchars($editcl['bank_name']); ?>" selected>
                                             <?php echo htmlspecialchars($editcl['bank_name']); ?>
@@ -268,13 +297,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 </div>
                                 <div class="mb-3">
                                     <label for="nrllog" class="form-label" data-bs-toggle="tooltip" title="Numri i Xhirollogarisë së klientit">Numri i Xhirollogarisë</label>
-                                    <input type="text" name="nrllog" class="form-control" value="<?php echo htmlspecialchars($editcl['nrllog']); ?>" >
+                                    <input type="text" name="nrllog" class="form-control" value="<?php echo htmlspecialchars($editcl['nrllog']); ?>">
                                 </div>
                                 <div class="mb-3">
                                     <label for="type_of_client" class="form-label" data-bs-toggle="tooltip" title="Lloji i Klientit">Lloji i Klientit</label>
-                                    <select id="type_of_client" name="type_of_client" class="form-select" >
+                                    <select id="type_of_client" name="type_of_client" class="form-select">
                                         <option value="Personal" <?php echo ($editcl['lloji_klientit'] == 'Personal') ? 'selected' : ''; ?>>Personal</option>
                                         <option value="Biznes" <?php echo ($editcl['lloji_klientit'] == 'Biznes') ? 'selected' : ''; ?>>Biznes</option>
+                                    </select>
+                                </div>
+                                <!-- New Agent Field -->
+                                <div class="mb-3">
+                                    <label for="agent" class="form-label" data-bs-toggle="tooltip" title="Zgjidhni agentin e klientit">Agent</label>
+                                    <select class="form-select" name="agent" id="agent" required>
+                                        <option value="">Zgjidh Agentin</option>
+                                        <?php foreach ($agents as $agentOption): ?>
+                                            <option value="<?= htmlspecialchars($agentOption); ?>" <?= ($editcl['agent'] == $agentOption) ? 'selected' : ''; ?>>
+                                                <?= htmlspecialchars($agentOption); ?>
+                                            </option>
+                                        <?php endforeach; ?>
                                     </select>
                                 </div>
                             </div>
@@ -287,19 +328,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <div class="card-body">
                                 <div class="mb-3">
                                     <label for="yt" class="form-label" data-bs-toggle="tooltip" title="ID e Kanalit në YouTube">ID e Kanalit në YouTube</label>
-                                    <input type="text" name="yt" class="form-control" value="<?php echo htmlspecialchars($editcl['youtube']); ?>" >
+                                    <input type="text" name="yt" class="form-control" value="<?php echo htmlspecialchars($editcl['youtube']); ?>">
                                 </div>
                                 <div class="mb-3">
                                     <label for="emriart" class="form-label" data-bs-toggle="tooltip" title="Emri Artistik i klientit">Emri Artistik</label>
-                                    <input type="text" name="emriart" class="form-control" value="<?php echo htmlspecialchars($editcl['emriart']); ?>" >
+                                    <input type="text" name="emriart" class="form-control" value="<?php echo htmlspecialchars($editcl['emriart']); ?>">
                                 </div>
                                 <div class="mb-3">
                                     <label for="dk" class="form-label" data-bs-toggle="tooltip" title="Data e Fillimit të Kontratës">Data e Fillimit të Kontratës</label>
-                                    <input type="date" name="dk" id="dk" class="form-control" value="<?php echo htmlspecialchars($contractStartDate['data_e_krijimit'] ?? ''); ?>" >
+                                    <input type="date" name="dk" id="dk" class="form-control" value="<?php echo htmlspecialchars($contractStartDate['data_e_krijimit'] ?? ''); ?>">
                                 </div>
                                 <div class="mb-3">
                                     <label for="dks" class="form-label" data-bs-toggle="tooltip" title="Data e Skadimit të Kontratës">Data e Skadimit të Kontratës</label>
-                                    <input type="date" name="dks" id="dks" class="form-control" value="<?php echo htmlspecialchars($expirationDateFormatted); ?>" >
+                                    <input type="date" name="dks" id="dks" class="form-control" value="<?php echo htmlspecialchars($expirationDateFormatted); ?>">
                                 </div>
                                 <?php
                                 $statusiQuery = "SELECT kg.youtube_id FROM kontrata_gjenerale kg 
@@ -318,7 +359,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 ?>
                                 <div class="mb-3">
                                     <label class="form-label" for="kategoria" data-bs-toggle="tooltip" title="Zgjidhni Kategorinë e klientit">Zgjidh Kategorinë</label>
-                                    <select class="form-select" name="kategoria" id="kategoria" >
+                                    <select class="form-select" name="kategoria" id="kategoria">
                                         <?php foreach ($categories as $category): ?>
                                             <option value="<?= htmlspecialchars($category); ?>" <?= ($userCategory == $category) ? 'selected' : ''; ?>>
                                                 <?= htmlspecialchars($category); ?>
@@ -342,7 +383,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 </div>
                                 <div class="mb-3">
                                     <label for="ads" class="form-label" data-bs-toggle="tooltip" title="Zgjidhni llogarinë e ADS">Edito Llogarinë e ADS:</label>
-                                    <select class="form-select" name="ads" id="ads" >
+                                    <select class="form-select" name="ads" id="ads">
                                         <?php
                                         $adsResult = $conn->query("SELECT * FROM ads");
                                         $ads_found = false;
@@ -351,7 +392,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                             if ($selected) $ads_found = true;
                                             echo "<option value=\"" . htmlspecialchars($ads['id']) . "\" $selected>" . htmlspecialchars($ads['email']) . " | " . htmlspecialchars($ads['adsid']) . " (" . htmlspecialchars($ads['shteti']) . ")</option>";
                                         }
-                                        if (!$ads_found && !empty($editcl['emri'])) {
+                                        if (!$ads_found && !empty($editcl['ads'])) { // Corrected condition to check 'ads' instead of 'emri'
                                             $adsid = $editcl['ads'];
                                             $adsData = $conn->query("SELECT * FROM ads WHERE id='" . mysqli_real_escape_string($conn, $adsid) . "'");
                                             if ($ads = mysqli_fetch_assoc($adsData)) {
@@ -371,15 +412,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <div class="card-body">
                                 <div class="mb-3">
                                     <label for="emailp" class="form-label" data-bs-toggle="tooltip" title="Adresa Elektronike për Platforma">Adresa Elektronike për Platforma</label>
-                                    <input type="email" name="emailp" class="form-control" value="<?php echo htmlspecialchars($editcl['emailp']); ?>" >
+                                    <input type="email" name="emailp" class="form-control" value="<?php echo htmlspecialchars($editcl['emailp']); ?>">
                                 </div>
                                 <div class="mb-3">
                                     <label for="perqindja" class="form-label" data-bs-toggle="tooltip" title="Përqindja e Bareshës">Përqindja (Baresha)</label>
-                                    <input type="number" step="0.01" name="perqindja" class="form-control" value="<?php echo htmlspecialchars($editcl['perqindja']); ?>" >
+                                    <input type="number" step="0.01" name="perqindja" class="form-control" value="<?php echo htmlspecialchars($editcl['perqindja']); ?>">
                                 </div>
                                 <div class="mb-3">
                                     <label for="perqindja2" class="form-label" data-bs-toggle="tooltip" title="Përqindja për Platforma të Tjera">Përqindja për Platforma të Tjera (Baresha)</label>
-                                    <input type="number" step="0.01" name="perqindja2" class="form-control" value="<?php echo htmlspecialchars($editcl['perqindja2']); ?>" >
+                                    <input type="number" step="0.01" name="perqindja2" class="form-control" value="<?php echo htmlspecialchars($editcl['perqindja2']); ?>">
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label" data-bs-toggle="tooltip" title="Aktivizoni përqindjen e klientit">Përqindja e Klientit</label>
@@ -417,7 +458,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <?php if (!$contractUploaded): ?>
                                     <div class="mb-3">
                                         <label for="tipi" class="form-label" data-bs-toggle="tooltip" title="Ngarko kontratën në format PDF">Ngarko Kontratën:</label>
-                                        <input type="file" name="tipi" id="tipi" accept="application/pdf" class="form-control" >
+                                        <input type="file" name="tipi" id="tipi" accept="application/pdf" class="form-control">
                                     </div>
                                     <div class="mb-3">
                                         <button type="button" class="input-custom-css px-3 py-2" data-bs-toggle="offcanvas" data-bs-target="#pdfPreviewOffcanvas">
@@ -472,7 +513,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <?php endif; ?>
                                 <div class="mb-3">
                                     <label for="emails" class="form-label" data-bs-toggle="tooltip" title="Zgjidhni emails për akses">Emails</label>
-                                    <select multiple class="form-control" name="emails[]" id="emails" >
+                                    <select multiple class="form-control" name="emails[]" id="emails">
                                         <?php
                                         $emails_with_access = [];
                                         $emailsResult = $conn->query("SELECT emails FROM klientet WHERE id = '$editid'");
@@ -491,7 +532,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 </div>
                                 <div class="mb-3">
                                     <label for="perdoruesi" class="form-label" data-bs-toggle="tooltip" title="Përdoruesi i sistemit">Përdoruesi <small>(Sistemit)</small>:</label>
-                                    <input type="text" name="perdoruesi" class="form-control" value="<?php echo htmlspecialchars($editcl['perdoruesi']); ?>" >
+                                    <input type="text" name="perdoruesi" class="form-control" value="<?php echo htmlspecialchars($editcl['perdoruesi']); ?>">
                                 </div>
                                 <div class="mb-3">
                                     <label for="fjalkalimi" class="form-label" data-bs-toggle="tooltip" title="Vendosni fjalëkalimin e ri të sistemit">Fjalëkalimi <small>(Sistemit)</small>:</label>
@@ -517,7 +558,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 </div>
                                 <div class="mb-3">
                                     <label for="shtetsia" class="form-label" data-bs-toggle="tooltip" title="Zgjidhni shtetësinë e klientit">Shtetësia</label>
-                                    <select class="form-select" name="shtetsia" id="shtetsia" >
+                                    <select class="form-select" name="shtetsia" id="shtetsia">
                                         <?php
                                         $staticOptions = ["Shqipëri", "Kosovë", "Gjermania", "Italia", "Zvicër", "Maqedonia", "Mali i Zi"];
                                         $dynamicOptions = [];
@@ -537,7 +578,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 </div>
                                 <div class="mb-3">
                                     <label for="shtetsiaKontabiliteti" class="form-label" data-bs-toggle="tooltip" title="Zgjidhni kontabilitetin">Kontabiliteti</label>
-                                    <select class="form-select" name="shtetsiaKontabiliteti" id="shtetsiaKontabiliteti" >
+                                    <select class="form-select" name="shtetsiaKontabiliteti" id="shtetsiaKontabiliteti">
                                         <?php
                                         $staticOptions = ["Kosova", "Shqipëri", "Gjermania", "Francë", "Slloveni"];
                                         $dynamicOptions = [];
@@ -557,7 +598,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 </div>
                                 <div class="mb-3">
                                     <label for="info" class="form-label" data-bs-toggle="tooltip" title="Informacione shtesë rreth klientit">Info Shtesë</label>
-                                    <textarea class="form-control" name="info" id="info" rows="3" ><?php echo htmlspecialchars($editcl['info']); ?></textarea>
+                                    <textarea class="form-control" name="info" id="info" rows="3"><?php echo htmlspecialchars($editcl['info']); ?></textarea>
                                 </div>
                                 <div class="d-grid gap-2 text-center">
                                     <button type="submit" class="input-custom-css px-3 py-2" name="ndrysho"><i class="fi fi-rr-edit"></i> Ndrysho</button>

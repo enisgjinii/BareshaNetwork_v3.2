@@ -689,6 +689,9 @@ if (isset($_POST['ruaj'])) {
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </div>
             </form>
         </div>
     </div>
