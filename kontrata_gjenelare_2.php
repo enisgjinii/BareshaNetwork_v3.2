@@ -1,6 +1,6 @@
 <?php
 include 'partials/header.php';
-include 'page_access_controller.php';
+
 // Initialize messages
 $mesazhi_sukses = $mesazhi_error = "";
 // Prepare the SQL statement with the corrected WHERE clause

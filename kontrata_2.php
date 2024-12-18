@@ -1,7 +1,6 @@
 <?php
 session_start();
 include 'partials/header.php';
-include 'page_access_controller.php';
 include 'conn-d.php';
 
 if (empty($_SESSION['csrf_token'])) {

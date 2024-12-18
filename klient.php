@@ -562,7 +562,7 @@
             icon: 'success',
             confirmButtonColor: '#3085d6',
             confirmButtonText: 'OK'
-          }).then(() => window.location.href = `activate_client.php?id=${clientId}`);
+          }).then(() => window.location.href = `api/post_methods/post_activate_client.php?id=${clientId}`);
         }
       });
     }
