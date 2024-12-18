@@ -45,7 +45,7 @@ if (isset($_POST['submit'])) {
     // Process the data or save it to the database
     // Assuming you have a connection to the database established in conn-d.php
     // Insert the form data into the 'fatura_facebook' table
-    $query = "INSERT INTO fatura_facebook (emri, emrifull, data, fatura,gjendja_e_fatures) VALUES ('$emri', '$emrifull', '$fatura', '$klientit', '$mbetja', '$totali', '$data', '$dataSkadimit', '$gjendja_e_fatures')";
+    $query = "INSERT INTO fatura_facebook (emri, emrifull, data, fatura,gjendja_e_fatures,emaili) VALUES ('$emri', '$emrifull', '$fatura', '$klientit', '$mbetja', '$totali', '$data', '$dataSkadimit', '$gjendja_e_fatures','$emaili_klientit')";
     $result = mysqli_query($conn, $query);
     // Check if the query was successful
     if ($result) {
@@ -208,9 +208,15 @@ if (isset($_POST['submit'])) {
                                 </div>
                                 <div class="row my-3">
                                     <div class="col">
+                                        <label for="emaili_klientit" class="form-label">Email</label>
+                                        <input name="emaili_klientit" id="emaili_klientit" class="form-control shadow-sm rounded-5 w-100"></textarea>
+                                    </div>
+                                    <div class="col">
                                         <label for="infoShtese" class="form-label">Info shtes&euml;</label>
                                         <textarea name="infoShtese" id="infoShtese" cols="30" rows="10" class="form-control shadow-sm rounded-5 w-100"></textarea>
                                     </div>
+                                </div>
+                                <div class="row my-3">
                                     <div class="col">
                                         <label for="tel">Monetizuar ? </label><br>
                                         <input type="radio" id="html" name="min" value="PO">
@@ -278,7 +284,9 @@ if (isset($_POST['submit'])) {
                                         echo "<td>" . $row['infoShtese'] . "</td>";
                                         $monetizuar = $row['monetizuar'];
                                         $color = ($monetizuar == 'PO') ? 'green' : 'red';
+                                        $emaili = $row['emaili_klientit'];
                                         echo "<td style='color: $color;'>" . $monetizuar . "</td>";
+                                        echo "<td>" . $emaili . "</td>";
                                         echo "<td>";
                                         echo "<a class='btn btn-primary text-white rounded-5 px-2 py-2' href='facebook-account.php?kid=" . $row['id'] . "'><i class='fi fi-rr-edit'></i></a> &nbsp;";
                                         echo "<a class='btn btn-danger text-white rounded-5 px-2 py-2' onclick='confirmDelete(" . $row['id'] . ")'><i class='fi fi-rr-trash'></i></a>";
@@ -297,6 +305,7 @@ if (isset($_POST['submit'])) {
                                         <th>Linku i faqes</th>
                                         <th>Info shtesë</th>
                                         <th>Monetizuar</th>
+                                        <th>Emaili i klientit</th>
                                         <th>Veprimet</th>
                                     </tr>
                                 </thead>

@@ -23,11 +23,12 @@ if (isset($_POST['submit'])) {
     $numriXhirollogarise = $_POST['numriXhirollogarise'] !== '' ? $_POST['numriXhirollogarise'] : null;
     $adresa = $_POST['adresa'] !== '' ? $_POST['adresa'] : null;
     $infoShtese = $_POST['infoShtese'] !== '' ? $_POST['infoShtese'] : null;
+    $emaili_klientit =  $_POST['emaili_klientit'];
 
 
     // Prepare and execute the SQL statement
-    $sql = "INSERT INTO facebook (emri_mbiemri, emri_faqes, dataKrijimit, dataSkadimit, linkuFaqes, numriPersonal, adsAccount, kategoria, numriTelefonit, perqindja, numriXhirollogarise, adresa, infoShtese,monetizuar) 
-            VALUES ('$emri_mbiemri', '$emri_faqes', '$dataKrijimit', '$dataSkadimit', '$linkuFaqes', '$numriPersonal', '$adsAccount', '$kategoria', '$numriTelefonit', '$perqindja', '$numriXhirollogarise', '$adresa', '$infoShtese','$mon')";
+    $sql = "INSERT INTO facebook (emri_mbiemri, emri_faqes, dataKrijimit, dataSkadimit, linkuFaqes, numriPersonal, adsAccount, kategoria, numriTelefonit, perqindja, numriXhirollogarise, adresa, infoShtese,monetizuar,emaili_klientit) 
+            VALUES ('$emri_mbiemri', '$emri_faqes', '$dataKrijimit', '$dataSkadimit', '$linkuFaqes', '$numriPersonal', '$adsAccount', '$kategoria', '$numriTelefonit', '$perqindja', '$numriXhirollogarise', '$adresa', '$infoShtese','$mon','$emaili_klientit')";
 
     if (mysqli_query($conn, $sql)) {
         echo "Record inserted successfully.";

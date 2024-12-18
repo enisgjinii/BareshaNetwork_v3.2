@@ -2,7 +2,6 @@
 ob_start();
 require_once 'partials/header.php';
 require_once 'conn-d.php';
-
 function executePreparedStatement($conn, $query, $types = '', $params = [])
 {
   $stmt = $conn->prepare($query);
@@ -11,16 +10,6 @@ function executePreparedStatement($conn, $query, $types = '', $params = [])
   if (!$stmt->execute()) throw new Exception($stmt->error);
   return $stmt;
 }
-
-if (isset($_GET['id'])) {
-  $gid = intval($_GET['id']);
-  try {
-    executePreparedStatement($conn, "UPDATE rrogat SET lexuar = 1 WHERE id = ?", "i", [$gid]);
-  } catch (Exception $e) {
-    echo '<script>alert("Error updating record: ' . htmlspecialchars($e->getMessage()) . '");</script>';
-  }
-}
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ruaj'])) {
   $emri = $_POST['emri'] ?? '';
   $data = $_POST['data'] ?? '';
@@ -36,7 +25,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ruaj'])) {
     echo "Error: " . htmlspecialchars($e->getMessage());
   }
 }
-
 if (isset($_GET['fshij'])) {
   $fshijid = $_GET['fshij'];
   $conn->begin_transaction();
@@ -90,7 +78,6 @@ if (isset($_GET['fshij'])) {
     </div>
   </div>
 </div>
-
 <div class="modal fade" id="pagesmodal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -146,13 +133,10 @@ if (isset($_GET['fshij'])) {
     </div>
   </div>
 </div>
-
-
-
 <div class="main-panel">
   <div class="content-wrapper">
     <div class="container-fluid">
-      <nav class="breadcrumb bg-white px-2 rounded-5 border" >
+      <nav class="breadcrumb bg-white px-2 rounded-5 border">
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a class="text-reset text-decoration-none">Facebook</a></li>
           <li class="breadcrumb-item active"><a href="<?= htmlspecialchars(__FILE__); ?>" class="text-reset text-decoration-none">Krijo faturë (Facebook)</a></li>
@@ -215,7 +199,6 @@ if (isset($_GET['fshij'])) {
       allowInput: true,
       locale: "sq"
     };
-
     [{
       start: '#start_date1',
       end: '#end_date1'
@@ -239,7 +222,6 @@ if (isset($_GET['fshij'])) {
         });
       }
     });
-
     const dataTables = $('#employeeList').DataTable({
       responsive: false,
       order: [
@@ -333,11 +315,9 @@ if (isset($_GET['fshij'])) {
       },
       stripeClasses: ['stripe-color']
     });
-
     $('#start_date1, #end_date1').on('change', function() {
       dataTables.ajax.reload();
     });
-
     $(document).on('click', '.delete', function() {
       const id = $(this).attr("id");
       Swal.fire({
@@ -368,7 +348,6 @@ if (isset($_GET['fshij'])) {
         }
       });
     });
-
     $('#btnruaj').click(function() {
       const data = $('#user_form').serialize() + '&btn_save=btn_save';
       $.ajax({
@@ -399,7 +378,6 @@ if (isset($_GET['fshij'])) {
         }
       });
     });
-
     $(document).on('click', '.open-modal', function() {
       const row = $(this).closest('tr');
       const fatura = row.find('td').eq(1).text().trim();
@@ -410,5 +388,30 @@ if (isset($_GET['fshij'])) {
       $('#shuma').val(shuma_e_paguar == 0 ? shuma : obligim);
       $('#pagesmodal').modal('show');
     });
+    $(document).on('click', '.send-invoice', function() {
+      const email = $(this).data('email');
+      const id = $(this).data('id');
+
+      $.ajax({
+        url: 'api/get_methods/send_invoice.php', // same endpoint
+        type: 'POST',
+        data: {
+          email: email,
+          id: id // send the id instead of invoice
+        },
+        dataType: 'json',
+        success: function(response) {
+          if (response.status === 'success') {
+            alert('Fatura u dërgua me sukses!');
+          } else {
+            alert('Gabim gjatë dërgimit të faturës: ' + response.message);
+          }
+        },
+        error: function() {
+          alert('Ndodhi një gabim gjatë dërgimit të faturës.');
+        }
+      });
+    });
+
   });
 </script>
