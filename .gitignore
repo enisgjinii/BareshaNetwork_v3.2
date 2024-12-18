@@ -16,7 +16,7 @@ Classes
 # Ignore vendor from composer
 vendor
 .cosine
-
+g
 # Ignore tmp directory
 .php_tmp/
 .php_tmp/roles.php
@@ -33,4 +33,12 @@ uploads/profile_pics/profile_6_1729156892.png
 contract.pdf
 token.json
 partials/.env
+partials/footer.php
+.env
+.env
+partials/footer.php
+*.php
+*.php
+partials/footer.php
+partials/footer.php
 partials/footer.php

@@ -113,7 +113,7 @@ GROUP BY y.kanali";
                                 <div class="card mb-4 shadow-0 border rounded-5 p-4">
                                     <div class="row">
                                         <div class="col-12">
-                                            <form action="add_item.php?id=<?php echo $invoice_id; ?>" method="POST">
+                                            <form action="api/post_methods/post_add_item.php?id=<?php echo $invoice_id; ?>" method="POST">
                                                 <input type="text" hidden class="form-control rounded-5 border border-2 py-3" name="invoice_number" value="<?php echo $invoice_number ?>">
                                                 <div class="row">
                                                     <div class="col mb-3">

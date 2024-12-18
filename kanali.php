@@ -1,5 +1,5 @@
 <?php
- include 'partials/header.php';
+include 'partials/header.php';
 // Define your YouTube Data API key here
 $api_key = "AIzaSyBQeKTHOfJHUc92IYtvHzQvj-vFXysqMqQ"; // <-- Replace with your actual API key
 // Function to sanitize output
@@ -213,6 +213,7 @@ if (!is_dir($cache_dir)) {
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <title><?php echo sanitize_output($channel_info['snippet']['title']); ?> - YouTube Channel</title>
@@ -276,6 +277,7 @@ if (!is_dir($cache_dir)) {
     }
   </style> -->
 </head>
+
 <body>
   <!-- Begin Page Content -->
   <div class="container-fluid mt-5">
@@ -528,4 +530,5 @@ if (!is_dir($cache_dir)) {
     });
   </script>
 </body>
+
 </html>

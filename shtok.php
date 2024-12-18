@@ -658,7 +658,7 @@ if (isset($_POST['ruaj'])) {
                                         ?>
                                         <div class="col mb-3">
                                             <label class="form-label" for="agents">Agjenti</label>
-                                            <select name="agent" id="agent" class="form-select rounded-5 border border-2" required>
+                                            <select name="agent" id="agent" class="form-select rounded-5 border border-2">
                                                 <option value="" disabled selected>Zgjidh Agjentin</option>
                                                 <?php foreach ($agents as $agent): ?>
                                                     <option value="<?= htmlspecialchars($agent) ?>"><?= htmlspecialchars($agent) ?></option>
